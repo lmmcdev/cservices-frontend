@@ -14,11 +14,11 @@ import {
 import FilterListIcon from '@mui/icons-material/FilterList';
 import AddIcCallIcon from '@mui/icons-material/AddIcCall';
 import GroupsIcon from '@mui/icons-material/Groups';
-import { useAuth } from '../utils/authContext';
+//import { useAuth } from '../utils/authContext';
 
 
 export default function Topbar() {
-  const { user, logout } = useAuth();
+  //const { user, logout } = useAuth();
   const clinics = ['Wellmax Cutler Ridge', 'LMMC Homestead', 'Pasteur Hialeah Center', 'LMMC Hialeah West', 'Wellmax Marlings'];
   const agents = ['Ana Pérez', 'Luis Gómez', 'Carlos Rivas'];
 
