@@ -6,28 +6,16 @@ import Topbar from './components/topBar';
 import TableTickets from './pages/tableTickets';
 import { LoadingProvider } from './components/loadingProvider';
 import MsalProviderWrapper from './providers/msalProvider';
-//import { getLoggedInUser } from "./utils/azureAuthService";
 import { AuthProvider } from "./utils/authContext";
+import './App.css'
 
 function App() {
-  /*const [user, setUser] = useState(null);
-
-   useEffect(() => {
-    getLoggedInUser().then(account => {
-      if (account) {
-        console.log("Usuario autenticado:" + user, account);
-        setUser(account);
-      } else {
-        console.log("No hay usuario activo");
-      }
-    });
-  }, []);*/
 
   return (
     <MsalProviderWrapper>
       <AuthProvider>
       <LoadingProvider>
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: 'flex', bgcolor: '#f8fafd', minHeight: '100vh' }}>
           <CssBaseline />
           <Topbar />
           <Sidebar />
