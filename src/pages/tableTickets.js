@@ -11,7 +11,7 @@ import {
   Button,
   Chip
 } from '@mui/material';
-import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 
 const rows = [
   {
@@ -283,7 +283,7 @@ export default function TableTickets() {
                     <TableCell>{row.dob}</TableCell>
                     <TableCell>{row.phone}</TableCell>
                     <TableCell>{row.createdAt}</TableCell>
-                    <TableCell><BorderColorRoundedIcon /></TableCell>
+                    <TableCell><FontAwesomeIcon icon="fa-solid fa-camera" /></TableCell>
 
                 </TableRow>
             ))}
