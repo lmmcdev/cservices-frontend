@@ -3,7 +3,8 @@ import React, { useEffect, useReducer, useState } from 'react';
 import { ticketReducer, initialState } from '../utils/ticketsReducer';
 import { fetchTableData } from '../utils/api';
 import { useLoading } from '../components/loadingProvider';
-import { useAuth } from '../utils/authContext'; // <--- NUEVO
+import { useAuth } from '../utils/authContext'; // Asegúrate de importar bien
+
 import {
   Paper, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Box, Button, Chip, Typography
@@ -24,20 +25,32 @@ const statusColors = {
 export default function TableTickets() {
   const [state, dispatch] = useReducer(ticketReducer, initialState);
   const { setLoading } = useLoading();
-  const { user } = useAuth(); // <--- Obtenemos el usuario MSAL
+  const { user } = useAuth();
   const [selectedStatus, setSelectedStatus] = useState('Total');
 
   useEffect(() => {
-    if (!user) return;
+    if (!user?.username) return;
+
+    let cancelled = false;
+
     const loadData = async () => {
       setLoading(true);
-      await fetchTableData(dispatch, setLoading, user.username); // <--- Pasamos el nombre
+      try {
+        await fetchTableData(dispatch, setLoading, user.username);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     };
+
     loadData();
-  }, [user, setLoading]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.username, setLoading]); // ✅ protegida
 
   const { tickets, error } = state;
-console.log(tickets)
+
   const filteredRows =
     selectedStatus === 'Total'
       ? tickets
