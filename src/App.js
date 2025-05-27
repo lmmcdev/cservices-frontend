@@ -21,7 +21,8 @@ function App() {
         console.log("No hay usuario activo");
       }
     });
-  }, []);
+  }, [user]);
+
   return (
     <MsalProviderWrapper>
       <AuthProvider>
@@ -39,4 +40,3 @@ function App() {
 }
 
 export default App;
-
