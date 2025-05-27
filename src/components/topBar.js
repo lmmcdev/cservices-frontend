@@ -7,7 +7,6 @@ import {
   TextField,
   Autocomplete,
   IconButton,
-  Avatar,
   Tooltip,
   Stack,
   Fade,
@@ -29,11 +28,11 @@ export default function Topbar() {
     setShowFilters((prev) => !prev);
   };
 
-  const getAppliedFilters = () => ({
+  /*const getAppliedFilters = () => ({
     callerIds,
     assignedTo,
     date,
-  });
+  });*/
 
   return (
     <Card
