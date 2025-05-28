@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
+import { ticketReducer, initialState } from '../utils/ticketsReducer';
+import { useLoading } from '../components/loadingProvider';
+import AutocompleteFilter from './components/autoCompleteFilter';
 import {
   Card,
   CardContent,
   Typography,
-  Box,
   TextField,
-  Autocomplete,
   IconButton,
   Tooltip,
   Stack,
@@ -14,28 +15,46 @@ import {
 import FilterListIcon from '@mui/icons-material/FilterList';
 import AddIcCallIcon from '@mui/icons-material/AddIcCall';
 import GroupsIcon from '@mui/icons-material/Groups';
-//import { useAuth } from '../utils/authContext';
-
+import { fetchAgentData } from '../utils/api';
 
 export default function Topbar() {
-  //const { user, logout } = useAuth();
+  const [state, dispatch] = useReducer(ticketReducer, initialState);
+  const { setLoading } = useLoading();
+
   const clinics = ['Wellmax Cutler Ridge', 'LMMC Homestead', 'Pasteur Hialeah Center', 'LMMC Hialeah West', 'Wellmax Marlings'];
-  const agents = ['Ana Pérez', 'Luis Gómez', 'Carlos Rivas'];
 
-  const [callerIds, setCallerIds] = React.useState([]);
-  const [assignedTo, setAssignedTo] = React.useState([]);
-  const [date, setDate] = React.useState('');
-  const [showFilters, setShowFilters] = React.useState(true);
+  const [callerIds, setCallerIds] = useState([]);
+  const [assignedAgents, setAssignedTo] = React.useState([]);
+  //const selectedEmails = assignedAgents.map(agent => agent.agent_email);
 
+  const [date, setDate] = useState('');
+  const [showFilters, setShowFilters] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        await fetchAgentData(dispatch, setLoading);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    loadData();
+    return () => {
+      cancelled = true;
+    };
+  }, [setLoading]);
+
+  const { agents, error } = state;
+  console.log(`Error: ${error}`)
   const toggleFilters = () => {
     setShowFilters((prev) => !prev);
   };
 
-  /*const getAppliedFilters = () => ({
-    callerIds,
-    assignedTo,
-    date,
-  });*/
+  //console.log(assignedAgents)
 
   return (
     <Card
@@ -66,10 +85,8 @@ export default function Topbar() {
         </Typography>
 
         <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-          {/* Filtros con efecto Fade */}
           <Fade in={showFilters} timeout={300}>
             <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
-              {/* Fecha */}
               <TextField
                 size="small"
                 label="Fecha"
@@ -90,148 +107,44 @@ export default function Topbar() {
                 }}
               />
 
-              {/* Assigned To */}
-              <Autocomplete
-                multiple
-                size="small"
+              {/**Assigned to*/}
+              <AutocompleteFilter
+                label="Assigned to"
                 options={agents}
-                value={assignedTo}
-                onChange={(e, newValue) => setAssignedTo(newValue)}
-                disableCloseOnSelect
-                sx={{ width: 240 }}
-                renderTags={(value, getTagProps) => (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      overflowX: 'auto',
-                      gap: 0.5,
-                      maxWidth: '100%',
-                      paddingY: 0.5,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {value.map((option, index) => (
-                      <Box
-                        key={option}
-                        component="span"
-                        {...getTagProps({ index })}
-                        sx={{
-                          background: '#e0e0e0',
-                          fontSize: 11,
-                          borderRadius: 1,
-                          px: 1,
-                          py: 0.25,
-                          maxWidth: 100,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {option}
-                      </Box>
-                    ))}
-                  </Box>
-                )}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Assigned to"
-                    variant="outlined"
-                    InputLabelProps={{ sx: { color: 'text.secondary', fontSize: 12 } }}
-                    InputProps={{
-                      ...params.InputProps,
-                      sx: {
-                        fontSize: 12,
-                        color: 'text.secondary',
-                        height: 36,
-                        alignItems: 'center',
-                        overflow: 'hidden',
-                      },
-                    }}
-                  />
-                )}
+                value={agents.filter((agent) => assignedAgents.includes(agent.agent_email))}
+                onChange={(newSelected) => {
+                  const emails = newSelected.map((a) => a.agent_email);
+                  setAssignedTo(emails);
+                }}
+                optionLabelKey="agent_name"
               />
 
-              {/* Caller ID */}
-              <Autocomplete
-                multiple
-                size="small"
+              {/**Caller IDs*/}
+              <AutocompleteFilter
+                label="Caller ID"
                 options={clinics}
                 value={callerIds}
-                onChange={(e, newValue) => setCallerIds(newValue)}
-                disableCloseOnSelect
-                sx={{ width: 240 }}
-                renderTags={(value, getTagProps) => (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      overflowX: 'auto',
-                      gap: 0.5,
-                      maxWidth: '100%',
-                      paddingY: 0.5,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {value.map((option, index) => (
-                      <Box
-                        key={option}
-                        component="span"
-                        {...getTagProps({ index })}
-                        sx={{
-                          background: '#e0e0e0',
-                          fontSize: 11,
-                          borderRadius: 1,
-                          px: 1,
-                          py: 0.25,
-                          maxWidth: 100,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {option}
-                      </Box>
-                    ))}
-                  </Box>
-                )}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Caller ID"
-                    variant="outlined"
-                    InputLabelProps={{ sx: { color: 'text.secondary', fontSize: 12 } }}
-                    InputProps={{
-                      ...params.InputProps,
-                      sx: {
-                        fontSize: 12,
-                        color: 'text.secondary',
-                        height: 36,
-                        alignItems: 'center',
-                        overflow: 'hidden',
-                      },
-                    }}
-                  />
-                )}
+                onChange={setCallerIds}
               />
+              
             </Stack>
           </Fade>
 
-          {/* Botones de acción */}
           <Tooltip title="Show/Hide Filters">
             <IconButton color="primary" onClick={toggleFilters}>
-              <FilterListIcon fontSize='small'/>
+              <FilterListIcon fontSize="small" />
             </IconButton>
           </Tooltip>
 
           <Tooltip title="Add Case">
             <IconButton>
-              <AddIcCallIcon fontSize='small'/>
+              <AddIcCallIcon fontSize="small" />
             </IconButton>
           </Tooltip>
 
           <Tooltip title="Perfil de usuario">
             <IconButton>
-              <GroupsIcon fontSize='small'/>
+              <GroupsIcon fontSize="small" />
             </IconButton>
           </Tooltip>
         </Stack>
