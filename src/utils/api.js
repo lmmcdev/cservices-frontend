@@ -1,6 +1,7 @@
 // ticketUtils.js
 //import axios from 'axios';
 
+//fetch table tickets
 export const fetchTableData = async (dispatch, setLoading, agentAssigned) => {
   try {
     const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGet?agent_assigned=${encodeURIComponent(agentAssigned)}`);
@@ -14,15 +15,46 @@ export const fetchTableData = async (dispatch, setLoading, agentAssigned) => {
   }
 };
 
-
+//fetch table agents
 export const fetchAgentData = async (dispatch, setLoading) => {
   try {
     const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetAgents`);
     const data = await response.json();
-    console.log(data.message)
+
     dispatch({ type: 'SET_AGENTS', payload: data.message });
   } catch (err) {
     dispatch({ type: 'SET_A_ERROR', payload: err.message });
+  } finally {
+    setLoading(false);
+  }
+};
+
+//update agent_assigned
+// assign agent to a ticket
+export const assignAgent = async (dispatch, setLoading, ticketId, currentAgentEmail, targetAgentEmail) => {
+  try {
+    const response = await fetch(`https://cservicesapi.azurewebsites.net/api/assignAgent`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tickets: ticketId,
+        agent_email: currentAgentEmail,
+        target_agent_email: targetAgentEmail,
+      }),
+    });
+    console.log({
+        tickets: ticketId,
+        agent_email: currentAgentEmail,
+        target_agent_email: targetAgentEmail,
+      })
+
+    const data = await response.json();
+    dispatch({type: 'ASSIGN_AGENT', payload: data.message})
+
+  } catch (err) {
+    dispatch({ type: 'SET_ASSIGNMENT_ERROR', payload: err.message });
   } finally {
     setLoading(false);
   }
