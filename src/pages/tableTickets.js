@@ -11,6 +11,8 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera } from '@fortawesome/free-solid-svg-icons';
 import AssignAgentModal from '../components/dialogs/assignAgentDialog';
+import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
+import { icons } from '../components/icons.js';
 
   const statusColors = {
     New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -133,8 +135,13 @@ export default function TableTickets() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {paginatedRows.map((row, index) => (
-                      <TableRow key={index}>
+                    {paginatedRows.map((row, idx) => (
+                      <TableRow
+                        key={idx}
+                        sx={{
+                          '&:hover': { backgroundColor: '#f9fafb' },
+                        }}
+                      >
                         <TableCell>
                           <Chip
                             label={row.status}
@@ -142,7 +149,7 @@ export default function TableTickets() {
                               backgroundColor: statusColors[row.status]?.bg || '#e0e0e0',
                               color: statusColors[row.status]?.text || '#000',
                               fontWeight: 'bold',
-                              fontSize: 11,
+                              fontSize: 14,
                               px: 1,
                               py: 0.5,
                               borderRadius: '16px',
@@ -154,6 +161,11 @@ export default function TableTickets() {
                         <TableCell>{row.patient_dob}</TableCell>
                         <TableCell>{row.phone}</TableCell>
                         <TableCell>{row.creation_date}</TableCell>
+                        <TableCell>
+                          <Box sx={{ fontSize: 22, color: '#00A1FF' }}>
+                            <FontAwesomeIcon icon={icons.edit} />
+                          </Box>
+                        </TableCell>
                         <TableCell>{row.status === "New" && row.agent_assigned === "" && (
                           <Button onClick={() => setSelectedTicket(row)}>Assign to me</Button>
                         )}<FontAwesomeIcon icon={faCamera} /></TableCell>
