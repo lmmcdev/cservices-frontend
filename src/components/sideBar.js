@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { Drawer, List, ListItem, ListItemIcon, Box } from '@mui/material';
 import CallRoundedIcon from '@mui/icons-material/CallRounded';
 import LeaderboardRoundedIcon from '@mui/icons-material/LeaderboardRounded';
-import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded'
+import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
+import ProfilePic from './components/profilePic';
 
 const drawerWidth = 100;
 
@@ -74,6 +75,18 @@ export default function Sidebar() {
             </ListItem>
           ))}
         </List>
+        
+      </Box>
+
+      <Box 
+        sx={{
+          position: 'absoluite', 
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }} >
+        <ProfilePic />
       </Box>
     </Drawer>
   );
