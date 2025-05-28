@@ -12,12 +12,12 @@ import {
   Stack,
   Fade,
 } from '@mui/material';
-import FilterListIcon from '@mui/icons-material/FilterList';
-import AddIcCallIcon from '@mui/icons-material/AddIcCall';
-import GroupsIcon from '@mui/icons-material/Groups';
+//import FilterListIcon from '@mui/icons-material/FilterList';
+//import AddIcCallIcon from '@mui/icons-material/AddIcCall';
+//import GroupsIcon from '@mui/icons-material/Groups';
 import { fetchAgentData } from '../utils/api';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+//import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { icons } from '../components/icons';
 
 export default function Topbar() {

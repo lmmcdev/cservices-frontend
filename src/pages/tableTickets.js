@@ -11,7 +11,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera } from '@fortawesome/free-solid-svg-icons';
 import AssignAgentModal from '../components/dialogs/assignAgentDialog';
-import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
+//import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
 import { icons } from '../components/icons.js';
 
   const statusColors = {
