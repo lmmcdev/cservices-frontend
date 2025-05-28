@@ -9,7 +9,10 @@ const ProfilePic = () => {
   return (
     <Box display="flex" alignItems="center" gap={2}>
       {profilePhoto ? (
-        <Avatar src={profilePhoto} alt={user?.name || "Usuario"} />
+        <Avatar src={profilePhoto} alt={user?.name || "Usuario"} sx={{
+    width: { xs: 40, sm: 56, md: 72 },
+    height: { xs: 40, sm: 56, md: 72 },
+  }}/>
       ) : (
         <Avatar>{user?.name?.[0]}</Avatar> // Fallback
       )}
