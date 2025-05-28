@@ -2,7 +2,6 @@
 export const initialState = {
   tickets: [],
   agents: [],
-  updated_agent: [],
   error: null,
 };
 
@@ -32,17 +31,6 @@ export const ticketReducer = (state, action) => {
         ...state,
         error: action.payload,
       };
-    case 'ASSIGN_AGENT':
-      return {
-        ...state,
-        updated_agent: action.payload,
-        error: null,
-      };
-    case 'SET_ASSIGNMENT_ERROR':
-      return {
-        ...state,
-        error: action.payload,
-      }
     default:
       return state;
   }
