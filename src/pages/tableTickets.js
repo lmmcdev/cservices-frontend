@@ -11,7 +11,9 @@ import {
   Button,
   Chip
 } from '@mui/material';
-import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
+//import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { icons } from '../components/icons.js';
 
 const rows = [
   {
@@ -185,19 +187,21 @@ const statusColors = {
   Pending: { bg: '#EAE8FA', text: '#8965E5' },
   Done: { bg: '#DAF8F4', text: '#00B8A3' },
   Duplicated: { bg: '#FFE3C4', text: '#FF8A00' },
-  'Total Calls': { bg: 'transparent', text: '#0947D7' }, // color para botón "Total"
+  'Total Calls': { bg: '#f1f5ff', text: '#0947D7' }, // color para botón "Total"
 };
 
 export default function TableTickets() {
-  const [selectedStatus, setSelectedStatus] = React.useState('Total');
+  // Inicializar con 'Total Calls'
+  const [selectedStatus, setSelectedStatus] = React.useState('Total Calls');
 
   const handleFilter = (status) => {
     setSelectedStatus(status);
   };
 
+  // Si es 'Total Calls', excluir 'New'; de lo contrario filtrar por status exacto
   const filteredRows =
-    selectedStatus === 'Total'
-      ? rows
+    selectedStatus === 'Total Calls'
+      ? rows.filter((row) => row.status !== 'New')
       : rows.filter((row) => row.status === selectedStatus);
 
   return (
@@ -206,90 +210,106 @@ export default function TableTickets() {
       {/* Botones de filtro cuadrados */}
       <Box
         sx={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 2,
-            mb: 3,
-            justifyContent: 'center',
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 2,
+          mb: 3,
+          justifyContent: 'center',
         }}
       >
-        {[...Object.keys(statusColors)].map((status) => (
-          <Button
-            key={status}
-            onClick={() => handleFilter(status)}
-            variant={selectedStatus === status ? 'contained' : 'outlined'}
-            sx={{
-                minWidth: 180,              // controla el ancho mínimo
-                aspectRatio: '1 / 0.5',       // cuadrado
+        {Object.keys(statusColors).map((status) => {
+          const isActive = selectedStatus === status;
+          const { bg, text: color } = statusColors[status];
+          // sombra con color activo
+          const shadowColor = `${color}33`;
+          return (
+            <Button
+              key={status}
+              onClick={() => handleFilter(status)}
+              sx={{
+                minWidth: 180,
+                aspectRatio: '1 / 0.5',
                 textTransform: 'none',
-                fontSize: 13,
+                fontSize: 15,
                 fontWeight: 'bold',
                 borderRadius: 4,
-                border: 'none',
-                boxShadow: 'none',
-                backgroundColor: statusColors[status].bg,
-                color: statusColors[status].text,
-                borderColor: statusColors[status].text,
+                border: `1px solid ${color}`,
+                backgroundColor: bg,
+                color: color,
+                boxShadow: isActive
+                  ? `0 4px 8px ${shadowColor}, 0 2px 4px ${shadowColor}`
+                  : 'none',
+                transform: isActive ? 'translateY(-2px)' : 'none',
+                transition: 'all 0.2s ease-in-out',
                 '&:hover': {
-                backgroundColor: statusColors[status].bg,
-                boxShadow: 'none',
+                  boxShadow: `0 4px 8px ${shadowColor}, 0 2px 4px ${shadowColor}`,
+                  transform: 'translateY(-2px)',
                 },
-            }}
-          >
-            {status}
-          </Button>
-        ))}
+              }}
+            >
+              {status}
+            </Button>
+          );
+        })}
       </Box>
 
       {/* Tabla de tickets */}
       <TableContainer component={Paper}>
         <Table>
-            <TableHead>
+          <TableHead>
             <TableRow>
-                {['Status', 'Caller ID', 'Name', 'DOB', 'Phone', 'Create At'].map((header) => (
+              {['Status', 'Caller ID', 'Name', 'DOB', 'Phone', 'Create At', ''].map((header) => (
                 <TableCell
-                    key={header}
-                    sx={{
+                  key={header}
+                  sx={{
                     backgroundColor: '#fff',
                     borderBottom: 'none',
                     fontWeight: 'bold',
-                    fontSize:16
-                    }}
+                    fontSize: 16,
+                  }}
                 >
-                    {header}
+                  {header}
                 </TableCell>
-                ))}
+              ))}
             </TableRow>
-            </TableHead>
-            <TableBody>
-            {filteredRows.map((row) => (
-                <TableRow key={row.id}>
-                    <TableCell>
-                        <Chip
-                        label={row.status}
-                        sx={{
-                            backgroundColor: statusColors[row.status]?.bg || '#e0e0e0',
-                            color: statusColors[row.status]?.text || '#000',
-                            fontWeight: 'bold',
-                            fontSize: 11,
-                            px: 1,
-                            py: 0.5,
-                            borderRadius: '16px',
-                        }}
-                        />
-                    </TableCell>
-                    <TableCell>{row.callerId}</TableCell>
-                    <TableCell>{row.name}</TableCell>
-                    <TableCell>{row.dob}</TableCell>
-                    <TableCell>{row.phone}</TableCell>
-                    <TableCell>{row.createdAt}</TableCell>
-                    <TableCell><BorderColorRoundedIcon /></TableCell>
-
-                </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredRows.map((row, idx) => (
+              <TableRow
+                key={idx}
+                sx={{
+                  '&:hover': { backgroundColor: '#f9fafb' },
+                }}
+              >
+                <TableCell>
+                  <Chip
+                    label={row.status}
+                    sx={{
+                      backgroundColor: statusColors[row.status]?.bg || '#e0e0e0',
+                      color: statusColors[row.status]?.text || '#000',
+                      fontWeight: 'bold',
+                      fontSize: 14,
+                      px: 1,
+                      py: 0.5,
+                      borderRadius: '16px',
+                    }}
+                  />
+                </TableCell>
+                <TableCell>{row.callerId}</TableCell>
+                <TableCell>{row.name}</TableCell>
+                <TableCell>{row.dob}</TableCell>
+                <TableCell>{row.phone}</TableCell>
+                <TableCell>{row.createdAt}</TableCell>
+                <TableCell>
+                  <Box sx={{ fontSize: 22, color: '#00A1FF' }}>
+                    <FontAwesomeIcon icon={icons.edit} />
+                  </Box>
+                </TableCell>
+              </TableRow>
             ))}
-            </TableBody>
+          </TableBody>
         </Table>
-        </TableContainer>
+      </TableContainer>
 
     </Box>
   );
