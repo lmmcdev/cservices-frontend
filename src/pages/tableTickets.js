@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera } from '@fortawesome/free-solid-svg-icons';
+import AssignAgentModal from '../components/dialogs/assignAgentDialog';
 
   const statusColors = {
     New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -25,10 +26,16 @@ export default function TableTickets() {
     const [state, dispatch] = useReducer(ticketReducer, initialState);
     const { setLoading } = useLoading();
     const { user } = useAuth();
-
     const [selectedStatus, setSelectedStatus] = useState('Total');
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [selectedTicket, setSelectedTicket] = React.useState(null);
+
+    /***************handle agent assignment********************************/
+    const handleAssignAgent = (ticketId, agentEmail) => {
+      // Aquí haces la llamada a tu Azure Function para actualizar el ticket
+      console.log("Asignar", agentEmail, "al ticket", ticketId);
+    };
 
     useEffect(() => {
       if (!user?.username) return;
@@ -77,6 +84,7 @@ export default function TableTickets() {
     };
 
   return (
+    <>
     <Card elevation={3} sx={{ borderRadius: 4, position: 'fixed', top: 170, left: 200, right: 20 }}>
       <CardContent>
         <Box component="main" sx={{ flexGrow: 1 }}>
@@ -146,7 +154,9 @@ export default function TableTickets() {
                         <TableCell>{row.patient_dob}</TableCell>
                         <TableCell>{row.phone}</TableCell>
                         <TableCell>{row.creation_date}</TableCell>
-                        <TableCell><FontAwesomeIcon icon={faCamera} /></TableCell>
+                        <TableCell>{row.status === "New" && row.agent_assigned === "" && (
+                          <Button onClick={() => setSelectedTicket(row)}>Assign to me</Button>
+                        )}<FontAwesomeIcon icon={faCamera} /></TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -165,5 +175,21 @@ export default function TableTickets() {
         </Box>
       </CardContent>
     </Card>
+
+    {selectedTicket && user?.username && (
+      <AssignAgentModal
+        open={!!selectedTicket}
+        onClose={() => setSelectedTicket(null)}
+        ticket={selectedTicket}
+        agentEmail={user.username}
+        dispatch={dispatch}
+        setLoading={setLoading}
+        onAssign={handleAssignAgent}
+      />
+    )}
+
+
+   
+      </>
   );
 }
