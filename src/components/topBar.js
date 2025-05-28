@@ -17,6 +17,9 @@ import AddIcCallIcon from '@mui/icons-material/AddIcCall';
 import GroupsIcon from '@mui/icons-material/Groups';
 import { fetchAgentData } from '../utils/api';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { icons } from '../components/icons';
+
 export default function Topbar() {
   const [state, dispatch] = useReducer(ticketReducer, initialState);
   const { setLoading } = useLoading();
@@ -89,16 +92,18 @@ export default function Topbar() {
             <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
               <TextField
                 size="small"
-                label="Fecha"
+                //label="Date"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 sx={{
                   width: 240,
                   '& input': {
-                    paddingY: 1,
-                    fontSize: 11,
+                    paddingY: 0,
+                    fontSize: 12,
                     color: 'text.secondary',
+                    height: 36,
+                    boxSizing: 'border-box',
                   },
                 }}
                 InputLabelProps={{
@@ -131,21 +136,54 @@ export default function Topbar() {
           </Fade>
 
           <Tooltip title="Show/Hide Filters">
-            <IconButton color="primary" onClick={toggleFilters}>
-              <FilterListIcon fontSize="small" />
+            {/*<IconButton color="primary" onClick={toggleFilters}>
+              <FilterListIcon fontSize='small'/>
+            </IconButton>*/}
+            <IconButton 
+              onClick={toggleFilters} 
+              color="text"
+              sx={{
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                }
+              }}
+            >
+              {showFilters ? (
+                <icons.filterOn fontSize='small' />
+              ) : (
+                <icons.filterOff fontSize='small' />
+              )}
             </IconButton>
           </Tooltip>
 
           <Tooltip title="Add Case">
-            <IconButton>
-              <AddIcCallIcon fontSize="small" />
+            <IconButton sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: 0,
+                          height: 26,
+                          width: 36,
+                          '&:hover': {
+                            backgroundColor: 'transparent',
+                          },
+                        }}
+                      >
+              {/*<AddIcCallIcon fontSize='small'/>*/}
+              <icons.addCase style={{fontSize: '17px'}} />
             </IconButton>
           </Tooltip>
 
           <Tooltip title="Perfil de usuario">
-            <IconButton>
-              <GroupsIcon fontSize="small" />
-            </IconButton>
+            <IconButton sx={{
+              '&:hover': {
+                  backgroundColor: 'transparent',
+                },
+              }}
+            >
+              {/*<GroupsIcon fontSize='small'/>*/}
+              <icons.supervisorView style={{ fontSize: '17px'}} />
+            </IconButton >
           </Tooltip>
         </Stack>
       </CardContent>

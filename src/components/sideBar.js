@@ -1,92 +1,133 @@
-// src/components/Sidebar.js
 import React, { useState } from 'react';
-import { Drawer, List, ListItem, ListItemIcon, Box } from '@mui/material';
-import CallRoundedIcon from '@mui/icons-material/CallRounded';
-import LeaderboardRoundedIcon from '@mui/icons-material/LeaderboardRounded';
-import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
-import ProfilePic from './components/profilePic';
+import {
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Box,
+  Divider,
+  IconButton,
+} from '@mui/material';
+import { icons } from '../components/icons';
 
-const drawerWidth = 100;
+const drawerWidthOpen = 200;
+const drawerWidthClosed = 80;
 
-// Cambia esto para mover el bloque de íconos (puede ser '100px', '30%', etc.)
-const iconPosition = '10%'; // 👈 AQUÍ defines la posición vertical
+export default function CollapsibleDrawer() {
+  const [open, setOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(null);
 
-export default function Sidebar() {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const navItems = [
+    { icon: <icons.dashboard style={{ fontSize: 22 }} />, label: 'Dashboard' },
+    { icon: <icons.callLogs style={{ fontSize: 22 }} />, label: 'Call Logs' },
+    { icon: <icons.team style={{ fontSize: 22 }} />, label: 'Team' },
+  ];
 
   const handleListItemClick = (index) => {
     setSelectedIndex(index);
   };
 
-  const icons = [
-    <LeaderboardRoundedIcon key="leaderboard" />,
-    <CallRoundedIcon key="calls2" />,
-    <PeopleAltRoundedIcon key="agents" />
-  ];
+  const toggleOpen = () => {
+    setOpen((prev) => !prev);
+  };
 
   return (
     <Drawer
       variant="permanent"
       sx={{
-        width: drawerWidth,
+        width: open ? drawerWidthOpen : drawerWidthClosed,
         flexShrink: 0,
-        [`& .MuiDrawer-paper`]: {
-         width: drawerWidth,
-            boxSizing: 'border-box',
-            height: '100vh', // 👈 asegura que el Drawer cubre toda la altura del viewport
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'flex-start',// Necesario para usar posición absoluta dentro
+        '& .MuiDrawer-paper': {
+          width: open ? drawerWidthOpen : drawerWidthClosed,
+          boxSizing: 'border-box',
+          transition: 'width 0.3s ease',
+          overflowX: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: open ? 'flex-start' : 'center',
+          paddingTop: 2,
+          paddingLeft: open ? 2 : 0,
+          paddingRight: 0,
         },
       }}
     >
-      <Box
-        sx={{
-          position: 'absolute',
-          top: iconPosition,
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <List>
-          {icons.map((icon, index) => (
-            <ListItem
-              button
-              key={index}
+      <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <List sx={{ width: '100%', px: open ? 1 : 0 }}>
+          {navItems.map(({ icon, label }, index) => (
+            <ListItemButton
+              key={label}
               selected={selectedIndex === index}
               onClick={() => handleListItemClick(index)}
               sx={{
-                justifyContent: 'center',
-                color: selectedIndex === index ? 'primary.main' : 'inherit',
-                mb:3,
+                mb: 1,
+                borderRadius: '25px',
+                justifyContent: open ? 'initial' : 'center',
+                px: 2.5,
+                color: selectedIndex === index ? '#00a1ff' : '#5B5F7B',
+                backgroundColor: selectedIndex === index ? '#dff3ff' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#dff3ff',
+                  color: '#00a1ff',
+                  '& .MuiListItemIcon-root': {
+                    color: '#00a1ff',
+                  },
+                },
               }}
             >
               <ListItemIcon
                 sx={{
+                  minWidth: 0,
+                  mr: open ? 2 : 'auto',
                   justifyContent: 'center',
-                  color: selectedIndex === index ? 'primary.main' : 'inherit',
-                  minWidth: 'auto',
+                  color: selectedIndex === index ? '#00a1ff' : '#5B5F7B',
                 }}
               >
                 {icon}
               </ListItemIcon>
-            </ListItem>
+              {open && (
+                <ListItemText
+                  primary={label}
+                  primaryTypographyProps={{ fontSize: 15, color: 'inherit' }}
+                  sx={{ color: 'inherit' }}
+                />
+              )}
+            </ListItemButton>
           ))}
         </List>
-        
-      </Box>
 
-      <Box 
-        sx={{
-          position: 'absoluite', 
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center'
-        }} >
-        <ProfilePic />
+        <Box sx={{ flexGrow: 1 }} />
+
+        <Divider
+          sx={{
+            width: open ? '90%' : '100%',
+            alignSelf: 'flex-end',
+            mr: open ? '10px' : 0,
+            mb: 1,
+          }}
+        />
+
+        <Box
+          sx={{
+            width: '100%',
+            display: 'flex',
+            justifyContent: open ? 'flex-end' : 'center',
+            pr: open ? '10px' : 0,
+            pb: 1,
+          }}
+        >
+          <IconButton
+            onClick={toggleOpen}
+            disableRipple
+            sx={{
+              p: 0,
+              '&:hover': { backgroundColor: 'transparent' },
+              '&:active': { backgroundColor: 'transparent' },
+            }}
+          >
+            {open ? <icons.collapseLeft /> : <icons.collapseRight />}
+          </IconButton>
+        </Box>
       </Box>
     </Drawer>
   );
