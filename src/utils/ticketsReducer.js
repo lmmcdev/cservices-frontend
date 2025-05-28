@@ -1,6 +1,7 @@
 // utils/ticketsReducer.js
 export const initialState = {
   tickets: [],
+  agents: [],
   error: null,
 };
 
@@ -13,6 +14,19 @@ export const ticketReducer = (state, action) => {
         error: null,
       };
     case 'SET_ERROR':
+      return {
+        ...state,
+        error: action.payload,
+      };
+
+    //agents
+    case 'SET_AGENTS':
+      return {
+        ...state,
+        agents: action.payload,
+        error: null,
+      };
+    case 'SET_A_ERROR':
       return {
         ...state,
         error: action.payload,
