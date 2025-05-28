@@ -29,7 +29,6 @@ export const fetchAgentData = async (dispatch, setLoading) => {
   }
 };
 
-//update agent_assigned
 // assign agent to a ticket
 export const assignAgent = async (dispatch, setLoading, ticketId, currentAgentEmail, targetAgentEmail) => {
   try {
