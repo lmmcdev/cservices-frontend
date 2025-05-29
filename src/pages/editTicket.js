@@ -58,7 +58,6 @@ export default function EditTicket() {
           currentStatus={status}
           onStatusChange={handleStatusChange}
         />
-      <Typography variant="h5" gutterBottom>Editar Ticket</Typography>
 
       <TextField
         fullWidth
