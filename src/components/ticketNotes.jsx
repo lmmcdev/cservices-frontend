@@ -1,5 +1,4 @@
 import {
-  List,
   Typography,
   Box,
   IconButton,

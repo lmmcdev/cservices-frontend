@@ -1,9 +1,8 @@
 import React, { useReducer, useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
-  Box, Button, TextField, Typography, Paper, Grid, Card, CardContent, Divider, IconButton, List, ListItem, ListItemText
+  Box, Button, Typography, Paper, Grid, Card, CardContent
 } from '@mui/material';
-import { Add, Delete } from '@mui/icons-material';
 import TicketStatusBar from '../components/ticketStatusBar';
 import TicketActionsBar from '../components/ticketActionsBar';
 import AgentOptionsModal from '../components/dialogs/agentOptionsModal';
@@ -24,7 +23,7 @@ export default function EditTicket() {
   const ticket = location.state?.ticket;
 
   const [status, setStatus] = useState(ticket?.status || '');
-  const [form, setForm] = useState({ ...ticket });
+  //const [form, setForm] = useState({ ...ticket });
   const [openAgentOptions, setOpenAgentOptions] = useState(false);
   const [errorOpen, setErrorOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
@@ -38,23 +37,6 @@ export default function EditTicket() {
     await changeStatus(dispatch, setLoading, ticketId, agentEmail, newStatus);
     setStatus(newStatus);
     setSuccessOpen(true);
-  };
-
-  const handleChange = (e) => {
-    setForm(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
-
-  const handleSubmit = async () => {
-    try {
-      console.log('Saving...', form);
-      setSuccessOpen(true);
-      navigate(-1);
-    } catch (err) {
-      console.error('Error updating ticket:', err);
-    }
   };
 
   const handleAddCollaborator = () => {
@@ -158,6 +140,14 @@ export default function EditTicket() {
         onClose={() => setErrorOpen(false)}
         severity="error"
         message={state.error}
+      />
+
+      {/* Snackbar para success */}
+      <AlertSnackbar
+        open={successOpen}
+        onClose={() => setSuccessOpen(false)}
+        severity="success"
+        message="Status updated successfully."
       />
     </>
   );
