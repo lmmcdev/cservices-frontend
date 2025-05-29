@@ -3,6 +3,7 @@ export const initialState = {
   tickets: [],
   agents: [],
   updated_agent: [],
+  updated_action: [],
   error: null,
 };
 
@@ -39,6 +40,17 @@ export const ticketReducer = (state, action) => {
         error: null,
       };
     case 'SET_ASSIGNMENT_ERROR':
+      return {
+        ...state,
+        error: action.payload,
+      };
+    case 'UPDATE_STATUS':
+      return {
+        ...state,
+        updated_action: action.payload,
+        error: null,
+      };
+    case 'SET_UPDATE_ERROR':
       return {
         ...state,
         error: action.payload,
