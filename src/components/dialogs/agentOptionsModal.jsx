@@ -1,7 +1,7 @@
 import React from 'react';
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions,
-  Button, Box, Typography
+  Dialog, DialogContent, DialogActions,
+  Button, Box
 } from '@mui/material';
 
 const AgentOptionsModal = ({

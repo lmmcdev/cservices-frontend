@@ -54,7 +54,7 @@ export const ticketReducer = (state, action) => {
       return {
         ...state,
         error: action.payload,
-      }
+      };
     default:
       return state;
   }

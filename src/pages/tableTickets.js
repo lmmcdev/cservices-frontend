@@ -164,7 +164,7 @@ export default function TableTickets() {
                         <TableCell>{row.creation_date}</TableCell>
                         <TableCell>
                           <Box sx={{ fontSize: 22, color: '#00A1FF', cursor: 'pointer' }} >
-                            <FontAwesomeIcon icon={icons.edit} onClick={() => navigate(`/tickets/edit/${row.id}`, { state: { ticket: row } })}/>
+                            <FontAwesomeIcon icon={icons.edit} onClick={() => navigate(`/tickets/edit/${row.id}/${user.username}`, { state: { ticket: row } })}/>
                           </Box>
                         </TableCell>
                         <TableCell>{row.status === "New" && row.agent_assigned === "" && (

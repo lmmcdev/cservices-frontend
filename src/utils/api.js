@@ -46,6 +46,10 @@ export const assignAgent = async (dispatch, setLoading, ticketId, currentAgentEm
     });
  
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || 'Error al actualizar el agente');
+    }
+
     dispatch({type: 'ASSIGN_AGENT', payload: data.message})
 
   } catch (err) {
@@ -66,15 +70,19 @@ export const changeStatus = async (dispatch, setLoading, ticketId, currentAgentE
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        tickets: ticketId,
+        ticketId: ticketId,
         agent_email: currentAgentEmail,
-        target_agent_email: newStatus,
+        newStatus: newStatus,
       }),
     });
- 
-    const data = await response.json();
-    dispatch({type: 'UPDATE_STATUS', payload: data.message})
 
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Error al actualizar el estado');
+    }
+
+    dispatch({ type: 'UPDATE_STATUS', payload: data.message });
   } catch (err) {
     dispatch({ type: 'SET_UPDATE_ERROR', payload: err.message });
   } finally {

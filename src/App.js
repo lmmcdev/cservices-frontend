@@ -25,7 +25,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<TableTickets />} />
-            <Route path="/tickets/edit/:ticketId" element={<EditTicket />} />
+            <Route path="/tickets/edit/:ticketId/:agentEmail" element={<EditTicket />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </Box>
