@@ -11,8 +11,8 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera } from '@fortawesome/free-solid-svg-icons';
 import AssignAgentModal from '../components/dialogs/assignAgentDialog';
-import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
 import { icons } from '../components/icons.js';
+import { useNavigate } from 'react-router-dom';
 
   const statusColors = {
     New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -32,6 +32,7 @@ export default function TableTickets() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [selectedTicket, setSelectedTicket] = React.useState(null);
+    const navigate = useNavigate();
 
     /***************handle agent assignment********************************/
     const handleAssignAgent = (ticketId, agentEmail) => {
@@ -162,8 +163,8 @@ export default function TableTickets() {
                         <TableCell>{row.phone}</TableCell>
                         <TableCell>{row.creation_date}</TableCell>
                         <TableCell>
-                          <Box sx={{ fontSize: 22, color: '#00A1FF' }}>
-                            <FontAwesomeIcon icon={icons.edit} />
+                          <Box sx={{ fontSize: 22, color: '#00A1FF', cursor: 'pointer' }} >
+                            <FontAwesomeIcon icon={icons.edit} onClick={() => navigate(`/tickets/edit/${row.id}`, { state: { ticket: row } })}/>
                           </Box>
                         </TableCell>
                         <TableCell>{row.status === "New" && row.agent_assigned === "" && (
