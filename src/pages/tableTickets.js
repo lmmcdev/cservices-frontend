@@ -11,6 +11,9 @@ import {
 <<<<<<< HEAD
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCamera } from '@fortawesome/free-solid-svg-icons';
+import AssignAgentModal from '../components/dialogs/assignAgentDialog';
+import { icons } from '../components/icons.js';
+import { useNavigate } from 'react-router-dom';
 
   const statusColors = {
     New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -30,6 +33,14 @@ export default function TableTickets() {
     const [selectedStatus, setSelectedStatus] = useState('Total');
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [selectedTicket, setSelectedTicket] = React.useState(null);
+    const navigate = useNavigate();
+
+    /***************handle agent assignment********************************/
+    const handleAssignAgent = (ticketId, agentEmail) => {
+      // Aquí haces la llamada a tu Azure Function para actualizar el ticket
+      console.log("Asignar", agentEmail, "al ticket", ticketId);
+    };
 
     useEffect(() => {
       if (!user?.username) return;
@@ -427,8 +438,13 @@ export default function TableTickets() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {paginatedRows.map((row, index) => (
-                      <TableRow key={index}>
+                    {paginatedRows.map((row, idx) => (
+                      <TableRow
+                        key={idx}
+                        sx={{
+                          '&:hover': { backgroundColor: '#f9fafb' },
+                        }}
+                      >
                         <TableCell>
                           <Chip
                             label={row.status}
@@ -436,7 +452,7 @@ export default function TableTickets() {
                               backgroundColor: statusColors[row.status]?.bg || '#e0e0e0',
                               color: statusColors[row.status]?.text || '#000',
                               fontWeight: 'bold',
-                              fontSize: 11,
+                              fontSize: 14,
                               px: 1,
                               py: 0.5,
                               borderRadius: '16px',
@@ -448,7 +464,14 @@ export default function TableTickets() {
                         <TableCell>{row.patient_dob}</TableCell>
                         <TableCell>{row.phone}</TableCell>
                         <TableCell>{row.creation_date}</TableCell>
-                        <TableCell><FontAwesomeIcon icon={faCamera} /></TableCell>
+                        <TableCell>
+                          <Box sx={{ fontSize: 22, color: '#00A1FF', cursor: 'pointer' }} >
+                            <FontAwesomeIcon icon={icons.edit} onClick={() => navigate(`/tickets/edit/${row.id}`, { state: { ticket: row } })}/>
+                          </Box>
+                        </TableCell>
+                        <TableCell>{row.status === "New" && row.agent_assigned === "" && (
+                          <Button onClick={() => setSelectedTicket(row)}>Assign to me</Button>
+                        )}<FontAwesomeIcon icon={faCamera} /></TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
