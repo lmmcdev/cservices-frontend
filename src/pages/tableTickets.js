@@ -24,7 +24,7 @@ import { useNavigate } from 'react-router-dom';
     Total: { bg: 'transparent', text: '#0947D7' },
   };
 
-export default function TableTickets() {
+export default function TableTickets({ agents }) {
     const [state, dispatch] = useReducer(ticketReducer, initialState);
     const { setLoading } = useLoading();
     const { user } = useAuth();
@@ -164,7 +164,7 @@ export default function TableTickets() {
                         <TableCell>{row.creation_date}</TableCell>
                         <TableCell>
                           <Box sx={{ fontSize: 22, color: '#00A1FF', cursor: 'pointer' }} >
-                            <FontAwesomeIcon icon={icons.edit} onClick={() => navigate(`/tickets/edit/${row.id}/${user.username}`, { state: { ticket: row } })}/>
+                            <FontAwesomeIcon icon={icons.edit} onClick={() => navigate(`/tickets/edit/${row.id}/${user.username}`, { state: { ticket: row, agents: agents } })}/>
                           </Box>
                         </TableCell>
                         <TableCell>{row.status === "New" && row.agent_assigned === "" && (

@@ -1,7 +1,7 @@
 import React, { useReducer, useState, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
-  Box, Button, Typography, Paper, Grid, Card, CardContent
+  Box, Button, Typography, Paper, Grid, Card, CardContent,
 } from '@mui/material';
 import TicketStatusBar from '../components/ticketStatusBar';
 import TicketActionsBar from '../components/ticketActionsBar';
@@ -9,75 +9,112 @@ import AgentOptionsModal from '../components/dialogs/agentOptionsModal';
 import AlertSnackbar from '../components/alertSnackbar';
 import { ticketReducer, initialState } from '../utils/ticketsReducer';
 import { useLoading } from '../components/loadingProvider';
-import { changeStatus } from '../utils/api';
+import { changeStatus, addNotes, updateCollaborators } from '../utils/api';
 import TicketNotes from '../components/ticketNotes';
 import TicketCollaborators from '../components/ticketCollaborators';
 import TicketAudio from '../components/ticketAudio';
+import AddNoteDialog from '../components/dialogs/addNotesDialog';
+import AgentSelectorDialog from '../components/dialogs/agentSelectorDialog';
 
-export default function EditTicket() {
-    const [state, dispatch] = useReducer(ticketReducer, initialState);
+export default function EditTicket({ agents }) {
+  //constants 
+  const [state, dispatch] = useReducer(ticketReducer, initialState);
   const { setLoading } = useLoading();
   const navigate = useNavigate();
   const { ticketId, agentEmail } = useParams();
   const location = useLocation();
   const ticket = location.state?.ticket;
 
+  //statuses
   const [status, setStatus] = useState(ticket?.status || '');
-  //const [form, setForm] = useState({ ...ticket });
+  const [notes, setNotes] = useState(ticket?.notes || []);
+  const [collaborators, setCollaborators] = useState(ticket?.collaborators || []);
+  const [openAddCollaborator, setOpenAddCollaborator] = useState(false);
+
+  //state status
   const [openAgentOptions, setOpenAgentOptions] = useState(false);
   const [errorOpen, setErrorOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
 
+  // Dialogs
+  const [openNoteDialog, setOpenNoteDialog] = useState(false);
+  const [noteContent, setNoteContent] = useState('');
+  const [agentDialogOpen, setAgentDialogOpen] = useState(false);
+
+  //useEffects
   useEffect(() => {
     if (state.error) setErrorOpen(true);
   }, [state.error]);
+  
+  useEffect(() => {
+  if (ticket?.notes) {
+    setNotes(ticket.notes);
+  }
+}, [ticket]);
 
+
+  //handling functions
   const handleStatusChange = async (newStatus) => {
     setLoading(true);
     await changeStatus(dispatch, setLoading, ticketId, agentEmail, newStatus);
     setStatus(newStatus);
     setSuccessOpen(true);
   };
-
-  const handleAddCollaborator = () => {
-    // Lógica de agregar colaborador → usar modal u otra interfaz
-    console.log("Agregar colaborador");
+  ///////////////////////////////////////////////////////////////////////
+  const handleAddNote = async () => {
+    if (!noteContent.trim()) return;
+    const newNote = [{
+      agent_email: agentEmail,
+      event_type: 'user_note',
+      content: noteContent.trim(),
+      datetime: new Date().toISOString()
+    }];
+    await addNotes(dispatch, setLoading, ticketId, agentEmail, newNote);
+    setNotes((prev) => [...prev, ...newNote]);
+    setNoteContent('');
+    setOpenNoteDialog(false);
+    setSuccessOpen(true);
   };
+  ////////////////////////////////////////////////////////////////////////////
+  const handleAddCollaboratorClick = async (newCollaborator) => {
+    setAgentDialogOpen(true);
+  /*const updated = [...collaborators, newCollaborator];
+  await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
+  setCollaborators(updated); // actualiza UI local si fue exitoso
+  setSuccessOpen(true);*/
+};
 
-  const handleRemoveCollaborator = (email) => {
-    // Lógica para eliminar colaborador
-    console.log("Eliminar colaborador:", email);
-  };
-
-  const handleAddNote = () => {
-    // Lógica de agregar nota
-    console.log("Agregar nota");
-  };
+const handleRemoveCollaborator = async (emailToRemove) => {
+  const updated = collaborators.filter(c => c !== emailToRemove);
+  await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
+  setCollaborators(updated);
+  setSuccessOpen(true);
+};
 
   if (!ticket) return <Typography>Ticket not found</Typography>;
-  console.log(ticket)
+
   return (
     <>
-    
       <Paper elevation={3} sx={{ p: 4, width: '100%', mx: 'auto', mt: 20, ml: 15, mr: 3 }}>
         <Box sx={{ flexGrow: 1 }}>
           <Grid container spacing={2}>
-            <Grid size={12} height='50%'>
+            <Grid size={12}>
               <TicketActionsBar
                 onReassignAgent={() => setOpenAgentOptions(true)}
-                onAddCollaborator={() => console.log("Abrir agregar colaborador")}
+                onAddCollaborator={() => setOpenAddCollaborator(true)}  // <- cambio aquí
                 onReassignDepartment={() => console.log("Abrir reasignar departamento")}
               />
+
             </Grid>
 
-            <Grid size={12} height='50%'>
+            <Grid size={12}>
               <TicketStatusBar
                 currentStatus={status}
                 onStatusChange={handleStatusChange}
               />
             </Grid>
 
-            <Grid size={4} height='50%'>
+            <Grid size={4}>
               <Card variant="outlined">
                 <CardContent>
                   <Typography variant="h6">Patient Information</Typography>
@@ -87,8 +124,8 @@ export default function EditTicket() {
                 </CardContent>
               </Card>
             </Grid>
-          
-            <Grid size={5} height='50%'>
+
+            <Grid size={5}>
               <Card variant="outlined">
                 <CardContent>
                   <Typography variant="h6">Call Information</Typography>
@@ -101,53 +138,77 @@ export default function EditTicket() {
               </Card>
             </Grid>
 
-            <Grid size={3} height='50%'>
+            <Grid size={3}>
               <TicketCollaborators
-                collaborators={ticket?.collaborators || []}
-                onAddCollaborator={handleAddCollaborator}
+                collaborators={collaborators}
+                onAddCollaborator={handleAddCollaboratorClick}
                 onRemoveCollaborator={handleRemoveCollaborator}
               />
+
             </Grid>
 
-            <Grid size={4} height='50%'>
-              <TicketNotes notes={ticket.notes} onAddNote={handleAddNote} />
+            <Grid size={4}>
+              <TicketNotes notes={notes} onAddNote={() => setOpenNoteDialog(true)} />
             </Grid>
 
-            <Grid size={5} height='50%'>
-              <TicketAudio audioUrl={ticket.url_audio} title="Call record"/>    
+            <Grid size={5}>
+              <TicketAudio audioUrl={ticket.url_audio} title="Call record" />
             </Grid>
 
-            <Grid size={5} height='50%'>
+            <Grid size={5}>
               <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
                 <Button variant="outlined" onClick={() => navigate(-1)}>Cancelar</Button>
               </Box>
             </Grid>
-        </Grid>
+          </Grid>
         </Box>
       </Paper>
 
+      {/* Modal para opciones de agente */}
       <AgentOptionsModal
         open={openAgentOptions}
         onClose={() => setOpenAgentOptions(false)}
-        onReassignAgent={() => console.log('Reasignar agente')}
-        onAddCollaborator={() => console.log('Agregar colaborador')}
-        onChangeDepartment={() => console.log('Cambiar departamento')}
+        onReassignAgent={() => {}}
+        onAddCollaborator={() => {}}
+        onChangeDepartment={() => {}}
       />
 
-      {/* Snackbar para errores */}
+      {/* Dialog para agregar nota */}
+      <AddNoteDialog
+        open={openNoteDialog}
+        onClose={() => setOpenNoteDialog(false)}
+        onSubmit={handleAddNote}
+        value={noteContent}
+        onChange={(e) => setNoteContent(e.target.value)}
+      />
+
+      {/**dialog para agentes */}
+      <AgentSelectorDialog
+        open={agentDialogOpen}
+        onClose={() => setAgentDialogOpen(false)}
+        onAdd={async (selectedAgents) => {
+          const updated = [...collaborators, ...selectedAgents.filter(a => !collaborators.includes(a))];
+          await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
+          setCollaborators(updated);
+          setAgentDialogOpen(false);
+          setSuccessOpen(true);
+        }}
+        agents={agents}
+        initialSelected={collaborators}
+      />
+
+      {/* Snackbars */}
       <AlertSnackbar
         open={errorOpen}
         onClose={() => setErrorOpen(false)}
         severity="error"
         message={state.error}
       />
-
-      {/* Snackbar para success */}
       <AlertSnackbar
         open={successOpen}
         onClose={() => setSuccessOpen(false)}
         severity="success"
-        message="Status updated successfully."
+        message="Operation successfull or no operations needed"
       />
     </>
   );
