@@ -29,7 +29,6 @@ export default function EditTicket({ agents }) {
   const [status, setStatus] = useState(ticket?.status || '');
   const [notes, setNotes] = useState(ticket?.notes || []);
   const [collaborators, setCollaborators] = useState(ticket?.collaborators || []);
-  const [openAddCollaborator, setOpenAddCollaborator] = useState(false);
 
   //state status
   const [openAgentOptions, setOpenAgentOptions] = useState(false);
@@ -101,7 +100,7 @@ const handleRemoveCollaborator = async (emailToRemove) => {
             <Grid size={12}>
               <TicketActionsBar
                 onReassignAgent={() => setOpenAgentOptions(true)}
-                onAddCollaborator={() => setOpenAddCollaborator(true)}  // <- cambio aquí
+                onAddCollaborator={() => setAgentDialogOpen(true)}  // <- cambio aquí
                 onReassignDepartment={() => console.log("Abrir reasignar departamento")}
               />
 

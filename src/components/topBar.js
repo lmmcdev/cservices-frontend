@@ -6,7 +6,6 @@ import {
 } from '@mui/material';
 import AutocompleteFilter from './components/autoCompleteFilter';
 import CollaboratorAutoComplete from './components/collaboratorAutocomplete';
-import TableTickets from '../pages/tableTickets';
 import { icons } from '../components/icons';
 
 export default function Topbar({ agents }) {
