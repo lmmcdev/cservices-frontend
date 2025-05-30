@@ -9,7 +9,7 @@ import AgentOptionsModal from '../components/dialogs/agentOptionsModal';
 import AlertSnackbar from '../components/alertSnackbar';
 import { ticketReducer, initialState } from '../utils/ticketsReducer';
 import { useLoading } from '../components/loadingProvider';
-import { changeStatus, addNotes, updateCollaborators } from '../utils/api';
+import { changeStatus, addNotes, updateCollaborators, assignAgent } from '../utils/api';
 import TicketNotes from '../components/ticketNotes';
 import TicketCollaborators from '../components/ticketCollaborators';
 import TicketAudio from '../components/ticketAudio';
@@ -167,10 +167,17 @@ const handleRemoveCollaborator = async (emailToRemove) => {
       <AgentOptionsModal
         open={openAgentOptions}
         onClose={() => setOpenAgentOptions(false)}
-        onReassignAgent={() => {}}
-        onAddCollaborator={() => {}}
-        onChangeDepartment={() => {}}
+        onReassignAgent={(selectedAgents) => console.log('Reassign:', selectedAgents)}
+        onAddAgent={async (selectedAgents) => {
+          const updated = [...collaborators, ...selectedAgents.filter(a => !collaborators.includes(a))];
+          await assignAgent (dispatch, setLoading, ticketId, agentEmail, updated);
+          setCollaborators(updated);
+          setSuccessOpen(true);
+        }}
+        onChangeDepartment={() => console.log("Abrir reasignar departamento")}
+        agents={agents}
       />
+
 
       {/* Dialog para agregar nota */}
       <AddNoteDialog
