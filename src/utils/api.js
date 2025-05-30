@@ -88,3 +88,64 @@ export const changeStatus = async (dispatch, setLoading, ticketId, currentAgentE
     setLoading(false);
   }
 };
+
+
+// add agent note to ticket
+export const addNotes = async (dispatch, setLoading, ticketId, currentAgentEmail, note) => {
+  try {
+    const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoUpdateNotes`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ticketId: ticketId,
+        agent_email: currentAgentEmail,
+        notes: note,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Error updating notes');
+    }
+
+    dispatch({ type: 'UPDATE_NOTE', payload: data.message });
+  } catch (err) {
+    dispatch({ type: 'SET_NOTE_ERROR', payload: err.message });
+  } finally {
+    setLoading(false);
+  }
+};
+
+//update collaborators
+export const updateCollaborators = async (dispatch, setLoading, ticketId, currentAgentEmail, collaborators) => {
+  setLoading(true);
+  try {
+    const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoUpdateCollaborators`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ticketId,
+        agent_email: currentAgentEmail,
+        collaborators,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Error updating collaborators');
+    }
+
+    dispatch({ type: 'UPDATE_COLLABORATORS', payload: collaborators });
+  } catch (err) {
+    dispatch({ type: 'SET_COLLABORATOR_ERROR', payload: err.message });
+  } finally {
+    setLoading(false);
+  }
+};
+
