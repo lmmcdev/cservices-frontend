@@ -29,7 +29,7 @@ export default function TicketNotes({ notes, onAddNote }) {
   const [showSystemLogs, setShowSystemLogs] = useState(false);
 
   const filteredNotes = notes.filter(
-    (note) => showSystemLogs || note.event_type === 'user_log'
+    (note) => showSystemLogs || note.event_type === 'user_note'
   );
 
   return (
@@ -55,7 +55,7 @@ export default function TicketNotes({ notes, onAddNote }) {
           {filteredNotes.length > 0 ? (
             filteredNotes.map((note, idx) => {
               const name = formatAgentName(note.agent_email);
-              const alignRight = note.event_type === 'user_log';
+              const alignRight = note.event_type === 'user_note';
 
               return (
                 <Box
@@ -77,6 +77,9 @@ export default function TicketNotes({ notes, onAddNote }) {
                   >
                     <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
                       {name}
+                    </Typography>
+                    <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                      {note.content}
                     </Typography>
                     <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
                       {note.event}
