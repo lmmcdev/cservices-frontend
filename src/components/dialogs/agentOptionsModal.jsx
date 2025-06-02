@@ -4,22 +4,29 @@ import {
   Button, Box
 } from '@mui/material';
 import CollaboratorAutoComplete from '../components/collaboratorAutocomplete';
+import DepartmentSelect from '../components/departmentSelect';
 
 const AgentOptionsModal = ({
   open,
   onClose,
   onReassignAgent,
-  onAddCollaborator,
   onChangeDepartment,
   agents = []
 }) => {
   const [selectedAgent, setSelectedAgent] = React.useState('');
+  const [selectedDepartment, setSelectedDepartment] = React.useState('');
+
+  const handleChangeDepartment = async () => {
+    if (onChangeDepartment && selectedDepartment) {
+      await onChangeDepartment(selectedDepartment);
+    }
+    onClose();
+  };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
       <DialogContent>
         <Box display="flex" flexDirection="column" gap={2}>
-          {/* Autocomplete */}
           <CollaboratorAutoComplete
             agents={agents}
             selectedEmails={selectedAgent ? [selectedAgent] : []}
@@ -28,7 +35,6 @@ const AgentOptionsModal = ({
             sx={{ my: 2 }}
           />
 
-          {/* Botón reasignar */}
           <Button
             variant="contained"
             disabled={!selectedAgent}
@@ -43,7 +49,7 @@ const AgentOptionsModal = ({
             }}
             onClick={async () => {
               if (onReassignAgent) {
-                await onReassignAgent([selectedAgent]);  //Llama al prop con el agente seleccionado
+                await onReassignAgent([selectedAgent]);
               }
               onClose();
             }}
@@ -51,28 +57,15 @@ const AgentOptionsModal = ({
             Reassign to Another User 
           </Button>
 
-          {/* Botón agregar colaborador */}
-          <Button
-            variant="outlined"
-            color="success"
-            onClick={() => {
-              onAddCollaborator?.(selectedAgent);
-              onClose();
-            }}
-          >
-            Agregar colaborador
-          </Button>
+          <DepartmentSelect value={selectedDepartment} onChange={setSelectedDepartment} />
 
-          {/* Botón cambiar departamento */}
           <Button
             variant="outlined"
             color="warning"
-            onClick={() => {
-              onChangeDepartment?.();
-              onClose();
-            }}
+            disabled={!selectedDepartment}
+            onClick={handleChangeDepartment}
           >
-            Cambiar departamento
+            Change Assigned Department
           </Button>
         </Box>
       </DialogContent>
@@ -82,6 +75,5 @@ const AgentOptionsModal = ({
     </Dialog>
   );
 };
-
 
 export default AgentOptionsModal;
