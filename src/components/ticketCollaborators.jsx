@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-import React from 'react';
-=======
 import React, { useEffect, useState } from 'react';
->>>>>>> origin/esteban-developer
 import {
   Card,
   CardContent,
@@ -16,18 +12,13 @@ import {
 import GroupIcon from '@mui/icons-material/Group';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-<<<<<<< HEAD
-=======
 import { getUserPhotoByEmail } from '../utils/graphHelper'; // asegúrate del nombre correcto del archivo
->>>>>>> origin/esteban-developer
 
 export default function TicketCollaborators({
   collaborators = [],
   onAddCollaborator,
   onRemoveCollaborator
 }) {
-<<<<<<< HEAD
-=======
   const [photoUrls, setPhotoUrls] = useState({});
 
   useEffect(() => {
@@ -49,7 +40,6 @@ export default function TicketCollaborators({
     if (collaborators.length > 0) fetchPhotos();
   }, [collaborators]);
 
->>>>>>> origin/esteban-developer
   return (
     <Card variant="outlined" sx={{ height: '100%' }}>
       <CardContent>
@@ -86,15 +76,11 @@ export default function TicketCollaborators({
                   justifyContent="space-between"
                 >
                   <Box display="flex" alignItems="center" gap={1}>
-<<<<<<< HEAD
-                    <Avatar sx={{ width: 24, height: 24 }}>
-=======
                     <Avatar
                       src={photoUrls[email]}
                       alt={formattedName}
                       sx={{ width: 24, height: 24 }}
                     >
->>>>>>> origin/esteban-developer
                       {formattedName.charAt(0)}
                     </Avatar>
                     <Typography variant="body2">{formattedName}</Typography>
