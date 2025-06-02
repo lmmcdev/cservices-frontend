@@ -61,11 +61,14 @@ export default function TableTickets({ agents }) {
   };
 
   const { tickets, error } = state;
+  const validTickets = Array.isArray(tickets) ? tickets : [];
+
 
   const filteredRows =
-    selectedStatus === 'Total'
-      ? tickets
-      : tickets.filter((row) => row.status === selectedStatus);
+  selectedStatus === 'Total'
+    ? validTickets
+    : validTickets.filter((row) => row.status === selectedStatus);
+
 
   const paginatedRows = filteredRows.slice(
     page * rowsPerPage,
