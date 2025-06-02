@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 
+
+
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
   Emergency: { bg: '#FFF5DA', text: '#FFB900' },
@@ -12,7 +14,7 @@ const statusColors = {
 };
 
 const TicketStatusBar = ({ currentStatus, onStatusChange }) => {
-  const statuses = Object.keys(statusColors);
+  //const statuses = Object.keys(statusColors);
 
   const [pendingStatus, setPendingStatus] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -23,6 +25,7 @@ const TicketStatusBar = ({ currentStatus, onStatusChange }) => {
       setConfirmOpen(true);
     }
   };
+
 
   const handleConfirm = () => {
     onStatusChange(pendingStatus);

@@ -6,6 +6,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
 
 //Para importar la libreria Bootstrap como componentes perzonalizados
 const TelephonePlusIcon = (props) => (
@@ -34,6 +35,7 @@ export const icons = {
     filterOff: FilterListIcon,
     collapseLeft: KeyboardDoubleArrowLeftIcon,
     collapseRight: KeyboardDoubleArrowRightIcon, 
+    assignToMe: GroupAddIcon,
     //Bootstrap
     addCase: TelephonePlusIcon,
     callLogs: TelephoneIcon,
