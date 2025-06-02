@@ -15,6 +15,10 @@ import TicketCollaborators from '../components/ticketCollaborators';
 import TicketAudio from '../components/ticketAudio';
 import AddNoteDialog from '../components/dialogs/addNotesDialog';
 import AgentSelectorDialog from '../components/dialogs/agentSelectorDialog';
+<<<<<<< HEAD
+=======
+import ProfilePic from '../components/components/profilePic';
+>>>>>>> origin/esteban-developer
 
 export default function EditTicket({ agents }) {
   //constants 
@@ -97,12 +101,19 @@ const handleRemoveCollaborator = async (emailToRemove) => {
       <Paper elevation={3} sx={{ p: 4, width: '100%', mx: 'auto', mt: 20, ml: 15, mr: 3 }}>
         <Box sx={{ flexGrow: 1 }}>
           <Grid container spacing={2}>
+<<<<<<< HEAD
             <Grid size={12}>
+=======
+            
+            <Grid size={11}>
+              
+>>>>>>> origin/esteban-developer
               <TicketActionsBar
                 onReassignAgent={() => setOpenAgentOptions(true)}
                 onAddCollaborator={() => setAgentDialogOpen(true)}  // <- cambio aquí
                 onReassignDepartment={() => console.log("Abrir reasignar departamento")}
               />
+<<<<<<< HEAD
 
             </Grid>
 
@@ -154,6 +165,59 @@ const handleRemoveCollaborator = async (emailToRemove) => {
               <TicketAudio audioUrl={ticket.url_audio} title="Call record" />
             </Grid>
 
+=======
+              
+            </Grid>
+            <Grid size={1}><ProfilePic /></Grid>
+            <Grid size={12}>
+              <TicketStatusBar
+                currentStatus={status}
+                onStatusChange={handleStatusChange}
+              />
+            </Grid>
+
+            <Grid size={4}>
+              <Card variant="outlined">
+                <CardContent>
+                  <Typography variant="h6">Patient Information</Typography>
+                  <Typography><strong>Patient:</strong><br /> {ticket.patient_name}</Typography>
+                  <Typography><strong>Patient DOB:</strong><br /> {ticket.patient_dob}</Typography>
+                  <Typography><strong>Phone:</strong><br /> {ticket.phone}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid size={5}>
+              <Card variant="outlined">
+                <CardContent>
+                  <Typography variant="h6">Call Information</Typography>
+                  <Typography><strong>Caller ID:</strong> {ticket.caller_id}</Typography>
+                  <Typography><strong>Nombre del llamante:</strong> {ticket.caller_Name}</Typography>
+                  <Typography><strong>Número para devolver llamada:</strong> {ticket.callback_number}</Typography>
+                  <Typography><strong>Motivo de llamada:</strong> {ticket.call_reason}</Typography>
+                  <Typography><strong>Fecha de creación:</strong> {new Date(ticket.creation_date).toLocaleString()}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid size={3}>
+              <TicketCollaborators
+                collaborators={collaborators}
+                onAddCollaborator={handleAddCollaboratorClick}
+                onRemoveCollaborator={handleRemoveCollaborator}
+              />
+
+            </Grid>
+
+            <Grid size={4}>
+              <TicketNotes notes={notes} onAddNote={() => setOpenNoteDialog(true)} />
+            </Grid>
+
+            <Grid size={5}>
+              <TicketAudio audioUrl={ticket.url_audio} title="Call record" />
+            </Grid>
+
+>>>>>>> origin/esteban-developer
             <Grid size={5}>
               <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
                 <Button variant="outlined" onClick={() => navigate(-1)}>Cancelar</Button>
@@ -167,10 +231,22 @@ const handleRemoveCollaborator = async (emailToRemove) => {
       <AgentOptionsModal
         open={openAgentOptions}
         onClose={() => setOpenAgentOptions(false)}
+<<<<<<< HEAD
         onReassignAgent={(selectedAgents) => console.log('Reassign:', selectedAgents)}
         onAddAgent={async (selectedAgents) => {
           const updated = [...collaborators, ...selectedAgents.filter(a => !collaborators.includes(a))];
           await assignAgent (dispatch, setLoading, ticketId, agentEmail, updated);
+=======
+        onReassignAgent={async (selectedAgents) => {
+          const updated = [...selectedAgents];
+          await assignAgent(dispatch, setLoading, ticketId, agentEmail, updated);
+          //setCollaborators(updated);
+          setSuccessOpen(true);
+        }}
+        onAddCollaborator={async (selectedAgent) => {
+          const updated = [...collaborators, selectedAgent].filter((v, i, a) => a.indexOf(v) === i);
+          await assignAgent(dispatch, setLoading, ticketId, agentEmail, updated);
+>>>>>>> origin/esteban-developer
           setCollaborators(updated);
           setSuccessOpen(true);
         }}

@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AssignAgentModal from '../components/dialogs/assignAgentDialog';
 import { icons } from '../components/icons.js';
 import { useNavigate } from 'react-router-dom';
+import { faCamera } from '@fortawesome/free-solid-svg-icons';
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -30,15 +31,12 @@ export default function TableTickets({ agents }) {
   const [selectedStatus, setSelectedStatus] = useState('Total');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [selectedTicket, setSelectedTicket] = React.useState(null);
+  const [selectedTicket, setSelectedTicket] = useState(null);
   const navigate = useNavigate();
-
-  const handleAssignAgent = (ticketId, agentEmail) => {
-    console.log("Asignar", agentEmail, "al ticket", ticketId);
-  };
 
   useEffect(() => {
     if (!user?.username) return;
+
     let cancelled = false;
     const loadData = async () => {
       setLoading(true);
@@ -48,6 +46,7 @@ export default function TableTickets({ agents }) {
         if (!cancelled) setLoading(false);
       }
     };
+
     loadData();
     return () => {
       cancelled = true;
@@ -57,6 +56,10 @@ export default function TableTickets({ agents }) {
   useEffect(() => {
     setPage(0);
   }, [selectedStatus]);
+
+  const handleAssignAgent = (ticketId, agentEmail) => {
+    console.log("Asignar", agentEmail, "al ticket", ticketId);
+  };
 
   const { tickets, error } = state;
 
@@ -83,7 +86,7 @@ export default function TableTickets({ agents }) {
     <>
       <Card elevation={3} sx={{ borderRadius: 4, position: 'fixed', top: 170, left: 200, right: 20 }}>
         <CardContent>
-          <Box component="main" sx={{ flexGrow: 1 }}>
+          <Box sx={{ flexGrow: 1 }}>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3, justifyContent: 'center' }}>
               {Object.keys(statusColors).map((status) => (
                 <Button
@@ -184,7 +187,7 @@ export default function TableTickets({ agents }) {
                         </Box>
                       </TableCell>
                       <TableCell>
-                        {row.status === "New" && row.agent_assigned === "" && (
+                        {row.status === 'New' && row.agent_assigned === '' && (
                           <Tooltip
                             title="Assign to me"
                             placement="bottom"
@@ -204,14 +207,15 @@ export default function TableTickets({ agents }) {
                               sx={{
                                 color: '#00a1ff',
                                 '&:hover': {
-                                  backgroundColor: 'transparent'
-                                }
+                                  backgroundColor: 'transparent',
+                                },
                               }}
                             >
                               <icons.assignToMe />
                             </IconButton>
                           </Tooltip>
                         )}
+                        <FontAwesomeIcon icon={faCamera} />
                       </TableCell>
                     </TableRow>
                   ))}

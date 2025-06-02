@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useRef, useState, useEffect } from 'react';
 import {
   Box,
@@ -66,6 +67,11 @@ export default function TicketAudio({ audioUrl, title = "Call Record" }) {
     seekTo(newTime);
   };
 
+=======
+import { Card, CardContent, Typography } from '@mui/material';
+
+export default function TicketAudio({ audioUrl, title }) {
+>>>>>>> origin/esteban-developer
   if (!audioUrl) {
     return (
       <Card variant="outlined">
@@ -79,11 +85,15 @@ export default function TicketAudio({ audioUrl, title = "Call Record" }) {
     );
   }
 
+<<<<<<< HEAD
   if (!window.Audio) {
+=======
+>>>>>>> origin/esteban-developer
   return (
     <Card variant="outlined">
       <CardContent>
         <Typography variant="body2">{title}</Typography>
+<<<<<<< HEAD
         <Typography variant="body2" color="text.secondary">
           Your browser does not support the audio element.
         </Typography>
@@ -177,6 +187,12 @@ export default function TicketAudio({ audioUrl, title = "Call Record" }) {
             sx={{ width: 80 }}
           />
         </Box>
+=======
+        <audio controls style={{ width: '100%' }}>
+          <source src={audioUrl} type="audio/mpeg" />
+          Your browser does not support the audio element.
+        </audio>
+>>>>>>> origin/esteban-developer
       </CardContent>
     </Card>
   );
