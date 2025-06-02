@@ -9,7 +9,7 @@ import AgentOptionsModal from '../components/dialogs/agentOptionsModal';
 import AlertSnackbar from '../components/alertSnackbar';
 import { ticketReducer, initialState } from '../utils/ticketsReducer';
 import { useLoading } from '../components/loadingProvider';
-import { changeStatus, addNotes, updateCollaborators, assignAgent } from '../utils/api';
+import { changeStatus, addNotes, updateCollaborators, assignAgent, updateTicketDepartment } from '../utils/api';
 import TicketNotes from '../components/ticketNotes';
 import TicketCollaborators from '../components/ticketCollaborators';
 import TicketAudio from '../components/ticketAudio';
@@ -53,43 +53,51 @@ export default function EditTicket({ agents }) {
 }, [ticket]);
 
 
-  //handling functions
-  const handleStatusChange = async (newStatus) => {
-    setLoading(true);
-    await changeStatus(dispatch, setLoading, ticketId, agentEmail, newStatus);
-    setStatus(newStatus);
-    setSuccessOpen(true);
+    //handling functions
+    const handleStatusChange = async (newStatus) => {
+      setLoading(true);
+      await changeStatus(dispatch, setLoading, ticketId, agentEmail, newStatus);
+      setStatus(newStatus);
+      setSuccessOpen(true);
+    };
+    ///////////////////////////////////////////////////////////////////////
+    const handleAddNote = async () => {
+      if (!noteContent.trim()) return;
+      const newNote = [{
+        agent_email: agentEmail,
+        event_type: 'user_note',
+        content: noteContent.trim(),
+        datetime: new Date().toISOString()
+      }];
+      await addNotes(dispatch, setLoading, ticketId, agentEmail, newNote);
+      setNotes((prev) => [...prev, ...newNote]);
+      setNoteContent('');
+      setOpenNoteDialog(false);
+      setSuccessOpen(true);
+    };
+    ////////////////////////////////////////////////////////////////////////////
+    const handleAddCollaboratorClick = async (newCollaborator) => {
+      setAgentDialogOpen(true);
+    /*const updated = [...collaborators, newCollaborator];
+    await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
+    setCollaborators(updated); // actualiza UI local si fue exitoso
+    setSuccessOpen(true);*/
   };
-  ///////////////////////////////////////////////////////////////////////
-  const handleAddNote = async () => {
-    if (!noteContent.trim()) return;
-    const newNote = [{
-      agent_email: agentEmail,
-      event_type: 'user_note',
-      content: noteContent.trim(),
-      datetime: new Date().toISOString()
-    }];
-    await addNotes(dispatch, setLoading, ticketId, agentEmail, newNote);
-    setNotes((prev) => [...prev, ...newNote]);
-    setNoteContent('');
-    setOpenNoteDialog(false);
-    setSuccessOpen(true);
-  };
-  ////////////////////////////////////////////////////////////////////////////
-  const handleAddCollaboratorClick = async (newCollaborator) => {
-    setAgentDialogOpen(true);
-  /*const updated = [...collaborators, newCollaborator];
-  await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
-  setCollaborators(updated); // actualiza UI local si fue exitoso
-  setSuccessOpen(true);*/
-};
 
-const handleRemoveCollaborator = async (emailToRemove) => {
-  const updated = collaborators.filter(c => c !== emailToRemove);
-  await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
-  setCollaborators(updated);
-  setSuccessOpen(true);
-};
+  const handleRemoveCollaborator = async (emailToRemove) => {
+    const updated = collaborators.filter(c => c !== emailToRemove);
+    await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
+    setCollaborators(updated);
+    setSuccessOpen(true);
+  };
+
+
+  //////////////////////////////////////////////////////////////////////////////
+  const handleChangeDepartment = async (newDept) => {
+    if (!newDept) return;
+    await updateTicketDepartment(dispatch, setLoading, ticketId, agentEmail, newDept);
+    setSuccessOpen(true);
+  };
 
   if (!ticket) return <Typography>Ticket not found</Typography>;
 
@@ -176,13 +184,7 @@ const handleRemoveCollaborator = async (emailToRemove) => {
           //setCollaborators(updated);
           setSuccessOpen(true);
         }}
-        onAddCollaborator={async (selectedAgent) => {
-          const updated = [...collaborators, selectedAgent].filter((v, i, a) => a.indexOf(v) === i);
-          await assignAgent(dispatch, setLoading, ticketId, agentEmail, updated);
-          setCollaborators(updated);
-          setSuccessOpen(true);
-        }}
-        onChangeDepartment={() => console.log("Abrir reasignar departamento")}
+        onChangeDepartment={handleChangeDepartment}
         agents={agents}
       />
 
