@@ -149,3 +149,34 @@ export const updateCollaborators = async (dispatch, setLoading, ticketId, curren
   }
 };
 
+//update collaborators
+export const updateTicketDepartment = async (dispatch, setLoading, ticketId, currentAgentEmail, newDepartment) => {
+  setLoading(true);
+  try {
+    const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoUpdateTicketDepartment`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ticketId: ticketId,
+        agent_email: currentAgentEmail,
+        new_department: newDepartment,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Error updating department');
+    }
+
+    dispatch({ type: 'UPDATE_TICKET_DEPARTMENT', payload: newDepartment });
+  } catch (err) {
+    dispatch({ type: 'SET_DEPARTMENT_ERROR', payload: err.message });
+  } finally {
+    setLoading(false);
+  }
+};
+
+

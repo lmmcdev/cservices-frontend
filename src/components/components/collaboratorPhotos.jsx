@@ -7,37 +7,33 @@ import {
   Avatar,
   Stack,
   IconButton,
-  Tooltip
+  Tooltip,
 } from '@mui/material';
 import GroupIcon from '@mui/icons-material/Group';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import { getUserPhotoByEmail } from '../utils/graphHelper'; // asegúrate del nombre correcto del archivo
+import { getPhotoByEmail } from '../../utils/graphHelper';
 
 export default function TicketCollaborators({
   collaborators = [],
   onAddCollaborator,
   onRemoveCollaborator
 }) {
-  const [photoUrls, setPhotoUrls] = useState({});
+  const [photos, setPhotos] = useState({});
 
   useEffect(() => {
+    if (collaborators.length === 0) return;
+
     const fetchPhotos = async () => {
-      const results = {};
-      await Promise.all(
-        collaborators.map(async (email) => {
-          try {
-            const url = await getUserPhotoByEmail(email);
-            if (url) results[email] = url;
-          } catch (err) {
-            console.warn(`No se pudo cargar la foto de ${email}:`, err.message);
-          }
-        })
-      );
-      setPhotoUrls(results);
+      try {
+        const results = await getPhotoByEmail(collaborators);
+        setPhotos(results);
+      } catch (err) {
+        console.error('Error al obtener fotos de colaboradores:', err);
+      }
     };
 
-    if (collaborators.length > 0) fetchPhotos();
+    fetchPhotos();
   }, [collaborators]);
 
   return (
@@ -68,6 +64,8 @@ export default function TicketCollaborators({
                 .map(part => part.charAt(0).toUpperCase() + part.slice(1))
                 .join(' ');
 
+              const photoUrl = photos[email];
+
               return (
                 <Box
                   key={index}
@@ -77,11 +75,11 @@ export default function TicketCollaborators({
                 >
                   <Box display="flex" alignItems="center" gap={1}>
                     <Avatar
-                      src={photoUrls[email]}
+                      src={photoUrl || undefined}
                       alt={formattedName}
                       sx={{ width: 24, height: 24 }}
                     >
-                      {formattedName.charAt(0)}
+                      {!photoUrl && formattedName.charAt(0)}
                     </Avatar>
                     <Typography variant="body2">{formattedName}</Typography>
                   </Box>

@@ -1,14 +1,13 @@
-// src/context/AuthContext.js
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { PublicClientApplication } from "@azure/msal-browser";
+import { PublicClientApplication, InteractionRequiredAuthError } from "@azure/msal-browser";
 import { msalConfig } from "../utils/azureAuth";
+
+export const msalInstance = new PublicClientApplication(msalConfig);
 
 const AuthContext = createContext();
 
-const msalInstance = new PublicClientApplication(msalConfig);
-
 const loginRequest = {
-  scopes: ["User.Read"], // puedes cambiar los scopes
+  scopes: ["User.Read", "User.ReadBasic.All"],
 };
 
 export const AuthProvider = ({ children }) => {
@@ -35,29 +34,40 @@ export const AuthProvider = ({ children }) => {
 
       if (account) {
         setUser(account);
-        await getProfilePhoto();
+        await getProfilePhoto(account);
       }
     } catch (error) {
       console.error("Login falló:", error);
     }
   };
 
-  const getProfilePhoto = async () => {
-    console.log("llamndo profile photo")
+  const getAccessToken = async (account) => {
     try {
-      const account = msalInstance.getActiveAccount();
+      return await msalInstance.acquireTokenSilent({ ...loginRequest, account });
+    } catch (error) {
+      if (error instanceof InteractionRequiredAuthError) {
+        // Intenta recuperar el token mediante interacción (popup)
+        return await msalInstance.acquireTokenPopup({ ...loginRequest, account });
+      } else {
+        throw error;
+      }
+    }
+  };
+
+  const getProfilePhoto = async (accountOverride) => {
+    try {
+      const account = accountOverride || msalInstance.getActiveAccount();
       if (!account) return;
 
-      const response = await msalInstance.acquireTokenSilent({
-        ...loginRequest,
-        account,
-      });
-
-      const graphResponse = await fetch("https://graph.microsoft.com/v1.0/me/photo/$value", {
-        headers: {
-          Authorization: `Bearer ${response.accessToken}`,
-        },
-      });
+      const tokenResponse = await getAccessToken(account);
+      const graphResponse = await fetch(
+        "https://graph.microsoft.com/v1.0/me/photo/$value",
+        {
+          headers: {
+            Authorization: `Bearer ${tokenResponse.accessToken}`,
+          },
+        }
+      );
 
       if (!graphResponse.ok) throw new Error("No se pudo obtener la imagen");
 
@@ -65,14 +75,14 @@ export const AuthProvider = ({ children }) => {
       const imageUrl = URL.createObjectURL(blob);
       setProfilePhoto(imageUrl);
     } catch (error) {
-      console.warn("Error cargando imagen de perfil:", error);
+      console.warn("Error cargando imagen de perfil:", error.message);
     }
   };
-
 
   const logout = () => {
     msalInstance.logoutPopup();
     setUser(null);
+    setProfilePhoto(null);
   };
 
   useEffect(() => {
@@ -87,5 +97,4 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// Hook para acceder fácilmente al contexto
 export const useAuth = () => useContext(AuthContext);

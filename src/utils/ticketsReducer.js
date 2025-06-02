@@ -81,6 +81,19 @@ export const ticketReducer = (state, action) => {
         ...state,
         error: action.payload,
       };
+
+    case 'UPDATE_TICKET_DEPARTMENT':
+      return {
+        ...state,
+        updated_action: action.payload,
+        error: null,
+      };
+    case 'SET_DEPARTMENT_ERROR':
+      return {
+        ...state,
+        error: action.payload,
+      };
+
     default:
       return state;
   }
