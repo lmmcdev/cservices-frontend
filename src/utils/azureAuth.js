@@ -1,3 +1,5 @@
+import { redirect } from "react-router-dom";
+
 // src/authConfig.js
 export const msalConfig = {
     auth: {
