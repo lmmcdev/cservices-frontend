@@ -4,7 +4,6 @@ import {
   Button, Box
 } from '@mui/material';
 import CollaboratorAutoComplete from '../components/collaboratorAutocomplete';
-import { assignAgent } from '../../utils/api';
 
 const AgentOptionsModal = ({
   open,
@@ -43,7 +42,9 @@ const AgentOptionsModal = ({
               }
             }}
             onClick={async () => {
-              await assignAgent(selectedAgent);  // Lo ejecuta desde EditTicket
+              if (onReassignAgent) {
+                await onReassignAgent([selectedAgent]);  //Llama al prop con el agente seleccionado
+              }
               onClose();
             }}
           >
@@ -81,6 +82,5 @@ const AgentOptionsModal = ({
     </Dialog>
   );
 };
-
 
 export default AgentOptionsModal;
