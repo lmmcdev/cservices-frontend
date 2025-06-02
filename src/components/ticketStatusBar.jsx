@@ -1,8 +1,14 @@
 // src/components/TicketStatusBar.jsx
 import React, { useState } from 'react';
-import { Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
-
-
+import {
+  Box,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button
+} from '@mui/material';
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -14,8 +20,6 @@ const statusColors = {
 };
 
 const TicketStatusBar = ({ currentStatus, onStatusChange }) => {
-  //const statuses = Object.keys(statusColors);
-
   const [pendingStatus, setPendingStatus] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -25,7 +29,6 @@ const TicketStatusBar = ({ currentStatus, onStatusChange }) => {
       setConfirmOpen(true);
     }
   };
-
 
   const handleConfirm = () => {
     onStatusChange(pendingStatus);
@@ -40,7 +43,16 @@ const TicketStatusBar = ({ currentStatus, onStatusChange }) => {
 
   return (
     <>
-      <Box display="flex" mt={2} borderRadius={2} overflow="hidden" boxShadow={1}>
+      <Box
+        display="flex"
+        mt={2}
+        borderRadius="20px"
+        boxShadow={1}
+        sx={{
+          backgroundColor: '#fff',
+          /* Quitar overflow:hidden para que las esquinas no se recorten */
+        }}
+      >
         {Object.entries(statusColors).map(([status, { bg, text }]) => {
           const isActive = currentStatus === status;
 
@@ -55,16 +67,31 @@ const TicketStatusBar = ({ currentStatus, onStatusChange }) => {
                 cursor: 'pointer',
                 backgroundColor: bg,
                 color: text,
-                fontWeight: isActive ? 'bold' : 'normal',
+                fontWeight: 'bold',
+                fontSize: '1rem',
                 borderTop: isActive ? `2px solid ${text}` : '1px solid transparent',
                 borderBottom: isActive ? `2px solid ${text}` : '1px solid transparent',
                 borderRight: isActive ? `2px solid ${text}` : '1px solid transparent',
                 borderLeft: isActive ? `2px solid ${text}` : '1px solid transparent',
-                '&:last-child': { borderRight: 'none' },
+
+                /* Redondear solo la primera y la última pestaña */
+                '&:first-of-type': {
+                  borderTopLeftRadius: '20px',
+                  borderBottomLeftRadius: '20px',
+                  borderLeft: isActive ? `2px solid ${text}` : '1px solid transparent',
+                },
+                '&:last-of-type': {
+                  borderTopRightRadius: '20px',
+                  borderBottomRightRadius: '20px',
+                  borderRight: isActive ? `2px solid ${text}` : '1px solid transparent',
+                },
+
                 '&:hover': { opacity: 0.9 },
               }}
             >
-              <Typography variant="body2">{status}</Typography>
+              <Typography variant="body2" fontWeight="bold" fontSize="1rem">
+                {status}
+              </Typography>
             </Box>
           );
         })}
@@ -74,12 +101,16 @@ const TicketStatusBar = ({ currentStatus, onStatusChange }) => {
         <DialogTitle>Changing status</DialogTitle>
         <DialogContent>
           <Typography>
-            Do you want to change ticket status from <strong>{currentStatus}</strong> to <strong>{pendingStatus}</strong>?
+            Do you want to change ticket status from{' '}
+            <strong>{currentStatus}</strong> to{' '}
+            <strong>{pendingStatus}</strong>?
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCancel}>Cancel</Button>
-          <Button onClick={handleConfirm} variant="contained" color="primary">Confirm</Button>
+          <Button onClick={handleConfirm} variant="contained" color="primary">
+            Confirm
+          </Button>
         </DialogActions>
       </Dialog>
     </>

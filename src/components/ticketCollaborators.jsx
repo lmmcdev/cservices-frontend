@@ -9,15 +9,24 @@ import {
   IconButton,
   Tooltip
 } from '@mui/material';
-import GroupIcon from '@mui/icons-material/Group';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { getUserPhotoByEmail } from '../utils/graphHelper'; // asegúrate del nombre correcto del archivo
 
+const statusColors = {
+  New: { bg: '#FFE2EA', text: '#FF6692' },
+  Emergency: { bg: '#FFF5DA', text: '#FFB900' },
+  'In Progress': { bg: '#DFF3FF', text: '#00A1FF' },
+  Pending: { bg: '#EAE8FA', text: '#8965E5' },
+  Done: { bg: '#DAF8F4', text: '#00B8A3' },
+  Duplicated: { bg: '#FFE3C4', text: '#FF8A00' },
+};
+
 export default function TicketCollaborators({
   collaborators = [],
   onAddCollaborator,
-  onRemoveCollaborator
+  onRemoveCollaborator,
+  status
 }) {
   const [photoUrls, setPhotoUrls] = useState({});
 
@@ -45,8 +54,17 @@ export default function TicketCollaborators({
       <CardContent>
         <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
           <Box display="flex" alignItems="center">
-            <GroupIcon sx={{ mr: 1 }} />
-            <Typography variant="h6">Collaborators</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Box sx={{
+                width: 8,
+                height: 24,
+                borderRadius: 10,
+                backgroundColor: statusColors[status]?.text || '#00a1ff'
+              }} />
+              <Typography variant="h6" sx={{ fontWeight: 'bold', color: statusColors[status]?.text || '#00a1ff' }}>
+                Collaborators
+              </Typography>
+            </Box>
           </Box>
           {onAddCollaborator && (
             <Tooltip title="Add collaborator">
