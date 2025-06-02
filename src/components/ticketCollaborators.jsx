@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -12,12 +12,34 @@ import {
 import GroupIcon from '@mui/icons-material/Group';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import { getUserPhotoByEmail } from '../utils/graphHelper'; // asegúrate del nombre correcto del archivo
 
 export default function TicketCollaborators({
   collaborators = [],
   onAddCollaborator,
   onRemoveCollaborator
 }) {
+  const [photoUrls, setPhotoUrls] = useState({});
+
+  useEffect(() => {
+    const fetchPhotos = async () => {
+      const results = {};
+      await Promise.all(
+        collaborators.map(async (email) => {
+          try {
+            const url = await getUserPhotoByEmail(email);
+            if (url) results[email] = url;
+          } catch (err) {
+            console.warn(`No se pudo cargar la foto de ${email}:`, err.message);
+          }
+        })
+      );
+      setPhotoUrls(results);
+    };
+
+    if (collaborators.length > 0) fetchPhotos();
+  }, [collaborators]);
+
   return (
     <Card variant="outlined" sx={{ height: '100%' }}>
       <CardContent>
@@ -54,7 +76,11 @@ export default function TicketCollaborators({
                   justifyContent="space-between"
                 >
                   <Box display="flex" alignItems="center" gap={1}>
-                    <Avatar sx={{ width: 24, height: 24 }}>
+                    <Avatar
+                      src={photoUrls[email]}
+                      alt={formattedName}
+                      sx={{ width: 24, height: 24 }}
+                    >
                       {formattedName.charAt(0)}
                     </Avatar>
                     <Typography variant="body2">{formattedName}</Typography>
