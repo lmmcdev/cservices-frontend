@@ -12,7 +12,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AssignAgentModal from '../components/dialogs/assignAgentDialog';
 import { icons } from '../components/icons.js';
 import { useNavigate } from 'react-router-dom';
-import { faCamera } from '@fortawesome/free-solid-svg-icons';
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -218,7 +217,6 @@ export default function TableTickets({ agents }) {
                             </IconButton>
                           </Tooltip>
                         )}
-                        <FontAwesomeIcon icon={faCamera} />
                       </TableCell>
                     </TableRow>
                   ))}
