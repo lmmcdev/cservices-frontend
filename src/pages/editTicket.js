@@ -15,6 +15,7 @@ import TicketCollaborators from '../components/ticketCollaborators';
 import TicketAudio from '../components/ticketAudio';
 import AddNoteDialog from '../components/dialogs/addNotesDialog';
 import AgentSelectorDialog from '../components/dialogs/agentSelectorDialog';
+import ProfilePic from '../components/components/profilePic';
 
 export default function EditTicket({ agents }) {
   //constants 
@@ -97,15 +98,17 @@ const handleRemoveCollaborator = async (emailToRemove) => {
       <Paper elevation={3} sx={{ p: 4, width: '100%', mx: 'auto', mt: 20, ml: 15, mr: 3 }}>
         <Box sx={{ flexGrow: 1 }}>
           <Grid container spacing={2}>
-            <Grid size={12}>
+            
+            <Grid size={11}>
+              
               <TicketActionsBar
                 onReassignAgent={() => setOpenAgentOptions(true)}
                 onAddCollaborator={() => setAgentDialogOpen(true)}  // <- cambio aquí
                 onReassignDepartment={() => console.log("Abrir reasignar departamento")}
               />
-
+              
             </Grid>
-
+            <Grid size={1}><ProfilePic /></Grid>
             <Grid size={12}>
               <TicketStatusBar
                 currentStatus={status}
@@ -167,10 +170,15 @@ const handleRemoveCollaborator = async (emailToRemove) => {
       <AgentOptionsModal
         open={openAgentOptions}
         onClose={() => setOpenAgentOptions(false)}
-        onReassignAgent={(selectedAgents) => console.log('Reassign:', selectedAgents)}
-        onAddAgent={async (selectedAgents) => {
-          const updated = [...collaborators, ...selectedAgents.filter(a => !collaborators.includes(a))];
-          await assignAgent (dispatch, setLoading, ticketId, agentEmail, updated);
+        onReassignAgent={async (selectedAgents) => {
+          const updated = [...selectedAgents];
+          await assignAgent(dispatch, setLoading, ticketId, agentEmail, updated);
+          //setCollaborators(updated);
+          setSuccessOpen(true);
+        }}
+        onAddCollaborator={async (selectedAgent) => {
+          const updated = [...collaborators, selectedAgent].filter((v, i, a) => a.indexOf(v) === i);
+          await assignAgent(dispatch, setLoading, ticketId, agentEmail, updated);
           setCollaborators(updated);
           setSuccessOpen(true);
         }}
