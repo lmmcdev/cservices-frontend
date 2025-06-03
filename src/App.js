@@ -12,6 +12,7 @@ import EditTicket from './pages/editTicket';
 import { ticketReducer, initialState } from './utils/ticketsReducer';
 import { fetchAgentData } from './utils/api';
 import { SignalRProvider, useSignalR } from './utils/signalRContext';
+import { FiltersProvider } from './utils/js/filterContext';
 import './App.css';
 
 function AppContent() {
@@ -22,6 +23,11 @@ function AppContent() {
   const [agentEmail, setAgentEmail] = useState('');
   const { initializeSignalR } = useSignalR();
 
+  const [filters, setFilters] = useState({
+    date: '',
+    assignedAgents: [],
+    callerIds: [],
+  });
   // Asignar email del usuario MSAL
   useEffect(() => {
     if (user?.username) {
@@ -61,11 +67,11 @@ function AppContent() {
   return (
     <Box sx={{ display: 'flex', bgcolor: '#f8fafd', minHeight: '100vh' }}>
       <CssBaseline />
-      <Topbar agents={agents} agent={agentEmail} />
+      <Topbar agents={agents} agent={agentEmail} filters={filters} setFilters={setFilters}/>
       <Sidebar />
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={<TableTickets agents={agents} />} />
+        <Route path="/dashboard" element={<TableTickets agents={agents} filters={filters}/>} />
         <Route path="/tickets/edit/:ticketId/:agentEmail" element={<EditTicket agents={agents} />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
@@ -79,9 +85,11 @@ function App() {
       <AuthProvider>
         <LoadingProvider>
           <SignalRProvider>
-            <BrowserRouter>
-              <AppContent />
-            </BrowserRouter>
+            <FiltersProvider>
+              <BrowserRouter>
+                <AppContent />
+              </BrowserRouter>
+            </FiltersProvider>
           </SignalRProvider>
         </LoadingProvider>
       </AuthProvider>

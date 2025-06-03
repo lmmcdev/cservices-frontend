@@ -12,30 +12,41 @@ import { createNewTicket } from '../utils/api';
 import { useLoading } from './loadingProvider';
 import { ticketReducer, initialState } from '../utils/ticketsReducer';
 import AlertSnackbar from './alertSnackbar';
-
+import { useFilters } from '../utils/js/filterContext';
 
 export default function Topbar({ agents, agent }) {
   const clinics = ['Wellmax Cutler Ridge', 'LMMC Homestead', 'Pasteur Hialeah Center', 'LMMC Hialeah West', 'Wellmax Marlings'];
-  const [callerIds, setCallerIds] = useState([]);
-  const [assignedAgents, setAssignedTo] = useState([]);
-  const [date, setDate] = useState('');
-  const [showFilters, setShowFilters] = useState(true);
-  const [open, setOpen] = useState(false);
+
   const { setLoading } = useLoading();
   const [, dispatch] = useReducer(ticketReducer, initialState);
+  const [open, setOpen] = useState(false);
 
   const [errorOpen, setErrorOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  
-  const toggleFilters = () => setShowFilters((prev) => !prev);
-  
-  const handleSubmit = async (data) => {
-    const form = {...data, agent_email: agent}
 
+  const [showFilters, setShowFilters] = useState(true);
+  const toggleFilters = () => setShowFilters((prev) => !prev);
+
+  const { filters, setFilters } = useFilters();
+
+  const handleDateChange = (e) => {
+    setFilters((prev) => ({ ...prev, date: e.target.value }));
+  };
+
+  const handleAssignedAgentsChange = (value) => {
+    setFilters((prev) => ({ ...prev, assignedAgents: value }));
+  };
+
+  const handleCallerIdsChange = (value) => {
+    setFilters((prev) => ({ ...prev, callerIds: value }));
+  };
+
+  const handleSubmit = async (data) => {
+    const form = { ...data, agent_email: agent };
     setLoading(true);
-    
+
     const result = await createNewTicket(dispatch, setLoading, form);
     if (result.success) {
       setSuccessMessage(result.message);
@@ -44,7 +55,7 @@ export default function Topbar({ agents, agent }) {
       setErrorMessage(result.message);
       setErrorOpen(true);
     }
-};
+  };
 
   return (
     <>
@@ -60,7 +71,15 @@ export default function Topbar({ agents, agent }) {
           backgroundColor: '#fff',
         }}
       >
-        <CardContent sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingY: 2, paddingX: 3, gap: 2, flexWrap: 'wrap' }}>
+        <CardContent sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingY: 2,
+          paddingX: 3,
+          gap: 2,
+          flexWrap: 'wrap'
+        }}>
           <Typography variant="p" sx={{ minWidth: 160, color: 'text.secondary', fontWeight: 'bold' }}>
             Call Logs
           </Typography>
@@ -70,8 +89,8 @@ export default function Topbar({ agents, agent }) {
                 <TextField
                   size="small"
                   type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
+                  value={filters.date}
+                  onChange={handleDateChange}
                   sx={{
                     width: 240,
                     '& input': {
@@ -89,15 +108,15 @@ export default function Topbar({ agents, agent }) {
                 />
                 <CollaboratorAutoComplete
                   agents={agents}
-                  selectedEmails={assignedAgents}
-                  onChange={setAssignedTo}
+                  selectedEmails={filters.assignedAgents}
+                  onChange={handleAssignedAgentsChange}
                   label="Assigned to"
                 />
                 <AutocompleteFilter
                   label="Caller ID"
                   options={clinics}
-                  value={callerIds}
-                  onChange={setCallerIds}
+                  value={filters.callerIds}
+                  onChange={handleCallerIdsChange}
                 />
               </Stack>
             </Fade>
@@ -107,7 +126,7 @@ export default function Topbar({ agents, agent }) {
               </IconButton>
             </Tooltip>
             <Tooltip title="Add Case">
-              <IconButton  onClick={() => setOpen(true)} sx={{ padding: 0, height: 26, width: 36, '&:hover': { backgroundColor: 'transparent' } }}>
+              <IconButton onClick={() => setOpen(true)} sx={{ padding: 0, height: 26, width: 36, '&:hover': { backgroundColor: 'transparent' } }}>
                 <icons.addCase style={{ fontSize: '17px' }} />
               </IconButton>
             </Tooltip>
@@ -123,11 +142,10 @@ export default function Topbar({ agents, agent }) {
       <CreateTicketDialog
         open={open}
         onClose={() => setOpen(false)}
-        handleOnSubmit={(data) => handleSubmit(data)}
+        handleOnSubmit={handleSubmit}
         agentEmail={agent}
       />
 
-      {/* Snackbars */}
       <AlertSnackbar
         open={errorOpen}
         onClose={() => setErrorOpen(false)}
@@ -140,7 +158,6 @@ export default function Topbar({ agents, agent }) {
         severity="success"
         message={successMessage}
       />
-
     </>
   );
 }
