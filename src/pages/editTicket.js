@@ -191,19 +191,17 @@ export default function EditTicket({ agents }) {
   return (
     <>
       <Paper elevation={3} sx={{ p: 4, width: '100%', mx: 'auto', mt: 20, ml: 15, mr: 3 }}>
+        {/* Row 1: ActionsBar and ProfilePic */}
+        <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <TicketActionsBar
+            onReassignAgent={() => setOpenAgentOptions(true)}
+            onAddCollaborator={() => setAgentDialogOpen(true)}
+            onReassignDepartment={() => console.log("Abrir reasignar departamento")}
+          />
+          <ProfilePic />
+        </Box>
         <Box sx={{ flexGrow: 1 }}>
           <Grid container spacing={2}>
-            
-            <Grid size={11}>
-              
-              <TicketActionsBar
-                onReassignAgent={() => setOpenAgentOptions(true)}
-                onAddCollaborator={() => setAgentDialogOpen(true)}  // <- cambio aquí
-                onReassignDepartment={() => console.log("Abrir reasignar departamento")}
-              />
-              
-            </Grid>
-            <Grid size={1}><ProfilePic /></Grid>
             <Grid size={12}>
               <TicketStatusBar
                 currentStatus={status}
