@@ -94,6 +94,33 @@ export const ticketReducer = (state, action) => {
         error: action.payload,
       };
 
+    case 'UPDATE_PATIENT_NAME':
+      return {
+        ...state,
+        updated_action: action.payload,
+        error: null,
+      };
+    case 'SET_PATIENT_NAME_ERROR':
+      return {
+        ...state,
+        error: action.payload,
+      };
+
+    case 'UPDATE_PATIENT_BOD':
+      return {
+        ...state,
+        updated_action: action.payload,
+        error: null,
+      };
+
+    case 'UPDATE_PATIENT_PHONE':
+      return {
+        ...state,
+        updated_action: action.payload,
+        error: null,
+      };
+    
+
     default:
       return state;
   }

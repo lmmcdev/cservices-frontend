@@ -1,6 +1,23 @@
 // src/components/AutocompleteFilter.jsx
 import React from 'react';
 import { Autocomplete, TextField, Box } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
+const commonStyles = {
+  fontSize: 12,
+  height: 36,
+  color: 'text.secondary',
+  '& .MuiOutlinedInput-notchedOutline': {
+    borderColor: '#ccc',
+  },
+  '&:hover .MuiOutlinedInput-notchedOutline': {
+    borderColor: '#aaa',
+  },
+  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+    borderColor: '#00a1ff',
+  },
+};
+
 
 export default function AutocompleteFilter({
   label,
@@ -25,7 +42,8 @@ export default function AutocompleteFilter({
       onChange={(e, newValue) => onChange(newValue)}
       disableCloseOnSelect
       getOptionLabel={getOptionLabel}
-      sx={{ width }}
+      sx={{ width, ...commonStyles }}
+      popupIcon={<ExpandMoreIcon sx={{ fontSize: 20, color: 'text.secondary' }} />}
       renderTags={(value, getTagProps) => (
         <Box
           sx={{
@@ -65,19 +83,19 @@ export default function AutocompleteFilter({
           label={label}
           placeholder={placeholder}
           variant="outlined"
-          InputLabelProps={{ sx: { color: 'text.secondary', fontSize: 12 } }}
+          InputLabelProps={{
+            sx: { color: 'text.secondary', fontSize: 12 },
+          }}
           InputProps={{
             ...params.InputProps,
             sx: {
-              fontSize: 12,
-              color: 'text.secondary',
-              height: 36,
+              ...commonStyles,
               alignItems: 'center',
-              overflow: 'hidden',
             },
           }}
         />
       )}
     />
+
   );
 }
