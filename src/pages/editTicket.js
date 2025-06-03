@@ -185,7 +185,6 @@ export default function EditTicket({ agents }) {
       // Convertir "YYYY-MM-DD" → "MM/DD/YYYY"
       const [year, month, day] = newDob.split('-');
       const mmddyyyy = `${month}/${day}/${year}`;
-      console.log("Fecha formateada (MM/DD/YYYY):", mmddyyyy);
 
       // Validación rápida en frontend
       const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/\d{4}$/;
@@ -252,7 +251,7 @@ export default function EditTicket({ agents }) {
               {/* Patient Information */}
               <Card variant="outlined">
                 <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
                     <Box
                       sx={{
                         width: 8,
@@ -268,7 +267,7 @@ export default function EditTicket({ agents }) {
                       Patient Information
                     </Typography>
                   </Box>
-                  <Typography sx={{ mb: 2.5 }}>
+                  <Typography sx={{ mb: 1 }}>
                     <strong>Patient:</strong><br /> 
                     <Box mt={1}>
                     {editField === 'name' ? (
@@ -297,7 +296,7 @@ export default function EditTicket({ agents }) {
                     )}
                   </Box>
                   </Typography>
-                  <Typography sx={{ mb: 2.5 }}>
+                  <Typography sx={{ mb: 1 }}>
                     <strong>Patient DOB:</strong><br /> 
                     <Box mt={2}>
                     {editField === 'dob' ? (
