@@ -6,8 +6,19 @@ import {
   CardContent,
   Tooltip,
 } from '@mui/material';
-import { Add, Settings } from '@mui/icons-material';
+import { Add } from '@mui/icons-material';
+import { SortAscending, SortDescending } from 'phosphor-react';
 import { useState } from 'react';
+
+const statusColors = {
+  New: { bg: '#FFE2EA', text: '#FF6692' },
+  Emergency: { bg: '#FFF5DA', text: '#FFB900' },
+  'In Progress': { bg: '#DFF3FF', text: '#00A1FF' },
+  Pending: { bg: '#EAE8FA', text: '#8965E5' },
+  Done: { bg: '#DAF8F4', text: '#00B8A3' },
+  Duplicated: { bg: '#FFE3C4', text: '#FF8A00' },
+  Total: { bg: 'transparent', text: '#0947D7' },
+};
 
 function formatAgentName(email) {
   if (!email || typeof email !== 'string' || !email.includes('@')) return 'Unknown';
@@ -25,27 +36,57 @@ function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-export default function TicketNotes({ notes, onAddNote }) {
+export default function TicketNotes({ notes, onAddNote, status }) {
   const [showSystemLogs, setShowSystemLogs] = useState(false);
+  const [sortAscending, setSortAscending] = useState(true);
 
-  const filteredNotes = notes.filter(
-    (note) => showSystemLogs || note.event_type === 'user_note'
-  );
+  const filteredNotes = notes
+    .filter((note) => showSystemLogs || note.event_type === 'user_note')
+    .sort((a, b) => {
+      const dateA = new Date(a.datetime);
+      const dateB = new Date(b.datetime);
+      return sortAscending ? dateA - dateB : dateB - dateA;
+    });
 
   return (
     <Card variant="outlined">
       <CardContent sx={{ p: 2 }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-          <Typography variant="h6">Notes</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{
+              width: 8,
+              height: 24,
+              borderRadius: 10,
+              backgroundColor: statusColors[status]?.text || '#00a1ff'
+            }} />
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: statusColors[status]?.text || '#00a1ff' }}>
+              Notes
+            </Typography>
+          </Box>
           <Box>
             <Tooltip title="Toggle system logs">
               <IconButton onClick={() => setShowSystemLogs((prev) => !prev)}>
-                <Settings color={showSystemLogs ? 'primary' : 'inherit'} />
+                <i
+                  className={`bi ${showSystemLogs ? 'bi-terminal-dash' : 'bi-terminal-plus'}`}
+                  style={{
+                    fontSize: 20,
+                    color: '#00a1ff',
+                  }}
+                />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Sort by date">
+              <IconButton onClick={() => setSortAscending(prev => !prev)}>
+                {sortAscending ? (
+                  <SortAscending size={22} weight="bold" color="#00a1ff" />
+                ) : (
+                  <SortDescending size={22} weight="bold" color="#00a1ff" />
+                )}
               </IconButton>
             </Tooltip>
             <Tooltip title="Add note">
               <IconButton onClick={onAddNote}>
-                <Add />
+                <i className="fa fa-sticky-note" style={{ color: '#FFD700', fontSize: '20px' }}></i>
               </IconButton>
             </Tooltip>
           </Box>

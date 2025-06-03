@@ -125,7 +125,7 @@ export default function TableTickets({ agents }) {
               <Table>
                 <TableHead>
                   <TableRow>
-                    {['Status', 'Caller ID', 'Name', 'DOB', 'Phone', 'Create At', ''].map((header) => (
+                    {['Status', 'Caller ID', 'Name', 'DOB', 'Phone', 'Create At', '', ''].map((header) => (
                       <TableCell key={header} sx={{ fontWeight: 'bold', fontSize: 16 }}>
                         {header}
                       </TableCell>
@@ -189,7 +189,7 @@ export default function TableTickets({ agents }) {
                         </Box>
                       </TableCell>
                       <TableCell>
-                        {row.status === 'New' && row.agent_assigned === '' && (
+                        {row.agent_assigned === '' && (
                           <Tooltip
                             title="Assign to me"
                             placement="bottom"
@@ -210,8 +210,8 @@ export default function TableTickets({ agents }) {
                                 color: '#00a1ff',
                                 '&:hover': {
                                   backgroundColor: 'transparent',
-                                },
-                              }}
+                                }}
+                              }
                             >
                               <icons.assignToMe />
                             </IconButton>
