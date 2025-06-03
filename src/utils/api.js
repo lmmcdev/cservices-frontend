@@ -304,3 +304,48 @@ export const updatePatientPhone = async (dispatch, setLoading, ticketId, current
     setLoading(false);
   }
 };
+
+
+//create new case
+export const createNewTicket = async (dispatch, setLoading, formData) => {
+  //console
+  setLoading(true);
+  try {
+    const response = await fetch('https://cservicesapi.azurewebsites.net/api/cosmoInsertForm', {
+    //const response = await fetch('http://localhost:7072/api/cosmoInsertForm', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        form: {
+          patient_name: formData.patientName,
+          patient_dob: formData.patientDOB,
+          phone: formData.phone,
+          summary: formData.summary,
+          status: formData.status, // backend lo completa como "new"
+          caller_id: formData.callDepartment,
+          call_reason: formData.callReason,
+          agent_note: formData.notes,
+          assigned_department: formData.callDepartment,
+          agent_email: formData.agent_email
+        }
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data.success === false) {
+      throw new Error(data.message || 'Error creating ticket');
+    }
+
+    dispatch({ type: 'TICKET_CREATED', payload: data });
+    return { success: true, message: data.message || 'Ticket created successfully' };
+  } catch (err) {
+    const message = err.message || 'Something went wrong';
+    dispatch({ type: 'SET_TICKET_ERROR', payload: message });
+    return { success: false, message };
+  } finally {
+    setLoading(false);
+  }
+};

@@ -88,9 +88,15 @@ export default function EditTicket({ agents }) {
     //handling functions
     const handleStatusChange = async (newStatus) => {
       setLoading(true);
-      await changeStatus(dispatch, setLoading, ticketId, agentEmail, newStatus);
-      setStatus(newStatus);
-      setSuccessOpen(true);
+      const result = await changeStatus(dispatch, setLoading, ticketId, agentEmail, newStatus);
+      if (result.success) {
+        setSuccessMessage(result.message);
+        setStatus(newStatus);
+        setSuccessOpen(true);
+      } else {
+        setErrorMessage(result.message);
+        setErrorOpen(true);
+      }  
     };
     ///////////////////////////////////////////////////////////////////////
     const handleAddNote = async () => {
@@ -101,11 +107,18 @@ export default function EditTicket({ agents }) {
         content: noteContent.trim(),
         datetime: new Date().toISOString()
       }];
-      await addNotes(dispatch, setLoading, ticketId, agentEmail, newNote);
-      setNotes((prev) => [...prev, ...newNote]);
-      setNoteContent('');
-      setOpenNoteDialog(false);
-      setSuccessOpen(true);
+      const result = await addNotes(dispatch, setLoading, ticketId, agentEmail, newNote);
+      if (result.success) {
+        setNotes((prev) => [...prev, ...newNote]);
+        setNoteContent('');
+        setOpenNoteDialog(false);
+        setSuccessMessage(result.message);
+        setSuccessOpen(true);
+      } else {
+        setErrorMessage(result.message);
+        setErrorOpen(true);
+      }
+      
     };
     ////////////////////////////////////////////////////////////////////////////
     const handleAddCollaboratorClick = async (newCollaborator) => {
@@ -118,17 +131,32 @@ export default function EditTicket({ agents }) {
 
   const handleRemoveCollaborator = async (emailToRemove) => {
     const updated = collaborators.filter(c => c !== emailToRemove);
-    await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
-    setCollaborators(updated);
-    setSuccessOpen(true);
+    const result = await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
+    if (result.success) {
+      setSuccessMessage(result.message);
+      setSuccessOpen(true);
+      setCollaborators(updated);
+    } else {
+      setErrorMessage(result.message);
+      setErrorOpen(true);
+    }
+    setEditField(null);
+    
   };
 
 
   //////////////////////////////////////////////////////////////////////////////
   const handleChangeDepartment = async (newDept) => {
     if (!newDept) return;
-    await updateTicketDepartment(dispatch, setLoading, ticketId, agentEmail, newDept);
-    setSuccessOpen(true);
+    const result = await updateTicketDepartment(dispatch, setLoading, ticketId, agentEmail, newDept);
+    if (result.success) {
+      setSuccessMessage(result.message);
+      setSuccessOpen(true);
+    } else {
+      setErrorMessage(result.message);
+      setErrorOpen(true);
+    }
+    setEditField(null);
   };
 
   /////////////////////Update Patient Fields///////////////////////////////////////////////////////
@@ -157,7 +185,6 @@ export default function EditTicket({ agents }) {
       // Convertir "YYYY-MM-DD" → "MM/DD/YYYY"
       const [year, month, day] = newDob.split('-');
       const mmddyyyy = `${month}/${day}/${year}`;
-      console.log("Fecha formateada (MM/DD/YYYY):", mmddyyyy);
 
       // Validación rápida en frontend
       const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/\d{4}$/;
@@ -224,7 +251,7 @@ export default function EditTicket({ agents }) {
               {/* Patient Information */}
               <Card variant="outlined">
                 <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
                     <Box
                       sx={{
                         width: 8,
@@ -240,7 +267,7 @@ export default function EditTicket({ agents }) {
                       Patient Information
                     </Typography>
                   </Box>
-                  <Typography sx={{ mb: 2.5 }}>
+                  <Typography sx={{ mb: 1 }}>
                     <strong>Patient:</strong><br /> 
                     <Box mt={1}>
                     {editField === 'name' ? (
@@ -263,13 +290,13 @@ export default function EditTicket({ agents }) {
                       </Box>
                     ) : (
                       <Box display="flex" alignItems="center" justifyContent="space-between">
-                        <Typography>{ticket.patient_name}</Typography>
+                        <Typography>{patientName}</Typography>
                         <IconButton onClick={() => setEditField('name')}><EditIcon fontSize="small" /></IconButton>
                       </Box>
                     )}
                   </Box>
                   </Typography>
-                  <Typography sx={{ mb: 2.5 }}>
+                  <Typography sx={{ mb: 1 }}>
                     <strong>Patient DOB:</strong><br /> 
                     <Box mt={2}>
                     {editField === 'dob' ? (
@@ -296,7 +323,7 @@ export default function EditTicket({ agents }) {
                       </Box>
                     ) : (
                       <Box display="flex" alignItems="center" justifyContent="space-between">
-                        <Typography>{ticket.patient_dob}</Typography>
+                        <Typography>{patientDob}</Typography>
                         <IconButton onClick={() => setEditField('dob')}><EditIcon fontSize="small" /></IconButton>
                       </Box>
                     )}
@@ -325,7 +352,7 @@ export default function EditTicket({ agents }) {
                       </Box>
                     ) : (
                       <Box display="flex" alignItems="center" justifyContent="space-between">
-                        <Typography>{ticket.phone}</Typography>
+                        <Typography>{patientPhone}</Typography>
                         <IconButton onClick={() => setEditField('phone')}><EditIcon fontSize="small" /></IconButton>
                       </Box>
                     )}

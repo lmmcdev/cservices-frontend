@@ -119,6 +119,13 @@ export const ticketReducer = (state, action) => {
         updated_action: action.payload,
         error: null,
       };
+
+    case 'TICKET_CREATED':
+      return {
+        ...state,
+        updated_action: action.payload,
+        error: null,
+      };
     
 
     default:
