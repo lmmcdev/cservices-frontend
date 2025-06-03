@@ -1,5 +1,5 @@
 // src/components/topBar.js
-import React, { useState } from 'react';
+import React, { useReducer, useEffect, useState } from 'react';
 import {
   Card, CardContent, Typography, TextField, IconButton,
   Tooltip, Stack, Fade
@@ -7,15 +7,51 @@ import {
 import AutocompleteFilter from './components/autoCompleteFilter';
 import CollaboratorAutoComplete from './components/collaboratorAutocomplete';
 import { icons } from '../components/icons';
+import CreateTicketDialog from './dialogs/createTicketDialog';
+import { createNewTicket } from '../utils/api';
+import { useLoading } from './loadingProvider';
+import { ticketReducer, initialState } from '../utils/ticketsReducer';
+import AlertSnackbar from './alertSnackbar';
 
-export default function Topbar({ agents }) {
+
+export default function Topbar({ agents, agent }) {
   const clinics = ['Wellmax Cutler Ridge', 'LMMC Homestead', 'Pasteur Hialeah Center', 'LMMC Hialeah West', 'Wellmax Marlings'];
   const [callerIds, setCallerIds] = useState([]);
   const [assignedAgents, setAssignedTo] = useState([]);
   const [date, setDate] = useState('');
   const [showFilters, setShowFilters] = useState(true);
+  const [open, setOpen] = useState(false);
+  const { setLoading } = useLoading();
+  const [state, dispatch] = useReducer(ticketReducer, initialState);
 
+  const [errorOpen, setErrorOpen] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  
   const toggleFilters = () => setShowFilters((prev) => !prev);
+  
+  const handleSubmit = async (data) => {
+    const form = {...data, agent_email: agent}
+
+    setLoading(true);
+    
+      /*const newTicket = {
+        ...form,
+        data_all
+      };*/
+
+      console.log(form)
+      // Simula un POST
+      const result = await createNewTicket(dispatch, setLoading, form);
+      if (result.success) {
+        setSuccessMessage(result.message);
+        setSuccessOpen(true);
+      } else {
+        setErrorMessage(result.message);
+        setErrorOpen(true);
+      }
+};
 
   return (
     <>
@@ -78,7 +114,7 @@ export default function Topbar({ agents }) {
               </IconButton>
             </Tooltip>
             <Tooltip title="Add Case">
-              <IconButton sx={{ padding: 0, height: 26, width: 36, '&:hover': { backgroundColor: 'transparent' } }}>
+              <IconButton  onClick={() => setOpen(true)} sx={{ padding: 0, height: 26, width: 36, '&:hover': { backgroundColor: 'transparent' } }}>
                 <icons.addCase style={{ fontSize: '17px' }} />
               </IconButton>
             </Tooltip>
@@ -90,6 +126,28 @@ export default function Topbar({ agents }) {
           </Stack>
         </CardContent>
       </Card>
+
+      <CreateTicketDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        handleOnSubmit={(data) => handleSubmit(data)}
+        agentEmail={agent}
+      />
+
+      {/* Snackbars */}
+      <AlertSnackbar
+        open={errorOpen}
+        onClose={() => setErrorOpen(false)}
+        severity="error"
+        message={errorMessage}
+      />
+      <AlertSnackbar
+        open={successOpen}
+        onClose={() => setSuccessOpen(false)}
+        severity="success"
+        message={successMessage}
+      />
+
     </>
   );
 }

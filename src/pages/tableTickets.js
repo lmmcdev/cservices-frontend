@@ -33,24 +33,19 @@ export default function TableTickets({ agents }) {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const navigate = useNavigate();
 
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      await fetchTableData(dispatch, setLoading, user.username);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!user?.username) return;
-
-    let cancelled = false;
-    const loadData = async () => {
-      setLoading(true);
-      try {
-        await fetchTableData(dispatch, setLoading, user.username);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-
     loadData();
-    return () => {
-      cancelled = true;
-    };
-  }, [user?.username, setLoading]);
+  }, [user?.username]);
 
   useEffect(() => {
     setPage(0);
@@ -134,7 +129,7 @@ export default function TableTickets({ agents }) {
                 </TableHead>
                 <TableBody>
                   {paginatedRows.map((row, idx) => (
-                    <TableRow key={idx} sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>
+                    <TableRow key={row.id} sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>
                       <TableCell>
                         <Chip
                           label={row.status}
