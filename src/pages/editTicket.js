@@ -88,9 +88,15 @@ export default function EditTicket({ agents }) {
     //handling functions
     const handleStatusChange = async (newStatus) => {
       setLoading(true);
-      await changeStatus(dispatch, setLoading, ticketId, agentEmail, newStatus);
-      setStatus(newStatus);
-      setSuccessOpen(true);
+      const result = await changeStatus(dispatch, setLoading, ticketId, agentEmail, newStatus);
+      if (result.success) {
+        setSuccessMessage(result.message);
+        setStatus(newStatus);
+        setSuccessOpen(true);
+      } else {
+        setErrorMessage(result.message);
+        setErrorOpen(true);
+      }  
     };
     ///////////////////////////////////////////////////////////////////////
     const handleAddNote = async () => {
@@ -101,11 +107,18 @@ export default function EditTicket({ agents }) {
         content: noteContent.trim(),
         datetime: new Date().toISOString()
       }];
-      await addNotes(dispatch, setLoading, ticketId, agentEmail, newNote);
-      setNotes((prev) => [...prev, ...newNote]);
-      setNoteContent('');
-      setOpenNoteDialog(false);
-      setSuccessOpen(true);
+      const result = await addNotes(dispatch, setLoading, ticketId, agentEmail, newNote);
+      if (result.success) {
+        setNotes((prev) => [...prev, ...newNote]);
+        setNoteContent('');
+        setOpenNoteDialog(false);
+        setSuccessMessage(result.message);
+        setSuccessOpen(true);
+      } else {
+        setErrorMessage(result.message);
+        setErrorOpen(true);
+      }
+      
     };
     ////////////////////////////////////////////////////////////////////////////
     const handleAddCollaboratorClick = async (newCollaborator) => {
@@ -118,17 +131,32 @@ export default function EditTicket({ agents }) {
 
   const handleRemoveCollaborator = async (emailToRemove) => {
     const updated = collaborators.filter(c => c !== emailToRemove);
-    await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
-    setCollaborators(updated);
-    setSuccessOpen(true);
+    const result = await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
+    if (result.success) {
+      setSuccessMessage(result.message);
+      setSuccessOpen(true);
+      setCollaborators(updated);
+    } else {
+      setErrorMessage(result.message);
+      setErrorOpen(true);
+    }
+    setEditField(null);
+    
   };
 
 
   //////////////////////////////////////////////////////////////////////////////
   const handleChangeDepartment = async (newDept) => {
     if (!newDept) return;
-    await updateTicketDepartment(dispatch, setLoading, ticketId, agentEmail, newDept);
-    setSuccessOpen(true);
+    const result = await updateTicketDepartment(dispatch, setLoading, ticketId, agentEmail, newDept);
+    if (result.success) {
+      setSuccessMessage(result.message);
+      setSuccessOpen(true);
+    } else {
+      setErrorMessage(result.message);
+      setErrorOpen(true);
+    }
+    setEditField(null);
   };
 
   /////////////////////Update Patient Fields///////////////////////////////////////////////////////
