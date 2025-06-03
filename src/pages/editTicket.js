@@ -5,7 +5,6 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Cancel';
 import TicketStatusBar from '../components/ticketStatusBar';
 import TicketActionsBar from '../components/ticketActionsBar';
 import AgentOptionsModal from '../components/dialogs/agentOptionsModal';
@@ -26,13 +25,14 @@ import TicketAudio from '../components/ticketAudio';
 import AddNoteDialog from '../components/dialogs/addNotesDialog';
 import AgentSelectorDialog from '../components/dialogs/agentSelectorDialog';
 import ProfilePic from '../components/components/profilePic';
+import ActionButtons from '../components/actionButtons';
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
   Emergency: { bg: '#FFF5DA', text: '#FFB900' },
   'In Progress': { bg: '#DFF3FF', text: '#00A1FF' },
   Pending: { bg: '#EAE8FA', text: '#8965E5' },
-  Done: { bg: '#DAF8F4', text: '#00A1FF' },
+  Done: { bg: '#DAF8F4', text: '#00b8a3' },
   Duplicated: { bg: '#FFE3C4', text: '#FF8A00' },
   Total: { bg: 'transparent', text: '#0947D7' },
 };
@@ -250,7 +250,7 @@ export default function EditTicket({ agents }) {
             <Box display="flex" flexDirection="column" gap={2} sx={{ width: '540px' }}>
               {/* Patient Information */}
               <Card variant="outlined">
-                <CardContent>
+                <CardContent sx={{ p: '20px 25px 25px 30px' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
                     <Box
                       sx={{
@@ -286,7 +286,7 @@ export default function EditTicket({ agents }) {
                         >
                           <SaveIcon />
                         </IconButton>
-                        <IconButton onClick={() => setEditField(null)}><CancelIcon /></IconButton>
+                        <IconButton onClick={() => setEditField(null)}><i className="fa fa-close" /></IconButton>
                       </Box>
                     ) : (
                       <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -298,7 +298,7 @@ export default function EditTicket({ agents }) {
                   </Typography>
                   <Typography sx={{ mb: 1 }}>
                     <strong>Patient DOB:</strong><br /> 
-                    <Box mt={2}>
+                    <Box>
                     {editField === 'dob' ? (
                       <Box display="flex" alignItems="center" gap={1}>
                         <TextField
@@ -319,7 +319,7 @@ export default function EditTicket({ agents }) {
                         >
                           <SaveIcon />
                         </IconButton>
-                        <IconButton onClick={() => setEditField(null)}><CancelIcon /></IconButton>
+                        <IconButton onClick={() => setEditField(null)}><i className="fa fa-close" /></IconButton>
                       </Box>
                     ) : (
                       <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -331,7 +331,7 @@ export default function EditTicket({ agents }) {
                   </Typography>
                   <Typography>
                     <strong>Phone:</strong><br />
-                    <Box mt={2}>
+                    <Box>
                     {editField === 'phone' ? (
                       <Box display="flex" alignItems="center" gap={1}>
                         <TextField
@@ -348,7 +348,7 @@ export default function EditTicket({ agents }) {
                         >
                           <SaveIcon />
                         </IconButton>
-                        <IconButton onClick={() => setEditField(null)}><CancelIcon /></IconButton>
+                        <IconButton onClick={() => setEditField(null)}><i className="fa fa-close" /></IconButton>
                       </Box>
                     ) : (
                       <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -373,7 +373,7 @@ export default function EditTicket({ agents }) {
             <Box display="flex" flexDirection="column" gap={2} sx={{ width: '540px' }}>
               {/* Call Information */}
               <Card variant="outlined">
-                <CardContent>
+                <CardContent sx={{ p: '20px 25px 25px 30px' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5 }}>
                     <Box
                       sx={{
@@ -394,16 +394,16 @@ export default function EditTicket({ agents }) {
                     <strong>Caller ID:</strong><br /> {ticket.caller_id}
                   </Typography>
                   <Typography sx={{ mb: 2.5 }}>
-                    <strong>Nombre del llamante:</strong><br /> {ticket.caller_Name}
+                    <strong>Caller Name:</strong><br /> {ticket.caller_Name}
                   </Typography>
                   <Typography sx={{ mb: 2.5 }}>
-                    <strong>Número para devolver llamada:</strong><br /> {ticket.callback_number}
+                    <strong>Callback Number:</strong><br /> {ticket.callback_number}
                   </Typography>
                   <Typography sx={{ mb: 2.5 }}>
-                    <strong>Motivo de llamada:</strong><br /> {ticket.call_reason}
+                    <strong>Call Reason:</strong><br /> {ticket.call_reason}
                   </Typography>
                   <Typography>
-                    <strong>Fecha de creación:</strong><br /> {new Date(ticket.creation_date).toLocaleString()}
+                    <strong>Creation Date:</strong><br /> {new Date(ticket.creation_date).toLocaleString()}
                   </Typography>
                 </CardContent>
               </Card>
@@ -430,9 +430,7 @@ export default function EditTicket({ agents }) {
         
         {/* Row 4: Cancel button */}
         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-          <Button variant="outlined" onClick={() => navigate(-1)}>
-            Cancelar
-          </Button>
+          <ActionButtons onCancel={() => navigate(-1)} />
         </Box>
       </Paper>
 

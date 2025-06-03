@@ -12,11 +12,11 @@ import {
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
+  Duplicated: { bg: '#FFE3C4', text: '#FF8A00' },
   Emergency: { bg: '#FFF5DA', text: '#FFB900' },
   'In Progress': { bg: '#DFF3FF', text: '#00A1FF' },
   Pending: { bg: '#EAE8FA', text: '#8965E5' },
   Done: { bg: '#DAF8F4', text: '#00B8A3' },
-  Duplicated: { bg: '#FFE3C4', text: '#FF8A00' },
 };
 
 const TicketStatusBar = ({ currentStatus, onStatusChange }) => {
@@ -47,7 +47,7 @@ const TicketStatusBar = ({ currentStatus, onStatusChange }) => {
         display="flex"
         mt={2}
         borderRadius="20px"
-        boxShadow={1}
+        boxShadow={0}
         sx={{
           backgroundColor: '#fff',
           /* Quitar overflow:hidden para que las esquinas no se recorten */
@@ -69,29 +69,31 @@ const TicketStatusBar = ({ currentStatus, onStatusChange }) => {
                 color: text,
                 fontWeight: 'bold',
                 fontSize: '1rem',
-                borderTop: isActive ? `2px solid ${text}` : '1px solid transparent',
-                borderBottom: isActive ? `2px solid ${text}` : '1px solid transparent',
-                borderRight: isActive ? `2px solid ${text}` : '1px solid transparent',
-                borderLeft: isActive ? `2px solid ${text}` : '1px solid transparent',
+                borderTop: isActive ? `3px solid ${text}` : '1px solid transparent',
+                borderBottom: isActive ? `3px solid ${text}` : '1px solid transparent',
+                borderRight: isActive ? `3px solid ${text}` : '1px solid transparent',
+                borderLeft: isActive ? `3px solid ${text}` : '1px solid transparent',
 
                 /* Redondear solo la primera y la última pestaña */
                 '&:first-of-type': {
                   borderTopLeftRadius: '20px',
                   borderBottomLeftRadius: '20px',
-                  borderLeft: isActive ? `2px solid ${text}` : '1px solid transparent',
+                  borderLeft: isActive ? `3px solid ${text}` : '1px solid transparent',
                 },
                 '&:last-of-type': {
                   borderTopRightRadius: '20px',
                   borderBottomRightRadius: '20px',
-                  borderRight: isActive ? `2px solid ${text}` : '1px solid transparent',
+                  borderRight: isActive ? `3px solid ${text}` : '1px solid transparent',
                 },
 
                 '&:hover': { opacity: 0.9 },
               }}
             >
-              <Typography variant="body2" fontWeight="bold" fontSize="1rem">
-                {status}
-              </Typography>
+              <Box display="flex" alignItems="center" justifyContent="center" height="100%">
+                <Typography variant="body2" fontWeight="bold" fontSize="1rem">
+                  {status}
+                </Typography>
+              </Box>
             </Box>
           );
         })}

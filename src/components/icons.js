@@ -26,6 +26,9 @@ const DashboardIcon = (props) => (
 const FaUsersV4 = (props) => (
   <i className="fa fa-users" {...props}></i>
 );
+const FaUserPlusV4 = (props) => (
+  <i className="fa fa-user-plus" {...props}></i>
+);
 
 export const icons = {
     //Font Awesome v6
@@ -43,6 +46,7 @@ export const icons = {
     dashboard: DashboardIcon,
     //Font Awesome v4
     supervisorView: FaUsersV4,
+    addCollaborator: FaUserPlusV4,
 };
 
 
