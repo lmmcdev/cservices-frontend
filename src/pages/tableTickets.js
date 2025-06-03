@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from 'react';
+import React, { useEffect, useReducer, useState, useCallback } from 'react';
 import { ticketReducer, initialState } from '../utils/ticketsReducer';
 import { fetchTableData } from '../utils/api';
 import { useLoading } from '../components/loadingProvider';
@@ -33,19 +33,20 @@ export default function TableTickets({ agents }) {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const navigate = useNavigate();
 
-  const loadData = async () => {
+  
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       await fetchTableData(dispatch, setLoading, user.username);
     } finally {
       setLoading(false);
     }
-  };
+  }, [dispatch, setLoading, user.username]);
 
   useEffect(() => {
     if (!user?.username) return;
     loadData();
-  }, [user?.username]);
+  }, [loadData, user?.username]);
 
   useEffect(() => {
     setPage(0);

@@ -6,7 +6,6 @@ import {
   CardContent,
   Tooltip,
 } from '@mui/material';
-import { Add } from '@mui/icons-material';
 import { SortAscending, SortDescending } from 'phosphor-react';
 import { useState } from 'react';
 

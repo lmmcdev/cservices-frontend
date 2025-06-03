@@ -1,5 +1,5 @@
 // src/components/topBar.js
-import React, { useReducer, useEffect, useState } from 'react';
+import React, { useReducer, useState } from 'react';
 import {
   Card, CardContent, Typography, TextField, IconButton,
   Tooltip, Stack, Fade
@@ -22,7 +22,7 @@ export default function Topbar({ agents, agent }) {
   const [showFilters, setShowFilters] = useState(true);
   const [open, setOpen] = useState(false);
   const { setLoading } = useLoading();
-  const [state, dispatch] = useReducer(ticketReducer, initialState);
+  const [, dispatch] = useReducer(ticketReducer, initialState);
 
   const [errorOpen, setErrorOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
@@ -36,21 +36,14 @@ export default function Topbar({ agents, agent }) {
 
     setLoading(true);
     
-      /*const newTicket = {
-        ...form,
-        data_all
-      };*/
-
-      console.log(form)
-      // Simula un POST
-      const result = await createNewTicket(dispatch, setLoading, form);
-      if (result.success) {
-        setSuccessMessage(result.message);
-        setSuccessOpen(true);
-      } else {
-        setErrorMessage(result.message);
-        setErrorOpen(true);
-      }
+    const result = await createNewTicket(dispatch, setLoading, form);
+    if (result.success) {
+      setSuccessMessage(result.message);
+      setSuccessOpen(true);
+    } else {
+      setErrorMessage(result.message);
+      setErrorOpen(true);
+    }
 };
 
   return (
