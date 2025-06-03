@@ -12,6 +12,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AssignAgentModal from '../components/dialogs/assignAgentDialog';
 import { icons } from '../components/icons.js';
 import { useNavigate } from 'react-router-dom';
+import { useFilters } from '../utils/js/filterContext.js';
+//import { emailToFullName } from '../utils/js/emailToFullName.js'
+
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -24,6 +27,7 @@ const statusColors = {
 };
 
 export default function TableTickets({ agents }) {
+  const { filters } = useFilters();
   const [state, dispatch] = useReducer(ticketReducer, initialState);
   const { setLoading } = useLoading();
   const { user } = useAuth();
@@ -60,12 +64,25 @@ export default function TableTickets({ agents }) {
   const validTickets = Array.isArray(tickets) ? tickets : [];
 
 
-  const filteredRows =
+  /*const filteredRows =
   selectedStatus === 'Total'
     ? validTickets
-    : validTickets.filter((row) => row.status === selectedStatus);
+    : validTickets.filter((row) => row.status === selectedStatus);*/
+
+    const filteredRows = validTickets.filter((row) => {
+  const matchStatus = selectedStatus === 'Total' || row.status === selectedStatus;
+  const matchAgent =
+    filters.assignedAgents.length === 0 || filters.assignedAgents.includes(row.agent_assigned);
+  const matchCaller =
+    filters.callerIds.length === 0 || filters.callerIds.includes(row.caller_id);
+  const matchDate =
+    !filters.date || row.creation_date?.startsWith(filters.date); // suponiendo formato 'YYYY-MM-DD...'
+
+  return matchStatus && matchAgent && matchCaller && matchDate;
+});
 
 
+  
   const paginatedRows = filteredRows.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
@@ -213,6 +230,19 @@ export default function TableTickets({ agents }) {
                             </IconButton>
                           </Tooltip>
                         )}
+                      </TableCell>
+
+                      <TableCell>
+                        {
+                          row.agent_assigned
+                          /*{(() => {
+                          const [local] = row.agent_assigned[0].split("@");
+                          const [first, last] = local.split(".");
+                          return first && last
+                            ? `${first[0].toUpperCase() + first.slice(1)} ${last[0].toUpperCase() + last.slice(1)}`
+                            : row.agent_assigned;
+                        })()}*/
+                      }
                       </TableCell>
                     </TableRow>
                   ))}
