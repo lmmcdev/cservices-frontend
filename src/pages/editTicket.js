@@ -290,7 +290,7 @@ export default function EditTicket({ agents }) {
                       </Box>
                     ) : (
                       <Box display="flex" alignItems="center" justifyContent="space-between">
-                        <Typography>{ticket.patient_name}</Typography>
+                        <Typography>{patientName}</Typography>
                         <IconButton onClick={() => setEditField('name')}><EditIcon fontSize="small" /></IconButton>
                       </Box>
                     )}
@@ -323,7 +323,7 @@ export default function EditTicket({ agents }) {
                       </Box>
                     ) : (
                       <Box display="flex" alignItems="center" justifyContent="space-between">
-                        <Typography>{ticket.patient_dob}</Typography>
+                        <Typography>{patientDob}</Typography>
                         <IconButton onClick={() => setEditField('dob')}><EditIcon fontSize="small" /></IconButton>
                       </Box>
                     )}
@@ -352,7 +352,7 @@ export default function EditTicket({ agents }) {
                       </Box>
                     ) : (
                       <Box display="flex" alignItems="center" justifyContent="space-between">
-                        <Typography>{ticket.phone}</Typography>
+                        <Typography>{patientPhone}</Typography>
                         <IconButton onClick={() => setEditField('phone')}><EditIcon fontSize="small" /></IconButton>
                       </Box>
                     )}
