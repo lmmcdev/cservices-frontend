@@ -10,8 +10,8 @@ import {
   Tooltip
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { getUserPhotoByEmail } from '../utils/graphHelper'; // asegúrate del nombre correcto del archivo
+import { icons } from '../components/icons';
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -51,7 +51,7 @@ export default function TicketCollaborators({
 
   return (
     <Card variant="outlined" sx={{ height: '100%' }}>
-      <CardContent>
+      <CardContent sx={{ p: '20px 25px 25px 30px' }}>
         <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
           <Box display="flex" alignItems="center">
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -69,7 +69,7 @@ export default function TicketCollaborators({
           {onAddCollaborator && (
             <Tooltip title="Add collaborator">
               <IconButton size="small" onClick={onAddCollaborator}>
-                <PersonAddIcon fontSize="small" />
+                <icons.addCollaborator style={{ color: '#00a1ff', fontSize: '16px' }} />
               </IconButton>
             </Tooltip>
           )}
@@ -97,7 +97,7 @@ export default function TicketCollaborators({
                     <Avatar
                       src={photoUrls[email]}
                       alt={formattedName}
-                      sx={{ width: 24, height: 24 }}
+                      sx={{ width: 40, height: 40 }}
                     >
                       {formattedName.charAt(0)}
                     </Avatar>

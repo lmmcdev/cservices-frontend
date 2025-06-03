@@ -50,7 +50,7 @@ export default function TicketNotes({ notes, onAddNote, status }) {
 
   return (
     <Card variant="outlined">
-      <CardContent sx={{ p: 2 }}>
+      <CardContent sx={{ p: '20px 25px 25px 30px' }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Box sx={{
@@ -92,7 +92,7 @@ export default function TicketNotes({ notes, onAddNote, status }) {
           </Box>
         </Box>
 
-        <Box sx={{ maxHeight: 250, overflowY: 'auto', pr: 1 }}>
+        <Box sx={{ maxHeight: 250, overflowY: 'auto', overflowX: 'hidden', pr: 1 }}>
           {filteredNotes.length > 0 ? (
             filteredNotes.map((note, idx) => {
               const name = formatAgentName(note.agent_email);
@@ -109,23 +109,58 @@ export default function TicketNotes({ notes, onAddNote, status }) {
                 >
                   <Box
                     sx={{
-                      maxWidth: '80%',
-                      p: 1.5,
-                      bgcolor: alignRight ? '#e0f7fa' : '#f0f0f0',
-                      borderRadius: 2,
+                      width: '100%',
+                      pt: '20px',
+                      pb: '15px',
+                      pl: '20px',
+                      pr: '20px',
+                      bgcolor: alignRight ? statusColors[status]?.bg || '#e0f7fa' : '#f0f0f0',
+                      borderRadius: '30px',
                       boxShadow: 1,
                     }}
                   >
-                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                      {name}
-                    </Typography>
-                    <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                    <Typography
+                      sx={{
+                        whiteSpace: 'pre-wrap',
+                        fontSize: '14px',
+                        wordBreak: 'break-word'
+                      }}
+                    >
                       {note.content}
                     </Typography>
-                    <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                    <Typography
+                      sx={{
+                        mb: 0.5,
+                        whiteSpace: 'pre-wrap',
+                        fontSize: '14px',
+                        wordBreak: 'break-word'
+                      }}
+                    >
                       {note.event}
                     </Typography>
-                    <Typography variant="caption" display="block" color="text.secondary">
+                    <Typography
+                      sx={{
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        textAlign: 'right',
+                        color: alignRight
+                          ? statusColors[status]?.text || '#000'
+                          : '#000'
+                      }}
+                    >
+                      {name}
+                    </Typography>
+                    <Typography
+                      display="block"
+                      sx={{
+                        fontSize: '11px',
+                        fontWeight: 'bold',
+                        textAlign: 'right',
+                        color: alignRight
+                          ? statusColors[status]?.text || '#000'
+                          : '#000'
+                      }}
+                    >
                       {new Date(note.datetime).toLocaleString()}
                     </Typography>
                   </Box>
