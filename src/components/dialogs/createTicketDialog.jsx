@@ -2,7 +2,7 @@ import React from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, Button, Divider, Typography, Stack,
-  MenuItem, Box, Grid
+  MenuItem, Box
 } from '@mui/material';
 import DepartmentSelect from '../components/departmentSelect';
 import { useFormik } from 'formik';
