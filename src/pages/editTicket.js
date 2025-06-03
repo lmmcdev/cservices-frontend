@@ -217,17 +217,32 @@ export default function EditTicket({ agents }) {
         </Box>
 
 
-        <Box sx={{ flexGrow: 1 }}>
-          <Grid container spacing={2}>
-
-            <Grid size={4}>
+        {/* Row 3: Centered Container for the three columns */}
+        <Grid container justifyContent="center" spacing={2}>
+          <Grid item>
+            <Box display="flex" flexDirection="column" gap={2} sx={{ width: '540px' }}>
+              {/* Patient Information */}
               <Card variant="outlined">
                 <CardContent>
-                  <Typography variant="h6">Patient Information</Typography>
-
-                  {/* Nombre del paciente */}
-                  <Box mt={1}>
-                    <Typography variant="subtitle2">Patient</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5 }}>
+                    <Box
+                      sx={{
+                        width: 8,
+                        height: 24,
+                        borderRadius: 10,
+                        backgroundColor: statusColors[status]?.text || '#00a1ff',
+                      }}
+                    />
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 'bold', color: statusColors[status]?.text || '#00a1ff' }}
+                    >
+                      Patient Information
+                    </Typography>
+                  </Box>
+                  <Typography sx={{ mb: 2.5 }}>
+                    <strong>Patient:</strong><br /> 
+                    <Box mt={1}>
                     {editField === 'name' ? (
                       <Box display="flex" alignItems="center" gap={1}>
                         <TextField
@@ -253,10 +268,10 @@ export default function EditTicket({ agents }) {
                       </Box>
                     )}
                   </Box>
-
-                  {/* Fecha de nacimiento */}
-                  <Box mt={2}>
-                    <Typography variant="subtitle2">Patient DOB</Typography>
+                  </Typography>
+                  <Typography sx={{ mb: 2.5 }}>
+                    <strong>Patient DOB:</strong><br /> 
+                    <Box mt={2}>
                     {editField === 'dob' ? (
                       <Box display="flex" alignItems="center" gap={1}>
                         <TextField
@@ -286,10 +301,10 @@ export default function EditTicket({ agents }) {
                       </Box>
                     )}
                   </Box>
-
-                  {/* Teléfono */}
-                  <Box mt={2}>
-                    <Typography variant="subtitle2">Phone</Typography>
+                  </Typography>
+                  <Typography>
+                    <strong>Phone:</strong><br />
+                    <Box mt={2}>
                     {editField === 'phone' ? (
                       <Box display="flex" alignItems="center" gap={1}>
                         <TextField
@@ -315,51 +330,81 @@ export default function EditTicket({ agents }) {
                       </Box>
                     )}
                   </Box>
-
+                  </Typography>
                 </CardContent>
               </Card>
-            </Grid>
 
+              <TicketNotes
+                notes={notes}
+                onAddNote={() => setOpenNoteDialog(true)}
+                status={status}
+              />
+            </Box>
+          </Grid>
 
-
-
-            <Grid size={5}>
+          <Grid item>
+            <Box display="flex" flexDirection="column" gap={2} sx={{ width: '540px' }}>
+              {/* Call Information */}
               <Card variant="outlined">
                 <CardContent>
-                  <Typography variant="h6">Call Information</Typography>
-                  <Typography><strong>Caller ID:</strong> {ticket.caller_id}</Typography>
-                  <Typography><strong>Nombre del llamante:</strong> {ticket.caller_Name}</Typography>
-                  <Typography><strong>Número para devolver llamada:</strong> {ticket.callback_number}</Typography>
-                  <Typography><strong>Motivo de llamada:</strong> {ticket.call_reason}</Typography>
-                  <Typography><strong>Fecha de creación:</strong> {new Date(ticket.creation_date).toLocaleString()}</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5 }}>
+                    <Box
+                      sx={{
+                        width: 8,
+                        height: 24,
+                        borderRadius: 10,
+                        backgroundColor: statusColors[status]?.text || '#00a1ff',
+                      }}
+                    />
+                    <Typography
+                      variant="h6"
+                      sx={{ fontWeight: 'bold', color: statusColors[status]?.text || '#00a1ff' }}
+                    >
+                      Call Information
+                    </Typography>
+                  </Box>
+                  <Typography sx={{ mb: 2.5 }}>
+                    <strong>Caller ID:</strong><br /> {ticket.caller_id}
+                  </Typography>
+                  <Typography sx={{ mb: 2.5 }}>
+                    <strong>Nombre del llamante:</strong><br /> {ticket.caller_Name}
+                  </Typography>
+                  <Typography sx={{ mb: 2.5 }}>
+                    <strong>Número para devolver llamada:</strong><br /> {ticket.callback_number}
+                  </Typography>
+                  <Typography sx={{ mb: 2.5 }}>
+                    <strong>Motivo de llamada:</strong><br /> {ticket.call_reason}
+                  </Typography>
+                  <Typography>
+                    <strong>Fecha de creación:</strong><br /> {new Date(ticket.creation_date).toLocaleString()}
+                  </Typography>
                 </CardContent>
               </Card>
-            </Grid>
 
-            <Grid size={3}>
+              <TicketAudio
+                audioUrl={ticket.url_audio}
+                title="Audio"
+                status={status}
+              />
+            </Box>
+          </Grid>
+
+          <Grid item>
+            <Box sx={{ width: '300px' }}>
               <TicketCollaborators
                 collaborators={collaborators}
                 onAddCollaborator={handleAddCollaboratorClick}
                 onRemoveCollaborator={handleRemoveCollaborator}
+                status={status}
               />
-
-            </Grid>
-
-            <Grid size={4}>
-              <TicketNotes notes={notes} onAddNote={() => setOpenNoteDialog(true)} />
-            </Grid>
-
-            <Grid size={5}>
-              <TicketAudio audioUrl={ticket.url_audio} title="Call record" />
-            </Grid>
-
-            <Grid size={5}>
+            </Box>
+          </Grid>
+        </Grid>
+<Grid size={5}>
               <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
                 <Button variant="outlined" onClick={() => navigate(-1)}>Cancelar</Button>
               </Box>
             </Grid>
-          </Grid>
-        </Box>
       </Paper>
 
       {/* Modal para opciones de agente */}
