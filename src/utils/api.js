@@ -6,10 +6,16 @@ export const fetchTableData = async (dispatch, setLoading, agentAssigned) => {
   try {
     const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGet?agent_assigned=${encodeURIComponent(agentAssigned)}`);
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || 'Error fetching tickets');
+    }
     
     dispatch({ type: 'SET_TICKETS', payload: data.message });
+    return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
-    dispatch({ type: 'SET_ERROR', payload: err.message });
+    const message = err.message || 'Something went wrong';
+    dispatch({ type: 'SET_PATIENT_NAME_ERROR', payload: message });
+    return { success: false, message };
   } finally {
     setLoading(false);
   }
@@ -20,10 +26,16 @@ export const fetchAgentData = async (dispatch, setLoading) => {
   try {
     const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetAgents`);
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || 'Error fetching agents data');
+    }
 
     dispatch({ type: 'SET_AGENTS', payload: data.message });
+    return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
-    dispatch({ type: 'SET_A_ERROR', payload: err.message });
+    const message = err.message || 'Something went wrong';
+    dispatch({ type: 'SET_PATIENT_NAME_ERROR', payload: message });
+    return { success: false, message };
   } finally {
     setLoading(false);
   }
@@ -50,9 +62,11 @@ export const assignAgent = async (dispatch, setLoading, ticketId, currentAgentEm
     }
 
     dispatch({type: 'ASSIGN_AGENT', payload: data.message})
-
+    return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
-    dispatch({ type: 'SET_ASSIGNMENT_ERROR', payload: err.message });
+    const message = err.message || 'Something went wrong';
+    dispatch({ type: 'SET_PATIENT_NAME_ERROR', payload: message });
+    return { success: false, message };
   } finally {
     setLoading(false);
   }
@@ -82,8 +96,11 @@ export const changeStatus = async (dispatch, setLoading, ticketId, currentAgentE
     }
 
     dispatch({ type: 'UPDATE_STATUS', payload: data.message });
+    return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
-    dispatch({ type: 'SET_UPDATE_ERROR', payload: err.message });
+    const message = err.message || 'Something went wrong';
+    dispatch({ type: 'SET_PATIENT_NAME_ERROR', payload: message });
+    return { success: false, message };
   } finally {
     setLoading(false);
   }
@@ -112,8 +129,11 @@ export const addNotes = async (dispatch, setLoading, ticketId, currentAgentEmail
     }
 
     dispatch({ type: 'UPDATE_NOTE', payload: data.message });
+    return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
-    dispatch({ type: 'SET_NOTE_ERROR', payload: err.message });
+    const message = err.message || 'Something went wrong';
+    dispatch({ type: 'SET_PATIENT_NAME_ERROR', payload: message });
+    return { success: false, message };
   } finally {
     setLoading(false);
   }
@@ -142,14 +162,17 @@ export const updateCollaborators = async (dispatch, setLoading, ticketId, curren
     }
 
     dispatch({ type: 'UPDATE_COLLABORATORS', payload: collaborators });
+    return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
-    dispatch({ type: 'SET_COLLABORATOR_ERROR', payload: err.message });
+    const message = err.message || 'Something went wrong';
+    dispatch({ type: 'SET_PATIENT_NAME_ERROR', payload: message });
+    return { success: false, message };
   } finally {
     setLoading(false);
   }
 };
 
-//update collaborators
+//update department on ticket
 export const updateTicketDepartment = async (dispatch, setLoading, ticketId, currentAgentEmail, newDepartment) => {
   setLoading(true);
   try {
@@ -172,11 +195,112 @@ export const updateTicketDepartment = async (dispatch, setLoading, ticketId, cur
     }
 
     dispatch({ type: 'UPDATE_TICKET_DEPARTMENT', payload: newDepartment });
+    return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
-    dispatch({ type: 'SET_DEPARTMENT_ERROR', payload: err.message });
+    const message = err.message || 'Something went wrong';
+    dispatch({ type: 'SET_PATIENT_NAME_ERROR', payload: message });
+    return { success: false, message };
   } finally {
     setLoading(false);
   }
 };
 
 
+//update patient name
+export const updatePatientName = async (dispatch, setLoading, ticketId, currentAgentEmail, newPatientName) => {
+  setLoading(true);
+  try {
+    const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoUpdatePatientName`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tickets: ticketId,
+        agent_email: currentAgentEmail,
+        nuevo_nombreapellido: newPatientName,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data.success === false) {
+      throw new Error(data.message || 'Error updating patient name');
+    }
+
+    dispatch({ type: 'UPDATE_PATIENT_NAME', payload: newPatientName });
+    return { success: true, message: data.message || 'Updated successfully' };
+  } catch (err) {
+    const message = err.message || 'Something went wrong';
+    dispatch({ type: 'SET_PATIENT_NAME_ERROR', payload: message });
+    return { success: false, message };
+  } finally {
+    setLoading(false);
+  }
+};
+
+//update patient dob
+export const updatePatientDOB = async (dispatch, setLoading, ticketId, currentAgentEmail, newPatientBOD) => {
+  setLoading(true);
+  try {
+    const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoUpdatePatientBOD`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tickets: ticketId,
+        agent_email: currentAgentEmail,
+        nueva_fechanacimiento: newPatientBOD,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data.success === false) {
+      throw new Error(data.message || 'Error updating patient bod');
+    }
+
+    dispatch({ type: 'UPDATE_PATIENT_BOD', payload: newPatientBOD });
+    return { success: true, message: data.message || 'Updated successfully' };
+  } catch (err) {
+    const message = err.message || 'Something went wrong';
+    dispatch({ type: 'SET_PATIENT_NAME_ERROR', payload: message });
+    return { success: false, message };
+  } finally {
+    setLoading(false);
+  }
+};
+
+//update patient phone
+export const updatePatientPhone = async (dispatch, setLoading, ticketId, currentAgentEmail, newPatientPhone) => {
+  setLoading(true);
+  try {
+    const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoUpdatePatientPhone`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tickets: ticketId,
+        agent_email: currentAgentEmail,
+        new_phone: newPatientPhone,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data.success === false) {
+      throw new Error(data.message || 'Error updating patient phone');
+    }
+
+    dispatch({ type: 'UPDATE_PATIENT_PHONE', payload: newPatientPhone });
+    return { success: true, message: data.message || 'Updated successfully' };
+  } catch (err) {
+    const message = err.message || 'Something went wrong';
+    dispatch({ type: 'SET_PATIENT_NAME_ERROR', payload: message });
+    return { success: false, message };
+  } finally {
+    setLoading(false);
+  }
+};

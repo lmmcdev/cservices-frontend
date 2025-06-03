@@ -24,7 +24,9 @@ const AgentOptionsModal = ({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm" PaperProps={{
+    sx: { width: 400, maxWidth: '90%' } // Ajusta a lo que necesites
+  }}>
       <DialogContent>
         <Box display="flex" flexDirection="column" gap={2}>
           <CollaboratorAutoComplete
