@@ -27,6 +27,16 @@ import AddNoteDialog from '../components/dialogs/addNotesDialog';
 import AgentSelectorDialog from '../components/dialogs/agentSelectorDialog';
 import ProfilePic from '../components/components/profilePic';
 
+const statusColors = {
+  New: { bg: '#FFE2EA', text: '#FF6692' },
+  Emergency: { bg: '#FFF5DA', text: '#FFB900' },
+  'In Progress': { bg: '#DFF3FF', text: '#00A1FF' },
+  Pending: { bg: '#EAE8FA', text: '#8965E5' },
+  Done: { bg: '#DAF8F4', text: '#00A1FF' },
+  Duplicated: { bg: '#FFE3C4', text: '#FF8A00' },
+  Total: { bg: 'transparent', text: '#0947D7' },
+};
+
 export default function EditTicket({ agents }) {
   //constants 
   const [state, dispatch] = useReducer(ticketReducer, initialState);
@@ -200,14 +210,15 @@ export default function EditTicket({ agents }) {
           />
           <ProfilePic />
         </Box>
+
+        {/* Row 2: StatusBar */}
+        <Box sx={{ mb: 2 }}>
+          <TicketStatusBar currentStatus={status} onStatusChange={handleStatusChange} />
+        </Box>
+
+
         <Box sx={{ flexGrow: 1 }}>
           <Grid container spacing={2}>
-            <Grid size={12}>
-              <TicketStatusBar
-                currentStatus={status}
-                onStatusChange={handleStatusChange}
-              />
-            </Grid>
 
             <Grid size={4}>
               <Card variant="outlined">
