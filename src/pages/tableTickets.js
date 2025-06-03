@@ -125,7 +125,7 @@ export default function TableTickets({ agents }) {
               <Table>
                 <TableHead>
                   <TableRow>
-                    {['Status', 'Caller ID', 'Name', 'DOB', 'Phone', 'Create At', ''].map((header) => (
+                    {['Status', 'Caller ID', 'Name', 'DOB', 'Phone', 'Create At', '', ''].map((header) => (
                       <TableCell key={header} sx={{ fontWeight: 'bold', fontSize: 16 }}>
                         {header}
                       </TableCell>
