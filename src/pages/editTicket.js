@@ -400,11 +400,13 @@ export default function EditTicket({ agents }) {
             </Box>
           </Grid>
         </Grid>
-<Grid size={5}>
-              <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between' }}>
-                <Button variant="outlined" onClick={() => navigate(-1)}>Cancelar</Button>
-              </Box>
-            </Grid>
+        
+        {/* Row 4: Cancel button */}
+        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+          <Button variant="outlined" onClick={() => navigate(-1)}>
+            Cancelar
+          </Button>
+        </Box>
       </Paper>
 
       {/* Modal para opciones de agente */}
