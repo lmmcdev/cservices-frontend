@@ -37,7 +37,7 @@ export default function TableTickets({ agents }) {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const navigate = useNavigate();
 
-  
+  //comprobar aqui si existe user.username
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
@@ -64,22 +64,18 @@ export default function TableTickets({ agents }) {
   const validTickets = Array.isArray(tickets) ? tickets : [];
 
 
-  /*const filteredRows =
-  selectedStatus === 'Total'
-    ? validTickets
-    : validTickets.filter((row) => row.status === selectedStatus);*/
-
+     //filtros de la tabla
     const filteredRows = validTickets.filter((row) => {
-  const matchStatus = selectedStatus === 'Total' || row.status === selectedStatus;
-  const matchAgent =
-    filters.assignedAgents.length === 0 || filters.assignedAgents.includes(row.agent_assigned);
-  const matchCaller =
-    filters.callerIds.length === 0 || filters.callerIds.includes(row.caller_id);
-  const matchDate =
-    !filters.date || row.creation_date?.startsWith(filters.date); // suponiendo formato 'YYYY-MM-DD...'
+      const matchStatus = selectedStatus === 'Total' || row.status === selectedStatus;
+      const matchAgent =
+        filters.assignedAgents.length === 0 || filters.assignedAgents.includes(row.agent_assigned);
+      const matchCaller =
+        filters.callerIds.length === 0 || filters.callerIds.includes(row.caller_id);
+      const matchDate =
+        !filters.date || row.creation_date?.startsWith(filters.date); // suponiendo formato 'YYYY-MM-DD...'
 
-  return matchStatus && matchAgent && matchCaller && matchDate;
-});
+      return matchStatus && matchAgent && matchCaller && matchDate;
+    });
 
 
   

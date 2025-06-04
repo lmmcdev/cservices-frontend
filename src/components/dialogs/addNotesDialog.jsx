@@ -6,8 +6,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
-  Button
+  TextField
 } from '@mui/material';
 import ActionButtons from '../actionButtons';
 

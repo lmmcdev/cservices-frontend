@@ -7,6 +7,9 @@ import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import HomeIcon from '@mui/icons-material/Home';
+import BusinessIcon from '@mui/icons-material/Business';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
 //Para importar la libreria Bootstrap como componentes perzonalizados
 const TelephonePlusIcon = (props) => (
@@ -26,9 +29,9 @@ const DashboardIcon = (props) => (
 const FaUsersV4 = (props) => (
   <i className="fa fa-users" {...props}></i>
 );
-const FaUserPlusV4 = (props) => (
+/*const FaUserPlusV4 = (props) => (
   <i className="fa fa-user-plus" {...props}></i>
-);
+);*/
 
 export const icons = {
     //Font Awesome v6
@@ -46,7 +49,10 @@ export const icons = {
     dashboard: DashboardIcon,
     //Font Awesome v4
     supervisorView: FaUsersV4,
-    addCollaborator: FaUserPlusV4,
+
+    addCollaborator: PersonAddIcon,
+    home: HomeIcon,
+    business: BusinessIcon,
 };
 
 

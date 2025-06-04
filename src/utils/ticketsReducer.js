@@ -127,6 +127,19 @@ export const ticketReducer = (state, action) => {
         error: null,
       };
     
+    case 'AGENT_EDITED':
+      return {
+        ...state,
+        updated_action: action.payload,
+        error: null,
+      };
+
+    case 'AGENT_CREATED':
+      return {
+        ...state,
+        updated_action: action.payload,
+        error: null,
+      };
 
     default:
       return state;

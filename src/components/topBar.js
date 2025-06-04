@@ -4,8 +4,8 @@ import {
   Card, CardContent, Typography, TextField, IconButton,
   Tooltip, Stack, Fade
 } from '@mui/material';
-import AutocompleteFilter from './components/autoCompleteFilter';
 import CollaboratorAutoComplete from './components/collaboratorAutocomplete';
+import CallerIDAutoComplete from './components/callerIDAutocomplete';
 import { icons } from '../components/icons';
 import CreateTicketDialog from './dialogs/createTicketDialog';
 import { createNewTicket } from '../utils/api';
@@ -15,7 +15,6 @@ import AlertSnackbar from './alertSnackbar';
 import { useFilters } from '../utils/js/filterContext';
 
 export default function Topbar({ agents, agent }) {
-  const clinics = ['Wellmax Cutler Ridge', 'LMMC Homestead', 'Pasteur Hialeah Center', 'LMMC Hialeah West', 'Wellmax Marlings'];
 
   const { setLoading } = useLoading();
   const [, dispatch] = useReducer(ticketReducer, initialState);
@@ -39,9 +38,9 @@ export default function Topbar({ agents, agent }) {
     setFilters((prev) => ({ ...prev, assignedAgents: value }));
   };
 
-  const handleCallerIdsChange = (value) => {
+  /*const handleCallerIdsChange = (value) => {
     setFilters((prev) => ({ ...prev, callerIds: value }));
-  };
+  };*/
 
   const handleSubmit = async (data) => {
     const form = { ...data, agent_email: agent };
@@ -112,12 +111,11 @@ export default function Topbar({ agents, agent }) {
                   onChange={handleAssignedAgentsChange}
                   label="Assigned to"
                 />
-                <AutocompleteFilter
-                  label="Caller ID"
-                  options={clinics}
-                  value={filters.callerIds}
-                  onChange={handleCallerIdsChange}
+                <CallerIDAutoComplete onChange={(value) => {
+                    console.log('Seleccionado:', value);
+                  }} label='Caller ID' 
                 />
+                
               </Stack>
             </Fade>
             <Tooltip title="Show/Hide Filters">

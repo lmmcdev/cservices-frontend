@@ -19,13 +19,12 @@ const commonStyles = {
 };
 
 
-const departments = [
-  'OTC',
-  'Pharmacy',
-  'Referrals',
+const roles = [
+  'Customer Service',
+  'Supervisor',
 ];
 
-export default function DepartmentSelect({ value, onChange, label = "Department" }) {
+export default function RolSelect({ value, onChange, label = "Role" }) {
   return (
     <FormControl fullWidth variant="outlined" size="small">
       <InputLabel 
@@ -43,7 +42,7 @@ export default function DepartmentSelect({ value, onChange, label = "Department"
         sx={commonStyles}
         IconComponent={ExpandMoreIcon}
       >
-        {departments.map((dept) => (
+        {roles.map((dept) => (
           <MenuItem key={dept} value={dept} sx={{ fontSize: 12 }}>
             {dept}
           </MenuItem>
