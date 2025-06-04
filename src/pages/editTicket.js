@@ -6,8 +6,6 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import TicketStatusBar from '../components/ticketStatusBar';
-import TicketActionsBar from '../components/ticketActionsBar';
-import AgentOptionsModal from '../components/dialogs/agentOptionsModal';
 import AlertSnackbar from '../components/alertSnackbar';
 import { ticketReducer, initialState } from '../utils/ticketsReducer';
 import { useLoading } from '../components/loadingProvider';
@@ -24,8 +22,12 @@ import TicketCollaborators from '../components/ticketCollaborators';
 import TicketAudio from '../components/ticketAudio';
 import AddNoteDialog from '../components/dialogs/addNotesDialog';
 import AgentSelectorDialog from '../components/dialogs/agentSelectorDialog';
-import ProfilePic from '../components/components/profilePic';
 import ActionButtons from '../components/actionButtons';
+import TicketAssignee from '../components/ticketAssignee';
+import ChangeAgentModal from '../components/dialogs/changeAgentModal';
+import ChangeDepartmentModal from '../components/dialogs/changeDepartmentModal';
+import PatientProfileDialog from '../components/dialogs/patientProfileDialog';
+import Tooltip from '@mui/material/Tooltip';
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -60,7 +62,6 @@ export default function EditTicket({ agents }) {
 
 
   //state status
-  const [openAgentOptions, setOpenAgentOptions] = useState(false);
   const [errorOpen, setErrorOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [editField, setEditField] = useState(null); 
@@ -71,6 +72,10 @@ export default function EditTicket({ agents }) {
   const [openNoteDialog, setOpenNoteDialog] = useState(false);
   const [noteContent, setNoteContent] = useState('');
   const [agentDialogOpen, setAgentDialogOpen] = useState(false);
+  const [openReassignAgentModal, setOpenReassignAgentModal] = useState(false);
+  const [openChangeDepartmentModal, setOpenChangeDepartmentModal] = useState(false);
+  const [openPatientDialog, setOpenPatientDialog] = useState(false);
+  const [relatedCases, setRelatedCases] = useState([]);
 
   //useEffects
   useEffect(() => {
@@ -228,16 +233,6 @@ export default function EditTicket({ agents }) {
   return (
     <>
       <Paper elevation={3} sx={{ p: 4, width: '100%', mx: 'auto', mt: 20, ml: 15, mr: 3 }}>
-        {/* Row 1: ActionsBar and ProfilePic */}
-        <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <TicketActionsBar
-            onReassignAgent={() => setOpenAgentOptions(true)}
-            onAddCollaborator={() => setAgentDialogOpen(true)}
-            onReassignDepartment={() => console.log("Abrir reasignar departamento")}
-          />
-          <ProfilePic />
-        </Box>
-
         {/* Row 2: StatusBar */}
         <Box sx={{ mb: 2 }}>
           <TicketStatusBar currentStatus={status} onStatusChange={handleStatusChange} />
@@ -251,21 +246,29 @@ export default function EditTicket({ agents }) {
               {/* Patient Information */}
               <Card variant="outlined">
                 <CardContent sx={{ p: '20px 25px 25px 30px' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-                    <Box
-                      sx={{
-                        width: 8,
-                        height: 24,
-                        borderRadius: 10,
-                        backgroundColor: statusColors[status]?.text || '#00a1ff',
-                      }}
-                    />
-                    <Typography
-                      variant="h6"
-                      sx={{ fontWeight: 'bold', color: statusColors[status]?.text || '#00a1ff' }}
-                    >
-                      Patient Information
-                    </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{
+                          width: 8,
+                          height: 24,
+                          borderRadius: 10,
+                          backgroundColor: statusColors[status]?.text || '#00a1ff',
+                        }}
+                      />
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: 'bold', color: statusColors[status]?.text || '#00a1ff' }}
+                      >
+                        Patient Information
+                      </Typography>
+                    </Box>
+
+                    <Tooltip title="View Patient Profile">
+                      <IconButton onClick={() => setOpenPatientDialog(true)} size="small" sx={{ color: '#00a1ff' }}>
+                        <i className="fa fa-id-card" />
+                      </IconButton>
+                    </Tooltip>
                   </Box>
                   <Typography sx={{ mb: 1 }}>
                     <strong>Patient:</strong><br /> 
@@ -416,8 +419,14 @@ export default function EditTicket({ agents }) {
             </Box>
           </Grid>
 
-          <Grid item>
-            <Box sx={{ width: '300px' }}>
+        <Grid item>
+            <Box display="flex" flexDirection="column" gap={2} sx={{ width: '300px' }}>
+              <TicketAssignee
+                assigneeEmail={ticket?.agent_assigned}
+                status={status}
+                onReassign={() => setOpenReassignAgentModal(true)}
+                onChangeDepartment={() => setOpenChangeDepartmentModal(true)}
+              />
               <TicketCollaborators
                 collaborators={collaborators}
                 onAddCollaborator={handleAddCollaboratorClick}
@@ -475,6 +484,31 @@ export default function EditTicket({ agents }) {
         }}
         agents={agents}
         initialSelected={collaborators}
+      />
+
+      {/*Dialog para reasignar agente*/}
+      <ChangeAgentModal
+        open={openReassignAgentModal}
+        onClose={() => setOpenReassignAgentModal(false)}
+        onReassignAgent={async (selectedAgents) => {
+          const updated = [...selectedAgents];
+          await assignAgent(dispatch, setLoading, ticketId, agentEmail, updated);
+          setSuccessOpen(true);
+        }}
+        agents={agents}
+      />
+
+      {/*Dialog para reasignar departamento*/}
+      <ChangeDepartmentModal
+        open={openChangeDepartmentModal}
+        onClose={() => setOpenChangeDepartmentModal(false)}
+        onChangeDepartment={handleChangeDepartment}
+      />
+
+      <PatientProfileDialog
+        open={openPatientDialog}
+        onClose={() => setOpenPatientDialog(false)}
+        phone={patientPhone}
       />
 
       {/* Snackbars */}

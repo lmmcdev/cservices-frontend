@@ -1,5 +1,6 @@
 //Para importar los iconos de Font Awesome v6
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 
 //Para importar los iconos de Material UI
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -36,6 +37,8 @@ const FaUsersV4 = (props) => (
 export const icons = {
     //Font Awesome v6
     edit: faPenToSquare,
+    arrowUp: faArrowUp,
+    arrowDown: faArrowDown,
     //Material UI
     filterOn: FilterListOffIcon,
     filterOff: FilterListIcon,

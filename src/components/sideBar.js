@@ -8,14 +8,16 @@ import {
   Box,
   Divider,
   IconButton,
+  Typography,
 } from '@mui/material';
 import { icons } from '../components/icons';
+import ProfilePic from '../components/components/profilePic';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const drawerWidthOpen = 200;
 const drawerWidthClosed = 80;
 
-export default function CollapsibleDrawer({ agents }) {
+export default function CollapsibleDrawer({ user }{ agents }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -110,26 +112,54 @@ export default function CollapsibleDrawer({ agents }) {
           }}
         />
 
+        {/* ProfilePic + Collapse Button */}
         <Box
           sx={{
             width: '100%',
             display: 'flex',
-            justifyContent: open ? 'flex-end' : 'center',
-            pr: open ? '10px' : 0,
-            pb: 1,
+            flexDirection: open ? 'row' : 'column',
+            alignItems: 'center',
+            justifyContent: open ? 'space-between' : 'center',
+            px: open ? 2 : 0,
+            pb: 2,
+            pt: 0.2,
+            gap: open ? 0 : 1,
           }}
         >
-          <IconButton
-            onClick={toggleOpen}
-            disableRipple
-            sx={{
-              p: 0,
-              '&:hover': { backgroundColor: 'transparent' },
-              '&:active': { backgroundColor: 'transparent' },
-            }}
-          >
-            {open ? <icons.collapseLeft /> : <icons.collapseRight />}
-          </IconButton>
+          {open ? (
+            <Box display="flex" alignItems="center">
+              <ProfilePic size={36} />
+            </Box>
+          ) : (
+            <>
+              <IconButton
+                onClick={toggleOpen}
+                disableRipple
+                sx={{
+                  p: 0,
+                  '&:hover': { backgroundColor: 'transparent' },
+                  '&:active': { backgroundColor: 'transparent' },
+                }}
+              >
+                <icons.collapseRight />
+              </IconButton>
+              <ProfilePic size={36} />
+            </>
+          )}
+
+          {open && (
+            <IconButton
+              onClick={toggleOpen}
+              disableRipple
+              sx={{
+                p: 0,
+                '&:hover': { backgroundColor: 'transparent' },
+                '&:active': { backgroundColor: 'transparent' },
+              }}
+            >
+              <icons.collapseLeft />
+            </IconButton>
+          )}
         </Box>
       </Box>
     </Drawer>

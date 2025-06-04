@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Box } from '@mui/material';
 
-export default function ActionButtons({ onCancel, onConfirm }) {
+export default function ActionButtons({ onCancel, onConfirm, cancelLabel = 'Cancel' }) {
   return (
     <Box display="flex" gap={2} justifyContent="center" sx={{ px: 3, pb: 3 }}>
       {onCancel && (
@@ -21,7 +21,7 @@ export default function ActionButtons({ onCancel, onConfirm }) {
             },
           }}
         >
-          Cancel
+          {cancelLabel}
         </Button>
       )}
       {onConfirm && (

@@ -36,6 +36,7 @@ export default function TableTickets({ agents }) {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedTicket, setSelectedTicket] = useState(null);
   const navigate = useNavigate();
+  const [sortDirection, setSortDirection] = useState('desc');
 
   //comprobar aqui si existe user.username
   const loadData = useCallback(async () => {
@@ -77,9 +78,13 @@ export default function TableTickets({ agents }) {
       return matchStatus && matchAgent && matchCaller && matchDate;
     });
 
+  const sortedRows = [...filteredRows].sort((a, b) => {
+    const dateA = new Date(a.creation_date);
+    const dateB = new Date(b.creation_date);
+    return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
+  });
 
-  
-  const paginatedRows = filteredRows.slice(
+  const paginatedRows = sortedRows.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
@@ -145,9 +150,22 @@ export default function TableTickets({ agents }) {
               <Table>
                 <TableHead>
                   <TableRow>
-                    {['Status', 'Caller ID', 'Name', 'DOB', 'Phone', 'Create At', '', ''].map((header) => (
+                    {['Status', 'Caller ID', 'Name', 'DOB', 'Phone', 'Create At', '', '', ''].map((header) => (
                       <TableCell key={header} sx={{ fontWeight: 'bold', fontSize: 16 }}>
-                        {header}
+                        {header === 'Create At' ? (
+                          <TableCell
+                            key={header}
+                            onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
+                            sx={{ fontWeight: 'bold', fontSize: 16, cursor: 'pointer', userSelect: 'none', borderBottom: 'none' }}
+                          >
+                            {header}{' '}
+                            <FontAwesomeIcon icon={sortDirection === 'asc' ? icons.arrowUp : icons.arrowDown} />
+                          </TableCell>
+                        ) : (
+                          <TableCell key={header} sx={{ fontWeight: 'bold', fontSize: 16, borderBottom: 'none' }}>
+                            {header}
+                          </TableCell>
+                        )}
                       </TableCell>
                     ))}
                   </TableRow>
