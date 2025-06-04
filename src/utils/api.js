@@ -52,7 +52,7 @@ export const assignAgent = async (dispatch, setLoading, ticketId, currentAgentEm
       body: JSON.stringify({
         tickets: ticketId,
         agent_email: currentAgentEmail,
-        target_agent_email: targetAgentEmail,
+        target_agent_email: targetAgentEmail[0],
       }),
     });
  

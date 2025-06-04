@@ -17,7 +17,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 const drawerWidthOpen = 200;
 const drawerWidthClosed = 80;
 
-export default function CollapsibleDrawer({ user }{ agents }) {
+export default function CollapsibleDrawer({ agents }) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();

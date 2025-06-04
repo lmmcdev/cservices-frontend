@@ -443,23 +443,7 @@ export default function EditTicket({ agents }) {
         </Box>
       </Paper>
 
-      {/* Modal para opciones de agente */}
-      <AgentOptionsModal
-        open={openAgentOptions}
-        onClose={() => setOpenAgentOptions(false)}
-        onReassignAgent={async (selectedAgents) => {
-          const result = await assignAgent(dispatch, setLoading, ticketId, agentEmail, selectedAgents[0]);
-          if (result.success) {
-            setSuccessMessage(result.message);
-            setSuccessOpen(true);
-          } else {
-            setErrorMessage(result.message);
-            setErrorOpen(true);
-          } 
-        }}
-        onChangeDepartment={handleChangeDepartment}
-        agents={agents}
-      />
+     
 
 
       {/* Dialog para agregar nota */}
