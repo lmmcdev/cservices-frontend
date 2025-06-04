@@ -20,11 +20,9 @@ const commonStyles = {
 
 
 const departments = [
-  'Medical Centers',
   'OTC',
   'Pharmacy',
   'Referrals',
-  'Shared Services'
 ];
 
 export default function DepartmentSelect({ value, onChange, label = "Department" }) {
