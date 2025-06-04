@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useReducer, useState } from 'react';
 import {
   Box, Paper, Grid, Card, CardContent, Typography,
   TextField, Checkbox, FormControlLabel, Button,
@@ -10,25 +10,42 @@ import * as Yup from 'yup';
 import ProfilePic from '../components/components/profilePic';
 import DepartmentSelect from '../components/components/departmentSelect';
 import RolSelect from '../components/components/rolSelect';
+import AlertSnackbar from '../components/alertSnackbar';
+import { ticketReducer, initialState } from '../utils/ticketsReducer';
+import { useLoading } from '../components/loadingProvider';
+import { editAgent } from '../utils/api';
+
 
 // Validación con Yup
 const AgentSchema = Yup.object().shape({
   displayName: Yup.string().required('Required'),
   department: Yup.string().required('Required'),
-  location: Yup.string().required('Required'),
+  location: Yup.string(),
   role: Yup.string().required('Required'),
-  accessLevel: Yup.string().required('Required'),
+  accessLevel: Yup.string(),
   email: Yup.string().email('Invalid email').required('Required'),
   password: Yup.string(),
   isRemote: Yup.boolean(),
 });
 
-export default function EditAgent() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { agentEmail } = useParams();
+export default function EditAgent({supEmail}) {
+    const navigate = useNavigate();
+    const location = useLocation();
 
-  const agent = location.state?.agents;
+    const [state, dispatch] = useReducer(ticketReducer, initialState);
+    const { setLoading } = useLoading();
+
+    const [errorOpen, setErrorOpen] = useState(false);
+    const [successOpen, setSuccessOpen] = useState(false);
+    const [editField, setEditField] = useState(null); 
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    
+
+    const { agentEmail } = useParams();
+
+    const agent = location.state?.agents;
+    const agent_id = agent.id;
 
   const initialValues = {
     displayName: agent?.agent_name || '',
@@ -41,11 +58,25 @@ export default function EditAgent() {
   };
 
   const handleSubmit = async (values) => {
-    console.log("Submitting agent:", values);
+
+    let form = {...values, agent_id, supEmail }
+    console.log("Submitting agent:", form);
+    setLoading(true);
+      const result = await editAgent(dispatch, setLoading, form);
+      if (result.success) {
+        setSuccessMessage(result.message);
+        setSuccessOpen(true);
+      } else {
+        setErrorMessage(result.message);
+        setErrorOpen(true);
+      } 
+    };
+    //console.log(agent.id)
     // Aquí puedes llamar tu Azure Function o API para actualizar el agente
-  };
+
 
   return (
+    <>
     <Paper elevation={3} sx={{ p: 4, width: '100%', mx: 'auto', mt: 20, ml: 15, mr: 3 }}>
       <Formik
         initialValues={initialValues}
@@ -168,5 +199,20 @@ export default function EditAgent() {
         )}
       </Formik>
     </Paper>
+
+    {/* Snackbars */}
+          <AlertSnackbar
+            open={errorOpen}
+            onClose={() => setErrorOpen(false)}
+            severity="error"
+            message={errorMessage}
+          />
+          <AlertSnackbar
+            open={successOpen}
+            onClose={() => setSuccessOpen(false)}
+            severity="success"
+            message={successMessage}
+          />
+          </>
   );
 }
