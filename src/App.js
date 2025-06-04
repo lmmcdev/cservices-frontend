@@ -15,6 +15,7 @@ import { SignalRProvider, useSignalR } from './utils/signalRContext';
 import { FiltersProvider } from './utils/js/filterContext';
 import TableAgents from './pages/tableAgents';
 import EditAgent from './pages/editAgent';
+import AuthErrorScreen from './components/authErrorScreen';
 
 import './App.css';
 
@@ -22,9 +23,10 @@ function AppContent() {
   const [state, dispatch] = useReducer(ticketReducer, initialState);
   const { setLoading } = useLoading();
   const [agentsLoaded, setAgentsLoaded] = useState(false);
-  const { user } = useAuth();
+  //const { user } = useAuth();
   const [agentEmail, setAgentEmail] = useState('');
   const { initializeSignalR } = useSignalR();
+  const { user, authError, authLoaded, login } = useAuth();
 
   const [filters, setFilters] = useState({
     date: '',
@@ -63,7 +65,14 @@ function AppContent() {
     initializeSignalR(dispatch); // Pasamos el dispatch si necesitas actualizar el estado desde SignalR
   }, [initializeSignalR]);
 
-  if (!agentsLoaded) return null; // o spinner
+  if (!authLoaded) return null;
+  if (authError) {
+    return <AuthErrorScreen errorMessage={authError} onRetry={login} />;
+  }
+
+  if (!user) return null;
+
+
 
   const { agents } = state;
 

@@ -13,6 +13,8 @@ const loginRequest = {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [profilePhoto, setProfilePhoto] = useState(null);
+  const [authError, setAuthError] = useState(null);
+  const [authLoaded, setAuthLoaded] = useState(false); 
 
   const login = async () => {
     try {
@@ -36,8 +38,12 @@ export const AuthProvider = ({ children }) => {
         setUser(account);
         await getProfilePhoto(account);
       }
+
     } catch (error) {
       console.error("Login falló:", error);
+      setAuthError(error.message);
+    } finally {
+      setAuthLoaded(true);
     }
   };
 
@@ -91,7 +97,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, profilePhoto, login, logout }}>
+    <AuthContext.Provider value={{ user, profilePhoto, login, logout, authError, authLoaded }}>
       {children}
     </AuthContext.Provider>
   );
