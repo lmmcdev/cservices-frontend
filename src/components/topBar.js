@@ -4,8 +4,8 @@ import {
   Card, CardContent, Typography, TextField, IconButton,
   Tooltip, Stack, Fade
 } from '@mui/material';
-import CollaboratorAutoComplete from './components/collaboratorAutocomplete';
-import CallerIDAutoComplete from './components/callerIDAutocomplete';
+import CollaboratorAutoComplete from '../components/components/collaboratorAutocomplete';
+import CallerIDAutoComplete from '../components/components/callerIDAutocomplete';
 import { icons } from '../components/icons';
 import CreateTicketDialog from './dialogs/createTicketDialog';
 import { createNewTicket } from '../utils/api';
