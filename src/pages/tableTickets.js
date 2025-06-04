@@ -130,7 +130,9 @@ export default function TableTickets({ agents }) {
               </Typography>
             )}
 
-            <TableContainer component={Paper} elevation={0}>
+            <TableContainer component={Paper}
+              elevation={0}
+              sx={{ maxHeight: 500, overflowY: 'auto' }}>
               <Table>
                 <TableHead>
                   <TableRow>
