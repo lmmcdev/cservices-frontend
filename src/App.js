@@ -75,9 +75,9 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<TableTickets agents={agents} filters={filters}/>} />
-        <Route path="/agents" element={<TableAgents agents={agents} />} />
+        <Route path="/agents" element={<TableAgents agents={agents} supEmail={agentEmail}/>} />
         <Route path="/tickets/edit/:ticketId/:agentEmail" element={<EditTicket agents={agents} />} />
-        <Route path="/agent/edit/:agentEmail" element={<EditAgent />} />
+        <Route path="/agent/edit/:agentEmail" element={<EditAgent supEmail={agentEmail}/>} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Box>
