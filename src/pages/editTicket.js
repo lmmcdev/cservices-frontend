@@ -58,7 +58,7 @@ export default function EditTicket({ agents }) {
     return date.toISOString().split('T')[0]; // 'YYYY-MM-DD'
   };
   const [patientDob, setPatientDob] = useState(formatDateForInput(ticket?.patient_dob));
-  const [patientPhone, setPatientPhone] = useState(ticket?.phone || '');
+  const [patientPhone, setPatientPhone] = useState(ticket?.callback_number || '');
 
 
   //state status
@@ -333,7 +333,7 @@ export default function EditTicket({ agents }) {
                   </Box>
                   </Typography>
                   <Typography>
-                    <strong>Phone:</strong><br />
+                    <strong>CallBack Number:</strong><br />
                     <Box>
                     {editField === 'phone' ? (
                       <Box display="flex" alignItems="center" gap={1}>
@@ -400,7 +400,7 @@ export default function EditTicket({ agents }) {
                     <strong>Caller Name:</strong><br /> {ticket.caller_Name}
                   </Typography>
                   <Typography sx={{ mb: 2.5 }}>
-                    <strong>Callback Number:</strong><br /> {ticket.callback_number}
+                    <strong>Phone:</strong><br /> {ticket.phone}
                   </Typography>
                   <Typography sx={{ mb: 2.5 }}>
                     <strong>Call Reason:</strong><br /> {ticket.call_reason}
