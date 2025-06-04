@@ -100,6 +100,7 @@ export default function TableTickets({ agents }) {
     return acc;
   }, {});
 
+  ticketsCountByStatus.Total = validTickets.length;
   return (
     <>
       <Card elevation={3} sx={{ borderRadius: 4, position: 'fixed', top: 170, left: 200, right: 20 }}>
