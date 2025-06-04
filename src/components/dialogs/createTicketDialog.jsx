@@ -43,7 +43,7 @@ export default function CreateTicketDialog({ open, onClose, handleOnSubmit, agen
     validationSchema,
     onSubmit: (values, { resetForm }) => {
       handleOnSubmit({ ...values, createdBy: agentEmail });
-      //resetForm();
+      resetForm();
       onClose();
     },
   });
