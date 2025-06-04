@@ -29,9 +29,9 @@ const DashboardIcon = (props) => (
 const FaUsersV4 = (props) => (
   <i className="fa fa-users" {...props}></i>
 );
-const FaUserPlusV4 = (props) => (
+/*const FaUserPlusV4 = (props) => (
   <i className="fa fa-user-plus" {...props}></i>
-);
+);*/
 
 export const icons = {
     //Font Awesome v6

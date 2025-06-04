@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, Button, Divider, Typography, Stack,
+  TextField, Button, Typography, Stack,
   MenuItem, Box, FormControlLabel, Checkbox
 } from '@mui/material';
 import { useFormik } from 'formik';

@@ -6,7 +6,7 @@ import { getUserPhotoByEmail } from '../../utils/graphHelper';
 
 
 const ProfilePic = ({email}) => {
-  const { user, profilePhoto } = useAuth();
+  const { user, } = useAuth();
   const finalEmail = email || user?.username || '';
   const [photos, setPhotos] = useState({});
 
@@ -23,8 +23,7 @@ const ProfilePic = ({email}) => {
       };
   
       fetchPhotos();
-    }, [finalEmail]);
-    const url = 'http://localhost:3000/a3846c4f-4099-4647-bc4f-afdbc94a3a42';
+    }, [finalEmail, email]);
 
     return (
       <Box display="flex" alignItems="center" gap={2}>

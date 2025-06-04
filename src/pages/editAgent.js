@@ -1,11 +1,10 @@
 import React, { useReducer, useState } from 'react';
 import {
   Box, Paper, Grid, Card, CardContent, Typography,
-  TextField, Checkbox, FormControlLabel, Button,
-  Divider
+  TextField, Checkbox, FormControlLabel, Button
 } from '@mui/material';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Formik, Form, Field } from 'formik';
+import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import ProfilePic from '../components/components/profilePic';
 import DepartmentSelect from '../components/components/departmentSelect';
@@ -32,12 +31,11 @@ export default function EditAgent({supEmail}) {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [state, dispatch] = useReducer(ticketReducer, initialState);
+    const [, dispatch] = useReducer(ticketReducer, initialState);
     const { setLoading } = useLoading();
 
     const [errorOpen, setErrorOpen] = useState(false);
     const [successOpen, setSuccessOpen] = useState(false);
-    const [editField, setEditField] = useState(null); 
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     

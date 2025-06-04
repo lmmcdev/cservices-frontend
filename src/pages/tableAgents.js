@@ -5,7 +5,7 @@ import { useLoading } from '../components/loadingProvider';
 import AlertSnackbar from '../components/alertSnackbar';
 
 import {
-  Box, Button, Card, CardContent, Chip, Typography,
+  Box, Button, Card, CardContent, Typography,
   Table, TableBody, TableCell, TableContainer, TableHead,
   TableRow, TablePagination, Paper, Tooltip, IconButton
 } from '@mui/material';
@@ -19,7 +19,7 @@ export default function TableAgents({ agents, supEmail }) {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [openCreateModal, setOpenCreateModal] = useState(false);
     const navigate = useNavigate();
-    const [state, dispatch] = useReducer(ticketReducer, initialState);
+    const [, dispatch] = useReducer(ticketReducer, initialState);
     const { setLoading } = useLoading();
 
     const [errorOpen, setErrorOpen] = useState(false);

@@ -15,7 +15,6 @@ import AlertSnackbar from './alertSnackbar';
 import { useFilters } from '../utils/js/filterContext';
 
 export default function Topbar({ agents, agent }) {
-  const clinics = ['Wellmax Cutler Ridge', 'LMMC Homestead', 'Pasteur Hialeah Center', 'LMMC Hialeah West', 'Wellmax Marlings'];
 
   const { setLoading } = useLoading();
   const [, dispatch] = useReducer(ticketReducer, initialState);
@@ -39,9 +38,9 @@ export default function Topbar({ agents, agent }) {
     setFilters((prev) => ({ ...prev, assignedAgents: value }));
   };
 
-  const handleCallerIdsChange = (value) => {
+  /*const handleCallerIdsChange = (value) => {
     setFilters((prev) => ({ ...prev, callerIds: value }));
-  };
+  };*/
 
   const handleSubmit = async (data) => {
     const form = { ...data, agent_email: agent };
