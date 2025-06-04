@@ -1,26 +1,21 @@
 import React from 'react';
 import {
-  Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, Button, Divider, Typography, Stack,
-  MenuItem, Box
+  Dialog, DialogTitle, DialogContent, Typography, Stack,
+  MenuItem, Box, Divider, TextField
 } from '@mui/material';
 import DepartmentSelect from '../components/departmentSelect';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import ActionButtons from '../actionButtons';
 
-const statusOptions = ['Open', 'Pending', 'Closed'];
+const statusOptions = ['Emergency', 'In Progress', 'Pending', 'Done'];
 
 const validationSchema = Yup.object({
   phone: Yup.string()
     .required('Phone is required')
-    .matches(
-      /^(\+1\s?)?(\(?\d{3}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}$/,
-      'Enter a valid US phone number'
-    ),
+    .matches(/^\+1\d{10}$/, 'Enter a valid US phone number'),
   patientName: Yup.string().required('Patient name is required'),
-  patientDOB: Yup.date()
-  .typeError('Enter a valid date')
-  .required('Date of birth is required'),
+  patientDOB: Yup.date().typeError('Enter a valid date').required('Date of birth is required'),
   callDepartment: Yup.string().required('Department is required'),
   callReason: Yup.string().required('Call reason is required'),
   summary: Yup.string().required('Summary is required'),
@@ -28,48 +23,88 @@ const validationSchema = Yup.object({
   notes: Yup.string().required('Notes are required'),
 });
 
+const formatPhone = (value) => {
+  const digits = value.replace(/\D/g, '').slice(0, 10);
+  const parts = [];
+  if (digits.length > 0) parts.push('(' + digits.slice(0, 3));
+  if (digits.length >= 4) parts[0] += ') ';
+  if (digits.length >= 4) parts.push(digits.slice(3, 6));
+  if (digits.length >= 7) parts.push('-' + digits.slice(6, 10));
+  return parts.join('');
+};
+
 export default function CreateTicketDialog({ open, onClose, handleOnSubmit, agentEmail }) {
-  const formik = useFormik({
-    initialValues: {
-      phone: '',
-      patientName: '',
-      patientDOB: '',
-      callDepartment: '',
-      callReason: '',
-      summary: '',
-      status: 'Open',
-      notes: '',
-    },
-    validationSchema,
-    onSubmit: (values, { resetForm }) => {
-      handleOnSubmit({ ...values, createdBy: agentEmail });
-      //resetForm();
-      onClose();
-    },
-  });
+  const normalizePhoneNumber = (formatted) => {
+  return formatted.replace(/\D/g, '').slice(0, 10); // solo dígitos, sin +1
+};
+
+
+const formik = useFormik({
+  initialValues: {
+    phone: '',
+    phoneFormatted: '',
+    patientName: '',
+    patientDOB: '',
+    callDepartment: '',
+    callReason: '',
+    summary: '',
+    status: 'In Progress',
+    notes: '',
+  },
+  validationSchema,
+  onSubmit: (values) => {
+  const phone = normalizePhoneNumber(values.phoneFormatted);
+  handleOnSubmit({ ...values, phone, createdBy: agentEmail });
+  onClose();
+},
+
+});
+
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>New Case</DialogTitle>
+      <DialogTitle>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+          <i className="bi bi-telephone-plus-fill" style={{ color: '#00a1ff', fontSize: 20 }}></i>
+          <Typography variant="h6" sx={{ color: '#00a1ff', fontWeight: 'bold' }}>
+            New case
+          </Typography>
+        </Box>
+      </DialogTitle>
       <form onSubmit={formik.handleSubmit}>
         <DialogContent dividers>
           <Stack spacing={2}>
-
             {/* Patient Info */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5 }}>
               <Box sx={{ width: 8, height: 24, borderRadius: 10, backgroundColor: '#00a1ff' }} />
-              <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00a1ff' }}>Patient Information</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00a1ff' }}>
+                Patient Information
+              </Typography>
             </Box>
 
             <TextField
               size="small"
               label="Phone"
               fullWidth
-              name="phone"
-              value={formik.values.phone}
-              onChange={formik.handleChange}
+              name="phoneFormatted"
+              value={formik.values.phoneFormatted}
+              onChange={(e) => {
+                const rawDigits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                const formatted = formatPhone(rawDigits);
+                const international = rawDigits.length === 10 ? `+1${rawDigits}` : '';
+                formik.setFieldValue('phone', international); // real value
+                formik.setFieldValue('phoneFormatted', formatted); // visual
+              }}
               error={formik.touched.phone && Boolean(formik.errors.phone)}
               helperText={formik.touched.phone && formik.errors.phone}
+              inputProps={{ maxLength: 14 }}
+              InputProps={{
+                startAdornment: (
+                  <Typography sx={{ mr: 1, color: '#888' }}>
+                    +1
+                  </Typography>
+                ),
+              }}
             />
 
             <TextField
@@ -101,7 +136,9 @@ export default function CreateTicketDialog({ open, onClose, handleOnSubmit, agen
             {/* Call Info */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5 }}>
               <Box sx={{ width: 8, height: 24, borderRadius: 10, backgroundColor: '#00a1ff' }} />
-              <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00a1ff' }}>Call Information</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00a1ff' }}>
+                Call Information
+              </Typography>
             </Box>
 
             <DepartmentSelect
@@ -140,7 +177,9 @@ export default function CreateTicketDialog({ open, onClose, handleOnSubmit, agen
             {/* Case Info */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5 }}>
               <Box sx={{ width: 8, height: 24, borderRadius: 10, backgroundColor: '#00a1ff' }} />
-              <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00a1ff' }}>Case Information</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00a1ff' }}>
+                Case Information
+              </Typography>
             </Box>
 
             <TextField
@@ -173,13 +212,11 @@ export default function CreateTicketDialog({ open, onClose, handleOnSubmit, agen
               error={formik.touched.notes && Boolean(formik.errors.notes)}
               helperText={formik.touched.notes && formik.errors.notes}
             />
-
           </Stack>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button type="submit" variant="contained">Create</Button>
-        </DialogActions>
+        <Box display="flex" gap={2} justifyContent="center" sx={{ pt: 3, px: 3 }}>
+          <ActionButtons onCancel={onClose} onConfirm={formik.handleSubmit} />
+        </Box>
       </form>
     </Dialog>
   );
