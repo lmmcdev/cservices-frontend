@@ -439,9 +439,14 @@ export default function EditTicket({ agents }) {
         open={openAgentOptions}
         onClose={() => setOpenAgentOptions(false)}
         onReassignAgent={async (selectedAgents) => {
-          await assignAgent(dispatch, setLoading, ticketId, agentEmail, selectedAgents[0]);
-          //setCollaborators(updated);
-          setSuccessOpen(true);
+          const result = await assignAgent(dispatch, setLoading, ticketId, agentEmail, selectedAgents[0]);
+          if (result.success) {
+            setSuccessMessage(result.message);
+            setSuccessOpen(true);
+          } else {
+            setErrorMessage(result.message);
+            setErrorOpen(true);
+          } 
         }}
         onChangeDepartment={handleChangeDepartment}
         agents={agents}
