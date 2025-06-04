@@ -10,26 +10,23 @@ import {
   IconButton,
 } from '@mui/material';
 import { icons } from '../components/icons';
-import { useNavigate } from 'react-router-dom';
-
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const drawerWidthOpen = 200;
 const drawerWidthClosed = 80;
 
-export default function CollapsibleDrawer({agents}) {
+export default function CollapsibleDrawer({ agents }) {
   const [open, setOpen] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(null);
   const navigate = useNavigate();
-  
+  const location = useLocation();
 
   const navItems = [
-    { icon: <icons.dashboard style={{ fontSize: 22 }} />, label: 'Dashboard' },
+    { icon: <icons.dashboard style={{ fontSize: 22 }} />, label: 'Dashboard', path: '/home' },
     { icon: <icons.callLogs style={{ fontSize: 22 }} />, label: 'Call Logs', path: '/dashboard' },
-    { icon: <icons.team style={{ fontSize: 22 }} />, label: 'Team', path: '/agents' },,
+    { icon: <icons.team style={{ fontSize: 22 }} />, label: 'Team', path: '/agents' },
   ];
 
-  const handleListItemClick = (index, path) => {
-    setSelectedIndex(index);
+  const handleListItemClick = (path) => {
     navigate(path);
   };
 
@@ -59,32 +56,47 @@ export default function CollapsibleDrawer({agents}) {
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <List sx={{ width: '100%', px: open ? 1 : 0 }}>
-          {navItems.map(({ icon, label, path }, index) => (
-            <ListItemButton
-              key={label}
-              selected={selectedIndex === index}
-              onClick={() => handleListItemClick(index, path)}
-              // ...
-            >
-              <ListItemIcon
+          {navItems.map(({ icon, label, path }) => {
+            const isActive = location.pathname === path;
+            return (
+              <ListItemButton
+                key={label}
+                onClick={() => handleListItemClick(path)}
+                selected={isActive}
                 sx={{
-                  minWidth: 0,
-                  mr: open ? 2 : 'auto',
-                  justifyContent: 'center',
-                  color: selectedIndex === index ? '#00a1ff' : '#5B5F7B',
+                  borderRadius: 2,
+                  mb: 1,
+                  mx: open ? 1 : 0,
+                  justifyContent: open ? 'flex-start' : 'center',
+                  backgroundColor: isActive ? '#e6f4ff' : 'transparent',
                 }}
               >
-                {icon}
-              </ListItemIcon>
-              {open && (
-                <ListItemText
-                  primary={label}
-                  primaryTypographyProps={{ fontSize: 15, color: 'inherit' }}
-                  sx={{ color: 'inherit' }}
-                />
-              )}
-            </ListItemButton>
-          ))}
+                <ListItemIcon
+                  sx={{
+                    minWidth: 0,
+                    mr: open ? 2 : 0,
+                    justifyContent: 'center',
+                    color: isActive ? '#007bff' : '#5B5F7B',
+                    backgroundColor: isActive ? '#007bff20' : 'transparent',
+                    borderRadius: '50%',
+                    padding: 0.7,
+                  }}
+                >
+                  {icon}
+                </ListItemIcon>
+                {open && (
+                  <ListItemText
+                    primary={label}
+                    primaryTypographyProps={{
+                      fontSize: 15,
+                      color: isActive ? '#007bff' : 'inherit',
+                      fontWeight: isActive ? 'bold' : 'normal',
+                    }}
+                  />
+                )}
+              </ListItemButton>
+            );
+          })}
         </List>
 
         <Box sx={{ flexGrow: 1 }} />

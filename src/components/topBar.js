@@ -4,7 +4,6 @@ import {
   Card, CardContent, Typography, TextField, IconButton,
   Tooltip, Stack, Fade
 } from '@mui/material';
-import AutocompleteFilter from './components/autoCompleteFilter';
 import CollaboratorAutoComplete from './components/collaboratorAutocomplete';
 import CallerIDAutoComplete from './components/callerIDAutocomplete';
 import { icons } from '../components/icons';
