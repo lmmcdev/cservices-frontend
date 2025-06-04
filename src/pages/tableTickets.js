@@ -93,6 +93,13 @@ export default function TableTickets({ agents }) {
     setPage(0);
   };
 
+  //conteo de los tickets
+  const ticketsCountByStatus = validTickets.reduce((acc, ticket) => {
+    const status = ticket.status || 'Unknown';
+    acc[status] = (acc[status] || 0) + 1;
+    return acc;
+  }, {});
+
   return (
     <>
       <Card elevation={3} sx={{ borderRadius: 4, position: 'fixed', top: 170, left: 200, right: 20 }}>
@@ -119,7 +126,8 @@ export default function TableTickets({ agents }) {
                     },
                   }}
                 >
-                  {status}
+                  {ticketsCountByStatus[status] || 0} <br />
+                  {status} 
                 </Button>
               ))}
             </Box>
@@ -145,7 +153,7 @@ export default function TableTickets({ agents }) {
                 </TableHead>
                 <TableBody>
                   {paginatedRows.map((row, idx) => (
-                    <TableRow key={row.id} sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>
+                    <TableRow key={row.id || `fallback-${idx}`} sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>
                       <TableCell>
                         <Chip
                           label={row.status}
