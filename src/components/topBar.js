@@ -6,6 +6,7 @@ import {
 } from '@mui/material';
 import AutocompleteFilter from './components/autoCompleteFilter';
 import CollaboratorAutoComplete from './components/collaboratorAutocomplete';
+import CallerIDAutoComplete from './components/callerIDAutocomplete';
 import { icons } from '../components/icons';
 import CreateTicketDialog from './dialogs/createTicketDialog';
 import { createNewTicket } from '../utils/api';
@@ -112,12 +113,11 @@ export default function Topbar({ agents, agent }) {
                   onChange={handleAssignedAgentsChange}
                   label="Assigned to"
                 />
-                <AutocompleteFilter
-                  label="Caller ID"
-                  options={clinics}
-                  value={filters.callerIds}
-                  onChange={handleCallerIdsChange}
+                <CallerIDAutoComplete onChange={(value) => {
+                    console.log('Seleccionado:', value);
+                  }} label='Caller ID' 
                 />
+                
               </Stack>
             </Fade>
             <Tooltip title="Show/Hide Filters">
