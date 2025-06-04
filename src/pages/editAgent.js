@@ -1,13 +1,15 @@
 import React from 'react';
 import {
   Box, Paper, Grid, Card, CardContent, Typography,
-  TextField, Checkbox, FormControlLabel, Button
+  TextField, Checkbox, FormControlLabel, Button,
+  Divider
 } from '@mui/material';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Formik, Form, Field } from 'formik';
 import * as Yup from 'yup';
 import ProfilePic from '../components/components/profilePic';
 import DepartmentSelect from '../components/components/departmentSelect';
+import RolSelect from '../components/components/rolSelect';
 
 // Validación con Yup
 const AgentSchema = Yup.object().shape({
@@ -77,7 +79,16 @@ export default function EditAgent() {
                         error={touched.department && Boolean(errors.department)}
                         helperText={touched.department && errors.department}
                     />
-                    
+
+                    <RolSelect
+                        name="role"
+                        label="Role"
+                        value={values.role}
+                        onChange={(val) => setFieldValue('role', val)}
+                        error={touched.role && Boolean(errors.role)}
+                        helperText={touched.role && errors.role}
+                    />
+
                     <TextField
                       name="location"
                       label="Location"
@@ -88,16 +99,7 @@ export default function EditAgent() {
                       helperText={touched.location && errors.location}
                       sx={{ mb: 2 }}
                     />
-                    <TextField
-                      name="role"
-                      label="Role"
-                      fullWidth
-                      value={values.role}
-                      onChange={handleChange}
-                      error={touched.role && Boolean(errors.role)}
-                      helperText={touched.role && errors.role}
-                      sx={{ mb: 2 }}
-                    />
+                    
                     <TextField
                       name="accessLevel"
                       label="Access Level"
