@@ -75,7 +75,7 @@ export default function EditTicket({ agents }) {
   const [openReassignAgentModal, setOpenReassignAgentModal] = useState(false);
   const [openChangeDepartmentModal, setOpenChangeDepartmentModal] = useState(false);
   const [openPatientDialog, setOpenPatientDialog] = useState(false);
-  const [relatedCases, setRelatedCases] = useState([]);
+  //const [relatedCases, setRelatedCases] = useState([]);
 
   //useEffects
   useEffect(() => {

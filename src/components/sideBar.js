@@ -7,8 +7,7 @@ import {
   ListItemText,
   Box,
   Divider,
-  IconButton,
-  Typography,
+  IconButton
 } from '@mui/material';
 import { icons } from '../components/icons';
 import ProfilePic from '../components/components/profilePic';
