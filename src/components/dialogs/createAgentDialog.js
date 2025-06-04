@@ -7,6 +7,8 @@ import {
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import DepartmentSelect from '../components/departmentSelect';
+//hook para chequear emails en office365
+import { useGraphEmailCheck } from '../../utils/useGraphEmailCheck';
 
 const roles = ['Agent', 'Supervisor', 'Admin'];
 
@@ -21,6 +23,8 @@ const validationSchema = Yup.object({
 });
 
 export default function CreateAgentDialog({ open, onClose, handleOnSubmit }) {
+  const { verifyEmailExists } = useGraphEmailCheck();
+
   const formik = useFormik({
     initialValues: {
       agentName: '',
@@ -31,7 +35,12 @@ export default function CreateAgentDialog({ open, onClose, handleOnSubmit }) {
       agentExtension: '',
     },
     validationSchema,
-    onSubmit: (values, { resetForm }) => {
+    onSubmit: async (values, { resetForm, setFieldError }) => {
+      const exists = await verifyEmailExists(values.agentEmail);
+      if (!exists) {
+        setFieldError('agentEmail', 'Email not found in Microsoft 365');
+        return;
+      }
       handleOnSubmit(values);
       resetForm();
       onClose();

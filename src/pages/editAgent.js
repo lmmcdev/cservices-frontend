@@ -13,6 +13,7 @@ import AlertSnackbar from '../components/alertSnackbar';
 import { ticketReducer, initialState } from '../utils/ticketsReducer';
 import { useLoading } from '../components/loadingProvider';
 import { editAgent } from '../utils/api';
+import { useGraphEmailCheck } from '../utils/useGraphEmailCheck';
 
 
 // Validación con Yup
@@ -28,6 +29,7 @@ const AgentSchema = Yup.object().shape({
 });
 
 export default function EditAgent({supEmail}) {
+    const { verifyEmailExists } = useGraphEmailCheck();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -56,7 +58,13 @@ export default function EditAgent({supEmail}) {
   };
 
   const handleSubmit = async (values) => {
-
+    console.log(values)
+    const exists = await verifyEmailExists(values.email);
+    if (!exists) {
+      setErrorMessage(`Email ${values.email} not found in Office365`);
+      setErrorOpen(true);
+      return;
+    }
     let form = {...values, agent_id, supEmail }
     console.log("Submitting agent:", form);
     setLoading(true);
