@@ -10,22 +10,27 @@ import {
   IconButton,
 } from '@mui/material';
 import { icons } from '../components/icons';
+import { useNavigate } from 'react-router-dom';
+
 
 const drawerWidthOpen = 200;
 const drawerWidthClosed = 80;
 
-export default function CollapsibleDrawer() {
+export default function CollapsibleDrawer({agents}) {
   const [open, setOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(null);
+  const navigate = useNavigate();
+  
 
   const navItems = [
     { icon: <icons.dashboard style={{ fontSize: 22 }} />, label: 'Dashboard' },
-    { icon: <icons.callLogs style={{ fontSize: 22 }} />, label: 'Call Logs' },
-    { icon: <icons.team style={{ fontSize: 22 }} />, label: 'Team' },
+    { icon: <icons.callLogs style={{ fontSize: 22 }} />, label: 'Call Logs', path: '/dashboard' },
+    { icon: <icons.team style={{ fontSize: 22 }} />, label: 'Team', path: '/agents' },,
   ];
 
-  const handleListItemClick = (index) => {
+  const handleListItemClick = (index, path) => {
     setSelectedIndex(index);
+    navigate(path);
   };
 
   const toggleOpen = () => {
@@ -54,26 +59,12 @@ export default function CollapsibleDrawer() {
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <List sx={{ width: '100%', px: open ? 1 : 0 }}>
-          {navItems.map(({ icon, label }, index) => (
+          {navItems.map(({ icon, label, path }, index) => (
             <ListItemButton
               key={label}
               selected={selectedIndex === index}
-              onClick={() => handleListItemClick(index)}
-              sx={{
-                mb: 1,
-                borderRadius: '25px',
-                justifyContent: open ? 'initial' : 'center',
-                px: 2.5,
-                color: selectedIndex === index ? '#00a1ff' : '#5B5F7B',
-                backgroundColor: selectedIndex === index ? '#dff3ff' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#dff3ff',
-                  color: '#00a1ff',
-                  '& .MuiListItemIcon-root': {
-                    color: '#00a1ff',
-                  },
-                },
-              }}
+              onClick={() => handleListItemClick(index, path)}
+              // ...
             >
               <ListItemIcon
                 sx={{
