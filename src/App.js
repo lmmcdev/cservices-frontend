@@ -13,6 +13,9 @@ import { ticketReducer, initialState } from './utils/ticketsReducer';
 import { fetchAgentData } from './utils/api';
 import { SignalRProvider, useSignalR } from './utils/signalRContext';
 import { FiltersProvider } from './utils/js/filterContext';
+import TableAgents from './pages/tableAgents';
+import EditAgent from './pages/editAgent';
+
 import './App.css';
 
 function AppContent() {
@@ -72,7 +75,9 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<TableTickets agents={agents} filters={filters}/>} />
+        <Route path="/agents" element={<TableAgents agents={agents} />} />
         <Route path="/tickets/edit/:ticketId/:agentEmail" element={<EditTicket agents={agents} />} />
+        <Route path="/agent/edit/:agentEmail" element={<EditAgent />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Box>
