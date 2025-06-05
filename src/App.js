@@ -22,7 +22,7 @@ import './App.css';
 function AppContent() {
   const [state, dispatch] = useReducer(ticketReducer, initialState);
   const { setLoading } = useLoading();
-  const [agentsLoaded, setAgentsLoaded] = useState(false);
+  const [, setAgentsLoaded] = useState(false);
   //const { user } = useAuth();
   const [agentEmail, setAgentEmail] = useState('');
   const { initializeSignalR } = useSignalR();
