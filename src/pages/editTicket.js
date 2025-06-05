@@ -463,10 +463,16 @@ export default function EditTicket({ agents }) {
         onClose={() => setAgentDialogOpen(false)}
         onAdd={async (selectedAgents) => {
           const updated = [...collaborators, ...selectedAgents.filter(a => !collaborators.includes(a))];
-          await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
-          setCollaborators(updated);
-          setAgentDialogOpen(false);
-          setSuccessOpen(true);
+          const result = await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
+          if (result.success) {
+            setSuccessMessage(result.message);
+            setSuccessOpen(true);
+            setCollaborators(updated);
+          } else {
+            setErrorMessage(result.message);
+            setErrorOpen(true);
+          }
+          
         }}
         agents={agents}
         initialSelected={collaborators}
