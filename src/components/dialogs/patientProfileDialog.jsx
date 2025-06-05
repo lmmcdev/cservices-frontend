@@ -141,9 +141,7 @@ const PatientProfileDialog = ({
                       {item.call_reason || 'No reason'}
                     </Typography>
 
-                    <Typography variant="body2" sx={{ mb: 0.5 }}>
-                      {item.summary || 'No summary provided'}
-                    </Typography>
+                    
 
                     <Box display="flex" justifyContent="space-between" sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
                       <span>Caller: {item.caller_id || 'N/A'}</span>

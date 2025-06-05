@@ -53,12 +53,27 @@ export const ticketReducer = (state, action) => {
     case 'UPDATE_STATUS':
       return {
         ...state,
-      tickets: state.tickets.map(ticket =>
+        tickets: state.tickets.map(ticket =>
         ticket.id === action.payload.id
           ? { ...ticket, status: action.payload.status }
           : ticket
-      ),
+        ),
       };
+
+    case 'AGENT_EDITED':
+      return {
+        ...state,
+        agents: state.agents.map(agent => agent.id === action.payload.id ? {...agent, remote_agent: action.payload.remote_agent, agent_name: action.payload.agent_name } : agent ),
+      };
+
+    case 'AGENT_CREATED':
+      return {
+        ...state,
+        updated_action: action.payload,
+        error: null,
+      };
+
+
     case 'SET_UPDATE_ERROR':
       return {
         ...state,
@@ -134,19 +149,7 @@ export const ticketReducer = (state, action) => {
         error: null,
       };
     
-    case 'AGENT_EDITED':
-      return {
-        ...state,
-        updated_action: action.payload,
-        error: null,
-      };
-
-    case 'AGENT_CREATED':
-      return {
-        ...state,
-        updated_action: action.payload,
-        error: null,
-      };
+    
 
     case 'SET_PHONE_CALLS_HISTORY':
       return {

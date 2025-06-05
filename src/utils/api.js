@@ -449,7 +449,17 @@ export const editAgent = async (dispatch, setLoading, formData) => {
       throw new Error(data.message || 'Error editing');
     }
 
-    dispatch({ type: 'AGENT_EDITED', payload: data });
+    const updated_agent = {
+      id: formData.agent_id,
+      agent_email: formData.email,
+      agent_name: formData.displayName,
+      agent_rol: formData.role,
+      agent_department: formData.department,
+      agent_location: formData.location,
+      remote_agent: formData.isRemote
+    }
+
+    dispatch({ type: 'AGENT_EDITED', payload: updated_agent });
     return { success: true, message: data.message || 'Agent edited successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';
