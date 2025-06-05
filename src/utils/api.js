@@ -77,12 +77,20 @@ export const assignAgent = async (dispatch, setLoading, ticketId, currentAgentEm
     });
  
     const data = await response.json();
+
     if (!response.ok) {
       throw new Error(data.message || 'Error al actualizar el agente');
     }
 
-    dispatch({type: 'ASSIGN_AGENT', payload: data.message})
-    return { success: true, message: data.message || 'Updated successfully' };
+    const updatedTicket = {
+      id: ticketId,
+      targetAgentEmail,
+    };
+
+    dispatch({type: 'ASSIGN_AGENT', payload: updatedTicket})
+    
+    return updatedTicket;
+    
   } catch (err) {
     const message = err.message || 'Something went wrong';
     dispatch({ type: 'SET_PATIENT_NAME_ERROR', payload: message });

@@ -36,10 +36,14 @@ export const ticketReducer = (state, action) => {
 
     case 'ASSIGN_AGENT':
       return {
-        ...state,
-        updated_agent: action.payload,
-        error: null,
-      };
+    ...state,
+      tickets: state.tickets.map(ticket =>
+        ticket.id === action.payload.id
+          ? { ...ticket, agent_assigned: action.payload.targetAgentEmail }
+          : ticket
+      ),
+    };
+
     case 'SET_ASSIGNMENT_ERROR':
       return {
         ...state,
