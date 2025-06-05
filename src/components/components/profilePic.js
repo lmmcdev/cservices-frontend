@@ -30,8 +30,9 @@ const ProfilePic = ({email}) => {
         <Avatar 
           src={photos[email]}
           alt={finalEmail || "Usuario"} sx={{
-            width: { xs: 40, sm: 56, md: 72 },
-            height: { xs: 40, sm: 56, md: 72 },
+            width: 40,
+            height: 40,
+            border: '2px solid #00a1ff',
           }}
         />
       </Box>

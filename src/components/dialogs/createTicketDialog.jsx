@@ -52,14 +52,18 @@ const formik = useFormik({
     notes: '',
   },
   validationSchema,
-  onSubmit: (values) => {
-  const phone = normalizePhoneNumber(values.phoneFormatted);
-  handleOnSubmit({ ...values, phone, createdBy: agentEmail });
-  onClose();
-},
+    onSubmit: (values) => {
+      const rawDigits = values.phoneFormatted.replace(/\D/g, '').slice(0, 10);
+      const international = rawDigits.length === 10 ? `+1${rawDigits}` : '';
 
-});
-
+      handleOnSubmit({
+        ...values,
+        phone: international,
+        createdBy: agentEmail
+      });
+      onClose();
+    }
+  });
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -86,7 +90,7 @@ const formik = useFormik({
               size="small"
               label="Phone"
               fullWidth
-              name="phoneFormatted"
+              name="phone"
               value={formik.values.phoneFormatted}
               onChange={(e) => {
                 const rawDigits = e.target.value.replace(/\D/g, '').slice(0, 10);

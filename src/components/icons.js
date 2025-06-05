@@ -1,6 +1,5 @@
 //Para importar los iconos de Font Awesome v6
-import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
-import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
+import { faPenToSquare, faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
 
 //Para importar los iconos de Material UI
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -30,9 +29,9 @@ const DashboardIcon = (props) => (
 const FaUsersV4 = (props) => (
   <i className="fa fa-users" {...props}></i>
 );
-/*const FaUserPlusV4 = (props) => (
+const FaUserPlusV4 = (props) => (
   <i className="fa fa-user-plus" {...props}></i>
-);*/
+);
 
 export const icons = {
     //Font Awesome v6
@@ -45,6 +44,7 @@ export const icons = {
     collapseLeft: KeyboardDoubleArrowLeftIcon,
     collapseRight: KeyboardDoubleArrowRightIcon, 
     assignToMe: GroupAddIcon,
+    addCollaborator: PersonAddIcon,
     //Bootstrap
     addCase: TelephonePlusIcon,
     callLogs: TelephoneIcon,
@@ -52,8 +52,7 @@ export const icons = {
     dashboard: DashboardIcon,
     //Font Awesome v4
     supervisorView: FaUsersV4,
-
-    addCollaborator: PersonAddIcon,
+    
     home: HomeIcon,
     business: BusinessIcon,
 };

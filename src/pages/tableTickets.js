@@ -14,6 +14,7 @@ import { icons } from '../components/icons.js';
 import { useNavigate } from 'react-router-dom';
 import { useFilters } from '../utils/js/filterContext.js';
 //import { emailToFullName } from '../utils/js/emailToFullName.js'
+import StatusFilterBoxes from '../components/statusFilterBoxes';
 
 
 const statusColors = {
@@ -110,33 +111,13 @@ export default function TableTickets({ agents }) {
     <>
       <Card elevation={3} sx={{ borderRadius: 4, position: 'fixed', top: 170, left: 200, right: 20 }}>
         <CardContent>
-          <Box sx={{ flexGrow: 1 }}>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3, justifyContent: 'center' }}>
-              {Object.keys(statusColors).map((status) => (
-                <Button
-                  key={status}
-                  onClick={() => setSelectedStatus(status)}
-                  variant={selectedStatus === status ? 'contained' : 'outlined'}
-                  sx={{
-                    minWidth: 180,
-                    aspectRatio: '1 / 0.5',
-                    textTransform: 'none',
-                    fontSize: 13,
-                    fontWeight: 'bold',
-                    borderRadius: 4,
-                    backgroundColor: statusColors[status].bg,
-                    color: statusColors[status].text,
-                    borderColor: statusColors[status].text,
-                    '&:hover': {
-                      backgroundColor: statusColors[status].bg,
-                    },
-                  }}
-                >
-                  {ticketsCountByStatus[status] || 0} <br />
-                  {status} 
-                </Button>
-              ))}
-            </Box>
+          <Box sx={{ flexGrow: 1, mt: 4 }}>
+            <StatusFilterBoxes
+              statusColors={statusColors}
+              selectedStatus={selectedStatus}
+              setSelectedStatus={setSelectedStatus}
+              ticketsCountByStatus={ticketsCountByStatus}
+            />
 
             {error && (
               <Typography color="error" align="center" sx={{ mb: 2 }}>
@@ -150,29 +131,35 @@ export default function TableTickets({ agents }) {
               <Table>
                 <TableHead>
                   <TableRow>
-                    {['Status', 'Caller ID', 'Name', 'DOB', 'Phone', 'Create At', '', '', ''].map((header) => (
-                      <TableCell key={header} sx={{ fontWeight: 'bold', fontSize: 16 }}>
-                        {header === 'Create At' ? (
-                          <TableCell
-                            key={header}
-                            onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
-                            sx={{ fontWeight: 'bold', fontSize: 16, cursor: 'pointer', userSelect: 'none', borderBottom: 'none' }}
-                          >
-                            {header}{' '}
-                            <FontAwesomeIcon icon={sortDirection === 'asc' ? icons.arrowUp : icons.arrowDown} />
-                          </TableCell>
-                        ) : (
-                          <TableCell key={header} sx={{ fontWeight: 'bold', fontSize: 16, borderBottom: 'none' }}>
-                            {header}
-                          </TableCell>
-                        )}
-                      </TableCell>
-                    ))}
+                    <TableCell sx={{ width: 120, fontWeight: 'bold', pl: 2 }}>Status</TableCell>
+                    <TableCell sx={{ width: 120, fontWeight: 'bold' }}>Caller ID</TableCell>
+                    <TableCell sx={{ width: 160, fontWeight: 'bold' }}>Name</TableCell>
+                    <TableCell sx={{ width: 120, fontWeight: 'bold' }}>DOB</TableCell>
+                    <TableCell sx={{ width: 130, fontWeight: 'bold' }}>Phone</TableCell>
+                    <TableCell
+                      sx={{
+                        width: '160px',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        whiteSpace: 'nowrap'
+                      }}
+                      onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
+                    >
+                      Created At{' '}
+                      <FontAwesomeIcon
+                        icon={sortDirection === 'asc' ? icons.arrowUp : icons.arrowDown}
+                        style={{ marginLeft: 8 }}
+                      />
+                    </TableCell>
+                    <TableCell sx={{ width: 80 }}></TableCell>
+                    <TableCell sx={{ width: 80 }}></TableCell>
+                    <TableCell sx={{ width: 160, fontWeight: 'bold' }}>Assigned To</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {paginatedRows.map((row, idx) => (
-                    <TableRow key={row.id || `fallback-${idx}`} sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>
+                    <TableRow key={row.id && row.id !== '' ? row.id : `fallback-${idx}`} sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>
                       <TableCell>
                         <Chip
                           label={row.status}
@@ -190,7 +177,7 @@ export default function TableTickets({ agents }) {
                       <TableCell>{row.caller_id}</TableCell>
                       <TableCell>{row.patient_name}</TableCell>
                       <TableCell>{row.patient_dob}</TableCell>
-                      <TableCell>{row.phone}</TableCell>
+                      <TableCell>{row.phone || 'N/A'}</TableCell>
                       <TableCell>{row.creation_date}</TableCell>
                       <TableCell>
                         <Box display="flex" justifyContent="center">

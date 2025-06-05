@@ -18,6 +18,7 @@ import PauseCircleFilledIcon from '@mui/icons-material/PauseCircleFilled';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DownloadIcon from '@mui/icons-material/Download';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import AudioVisualizer from './audioVisualizer'; // Ajusta la ruta si está en otra carpeta
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -32,6 +33,19 @@ const statusColors = {
 export default function TicketAudio({ audioUrl, title = 'Audio', status }) {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  // Detener la animación del visualizador cuando termina el audio
+  useEffect(() => {
+    const audioEl = audioRef.current;
+    if (!audioEl) return;
+
+    const handleEnded = () => setIsPlaying(false);
+
+    audioEl.addEventListener('ended', handleEnded);
+    return () => {
+      audioEl.removeEventListener('ended', handleEnded);
+    };
+  }, []);
+
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
@@ -166,6 +180,8 @@ export default function TicketAudio({ audioUrl, title = 'Audio', status }) {
     closeMenu();
   };
 
+  const [heights, setHeights] = useState([8, 8, 8, 8, 8]);
+
   // Fallback original si no hay audioUrl
   if (!audioUrl) {
     return (
@@ -202,26 +218,32 @@ export default function TicketAudio({ audioUrl, title = 'Audio', status }) {
   return (
     <Card variant="outlined">
       <CardContent sx={{ p: '20px 25px 25px 30px' }}>
-        {/* Título */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-          <Box
-            sx={{
-              width: 8,
-              height: 24,
-              borderRadius: 10,
-              backgroundColor: statusColors[status]?.text || '#00a1ff',
-            }}
-          />
-          <Typography
-            variant="h6"
-            sx={{
-              fontWeight: 'bold',
-              color: statusColors[status]?.text || '#00a1ff',
-            }}
-          >
-            {title}
-          </Typography>
-        </Box>
+        {/* Título y barras animadas */}
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+          {/* Título a la izquierda */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box
+              sx={{
+                width: 8,
+                height: 24,
+                borderRadius: 10,
+                backgroundColor: statusColors[status]?.text || '#00a1ff',
+              }}
+            />
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 'bold',
+                color: statusColors[status]?.text || '#00a1ff',
+              }}
+            >
+              {title}
+            </Typography>
+          </Box>
+
+          {/* Onda animada a la derecha */}
+  <AudioVisualizer isPlaying={isPlaying} />
+</Box>
 
         {/* Barra de controles */}
         <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
@@ -441,7 +463,7 @@ export default function TicketAudio({ audioUrl, title = 'Audio', status }) {
             style={{ display: 'none' }}
             onError={() => setAudioError(true)}
           />
-        )}
+        )} 
       </CardContent>
     </Card>
   );
