@@ -18,6 +18,7 @@ const drawerWidthClosed = 80;
 
 export default function CollapsibleDrawer({ agents }) {
   const [open, setOpen] = useState(false);
+  //const [selectedIndex, setSelectedIndex] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -29,6 +30,7 @@ export default function CollapsibleDrawer({ agents }) {
 
   const handleListItemClick = (path) => {
     navigate(path);
+    //setSelectedIndex(path);
   };
 
   const toggleOpen = () => {
@@ -142,7 +144,9 @@ export default function CollapsibleDrawer({ agents }) {
               >
                 <icons.collapseRight />
               </IconButton>
-              <ProfilePic size={36} />
+              <Box display="flex" alignItems="center">
+                <ProfilePic size={36} />
+            </Box>
             </>
           )}
 
