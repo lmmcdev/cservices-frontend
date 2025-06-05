@@ -180,7 +180,7 @@ export default function TicketAudio({ audioUrl, title = 'Audio', status }) {
     closeMenu();
   };
 
-  const [heights, setHeights] = useState([8, 8, 8, 8, 8]);
+  //const [heights, setHeights] = useState([8, 8, 8, 8, 8]);
 
   // Fallback original si no hay audioUrl
   if (!audioUrl) {

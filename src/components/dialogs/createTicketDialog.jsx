@@ -34,9 +34,9 @@ const formatPhone = (value) => {
 };
 
 export default function CreateTicketDialog({ open, onClose, handleOnSubmit, agentEmail }) {
-  const normalizePhoneNumber = (formatted) => {
+ /* const normalizePhoneNumber = (formatted) => {
   return formatted.replace(/\D/g, '').slice(0, 10); // solo dígitos, sin +1
-};
+};*/
 
 
 const formik = useFormik({
