@@ -24,7 +24,7 @@ const formatName = (email) => {
 
 const formatShortDate = (raw) => {
   const [datePart, time] = raw.split(', ');
-  const [day, month, year] = datePart.split('/');
+  const [day, month,] = datePart.split('/');
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   return `${day} ${months[parseInt(month, 10) - 1]} ${time}`;
 };
@@ -57,7 +57,7 @@ const TicketWorkTime = ({ workTimeData = [] }) => {
                 <Typography variant="caption" sx={{ minWidth: 70 }}>
                   ⏱ {formatSeconds(entry.workTime)}
                 </Typography>
-                <Typography variant="caption" sx={{ minWidth: 100 }}>
+                <Typography variant="caption" sx={{ minWidth: 80 }}>
                   {fullName}
                 </Typography>
                 <Typography
