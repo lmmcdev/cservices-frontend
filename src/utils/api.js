@@ -21,6 +21,26 @@ export const fetchTableData = async (dispatch, setLoading, agentAssigned) => {
   }
 };
 
+//phone calls history
+export const phoneHistory = async (dispatch, setLoading, phoneNumber) => {
+  try {
+    const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetPhoneHistory?phone=${encodeURIComponent(phoneNumber)}`);
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || 'Error fetching calls history');
+    }
+    
+    dispatch({ type: 'SET_PHONE_CALLS_HISTORY', payload: data.message });
+    return { success: true, message: data.items || 'Updated successfully' };
+  } catch (err) {
+    const message = err.message || 'Something went wrong';
+    dispatch({ type: 'SET_ERROR', payload: message });
+    return { success: false, message };
+  } finally {
+    setLoading(false);
+  }
+};
+
 //fetch table agents
 export const fetchAgentData = async (dispatch, setLoading) => {
   try {
@@ -273,7 +293,7 @@ export const updatePatientDOB = async (dispatch, setLoading, ticketId, currentAg
 };
 
 //update patient phone
-export const updatePatientPhone = async (dispatch, setLoading, ticketId, currentAgentEmail, newPatientPhone) => {
+export const updateCallbackNumber = async (dispatch, setLoading, ticketId, currentAgentEmail, newPatientPhone) => {
   setLoading(true);
   try {
     const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoUpdatePatientPhone`, {
@@ -291,7 +311,7 @@ export const updatePatientPhone = async (dispatch, setLoading, ticketId, current
     const data = await response.json();
 
     if (!response.ok || data.success === false) {
-      throw new Error(data.message || 'Error updating patient phone');
+      throw new Error(data.message || 'Error updating callback number');
     }
 
     dispatch({ type: 'UPDATE_PATIENT_PHONE', payload: newPatientPhone });

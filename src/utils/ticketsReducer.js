@@ -141,6 +141,13 @@ export const ticketReducer = (state, action) => {
         error: null,
       };
 
+    case 'SET_PHONE_CALLS_HISTORY':
+      return {
+        ...state,
+        updated_action: action.payload,
+        error: null,
+      };
+
     default:
       return state;
   }

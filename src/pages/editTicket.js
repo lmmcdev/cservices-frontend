@@ -16,7 +16,7 @@ import { changeStatus,
           updateTicketDepartment, 
           updatePatientName,
           updatePatientDOB, 
-          updatePatientPhone} from '../utils/api';
+          updateCallbackNumber} from '../utils/api';
 import TicketNotes from '../components/ticketNotes';
 import TicketCollaborators from '../components/ticketCollaborators';
 import TicketAudio from '../components/ticketAudio';
@@ -59,7 +59,8 @@ export default function EditTicket({ agents }) {
     return date.toISOString().split('T')[0]; // 'YYYY-MM-DD'
   };
   const [patientDob, setPatientDob] = useState(formatDateForInput(ticket?.patient_dob));
-  const [patientPhone, setPatientPhone] = useState(ticket?.callback_number || '');
+  const [callbakNumber, setCallbackNumber] = useState(ticket?.callback_number || '');
+  const [ patientPhone, ] = useState(ticket?.phone || '')
 
 
   //state status
@@ -216,8 +217,8 @@ export default function EditTicket({ agents }) {
 
 
   ///////////patient phone////////////////////////////////
-  const updatePatientPhoneUI = async (newPhone) => {
-    const result = await updatePatientPhone(dispatch, setLoading, ticketId, agentEmail, newPhone);
+  const updatecallbakNumberUI = async (newPhone) => {
+    const result = await updateCallbackNumber(dispatch, setLoading, ticketId, agentEmail, newPhone);
     if (result.success) {
       setSuccessMessage(result.message);
       setSuccessOpen(true);
@@ -339,14 +340,14 @@ export default function EditTicket({ agents }) {
                     {editField === 'phone' ? (
                       <Box display="flex" alignItems="center" gap={1}>
                         <TextField
-                          value={patientPhone}
-                          onChange={(e) => setPatientPhone(e.target.value)}
+                          value={callbakNumber}
+                          onChange={(e) => setCallbackNumber(e.target.value)}
                           size="small"
                           fullWidth
                         />
                         <IconButton
                           onClick={async () => {
-                            await updatePatientPhoneUI(patientPhone);
+                            await updatecallbakNumberUI(callbakNumber);
                             setEditField(null);
                           }}
                         >
@@ -356,7 +357,7 @@ export default function EditTicket({ agents }) {
                       </Box>
                     ) : (
                       <Box display="flex" alignItems="center" justifyContent="space-between">
-                        <Typography>{patientPhone}</Typography>
+                        <Typography>{callbakNumber}</Typography>
                         <IconButton onClick={() => setEditField('phone')}><EditIcon fontSize="small" /></IconButton>
                       </Box>
                     )}
@@ -502,7 +503,9 @@ export default function EditTicket({ agents }) {
       <PatientProfileDialog
         open={openPatientDialog}
         onClose={() => setOpenPatientDialog(false)}
-        phone={patientPhone}
+        patientName={patientName}
+        patientDob={patientDob}
+        patientPhone={patientPhone}
       />
 
       {/* Snackbars */}
