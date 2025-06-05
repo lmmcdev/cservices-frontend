@@ -1,31 +1,28 @@
 // hooks/usePhoneHistory.js
-import React, { useReducer, useState, useEffect } from 'react';
+import   { useReducer, useState, useEffect } from 'react';
 import { ticketReducer, initialState } from '../../utils/ticketsReducer';
 import { useLoading } from '../loadingProvider';
 import { phoneHistory } from '../../utils/api';
 
 const usePhoneHistory = (phoneNumber) => {
-    const [state, dispatch] = useReducer(ticketReducer, initialState);
-      const [errorOpen, setErrorOpen] = useState(false);
-      const [successOpen, setSuccessOpen] = useState(false);
-      const [editField, setEditField] = useState(null); 
-      const [successMessage, setSuccessMessage] = useState('');
-      const [errorMessage, setErrorMessage] = useState('');
+    const [, dispatch] = useReducer(ticketReducer, initialState);
+    const [, setErrorOpen] = useState(false);
+    const [, setSuccessOpen] = useState(false);
+    const [, setSuccessMessage] = useState('');
+    const [, setErrorMessage] = useState('');
     
     const { setLoading } = useLoading();
     
-  const [history, setHistory] = useState([]);
-  const [error, setError] = useState(null);
+    const [history, setHistory] = useState([]);
+    const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchHistory = async () => {
       if (!phoneNumber) return;
-      setLoading(true);
       setError(null);
-
+        setLoading(true)
       try {
         const result = await phoneHistory(dispatch, setLoading, phoneNumber);
-        console.log(result)
         if (result.success) {
             setSuccessMessage(result.message);
             setSuccessOpen(true);
@@ -42,7 +39,7 @@ const usePhoneHistory = (phoneNumber) => {
     };
 
     fetchHistory();
-  }, [phoneNumber]);
+  }, [phoneNumber, setLoading]);
 
   return { history, error };
 };
