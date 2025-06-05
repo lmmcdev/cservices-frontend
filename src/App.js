@@ -61,8 +61,9 @@ function AppContent() {
   }, [setLoading]);
 
   // Inicializar SignalR
+  //Error de JSON en mozilla
   useEffect(() => {
-    initializeSignalR(dispatch); // Pasamos el dispatch si necesitas actualizar el estado desde SignalR
+    //initializeSignalR(dispatch); // Pasamos el dispatch si necesitas actualizar el estado desde SignalR
   }, [initializeSignalR]);
 
   if (!authLoaded) return null;
