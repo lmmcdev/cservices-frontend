@@ -47,6 +47,7 @@ export default function EditTicket({ agents }) {
   const { ticketId, agentEmail } = useParams();
   const location = useLocation();
   const ticket = location.state?.ticket;
+  const [ agentAssigned, setAgentAssigned ] = useState(ticket?.agent_assigned || '')
 
   //statuses
   const [status, setStatus] = useState(ticket?.status || '');
@@ -82,13 +83,13 @@ export default function EditTicket({ agents }) {
       if (state.error) setErrorOpen(true);
     }, [state.error]);
     
-    useEffect(() => {
+  useEffect(() => {
     if (ticket?.notes) {
       setNotes(ticket.notes);
     }
   }, [ticket]);
 
-  
+
 
     //handling functions
     const handleStatusChange = async (newStatus) => {
@@ -422,7 +423,7 @@ export default function EditTicket({ agents }) {
         <Grid item>
             <Box display="flex" flexDirection="column" gap={2} sx={{ width: '300px' }}>
               <TicketAssignee
-                assigneeEmail={ticket?.agent_assigned}
+                assigneeEmail={agentAssigned}
                 status={status}
                 onReassign={() => setOpenReassignAgentModal(true)}
                 onChangeDepartment={() => setOpenChangeDepartmentModal(true)}
@@ -475,8 +476,17 @@ export default function EditTicket({ agents }) {
         open={openReassignAgentModal}
         onClose={() => setOpenReassignAgentModal(false)}
         onReassignAgent={async (selectedAgents) => {
-          const updated = [...selectedAgents];
-          await assignAgent(dispatch, setLoading, ticketId, agentEmail, updated);
+          //const updated = [...selectedAgents];
+          //console.log(selectedAgents)
+          const result = await assignAgent(dispatch, setLoading, ticketId, agentEmail, selectedAgents);
+          if (result.success) {
+            setSuccessMessage(result.message);
+            setSuccessOpen(true);
+            setAgentAssigned(selectedAgents);
+          } else {
+            setErrorMessage(result.message);
+            setErrorOpen(true);
+          }
           setSuccessOpen(true);
         }}
         agents={agents}

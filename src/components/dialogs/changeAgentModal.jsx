@@ -11,19 +11,32 @@ import ActionButtons from '../actionButtons'; // usamos el mismo botón que en c
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHandHoldingHand } from '@fortawesome/free-solid-svg-icons';
 
-const ChangeAgentModal = ({
-  open,
-  onClose,
-  onReassignAgent,
-  agents = []
-}) => {
+  const ChangeAgentModal = ({
+    open,
+    onClose,
+    onReassignAgent,
+    agents = []
+  }) => {
   const [selectedAgent, setSelectedAgent] = useState('');
+  //const [assignee, setAssignee] = useState();
 
   const handleReassign = async () => {
+    //console.log(selectedAgent)
     if (onReassignAgent && selectedAgent) {
-      await onReassignAgent([selectedAgent]);
+      onReassignAgent(selectedAgent)
     }
-    onClose();
+    /*if (onReassignAgent && selectedAgent) {
+      const result = await onReassignAgent([selectedAgent]);
+      if (result.success) {
+        setSuccessMessage(result.message);
+        setSuccessOpen(true);
+      } else {
+        setErrorMessage(result.message);
+        setErrorOpen(true);
+      }
+      //setAssignee(newAgentEmail);
+    }*/
+    //onClose();
   };
 
   const handleCancel = () => {

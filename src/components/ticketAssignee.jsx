@@ -12,7 +12,7 @@ import {
 import { getUserPhotoByEmail } from '../utils/graphHelper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHandHoldingHand } from '@fortawesome/free-solid-svg-icons';
-import { BsHousesFill } from 'react-icons/bs'; // Bootstrap icon
+import { BsHousesFill } from 'react-icons/bs';
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -23,32 +23,42 @@ const statusColors = {
   Duplicated: { bg: '#FFE3C4', text: '#FF8A00' },
 };
 
-export default function TicketAssignee({ assigneeEmail, status, onReassign, onChangeDepartment }) {
+export default function TicketAssignee({
+  assigneeEmail,
+  status,
+  onReassign,
+  onChangeDepartment
+}) {
   const [photoUrl, setPhotoUrl] = useState('');
-
+  const [formattedName, setFormattedName] = useState('Unassigned');
+  
   useEffect(() => {
-    const fetchPhoto = async () => {
-      if (assigneeEmail) {
+    const updateInfo = async () => {
+      if (assigneeEmail && assigneeEmail.includes('@')) {
+        const name = assigneeEmail
+          .split('@')[0]
+          .replace('.', ' ')
+          .split(' ')
+          .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+          .join(' ');
+        setFormattedName(name);
+
         try {
           const url = await getUserPhotoByEmail(assigneeEmail);
-          setPhotoUrl(url);
+          setPhotoUrl(url || '');
         } catch (err) {
           console.warn(`No se pudo cargar la foto de ${assigneeEmail}:`, err.message);
+          setPhotoUrl('');
         }
+      } else {
+        setFormattedName('Unassigned');
+        setPhotoUrl('');
       }
     };
-    fetchPhoto();
+
+    updateInfo();
   }, [assigneeEmail]);
 
-  let formattedName = 'Unassigned';
-  if (typeof assigneeEmail === 'string' && assigneeEmail.includes('@')) {
-    formattedName = assigneeEmail
-      .split('@')[0]
-      .replace('.', ' ')
-      .split(' ')
-      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-      .join(' ');
-  }
 
   return (
     <Card variant="outlined" sx={{ height: '100%' }}>
@@ -72,16 +82,20 @@ export default function TicketAssignee({ assigneeEmail, status, onReassign, onCh
           </Box>
 
           <Box display="flex" gap={1}>
-            <Tooltip title="Change department">
-              <IconButton size="small" onClick={onChangeDepartment}>
-                <BsHousesFill style={{ color: '#00a1ff', fontSize: '18px' }} />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Reassign agent">
-              <IconButton size="small" onClick={onReassign}>
-                <FontAwesomeIcon icon={faHandHoldingHand} style={{ color: '#00a1ff', fontSize: '16px' }} />
-              </IconButton>
-            </Tooltip>
+            {onChangeDepartment && (
+              <Tooltip title="Change department">
+                <IconButton size="small" onClick={onChangeDepartment}>
+                  <BsHousesFill style={{ color: '#00a1ff', fontSize: '18px' }} />
+                </IconButton>
+              </Tooltip>
+            )}
+            {onReassign && (
+              <Tooltip title="Reassign agent">
+                <IconButton size="small" onClick={onReassign}>
+                  <FontAwesomeIcon icon={faHandHoldingHand} style={{ color: '#00a1ff', fontSize: '16px' }} />
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
         </Box>
 
