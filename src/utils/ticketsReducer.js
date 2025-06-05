@@ -53,8 +53,11 @@ export const ticketReducer = (state, action) => {
     case 'UPDATE_STATUS':
       return {
         ...state,
-        updated_action: action.payload,
-        error: null,
+      tickets: state.tickets.map(ticket =>
+        ticket.id === action.payload.id
+          ? { ...ticket, status: action.payload.status }
+          : ticket
+      ),
       };
     case 'SET_UPDATE_ERROR':
       return {

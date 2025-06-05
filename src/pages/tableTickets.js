@@ -63,8 +63,6 @@ export default function TableTickets({ agents }) {
 
   const { tickets, error } = state;
   const validTickets = Array.isArray(tickets) ? tickets : [];
-
-
      //filtros de la tabla
     const filteredRows = validTickets.filter((row) => {
       const matchStatus = selectedStatus === 'Total' || row.status === selectedStatus;

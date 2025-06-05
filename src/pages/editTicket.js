@@ -28,6 +28,8 @@ import ChangeAgentModal from '../components/dialogs/changeAgentModal';
 import ChangeDepartmentModal from '../components/dialogs/changeDepartmentModal';
 import PatientProfileDialog from '../components/dialogs/patientProfileDialog';
 import Tooltip from '@mui/material/Tooltip';
+import { useWorkTimer } from '../components/components/useWorkTimer';
+import TicketWorkTime from '../components/ticketWorkTime';
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -47,7 +49,7 @@ export default function EditTicket({ agents }) {
   const { ticketId, agentEmail } = useParams();
   const location = useLocation();
   const ticket = location.state?.ticket;
-  const [ agentAssigned, setAgentAssigned ] = useState(ticket?.agent_assigned || '')
+  const [ agentAssigned, setAgentAssigned ] = useState(ticket?.agent_assigned || '');
 
   //statuses
   const [status, setStatus] = useState(ticket?.status || '');
@@ -78,6 +80,7 @@ export default function EditTicket({ agents }) {
   const [openChangeDepartmentModal, setOpenChangeDepartmentModal] = useState(false);
   const [openPatientDialog, setOpenPatientDialog] = useState(false);
   //const [relatedCases, setRelatedCases] = useState([]);
+  useWorkTimer( {ticketData:ticket, agentEmail, status, enabled:true} );
 
   //useEffects
   useEffect(() => {
@@ -89,7 +92,6 @@ export default function EditTicket({ agents }) {
       setNotes(ticket.notes);
     }
   }, [ticket]);
-
 
 
     //handling functions
@@ -420,8 +422,11 @@ export default function EditTicket({ agents }) {
               />
             </Box>
           </Grid>
-
+{/**sx={{ maxHeight: 500, overflowY: 'auto' }} */}
         <Grid item>
+            <Box display="flex" flexDirection="column" gap={2} sx={{ maxHeight: 300, overflowY: 'auto', width: '310px', mb:2 }}>
+              <Paper><TicketWorkTime workTimeData={ticket.work_time} /></Paper>
+            </Box> 
             <Box display="flex" flexDirection="column" gap={2} sx={{ width: '300px' }}>
               <TicketAssignee
                 assigneeEmail={agentAssigned}

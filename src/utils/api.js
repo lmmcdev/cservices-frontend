@@ -123,7 +123,12 @@ export const changeStatus = async (dispatch, setLoading, ticketId, currentAgentE
       throw new Error(data.message || 'Error al actualizar el estado');
     }
 
-    dispatch({ type: 'UPDATE_STATUS', payload: data.message });
+    const updatedTicket = {
+      id: ticketId,
+      status: newStatus,
+    };
+
+    dispatch({ type: 'UPDATE_STATUS', payload: updatedTicket });
     return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';
@@ -334,6 +339,41 @@ export const updateCallbackNumber = async (dispatch, setLoading, ticketId, curre
 };
 
 
+//update work time
+export const updateWorkTime = async (dispatch, setLoading, ticketId, currentAgentEmail, time, currentStatus) => {
+  setLoading(true);
+  try {
+    const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoUpdateWorkTime`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tickets: ticketId,
+        agent_email: currentAgentEmail,
+        workTime: time,
+        currentStatus: currentStatus
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data.success === false) {
+      throw new Error(data.message || 'Error registering work time');
+    }
+
+    dispatch({ type: 'UPDATE_WORK_TIME', payload: time });
+    return { success: true, message: data.message || 'Updated work time successfully' };
+  } catch (err) {
+    const message = err.message || 'Something went wrong';
+    dispatch({ type: 'SET_ERROR', payload: message });
+    return { success: false, message };
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 //create new case
 export const createNewTicket = async (dispatch, setLoading, formData) => {
   //console
@@ -419,6 +459,7 @@ export const editAgent = async (dispatch, setLoading, formData) => {
     setLoading(false);
   }
 };
+
 
 //create agent
 export const createAgent = async (dispatch, setLoading, formData) => {
