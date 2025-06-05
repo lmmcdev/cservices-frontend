@@ -69,7 +69,7 @@ export default function TicketCollaborators({
           {onAddCollaborator && (
             <Tooltip title="Add collaborator">
               <IconButton size="small" onClick={onAddCollaborator}>
-                <icons.addCollaborator style={{ color: '#00a1ff', fontSize: '16px' }} />
+                <icons.addCollaborator style={{ color: '#00a1ff', fontSize: '22px' }} />
               </IconButton>
             </Tooltip>
           )}

@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import CollaboratorAutoComplete from '../components/collaboratorAutocomplete';
 import ActionButtons from '../actionButtons';
+import { icons } from '../icons';
 
 export default function AgentSelectorDialog({
   open,
@@ -44,10 +45,7 @@ export default function AgentSelectorDialog({
     >
       <DialogTitle sx={{ color: '#00A1FF', p: 2, textAlign: 'center' }}>
         <Box display="flex" alignItems="center" justifyContent="center">
-          <i
-            className="fa fa-user-plus"
-            style={{ color: '#00A1FF', marginRight: '8px' }}
-          />
+          <icons.addCollaborator style={{ color: '#00a1ff', fontSize: '24px', marginRight: '8px' }} />
           <Typography variant="h6" sx={{ color: '#00A1FF', fontWeight: 'bold' }}>
             Add Collaborators
           </Typography>

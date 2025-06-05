@@ -68,21 +68,32 @@ export default function CollapsibleDrawer({ agents }) {
                 selected={isActive}
                 sx={{
                   borderRadius: 2,
-                  mb: 1,
+                  mb: 1.5,
                   mx: open ? 1 : 0,
+                  backgroundColor: isActive ? '#dff3ff' : 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: open ? 'flex-start' : 'center',
-                  backgroundColor: isActive ? '#e6f4ff' : 'transparent',
+                  pl: open ? 1.5 : 0,
+                  pr: open ? 1.5 : 0,
+                  gap: open ? 1.5 : 0,
+                  '&:hover': {
+                    backgroundColor: '#dff3ff',
+                    '& .MuiListItemIcon-root': {
+                      color: '#00a1ff',
+                    },
+                    '& .MuiTypography-root': {
+                      color: '#00a1ff',
+                    },
+                  },
                 }}
               >
                 <ListItemIcon
                   sx={{
-                    minWidth: 0,
-                    mr: open ? 2 : 0,
-                    justifyContent: 'center',
-                    color: isActive ? '#007bff' : '#5B5F7B',
-                    backgroundColor: isActive ? '#007bff20' : 'transparent',
-                    borderRadius: '50%',
-                    padding: 0.7,
+                    minWidth: 'auto',
+                    color: isActive ? '#00a1ff' : '#5B5F7B',
+                    display: 'flex',
+                    alignItems: 'center',
                   }}
                 >
                   {icon}
@@ -92,8 +103,8 @@ export default function CollapsibleDrawer({ agents }) {
                     primary={label}
                     primaryTypographyProps={{
                       fontSize: 15,
-                      color: isActive ? '#007bff' : 'inherit',
-                      fontWeight: isActive ? 'bold' : 'normal',
+                      color: isActive ? '#00a1ff' : '#5B5F7B',
+                      fontWeight: 'bold',
                     }}
                   />
                 )}
