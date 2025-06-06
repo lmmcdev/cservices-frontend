@@ -24,7 +24,7 @@ const statusColors = {
   Pending: { bg: '#EAE8FA', text: '#8965E5' },
   Done: { bg: '#DAF8F4', text: '#00B8A3' },
   Duplicated: { bg: '#FFE3C4', text: '#FF8A00' },
-  Total: { bg: 'transparent', text: '#0947D7' },
+  Total: { bg: '#f1f5ff', text: '#0947D7' },
 };
 
 export default function TableTickets({ agents }) {
@@ -104,43 +104,68 @@ export default function TableTickets({ agents }) {
     return acc;
   }, {});
 
+  //ancho fijo para las columnas
+  const columnWidths = {
+    status: 120,
+    callerId: 120,
+    name: 160,
+    dob: 120,
+    phone: 130,
+    createdAt: 160,
+    edit: 80,
+    assign: 80,
+    assignedTo: 160
+  };
+
   ticketsCountByStatus.Total = validTickets.length;
   return (
     <>
-      <Card elevation={3} sx={{ borderRadius: 4, position: 'fixed', top: 170, left: 200, right: 20 }}>
-        <CardContent>
-          <Box sx={{ flexGrow: 1, mt: 4 }}>
+      <Card elevation={3} sx={{ borderRadius: 4, position: 'fixed', top: 170, left: 200, right: 20, bottom: 20, display: 'flex', flexDirection: 'column' }}>
+        <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          {/*FILTROS*/}
+          <Box sx={{ flexShrink: 0, mt: 4 }}>
             <StatusFilterBoxes
               statusColors={statusColors}
               selectedStatus={selectedStatus}
               setSelectedStatus={setSelectedStatus}
               ticketsCountByStatus={ticketsCountByStatus}
             />
-
             {error && (
               <Typography color="error" align="center" sx={{ mb: 2 }}>
                 Error al cargar los tickets: {error}
               </Typography>
             )}
+          </Box>
 
-            <TableContainer component={Paper}
-              elevation={0}
-              sx={{ maxHeight: 500, overflowY: 'auto' }}>
-              <Table>
+          {/*TABLA CON SCROLL INTERNO*/}
+          <Box sx={{ flex: 1, overflowY: 'auto' }}>
+            <TableContainer component={Paper} elevation={0}>
+              <Table stickyHeader sx={{ tableLayout: 'fixed' }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ width: 120, fontWeight: 'bold', pl: 2 }}>Status</TableCell>
-                    <TableCell sx={{ width: 120, fontWeight: 'bold' }}>Caller ID</TableCell>
-                    <TableCell sx={{ width: 160, fontWeight: 'bold' }}>Name</TableCell>
-                    <TableCell sx={{ width: 120, fontWeight: 'bold' }}>DOB</TableCell>
-                    <TableCell sx={{ width: 130, fontWeight: 'bold' }}>Phone</TableCell>
+                    <TableCell sx={{ width: columnWidths.status, minWidth: columnWidths.status, fontWeight: 'bold', pl: 2 }}>
+                      Status
+                    </TableCell>
+                    <TableCell sx={{ width: columnWidths.callerId, minWidth: columnWidths.callerId, fontWeight: 'bold' }}>
+                      Caller ID
+                    </TableCell>
+                    <TableCell sx={{ width: columnWidths.name, minWidth: columnWidths.name, fontWeight: 'bold' }}>
+                      Name
+                    </TableCell>
+                    <TableCell sx={{ width: columnWidths.dob, minWidth: columnWidths.dob, fontWeight: 'bold' }}>
+                      DOB
+                    </TableCell>
+                    <TableCell sx={{ width: columnWidths.phone, minWidth: columnWidths.phone, fontWeight: 'bold' }}>
+                      Phone
+                    </TableCell>
                     <TableCell
                       sx={{
-                        width: '160px',
+                        width: columnWidths.createdAt,
+                        minWidth: columnWidths.createdAt,
                         fontWeight: 'bold',
                         cursor: 'pointer',
                         userSelect: 'none',
-                        whiteSpace: 'nowrap'
+                        whiteSpace: 'nowrap',
                       }}
                       onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
                     >
@@ -150,9 +175,11 @@ export default function TableTickets({ agents }) {
                         style={{ marginLeft: 8 }}
                       />
                     </TableCell>
-                    <TableCell sx={{ width: 80 }}></TableCell>
-                    <TableCell sx={{ width: 80 }}></TableCell>
-                    <TableCell sx={{ width: 160, fontWeight: 'bold' }}>Assigned To</TableCell>
+                    <TableCell sx={{ width: columnWidths.edit, minWidth: columnWidths.edit }}></TableCell>
+                    <TableCell sx={{ width: columnWidths.assign, minWidth: columnWidths.assign }}></TableCell>
+                    <TableCell sx={{ width: columnWidths.assignedTo, minWidth: columnWidths.assignedTo, fontWeight: 'bold' }}>
+                      Assigned To
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -179,20 +206,7 @@ export default function TableTickets({ agents }) {
                       <TableCell>{row.creation_date}</TableCell>
                       <TableCell>
                         <Box display="flex" justifyContent="center">
-                          <Tooltip
-                            title="Edit"
-                            placement="bottom"
-                            PopperProps={{
-                              modifiers: [
-                                {
-                                  name: 'offset',
-                                  options: {
-                                    offset: [0, -8],
-                                  },
-                                },
-                              ],
-                            }}
-                          >
+                          <Tooltip title="Edit" placement="bottom">
                             <Box
                               sx={{
                                 fontSize: 22,
@@ -213,53 +227,31 @@ export default function TableTickets({ agents }) {
                       </TableCell>
                       <TableCell>
                         {row.agent_assigned === '' && (
-                          <Tooltip
-                            title="Assign to me"
-                            placement="bottom"
-                            PopperProps={{
-                              modifiers: [
-                                {
-                                  name: 'offset',
-                                  options: {
-                                    offset: [0, -12],
-                                  },
-                                },
-                              ],
-                            }}
-                          >
+                          <Tooltip title="Assign to me" placement="bottom">
                             <IconButton
                               onClick={() => setSelectedTicket(row)}
                               sx={{
                                 color: '#00a1ff',
                                 '&:hover': {
                                   backgroundColor: 'transparent',
-                                }}
-                              }
+                                },
+                              }}
                             >
                               <icons.assignToMe />
                             </IconButton>
                           </Tooltip>
                         )}
                       </TableCell>
-
-                      <TableCell>
-                        {
-                          row.agent_assigned
-                          /*{(() => {
-                          const [local] = row.agent_assigned[0].split("@");
-                          const [first, last] = local.split(".");
-                          return first && last
-                            ? `${first[0].toUpperCase() + first.slice(1)} ${last[0].toUpperCase() + last.slice(1)}`
-                            : row.agent_assigned;
-                        })()}*/
-                      }
-                      </TableCell>
+                      <TableCell>{row.agent_assigned}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </TableContainer>
+          </Box>
 
+          {/*PAGINADOR - FIJO ABAJO*/}
+          <Box sx={{ flexShrink: 0, px: 2, py: 1, backgroundColor: '#fff' }}>
             <TablePagination
               component="div"
               count={filteredRows.length}
@@ -271,6 +263,7 @@ export default function TableTickets({ agents }) {
             />
           </Box>
         </CardContent>
+
       </Card>
 
       {selectedTicket && user?.username && (
