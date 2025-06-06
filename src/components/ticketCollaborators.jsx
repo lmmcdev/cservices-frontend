@@ -12,6 +12,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import { getUserPhotoByEmail } from '../utils/graphHelper'; // asegúrate del nombre correcto del archivo
 import { icons } from '../components/icons';
+import { Icon } from '@iconify/react';
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -109,7 +110,7 @@ export default function TicketCollaborators({
                         size="small"
                         onClick={() => onRemoveCollaborator(email)}
                       >
-                        <DeleteIcon fontSize="small" />
+                        <Icon icon="solar:trash-bin-trash-bold-duotone" width="20" height="20" style={{ color: '#555' }} />
                       </IconButton>
                     </Tooltip>
                   )}

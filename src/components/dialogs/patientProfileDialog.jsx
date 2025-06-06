@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Chip,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -18,6 +19,7 @@ import {
 import ActionButtons from '../actionButtons';
 import usePhoneHistory from '../components/phoneHistory';
 import { useNavigate } from 'react-router-dom';
+import FilterListIcon from '@mui/icons-material/FilterList';
 
 const isSameDay = (dateStr1, dateStr2) => {
   if (!dateStr1 || !dateStr2) return false;
@@ -54,22 +56,39 @@ const navigate = useNavigate();
     !isSameDay(item.creation_date, today)
   ) || [];
 
+  //Colores de los status
+    const statusColors = {
+        New: { bg: '#FFE2EA', text: '#FF6692' },
+        Emergency: { bg: '#FFF5DA', text: '#FFB900' },
+        'In Progress': { bg: '#DFF3FF', text: '#00A1FF' },
+        Pending: { bg: '#EAE8FA', text: '#8965E5' },
+        Done: { bg: '#DAF8F4', text: '#00B8A3' },
+        Duplicated: { bg: '#FFE3C4', text: '#FF8A00' },
+    };
+
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle
         sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1,
-          color: '#00a1ff',
-          fontWeight: 'bold'
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            color: '#00a1ff',
+            fontWeight: 'bold',
         }}
-      >
-        <i className="fa fa-id-card" style={{ fontSize: 18 }} />
-        Patient Profile
+        >
+        <Box display="flex" alignItems="center" gap={1}>
+            <i className="fa fa-id-card" style={{ fontSize: 18 }} />
+            Profile
+        </Box>
+
+        <IconButton onClick={onClose} size="small" sx={{ color: '#999' }}>
+            <i className="fa fa-close" style={{ fontSize: 18 }} />
+        </IconButton>
       </DialogTitle>
 
-      <DialogContent dividers>
+      <DialogContent dividers sx={{ pb: 4 }}>
         <Box display="flex" gap={4}>
           {/* LEFT COLUMN: Patient Info + Today's Activity */}
           <Box flex={1}>
@@ -100,11 +119,11 @@ const navigate = useNavigate();
                     elevation={1}
                     sx={{
                       p: 1,
-                      borderLeft: '4px solid #00a1ff',
+                      borderLeft: `4px solid ${statusColors[item.status]?.text || '#ccc'}`,
                       backgroundColor: '#fdfdfd',
                       fontSize: '0.85rem',
                       cursor: 'pointer',
-                      '&:hover': { backgroundColor: '#f0f8ff' }
+                      '&:hover': { backgroundColor: '#F3F4F6' }
                     }}
                     onClick={() =>
                       navigate(`/tickets/edit/${item.id}`, {
@@ -113,16 +132,25 @@ const navigate = useNavigate();
                         },
                       })
                     }>
-                    <ListItem key={index}>
-                      <ListItemText
-                        primary={`Call Reason: ${item.call_reason}`}
-                        
-                      />
-                    </ListItem>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+                        {item.call_reason || 'No reason'}
+                    </Typography>
                     <Box display="flex" justifyContent="space-between" sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-                        <span>Caller: {item.caller_id || 'N/A'}</span>
+                        <span>{item.caller_id || 'N/A'}</span>
                         <span>{new Date(item.creation_date).toLocaleDateString()}</span>
-                        <span>Status: {item.status}</span>
+                        <Chip
+                            label={item.status}
+                            sx={{
+                                backgroundColor: statusColors[item.status]?.bg || '#e0e0e0',
+                                color: statusColors[item.status]?.text || '#000',
+                                fontWeight: 'bold',
+                                fontSize: 11,
+                                px: 0.5,
+                                py: 0,
+                                height: 20,
+                                borderRadius: '12px'
+                            }}
+                          />
                       </Box>
                   </Paper>
                 ))}
@@ -137,10 +165,10 @@ const navigate = useNavigate();
           {/* RIGHT COLUMN: Other History */}
           <Box flex={1}>
             <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
-              <Typography variant="h6">History</Typography>
+              <Typography variant="h6" gutterBottom>History</Typography>
               <Tooltip title="Filter cases">
                 <IconButton size="small">
-                  <i className="fa fa-filter" />
+                  <FilterListIcon sx={{ fontSize: 20 }} />
                 </IconButton>
               </Tooltip>
             </Box>
@@ -157,11 +185,11 @@ const navigate = useNavigate();
                     elevation={1}
                     sx={{
                       p: 1,
-                      borderLeft: '4px solid #00a1ff',
+                      borderLeft: `4px solid ${statusColors[item.status]?.text || '#ccc'}`,
                       backgroundColor: '#fdfdfd',
                       fontSize: '0.85rem',
                       cursor: 'pointer',
-                      '&:hover': { backgroundColor: '#f0f8ff' }
+                      '&:hover': { backgroundColor: '#F3F4F6' }
                     }}
                     onClick={() =>
                       navigate(`/tickets/edit/${item.id}`, {
@@ -171,16 +199,28 @@ const navigate = useNavigate();
                       })
                     }
                   >
-                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
                       {item.call_reason || 'No reason'}
                     </Typography>
 
                     
 
                     <Box display="flex" justifyContent="space-between" sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
-                      <span>Caller: {item.caller_id || 'N/A'}</span>
+                      <span>{item.caller_id || 'N/A'}</span>
                       <span>{new Date(item.creation_date).toLocaleDateString()}</span>
-                      <span>Status: {item.status}</span>
+                      <Chip
+                        label={item.status}
+                        sx={{
+                            backgroundColor: statusColors[item.status]?.bg || '#e0e0e0',
+                            color: statusColors[item.status]?.text || '#000',
+                            fontWeight: 'bold',
+                            fontSize: 11,
+                            px: 0.5,
+                            py: 0,
+                            height: 20,
+                            borderRadius: '12px'
+                        }}
+                      />
                     </Box>
                   </Paper>
                 ))}
@@ -193,10 +233,6 @@ const navigate = useNavigate();
           </Box>
         </Box>
       </DialogContent>
-
-      <DialogActions>
-        <ActionButtons onCancel={onClose} cancelLabel="Close" />
-      </DialogActions>
     </Dialog>
   );
 };

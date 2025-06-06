@@ -288,7 +288,7 @@ export default function EditTicket() {
                       </Typography>
                     </Box>
 
-                    <Tooltip title="View Patient Profile">
+                    <Tooltip title="View Profile">
                       <IconButton onClick={() => setOpenPatientDialog(true)} size="small" sx={{ color: '#00a1ff' }}>
                         <i className="fa fa-id-card" />
                       </IconButton>
@@ -442,10 +442,10 @@ export default function EditTicket() {
               />
             </Box>
           </Grid>
-{/**sx={{ maxHeight: 500, overflowY: 'auto' }} */}
+        {/**sx={{ maxHeight: 500, overflowY: 'auto' }} */}
         <Grid item>
             
-            <Box display="flex" flexDirection="column" gap={2} sx={{ width: '300px' }}>
+            <Box display="flex" flexDirection="column" gap={2} sx={{ width: '350px' }}>
               <TicketAssignee
                 assigneeEmail={agentAssigned}
                 status={status}
@@ -460,10 +460,27 @@ export default function EditTicket() {
               />
             </Box>
 
-            <Box display="flex" flexDirection="column" gap={2} sx={{ maxHeight: 300, overflowY: 'auto', width: '300px', mt:2 }}>
-              <Paper><TicketWorkTime workTimeData={ticket.work_time} /></Paper>
-            </Box> 
-
+            <Card variant="outlined" sx={{ mt: 2 }}>
+              <CardContent sx={{ p: '20px 25px 25px 30px' }}>
+                <Box display="flex" alignItems="center" gap={1} mb={2}>
+                  <Box
+                    sx={{
+                      width: 8,
+                      height: 24,
+                      borderRadius: 10,
+                      backgroundColor: statusColors[status]?.text || '#00a1ff',
+                    }}
+                  />
+                  <Typography
+                    variant="h6"
+                    sx={{ fontWeight: 'bold', color: statusColors[status]?.text || '#00a1ff' }}
+                  >
+                    Time on Task
+                  </Typography>
+                </Box>
+                <TicketWorkTime workTimeData={ticket.work_time} />
+              </CardContent>
+            </Card>
           </Grid>
         </Grid>
         
