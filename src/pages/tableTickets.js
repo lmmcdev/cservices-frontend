@@ -102,18 +102,7 @@ export default function TableTickets() {
     assignedTo: 160
   };
 
-  //ancho fijo para las columnas
-  const columnWidths = {
-    status: 120,
-    callerId: 120,
-    name: 160,
-    dob: 120,
-    phone: 130,
-    createdAt: 160,
-    edit: 80,
-    assign: 80,
-    assignedTo: 160
-  };
+
   return (
     <>
       <Card elevation={3} sx={{ borderRadius: 4, position: 'fixed', top: 170, left: 200, right: 20, bottom: 20, display: 'flex', flexDirection: 'column' }}>
