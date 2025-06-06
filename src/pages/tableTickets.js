@@ -13,9 +13,8 @@ import AssignAgentModal from '../components/dialogs/assignAgentDialog';
 import { icons } from '../components/icons.js';
 import { useNavigate } from 'react-router-dom';
 import { useFilters } from '../utils/js/filterContext.js';
-//import { emailToFullName } from '../utils/js/emailToFullName.js'
-import StatusFilterBoxes from '../components/statusFilterBoxes';
-
+import { useAgents } from '../components/components/agentsContext';
+import StatusFilterBoxes from '../components/statusFilterBoxes.jsx';
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -27,7 +26,9 @@ const statusColors = {
   Total: { bg: 'transparent', text: '#0947D7' },
 };
 
-export default function TableTickets({ agents }) {
+export default function TableTickets() {
+  const { state: agentsState } = useAgents();
+  const agents = agentsState.agents;
   const { filters } = useFilters();
   const [state, dispatch] = useReducer(ticketReducer, initialState);
   const { setLoading } = useLoading();
@@ -39,7 +40,6 @@ export default function TableTickets({ agents }) {
   const navigate = useNavigate();
   const [sortDirection, setSortDirection] = useState('desc');
 
-  //comprobar aqui si existe user.username
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
@@ -62,20 +62,15 @@ export default function TableTickets({ agents }) {
     console.log("Asignar", agentEmail, "al ticket", ticketId);
   };
 
-  const { tickets, error } = state;
-  const validTickets = Array.isArray(tickets) ? tickets : [];
-     //filtros de la tabla
-    const filteredRows = validTickets.filter((row) => {
-      const matchStatus = selectedStatus === 'Total' || row.status === selectedStatus;
-      const matchAgent =
-        filters.assignedAgents.length === 0 || filters.assignedAgents.includes(row.agent_assigned);
-      const matchCaller =
-        filters.callerIds.length === 0 || filters.callerIds.includes(row.caller_id);
-      const matchDate =
-        !filters.date || row.creation_date?.startsWith(filters.date); // suponiendo formato 'YYYY-MM-DD...'
-
-      return matchStatus && matchAgent && matchCaller && matchDate;
-    });
+  const filteredRows = Array.isArray(state.tickets)
+    ? state.tickets.filter(row => {
+        const matchStatus = selectedStatus === 'Total' || row.status === selectedStatus;
+        const matchAgent = filters.assignedAgents.length === 0 || filters.assignedAgents.includes(row.agent_assigned);
+        const matchCaller = filters.callerIds.length === 0 || filters.callerIds.includes(row.caller_id);
+        const matchDate = !filters.date || row.creation_date?.startsWith(filters.date);
+        return matchStatus && matchAgent && matchCaller && matchDate;
+      })
+    : [];
 
   const sortedRows = [...filteredRows].sort((a, b) => {
     const dateA = new Date(a.creation_date);
@@ -88,23 +83,13 @@ export default function TableTickets({ agents }) {
     page * rowsPerPage + rowsPerPage
   );
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  //conteo de los tickets
-  const ticketsCountByStatus = validTickets.reduce((acc, ticket) => {
+  const ticketsCountByStatus = state.tickets?.reduce((acc, ticket) => {
     const status = ticket.status || 'Unknown';
     acc[status] = (acc[status] || 0) + 1;
     return acc;
-  }, {});
+  }, {}) || {};
+  ticketsCountByStatus.Total = filteredRows.length;
 
-  ticketsCountByStatus.Total = validTickets.length;
   return (
     <>
       <Card elevation={3} sx={{ borderRadius: 4, position: 'fixed', top: 170, left: 200, right: 20 }}>
@@ -117,32 +102,18 @@ export default function TableTickets({ agents }) {
               ticketsCountByStatus={ticketsCountByStatus}
             />
 
-            {error && (
-              <Typography color="error" align="center" sx={{ mb: 2 }}>
-                Error al cargar los tickets: {error}
-              </Typography>
-            )}
-
-            <TableContainer component={Paper}
-              elevation={0}
-              sx={{ maxHeight: 500, overflowY: 'auto' }}>
+            <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 500, overflowY: 'auto' }}>
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ width: 120, fontWeight: 'bold', pl: 2 }}>Status</TableCell>
-                    <TableCell sx={{ width: 120, fontWeight: 'bold' }}>Caller ID</TableCell>
-                    <TableCell sx={{ width: 160, fontWeight: 'bold' }}>Name</TableCell>
-                    <TableCell sx={{ width: 120, fontWeight: 'bold' }}>DOB</TableCell>
-                    <TableCell sx={{ width: 130, fontWeight: 'bold' }}>Phone</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Caller ID</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Name</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>DOB</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Phone</TableCell>
                     <TableCell
-                      sx={{
-                        width: '160px',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        userSelect: 'none',
-                        whiteSpace: 'nowrap'
-                      }}
-                      onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
+                      sx={{ fontWeight: 'bold', cursor: 'pointer' }}
+                      onClick={() => setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'))}
                     >
                       Created At{' '}
                       <FontAwesomeIcon
@@ -150,14 +121,14 @@ export default function TableTickets({ agents }) {
                         style={{ marginLeft: 8 }}
                       />
                     </TableCell>
-                    <TableCell sx={{ width: 80 }}></TableCell>
-                    <TableCell sx={{ width: 80 }}></TableCell>
-                    <TableCell sx={{ width: 160, fontWeight: 'bold' }}>Assigned To</TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>Assigned To</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {paginatedRows.map((row, idx) => (
-                    <TableRow key={row.id && row.id !== '' ? row.id : `fallback-${idx}`} sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>
+                    <TableRow key={row.id || `fallback-${idx}`} sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>
                       <TableCell>
                         <Chip
                           label={row.status}
@@ -178,82 +149,30 @@ export default function TableTickets({ agents }) {
                       <TableCell>{row.phone || 'N/A'}</TableCell>
                       <TableCell>{row.creation_date}</TableCell>
                       <TableCell>
-                        <Box display="flex" justifyContent="center">
-                          <Tooltip
-                            title="Edit"
-                            placement="bottom"
-                            PopperProps={{
-                              modifiers: [
-                                {
-                                  name: 'offset',
-                                  options: {
-                                    offset: [0, -8],
-                                  },
-                                },
-                              ],
-                            }}
+                        <Tooltip title="Edit">
+                          <Box
+                            sx={{ fontSize: 22, color: '#00A1FF', cursor: 'pointer' }}
+                            onClick={() => navigate(`/tickets/edit/${row.id}`, {
+                              state: { ticket: row, agents: agents },
+                            })}
                           >
-                            <Box
-                              sx={{
-                                fontSize: 22,
-                                color: '#00A1FF',
-                                cursor: 'pointer',
-                                '&:hover': { backgroundColor: 'transparent' },
-                              }}
-                              onClick={() =>
-                                navigate(`/tickets/edit/${row.id}/${user.username}`, {
-                                  state: { ticket: row, agents: agents },
-                                })
-                              }
-                            >
-                              <FontAwesomeIcon icon={icons.edit} />
-                            </Box>
-                          </Tooltip>
-                        </Box>
+                            <FontAwesomeIcon icon={icons.edit} />
+                          </Box>
+                        </Tooltip>
                       </TableCell>
                       <TableCell>
-                        {row.agent_assigned === '' && (
-                          <Tooltip
-                            title="Assign to me"
-                            placement="bottom"
-                            PopperProps={{
-                              modifiers: [
-                                {
-                                  name: 'offset',
-                                  options: {
-                                    offset: [0, -12],
-                                  },
-                                },
-                              ],
-                            }}
-                          >
+                        {!row.agent_assigned && (
+                          <Tooltip title="Assign to me">
                             <IconButton
                               onClick={() => setSelectedTicket(row)}
-                              sx={{
-                                color: '#00a1ff',
-                                '&:hover': {
-                                  backgroundColor: 'transparent',
-                                }}
-                              }
+                              sx={{ color: '#00a1ff' }}
                             >
                               <icons.assignToMe />
                             </IconButton>
                           </Tooltip>
                         )}
                       </TableCell>
-
-                      <TableCell>
-                        {
-                          row.agent_assigned
-                          /*{(() => {
-                          const [local] = row.agent_assigned[0].split("@");
-                          const [first, last] = local.split(".");
-                          return first && last
-                            ? `${first[0].toUpperCase() + first.slice(1)} ${last[0].toUpperCase() + last.slice(1)}`
-                            : row.agent_assigned;
-                        })()}*/
-                      }
-                      </TableCell>
+                      <TableCell>{row.agent_assigned}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -264,9 +183,12 @@ export default function TableTickets({ agents }) {
               component="div"
               count={filteredRows.length}
               page={page}
-              onPageChange={handleChangePage}
+              onPageChange={(e, newPage) => setPage(newPage)}
               rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
+              onRowsPerPageChange={e => {
+                setRowsPerPage(parseInt(e.target.value, 10));
+                setPage(0);
+              }}
               rowsPerPageOptions={[5, 10, 25, 50]}
             />
           </Box>

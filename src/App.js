@@ -1,54 +1,56 @@
 // src/App.js
-import React, { useReducer, useEffect, useState } from 'react';
+// src/App.js
+import React, { useEffect, useState } from 'react';
 import { Box, CssBaseline } from '@mui/material';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
 import Sidebar from './components/sideBar';
 import Topbar from './components/topBar';
 import TableTickets from './pages/tableTickets';
-import { LoadingProvider, useLoading } from './components/loadingProvider';
-import MsalProviderWrapper from './providers/msalProvider';
-import { AuthProvider, useAuth } from "./utils/authContext";
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import EditTicket from './pages/editTicket';
-import { ticketReducer, initialState } from './utils/ticketsReducer';
-import { fetchAgentData } from './utils/api';
-import { SignalRProvider, useSignalR } from './utils/signalRContext';
-import { FiltersProvider } from './utils/js/filterContext';
 import TableAgents from './pages/tableAgents';
 import EditAgent from './pages/editAgent';
 import AuthErrorScreen from './components/authErrorScreen';
 
+import { LoadingProvider, useLoading } from './components/loadingProvider';
+import { AuthProvider, useAuth } from './utils/authContext';
+import { SignalRProvider, useSignalR } from './utils/signalRContext';
+import { FiltersProvider } from './utils/js/filterContext';
+import { fetchAgentData } from './utils/api';
+
+import { AgentsProvider, useAgents } from './components/components/agentsContext';
+import MsalProviderWrapper from './providers/msalProvider';
+
 import './App.css';
 
 function AppContent() {
-  const [state, dispatch] = useReducer(ticketReducer, initialState);
   const { setLoading } = useLoading();
-  const [, setAgentsLoaded] = useState(false);
-  //const { user } = useAuth();
-  const [agentEmail, setAgentEmail] = useState('');
+  const { state, dispatch } = useAgents();
   const { initializeSignalR } = useSignalR();
   const { user, authError, authLoaded, login } = useAuth();
 
+  const [agentEmail, setAgentEmail] = useState('');
   const [filters, setFilters] = useState({
     date: '',
     assignedAgents: [],
     callerIds: [],
   });
-  // Asignar email del usuario MSAL
+
   useEffect(() => {
-    if (user?.username) {
-      setAgentEmail(user.username);
-    }
+    if (user?.username) setAgentEmail(user.username);
   }, [user]);
 
-  // Cargar agentes
   useEffect(() => {
     let isCancelled = false;
 
     const loadAgents = async () => {
       setLoading(true);
       try {
-        await fetchAgentData(dispatch, setLoading);
-        if (!isCancelled) setAgentsLoaded(true);
+        const data = await fetchAgentData(dispatch, setLoading);
+        if (!isCancelled) {
+          dispatch({ type: 'SET_AGENTS', payload: data.message });
+          console.log('Loaded agents:', data.message);
+        }
       } finally {
         setLoading(false);
       }
@@ -58,36 +60,33 @@ function AppContent() {
     return () => {
       isCancelled = true;
     };
-  }, [setLoading]);
+  }, [setLoading, dispatch]);
 
-  // Inicializar SignalR
-  //Error de JSON en mozilla
   useEffect(() => {
-    //initializeSignalR(dispatch); // Pasamos el dispatch si necesitas actualizar el estado desde SignalR
+    // initializeSignalR(dispatch);
   }, [initializeSignalR]);
 
+  useEffect(() => {
+    console.log('Agents changed:', state.agents);
+  }, [state.agents]);
+
   if (!authLoaded) return null;
-  if (authError) {
-    return <AuthErrorScreen errorMessage={authError} onRetry={login} />;
-  }
-
+  if (authError) return <AuthErrorScreen errorMessage={authError} onRetry={login} />;
   if (!user) return null;
-
-
 
   const { agents } = state;
 
   return (
     <Box sx={{ display: 'flex', bgcolor: '#f8fafd', minHeight: '100vh' }}>
       <CssBaseline />
-      <Topbar agents={agents} agent={agentEmail} filters={filters} setFilters={setFilters}/>
+      <Topbar agent={agentEmail} filters={filters} setFilters={setFilters} />
       <Sidebar />
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={<TableTickets agents={agents} filters={filters}/>} />
-        <Route path="/agents" element={<TableAgents agents={agents} supEmail={agentEmail}/>} />
-        <Route path="/tickets/edit/:ticketId/:agentEmail" element={<EditTicket agents={agents} />} />
-        <Route path="/agent/edit/:agentEmail" element={<EditAgent supEmail={agentEmail}/>} />
+        <Route path="/dashboard" element={<TableTickets filters={filters} />} />
+        <Route path="/agents" element={<TableAgents />} />
+        <Route path="/tickets/edit/:ticketId" element={<EditTicket />} />
+        <Route path="/agent/edit" element={<EditAgent />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Box>
@@ -101,9 +100,11 @@ function App() {
         <LoadingProvider>
           <SignalRProvider>
             <FiltersProvider>
-              <BrowserRouter>
-                <AppContent />
-              </BrowserRouter>
+              <AgentsProvider>
+                <BrowserRouter>
+                  <AppContent />
+                </BrowserRouter>
+              </AgentsProvider>
             </FiltersProvider>
           </SignalRProvider>
         </LoadingProvider>
@@ -113,6 +114,7 @@ function App() {
 }
 
 export default App;
+
 
 
 

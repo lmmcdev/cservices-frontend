@@ -30,6 +30,9 @@ import PatientProfileDialog from '../components/dialogs/patientProfileDialog';
 import Tooltip from '@mui/material/Tooltip';
 import { useWorkTimer } from '../components/components/useWorkTimer';
 import TicketWorkTime from '../components/ticketWorkTime';
+import { useAgents } from '../components/components/agentsContext';
+import { useAuth } from '../utils/authContext';
+
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -41,15 +44,21 @@ const statusColors = {
   Total: { bg: 'transparent', text: '#0947D7' },
 };
 
-export default function EditTicket({ agents }) {
+export default function EditTicket() {
   //constants 
   const [state, dispatch] = useReducer(ticketReducer, initialState);
   const { setLoading } = useLoading();
   const navigate = useNavigate();
-  const { ticketId, agentEmail } = useParams();
+  const { ticketId } = useParams();
   const location = useLocation();
   const ticket = location.state?.ticket;
   const [ agentAssigned, setAgentAssigned ] = useState(ticket?.agent_assigned || '');
+  const { state: agentsState } = useAgents();
+  const agents = agentsState.agents;
+  const { user } = useAuth();
+  const agentEmail = user.username;
+  //console.log(supEmail)
+  
 
   //statuses
   const [status, setStatus] = useState(ticket?.status || '');
