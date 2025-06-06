@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import ActionButtons from '../actionButtons';
 import usePhoneHistory from '../components/phoneHistory';
+import { useNavigate } from 'react-router-dom';
 
 const isSameDay = (dateStr1, dateStr2) => {
   if (!dateStr1 || !dateStr2) return false;
@@ -40,6 +41,7 @@ const PatientProfileDialog = ({
   currentTicket
 }) => {
   const { history: allCases, error } = usePhoneHistory(patientPhone);
+const navigate = useNavigate();
 
   // Divide los casos en llamadas del día actual y el resto
   const today = new Date().toISOString();
@@ -94,12 +96,35 @@ const PatientProfileDialog = ({
             ) : todayCases.length > 0 ? (
               <List dense>
                 {todayCases.map((item, index) => (
-                  <ListItem key={index}>
-                    <ListItemText
-                      primary={`Call Reason: ${item.call_reason}`}
-                      secondary={`Summary: ${item.summary}`}
-                    />
-                  </ListItem>
+                  <Paper key={index}
+                    elevation={1}
+                    sx={{
+                      p: 1,
+                      borderLeft: '4px solid #00a1ff',
+                      backgroundColor: '#fdfdfd',
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      '&:hover': { backgroundColor: '#f0f8ff' }
+                    }}
+                    onClick={() =>
+                      navigate(`/tickets/edit/${item.id}`, {
+                        state: {
+                          ticket: item
+                        },
+                      })
+                    }>
+                    <ListItem key={index}>
+                      <ListItemText
+                        primary={`Call Reason: ${item.call_reason}`}
+                        
+                      />
+                    </ListItem>
+                    <Box display="flex" justifyContent="space-between" sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                        <span>Caller: {item.caller_id || 'N/A'}</span>
+                        <span>{new Date(item.creation_date).toLocaleDateString()}</span>
+                        <span>Status: {item.status}</span>
+                      </Box>
+                  </Paper>
                 ))}
               </List>
             ) : (
@@ -134,8 +159,17 @@ const PatientProfileDialog = ({
                       p: 1,
                       borderLeft: '4px solid #00a1ff',
                       backgroundColor: '#fdfdfd',
-                      fontSize: '0.85rem'
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      '&:hover': { backgroundColor: '#f0f8ff' }
                     }}
+                    onClick={() =>
+                      navigate(`/tickets/edit/${item.id}`, {
+                        state: {
+                          ticket: item
+                        },
+                      })
+                    }
                   >
                     <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 0.5 }}>
                       {item.call_reason || 'No reason'}

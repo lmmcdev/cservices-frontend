@@ -13,9 +13,12 @@ import { useLoading } from './loadingProvider';
 import { ticketReducer, initialState } from '../utils/ticketsReducer';
 import AlertSnackbar from './alertSnackbar';
 import { useFilters } from '../utils/js/filterContext';
+//agentes desde el estado
+import { useAgents } from './components/agentsContext';
 
-export default function Topbar({ agents, agent }) {
-
+export default function Topbar({ agent }) {
+  const { state } = useAgents(); // agentes desde el estado
+  const agents = state.agents;
   const { setLoading } = useLoading();
   const [, dispatch] = useReducer(ticketReducer, initialState);
   const [open, setOpen] = useState(false);

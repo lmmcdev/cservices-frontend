@@ -30,6 +30,9 @@ import PatientProfileDialog from '../components/dialogs/patientProfileDialog';
 import Tooltip from '@mui/material/Tooltip';
 import { useWorkTimer } from '../components/components/useWorkTimer';
 import TicketWorkTime from '../components/ticketWorkTime';
+import { useAgents } from '../components/components/agentsContext';
+import { useAuth } from '../utils/authContext';
+
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -41,22 +44,29 @@ const statusColors = {
   Total: { bg: 'transparent', text: '#0947D7' },
 };
 
-export default function EditTicket({ agents }) {
+export default function EditTicket() {
   //constants 
   const [state, dispatch] = useReducer(ticketReducer, initialState);
   const { setLoading } = useLoading();
   const navigate = useNavigate();
-  const { ticketId, agentEmail } = useParams();
+  const { ticketId } = useParams();
   const location = useLocation();
   const ticket = location.state?.ticket;
   const [ agentAssigned, setAgentAssigned ] = useState(ticket?.agent_assigned || '');
+  const { state: agentsState } = useAgents();
+  const agents = agentsState.agents;
+  const { user } = useAuth();
+  const agentEmail = user.username;
+  //console.log(supEmail)
+  
 
   //statuses
   const [status, setStatus] = useState(ticket?.status || '');
   const [notes, setNotes] = useState(ticket?.notes || []);
   const [collaborators, setCollaborators] = useState(ticket?.collaborators || []);
   const [patientName, setPatientName] = useState(ticket?.patient_name || '');
-  const formatDateForInput = (dateStr) => {
+  
+  const formatDateForInput = (dateStr = '01-01-1901') => {
     const date = new Date(dateStr);
     return date.toISOString().split('T')[0]; // 'YYYY-MM-DD'
   };
@@ -93,6 +103,16 @@ export default function EditTicket({ agents }) {
     }
   }, [ticket]);
 
+  useEffect(() => {
+    if (ticket) {
+      setAgentAssigned(ticket.agent_assigned || '');
+      setCollaborators(ticket.collaborators);
+      setStatus(ticket.status || '');
+    }
+  }, [ticket]);
+  
+  //introducir un modal aqui
+  if (!ticket) return <Typography>Ticket not found</Typography>;
 
     //handling functions
     const handleStatusChange = async (newStatus) => {
@@ -424,9 +444,7 @@ export default function EditTicket({ agents }) {
           </Grid>
 {/**sx={{ maxHeight: 500, overflowY: 'auto' }} */}
         <Grid item>
-            <Box display="flex" flexDirection="column" gap={2} sx={{ maxHeight: 300, overflowY: 'auto', width: '310px', mb:2 }}>
-              <Paper><TicketWorkTime workTimeData={ticket.work_time} /></Paper>
-            </Box> 
+            
             <Box display="flex" flexDirection="column" gap={2} sx={{ width: '300px' }}>
               <TicketAssignee
                 assigneeEmail={agentAssigned}
@@ -441,6 +459,11 @@ export default function EditTicket({ agents }) {
                 status={status}
               />
             </Box>
+
+            <Box display="flex" flexDirection="column" gap={2} sx={{ maxHeight: 300, overflowY: 'auto', width: '300px', mt:2 }}>
+              <Paper><TicketWorkTime workTimeData={ticket.work_time} /></Paper>
+            </Box> 
+
           </Grid>
         </Grid>
         

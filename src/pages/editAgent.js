@@ -3,7 +3,7 @@ import {
   Box, Paper, Grid, Card, CardContent, Typography,
   TextField, Checkbox, FormControlLabel, Button
 } from '@mui/material';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import ProfilePic from '../components/components/profilePic';
@@ -14,6 +14,7 @@ import { ticketReducer, initialState } from '../utils/ticketsReducer';
 import { useLoading } from '../components/loadingProvider';
 import { editAgent } from '../utils/api';
 import { useGraphEmailCheck } from '../utils/useGraphEmailCheck';
+import { useAuth } from '../utils/authContext';
 
 
 // Validación con Yup
@@ -28,11 +29,14 @@ const AgentSchema = Yup.object().shape({
   isRemote: Yup.boolean(),
 });
 
-export default function EditAgent({supEmail}) {
+export default function EditAgent() {
     const { verifyEmailExists } = useGraphEmailCheck();
     const navigate = useNavigate();
     const location = useLocation();
-
+    //user logueado desde el contexto
+    const { user } = useAuth();
+    const supEmail = user.username;
+    
     const [, dispatch] = useReducer(ticketReducer, initialState);
     const { setLoading } = useLoading();
 
@@ -42,23 +46,25 @@ export default function EditAgent({supEmail}) {
     const [errorMessage, setErrorMessage] = useState('');
     
 
-    const { agentEmail } = useParams();
+    //const { agentEmail } = useParams();
 
     const agent = location.state?.agents;
     const agent_id = agent.id;
 
-  const initialValues = {
-    displayName: agent?.agent_name || '',
-    department: agent?.agent_department || '',
-    location: '', // No disponible en state, lo puedes adaptar
-    role: agent?.agent_rol || '',
-    accessLevel: '', // Adaptar según tu modelo
-    email: agent?.agent_email || '',
-    isRemote: agent?.remote_agent || false,
-  };
+    const agentEmail = agent.agent_email;
+
+    const initialValues = {
+      displayName: agent?.agent_name || '',
+      department: agent?.agent_department || '',
+      location: '', // No disponible en state, lo puedes adaptar
+      role: agent?.agent_rol || '',
+      accessLevel: '', // Adaptar según tu modelo
+      email: agent?.agent_email || '',
+      isRemote: agent?.remote_agent || false,
+    };
 
   const handleSubmit = async (values) => {
-    console.log(values)
+    //console.log(values)
     const exists = await verifyEmailExists(values.email);
     if (!exists) {
       setErrorMessage(`Email ${values.email} not found in Office365`);
@@ -66,7 +72,7 @@ export default function EditAgent({supEmail}) {
       return;
     }
     let form = {...values, agent_id, supEmail }
-    console.log("Submitting agent:", form);
+    //console.log("Submitting agent:", form);
     setLoading(true);
       const result = await editAgent(dispatch, setLoading, form);
       if (result.success) {
