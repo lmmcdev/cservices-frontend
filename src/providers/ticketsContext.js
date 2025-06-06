@@ -13,4 +13,11 @@ export const TicketsProvider = ({ children }) => {
   );
 };
 
+// Hook para acceder al contexto completo
 export const useTickets = () => useContext(TicketsContext);
+
+// Hook solo para el estado
+export const useTicketsState = () => useContext(TicketsContext).state;
+
+// Hook solo para el dispatch
+export const useTicketsDispatch = () => useContext(TicketsContext).dispatch;

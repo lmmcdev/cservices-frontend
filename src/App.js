@@ -20,6 +20,7 @@ import { TicketsProvider, useTickets } from './providers/ticketsContext';
 import { SignalRProvider, useSignalR } from './utils/signalRContext';
 import { FiltersProvider } from './utils/js/filterContext';
 import { AuthProvider, useAuth } from './utils/authContext';
+import { useNotification, NotificationProvider } from './providers/notificationsContext';
 
 import MsalProviderWrapper from './providers/msalProvider';
 
@@ -31,6 +32,7 @@ function AppContent() {
   const agents = agentsState.agents;
   const { dispatch: ticketDispatch } = useTickets();
   const { initializeSignalR } = useSignalR();
+  const { showNotification } = useNotification();
   const { user, authError, authLoaded, login } = useAuth();
 
   const [agentEmail, setAgentEmail] = useState('');
@@ -73,9 +75,18 @@ function AppContent() {
   }, [setLoading, agentDispatch, ticketDispatch, user?.username]);
 
   useEffect(() => {
-    // Puedes habilitar esto cuando integres SignalR:
-    // initializeSignalR(ticketDispatch);
+    initializeSignalR();
   }, [initializeSignalR]);
+
+  useEffect(() => {
+    initializeSignalR((ticket) => {
+      showNotification(`🎫 Nuevo ticket de ${ticket.patient_name || 'Paciente desconocido'}`, 'success');
+    });
+  }, [initializeSignalR, showNotification]);
+  /*useEffect(() => {
+    // Puedes habilitar esto cuando integres SignalR:
+    initializeSignalR(ticketDispatch);
+  }, [initializeSignalR]);*/
 
 
   if (!authLoaded) return null;
@@ -117,17 +128,21 @@ function App() {
     <MsalProviderWrapper>
       <AuthProvider>
         <LoadingProvider>
+          <TicketsProvider>
           <SignalRProvider>
+            <NotificationProvider>
             <FiltersProvider>
               <AgentsProvider>
-                <TicketsProvider>
+                
                   <BrowserRouter>
                     <AppContent />
                   </BrowserRouter>
-                </TicketsProvider>
+                
               </AgentsProvider>
             </FiltersProvider>
+            </NotificationProvider>
           </SignalRProvider>
+          </TicketsProvider>
         </LoadingProvider>
       </AuthProvider>
     </MsalProviderWrapper>

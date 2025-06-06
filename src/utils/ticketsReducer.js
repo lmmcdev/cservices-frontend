@@ -15,6 +15,13 @@ export const ticketReducer = (state, action) => {
         tickets: action.payload,
         error: null,
       };
+
+    case 'ADD_TICKET':
+      return {
+        ...state,
+        tickets: [action.payload, ...state.tickets],
+    };
+
     case 'SET_ERROR':
       return {
         ...state,
