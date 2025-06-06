@@ -3,7 +3,7 @@ import {
   Box, Paper, Grid, Card, CardContent, Typography,
   TextField, Checkbox, FormControlLabel, Button
 } from '@mui/material';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import ProfilePic from '../components/components/profilePic';

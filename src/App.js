@@ -74,7 +74,6 @@ function AppContent() {
   if (authError) return <AuthErrorScreen errorMessage={authError} onRetry={login} />;
   if (!user) return null;
 
-  const { agents } = state;
 
   return (
     <Box sx={{ display: 'flex', bgcolor: '#f8fafd', minHeight: '100vh' }}>

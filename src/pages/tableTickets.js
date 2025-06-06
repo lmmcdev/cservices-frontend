@@ -4,7 +4,7 @@ import { fetchTableData } from '../utils/api';
 import { useLoading } from '../components/loadingProvider';
 import { useAuth } from '../utils/authContext';
 import {
-  Box, Chip, Typography, Card, CardContent,
+  Box, Chip, Card, CardContent,
   Paper, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, TablePagination, IconButton, Tooltip
 } from '@mui/material';
