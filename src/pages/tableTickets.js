@@ -1,8 +1,8 @@
-import React, { useEffect, useReducer, useState, useCallback } from 'react';
-import { ticketReducer, initialState } from '../utils/ticketsReducer';
+import React, { useEffect, useState, useCallback } from 'react';
 import { fetchTableData } from '../utils/api';
 import { useLoading } from '../components/loadingProvider';
 import { useAuth } from '../utils/authContext';
+import { useTickets } from '../providers/ticketsContext.js';
 import {
   Box, Chip, Card, CardContent,
   Paper, Table, TableBody, TableCell, TableContainer,
@@ -30,7 +30,8 @@ export default function TableTickets() {
   const { state: agentsState } = useAgents();
   const agents = agentsState.agents;
   const { filters } = useFilters();
-  const [state, dispatch] = useReducer(ticketReducer, initialState);
+  const { state, dispatch } = useTickets();
+  //const [state, dispatch] = useReducer(ticketReducer, initialState);
   const { setLoading } = useLoading();
   const { user } = useAuth();
   const [selectedStatus, setSelectedStatus] = useState('Total');

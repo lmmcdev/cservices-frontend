@@ -57,7 +57,7 @@ function AppContent() {
 
         if (!isCancelled) {
           agentDispatch({ type: 'SET_AGENTS', payload: agentsData.message });
-          console.log("agentsData.message", agentsData.message);
+          //console.log("agentsData.message", agentsData.message);
           ticketDispatch({ type: 'SET_TICKETS', payload: ticketsData.message });
         }
       } finally {

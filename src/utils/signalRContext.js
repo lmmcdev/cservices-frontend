@@ -26,7 +26,7 @@ export function SignalRProvider({ children }) {
         .build();
 
       connection.on('ticketCreated', (ticket) => {
-        console.log('📥 Ticket recibido vía SignalR:', ticket);
+        //console.log('📥 Ticket recibido vía SignalR:', ticket);
         dispatch({ type: 'ADD_TICKET', payload: ticket });
 
         // 👉 Llama al callback para mostrar notificación (si se provee)

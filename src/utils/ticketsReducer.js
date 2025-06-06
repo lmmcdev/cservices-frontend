@@ -17,10 +17,14 @@ export const ticketReducer = (state, action) => {
       };
 
     case 'ADD_TICKET':
+      console.log(action.payload)
+      const exists = state.tickets.some(t => t.ticketId === action.payload.ticketId);
+      if (exists) return state; // No duplicar
+
       return {
         ...state,
         tickets: [action.payload, ...state.tickets],
-    };
+      };
 
     case 'SET_ERROR':
       return {
