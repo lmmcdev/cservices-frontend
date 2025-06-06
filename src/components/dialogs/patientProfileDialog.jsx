@@ -96,12 +96,35 @@ const navigate = useNavigate();
             ) : todayCases.length > 0 ? (
               <List dense>
                 {todayCases.map((item, index) => (
-                  <ListItem key={index}>
-                    <ListItemText
-                      primary={`Call Reason: ${item.call_reason}`}
-                      secondary={`Summary: ${item.summary}`}
-                    />
-                  </ListItem>
+                  <Paper key={index}
+                    elevation={1}
+                    sx={{
+                      p: 1,
+                      borderLeft: '4px solid #00a1ff',
+                      backgroundColor: '#fdfdfd',
+                      fontSize: '0.85rem',
+                      cursor: 'pointer',
+                      '&:hover': { backgroundColor: '#f0f8ff' }
+                    }}
+                    onClick={() =>
+                      navigate(`/tickets/edit/${item.id}`, {
+                        state: {
+                          ticket: item
+                        },
+                      })
+                    }>
+                    <ListItem key={index}>
+                      <ListItemText
+                        primary={`Call Reason: ${item.call_reason}`}
+                        
+                      />
+                    </ListItem>
+                    <Box display="flex" justifyContent="space-between" sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+                        <span>Caller: {item.caller_id || 'N/A'}</span>
+                        <span>{new Date(item.creation_date).toLocaleDateString()}</span>
+                        <span>Status: {item.status}</span>
+                      </Box>
+                  </Paper>
                 ))}
               </List>
             ) : (
