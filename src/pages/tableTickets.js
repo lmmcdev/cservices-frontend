@@ -90,6 +90,18 @@ export default function TableTickets() {
   }, {}) || {};
   ticketsCountByStatus.Total = filteredRows.length;
 
+  //ancho fijo para las columnas
+  const columnWidths = {
+    status: 120,
+    callerId: 120,
+    name: 160,
+    dob: 120,
+    phone: 130,
+    createdAt: 160,
+    edit: 80,
+    assign: 80,
+    assignedTo: 160
+  };
   return (
     <>
       <Card elevation={3} sx={{ borderRadius: 4, position: 'fixed', top: 170, left: 200, right: 20 }}>
@@ -106,14 +118,31 @@ export default function TableTickets() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Caller ID</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Name</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>DOB</TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Phone</TableCell>
+                    <TableCell sx={{ width: columnWidths.status, minWidth: columnWidths.status, fontWeight: 'bold', pl: 2 }}>
+                      Status
+                    </TableCell>
+                    <TableCell sx={{ width: columnWidths.callerId, minWidth: columnWidths.callerId, fontWeight: 'bold' }}>
+                      Caller ID
+                    </TableCell>
+                    <TableCell sx={{ width: columnWidths.name, minWidth: columnWidths.name, fontWeight: 'bold' }}>
+                      Name
+                    </TableCell>
+                    <TableCell sx={{ width: columnWidths.dob, minWidth: columnWidths.dob, fontWeight: 'bold' }}>
+                      DOB
+                    </TableCell>
+                    <TableCell sx={{ width: columnWidths.phone, minWidth: columnWidths.phone, fontWeight: 'bold' }}>
+                      Phone
+                    </TableCell>
                     <TableCell
-                      sx={{ fontWeight: 'bold', cursor: 'pointer' }}
-                      onClick={() => setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'))}
+                      sx={{
+                        width: columnWidths.createdAt,
+                        minWidth: columnWidths.createdAt,
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        whiteSpace: 'nowrap',
+                      }}
+                      onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
                     >
                       Created At{' '}
                       <FontAwesomeIcon
@@ -121,9 +150,11 @@ export default function TableTickets() {
                         style={{ marginLeft: 8 }}
                       />
                     </TableCell>
-                    <TableCell></TableCell>
-                    <TableCell></TableCell>
-                    <TableCell sx={{ fontWeight: 'bold' }}>Assigned To</TableCell>
+                    <TableCell sx={{ width: columnWidths.edit, minWidth: columnWidths.edit }}></TableCell>
+                    <TableCell sx={{ width: columnWidths.assign, minWidth: columnWidths.assign }}></TableCell>
+                    <TableCell sx={{ width: columnWidths.assignedTo, minWidth: columnWidths.assignedTo, fontWeight: 'bold' }}>
+                      Assigned To
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
