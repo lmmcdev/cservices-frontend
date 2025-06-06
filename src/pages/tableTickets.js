@@ -28,7 +28,6 @@ const statusColors = {
 
 export default function TableTickets() {
   const { state: agentsState } = useAgents();
-  const agents = agentsState.agents;
   const { filters } = useFilters();
   const [state, dispatch] = useReducer(ticketReducer, initialState);
   const { setLoading } = useLoading();
