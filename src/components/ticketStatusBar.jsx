@@ -43,15 +43,15 @@ const TicketStatusBar = ({ currentStatus, onStatusChange }) => {
 
   return (
     <>
-      <Box
+      <Box display="flex" justifyContent="center">
+        <Box
+        width="100%"
+        maxWidth="1500px"
         display="flex"
         mt={2}
         borderRadius="20px"
         boxShadow={0}
-        sx={{
-          backgroundColor: '#fff',
-          /* Quitar overflow:hidden para que las esquinas no se recorten */
-        }}
+        sx={{ backgroundColor: '#fff' }}
       >
         {Object.entries(statusColors).map(([status, { bg, text }]) => {
           const isActive = currentStatus === status;
@@ -98,6 +98,7 @@ const TicketStatusBar = ({ currentStatus, onStatusChange }) => {
           );
         })}
       </Box>
+    </Box>
 
       <Dialog open={confirmOpen} onClose={handleCancel}>
         <DialogTitle>Changing status</DialogTitle>
