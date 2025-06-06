@@ -102,6 +102,14 @@ export default function EditTicket() {
       setNotes(ticket.notes);
     }
   }, [ticket]);
+
+  useEffect(() => {
+    if (ticket) {
+      setAgentAssigned(ticket.agent_assigned || '');
+      setCollaborators(ticket.collaborators);
+      setStatus(ticket.status || '');
+    }
+  }, [ticket]);
   
   //introducir un modal aqui
   if (!ticket) return <Typography>Ticket not found</Typography>;
