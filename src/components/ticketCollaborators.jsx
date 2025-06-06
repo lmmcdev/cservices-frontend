@@ -9,7 +9,6 @@ import {
   IconButton,
   Tooltip
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { getUserPhotoByEmail } from '../utils/graphHelper'; // asegúrate del nombre correcto del archivo
 import { icons } from '../components/icons';
 import { Icon } from '@iconify/react';
