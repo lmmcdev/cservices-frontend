@@ -194,8 +194,8 @@ export default function TableTickets() {
                                 '&:hover': { backgroundColor: 'transparent' },
                               }}
                               onClick={() =>
-                                navigate(`/tickets/edit/${row.id}/${user.username}`, {
-                                  state: { ticket: row, agents: agents },
+                                navigate(`/tickets/edit/${row.id}`, {
+                                  state: { ticket: row },
                                 })
                               }
                             >
