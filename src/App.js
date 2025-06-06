@@ -10,15 +10,16 @@ import EditTicket from './pages/editTicket';
 import TableAgents from './pages/tableAgents';
 import EditAgent from './pages/editAgent';
 import AuthErrorScreen from './components/authErrorScreen';
+import UnknownAgentNotice from './components/unknownAgentNotice';
 
 import { LoadingProvider, useLoading } from './components/loadingProvider';
-import { AuthProvider, useAuth } from './utils/authContext';
-import { SignalRProvider, useSignalR } from './utils/signalRContext';
-import { FiltersProvider } from './utils/js/filterContext';
 import { fetchAgentData, fetchTableData } from './utils/api';
 
 import { AgentsProvider, useAgents } from './components/components/agentsContext';
 import { TicketsProvider, useTickets } from './providers/ticketsContext';
+import { SignalRProvider, useSignalR } from './utils/signalRContext';
+import { FiltersProvider } from './utils/js/filterContext';
+import { AuthProvider, useAuth } from './utils/authContext';
 
 import MsalProviderWrapper from './providers/msalProvider';
 
@@ -26,7 +27,8 @@ import './App.css';
 
 function AppContent() {
   const { setLoading } = useLoading();
-  const { dispatch: agentDispatch } = useAgents();
+  const { state: agentsState, dispatch: agentDispatch } = useAgents();
+  const agents = agentsState.agents;
   const { dispatch: ticketDispatch } = useTickets();
   const { initializeSignalR } = useSignalR();
   const { user, authError, authLoaded, login } = useAuth();
@@ -53,6 +55,7 @@ function AppContent() {
 
         if (!isCancelled) {
           agentDispatch({ type: 'SET_AGENTS', payload: agentsData.message });
+          console.log("agentsData.message", agentsData.message);
           ticketDispatch({ type: 'SET_TICKETS', payload: ticketsData.message });
         }
       } finally {
@@ -74,9 +77,23 @@ function AppContent() {
     // initializeSignalR(ticketDispatch);
   }, [initializeSignalR]);
 
+
   if (!authLoaded) return null;
   if (authError) return <AuthErrorScreen errorMessage={authError} onRetry={login} />;
   if (!user) return null;
+
+  // Validar si el usuario autenticado está en la lista de agentes
+  if (!agents || agents.length === 0) return null;
+
+  const knownAgent = agents.find(agent => agent.agent_email === user.username);
+  if (!knownAgent) {
+    return (
+      <UnknownAgentNotice
+        userEmail={user.username}
+        onRetry={() => window.location.reload()}
+      />
+    );
+  }
 
   return (
     <Box sx={{ display: 'flex', bgcolor: '#f8fafd', minHeight: '100vh' }}>
