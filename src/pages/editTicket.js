@@ -65,7 +65,8 @@ export default function EditTicket() {
   const [notes, setNotes] = useState(ticket?.notes || []);
   const [collaborators, setCollaborators] = useState(ticket?.collaborators || []);
   const [patientName, setPatientName] = useState(ticket?.patient_name || '');
-  const formatDateForInput = (dateStr) => {
+  
+  const formatDateForInput = (dateStr = '01-01-1901') => {
     const date = new Date(dateStr);
     return date.toISOString().split('T')[0]; // 'YYYY-MM-DD'
   };
@@ -101,7 +102,9 @@ export default function EditTicket() {
       setNotes(ticket.notes);
     }
   }, [ticket]);
-
+  
+  //introducir un modal aqui
+  if (!ticket) return <Typography>Ticket not found</Typography>;
 
     //handling functions
     const handleStatusChange = async (newStatus) => {
