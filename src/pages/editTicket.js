@@ -444,9 +444,7 @@ export default function EditTicket() {
           </Grid>
 {/**sx={{ maxHeight: 500, overflowY: 'auto' }} */}
         <Grid item>
-            <Box display="flex" flexDirection="column" gap={2} sx={{ maxHeight: 300, overflowY: 'auto', width: '310px', mb:2 }}>
-              <Paper><TicketWorkTime workTimeData={ticket.work_time} /></Paper>
-            </Box> 
+            
             <Box display="flex" flexDirection="column" gap={2} sx={{ width: '300px' }}>
               <TicketAssignee
                 assigneeEmail={agentAssigned}
@@ -461,6 +459,11 @@ export default function EditTicket() {
                 status={status}
               />
             </Box>
+
+            <Box display="flex" flexDirection="column" gap={2} sx={{ maxHeight: 300, overflowY: 'auto', width: '300px', mt:2 }}>
+              <Paper><TicketWorkTime workTimeData={ticket.work_time} /></Paper>
+            </Box> 
+
           </Grid>
         </Grid>
         
