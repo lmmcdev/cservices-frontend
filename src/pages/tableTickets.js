@@ -116,12 +116,6 @@ export default function TableTickets() {
               ticketsCountByStatus={ticketsCountByStatus}
             />
 
-            {error && (
-              <Typography color="error" align="center" sx={{ mb: 2 }}>
-                Error al cargar los tickets: {error}
-              </Typography>
-            )}
-
             <TableContainer component={Paper}
               elevation={0}
               sx={{ maxHeight: 500, overflowY: 'auto' }}>
