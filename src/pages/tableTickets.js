@@ -102,6 +102,18 @@ export default function TableTickets() {
     assignedTo: 160
   };
 
+  //ancho fijo para las columnas
+  const columnWidths = {
+    status: 120,
+    callerId: 120,
+    name: 160,
+    dob: 120,
+    phone: 130,
+    createdAt: 160,
+    edit: 80,
+    assign: 80,
+    assignedTo: 160
+  };
   return (
     <>
       <Card elevation={3} sx={{ borderRadius: 4, position: 'fixed', top: 170, left: 200, right: 20, bottom: 20, display: 'flex', flexDirection: 'column' }}>
@@ -121,11 +133,21 @@ export default function TableTickets() {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ width: 120, fontWeight: 'bold', pl: 2 }}>Status</TableCell>
-                    <TableCell sx={{ width: 120, fontWeight: 'bold' }}>Caller ID</TableCell>
-                    <TableCell sx={{ width: 160, fontWeight: 'bold' }}>Name</TableCell>
-                    <TableCell sx={{ width: 120, fontWeight: 'bold' }}>DOB</TableCell>
-                    <TableCell sx={{ width: 130, fontWeight: 'bold' }}>Phone</TableCell>
+                    <TableCell sx={{ width: 120, width: columnWidths.status, minWidth: columnWidths.status, fontWeight: 'bold', pl: 2, pl: 2 }}>
+                      Status
+                    </TableCell>
+                    <TableCell sx={{ width: 120, width: columnWidths.callerId, minWidth: columnWidths.callerId, fontWeight: 'bold' }}>
+                      Caller ID
+                    </TableCell>
+                    <TableCell sx={{ width: 160, width: columnWidths.name, minWidth: columnWidths.name, fontWeight: 'bold' }}>
+                      Name
+                    </TableCell>
+                    <TableCell sx={{ width: 120, width: columnWidths.dob, minWidth: columnWidths.dob, fontWeight: 'bold' }}>
+                      DOB
+                    </TableCell>
+                    <TableCell sx={{ width: 130, width: columnWidths.phone, minWidth: columnWidths.phone, fontWeight: 'bold' }}>
+                      Phone
+                    </TableCell>
                     <TableCell
                       sx={{
                         width: '160px',
@@ -141,6 +163,11 @@ export default function TableTickets() {
                         icon={sortDirection === 'asc' ? icons.arrowUp : icons.arrowDown}
                         style={{ marginLeft: 8 }}
                       />
+                    </TableCell>
+                    <TableCell sx={{ width: columnWidths.edit, minWidth: columnWidths.edit }}></TableCell>
+                    <TableCell sx={{ width: columnWidths.assign, minWidth: columnWidths.assign }}></TableCell>
+                    <TableCell sx={{ width: columnWidths.assignedTo, minWidth: columnWidths.assignedTo, fontWeight: 'bold' }}>
+                      Assigned To
                     </TableCell>
                     <TableCell sx={{ width: 80 }}></TableCell>
                     <TableCell sx={{ width: 80 }}></TableCell>
