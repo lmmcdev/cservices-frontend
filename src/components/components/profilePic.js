@@ -1,7 +1,7 @@
 // components/Header.js
 import React, { useEffect, useState } from 'react';
 import { Avatar, Box } from "@mui/material";
-import { useAuth } from "../../utils/authContext";
+import { useAuth } from "../../context/authContext";
 import { getUserPhotoByEmail } from '../../utils/graphHelper';
 
 

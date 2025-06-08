@@ -1,8 +1,8 @@
 import React, { useState, useReducer } from 'react';
-import { ticketReducer, initialState } from '../utils/ticketsReducer';
+import { ticketReducer, initialState } from '../store/ticketsReducer';
 import { createAgent } from '../utils/api';
-import { useLoading } from '../components/loadingProvider';
-import AlertSnackbar from '../components/alertSnackbar';
+import { useLoading } from '../providers/loadingProvider';
+import AlertSnackbar from '../components/auxiliars/alertSnackbar';
 
 import {
   Box, Button, Card, CardContent, Typography,
@@ -10,7 +10,7 @@ import {
   TableRow, TablePagination, Paper, Tooltip, IconButton
 } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { icons } from '../components/icons';
+import { icons } from '../components/auxiliars/icons';
 import { useNavigate } from 'react-router-dom';
 import CreateAgentModal from '../components/dialogs/createAgentDialog';
 import { useAgents } from '../components/components/agentsContext';

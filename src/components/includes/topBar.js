@@ -4,17 +4,17 @@ import {
   Card, CardContent, Typography, TextField, IconButton,
   Tooltip, Stack, Fade
 } from '@mui/material';
-import CollaboratorAutoComplete from '../components/components/collaboratorAutocomplete';
-import CallerIDAutoComplete from '../components/components/callerIDAutocomplete';
-import { icons } from '../components/icons';
-import CreateTicketDialog from './dialogs/createTicketDialog';
-import { createNewTicket } from '../utils/api';
-import { useLoading } from './loadingProvider';
-import { ticketReducer, initialState } from '../utils/ticketsReducer';
-import AlertSnackbar from './alertSnackbar';
-import { useFilters } from '../utils/js/filterContext';
+import CollaboratorAutoComplete from '../auxiliars/collaboratorAutocomplete';
+import CallerIDAutoComplete from '../auxiliars/callerIDAutocomplete';
+import { icons } from '../auxiliars/icons';
+import CreateTicketDialog from '../dialogs/createTicketDialog';
+import { createNewTicket } from '../../utils/api';
+import { useLoading } from '../../providers/loadingProvider';
+import { ticketReducer, initialState } from '../../store/ticketsReducer';
+import AlertSnackbar from '../auxiliars/alertSnackbar';
+import { useFilters } from '../../utils/js/filterContext';
 //agentes desde el estado
-import { useAgents } from './components/agentsContext';
+import { useAgents } from '../components/agentsContext';
 
 export default function Topbar({ agent }) {
   const { state } = useAgents(); // agentes desde el estado

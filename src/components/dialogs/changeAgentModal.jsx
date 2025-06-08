@@ -6,8 +6,8 @@ import {
   Typography,
   Box
 } from '@mui/material';
-import CollaboratorAutoComplete from '../components/collaboratorAutocomplete';
-import ActionButtons from '../actionButtons'; // usamos el mismo botón que en collaborators
+import CollaboratorAutoComplete from '../auxiliars/collaboratorAutocomplete';
+import ActionButtons from '../auxiliars/actionButtons'; // usamos el mismo botón que en collaborators
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHandHoldingHand } from '@fortawesome/free-solid-svg-icons';
 

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
-import { useTicketsDispatch } from '../providers/ticketsContext';
+import { useTicketsDispatch } from './ticketsContext';
 
 const SignalRContext = createContext();
 

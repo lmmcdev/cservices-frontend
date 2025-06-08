@@ -9,12 +9,12 @@ import * as Yup from 'yup';
 import ProfilePic from '../components/components/profilePic';
 import DepartmentSelect from '../components/components/departmentSelect';
 import RolSelect from '../components/components/rolSelect';
-import AlertSnackbar from '../components/alertSnackbar';
-import { ticketReducer, initialState } from '../utils/ticketsReducer';
-import { useLoading } from '../components/loadingProvider';
+import AlertSnackbar from '../components/auxiliars/alertSnackbar';
+import { ticketReducer, initialState } from '../store/ticketsReducer';
+import { useLoading } from '../providers/loadingProvider';
 import { editAgent } from '../utils/api';
 import { useGraphEmailCheck } from '../utils/useGraphEmailCheck';
-import { useAuth } from '../utils/authContext';
+import { useAuth } from '../context/authContext';
 
 
 // Validación con Yup

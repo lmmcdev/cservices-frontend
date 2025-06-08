@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { fetchTableData } from '../utils/api';
-import { useLoading } from '../components/loadingProvider';
-import { useAuth } from '../utils/authContext';
-import { useTickets } from '../providers/ticketsContext.js';
+import { useLoading } from '../providers/loadingProvider.jsx';
+import { useAuth } from '../context/authContext.js';
+import { useTickets } from '../context/ticketsContext.js';
 import {
   Box, Chip, Typography, Card, CardContent,
   Paper, Table, TableBody, TableCell, TableContainer,
@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AssignAgentModal from '../components/dialogs/assignAgentDialog';
-import { icons } from '../components/icons.js';
+import { icons } from '../components/auxiliars/icons.js';
 import { useNavigate } from 'react-router-dom';
 import { useFilters } from '../utils/js/filterContext.js';
 //import { emailToFullName } from '../utils/js/emailToFullName.js'

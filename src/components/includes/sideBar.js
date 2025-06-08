@@ -9,8 +9,8 @@ import {
   Divider,
   IconButton
 } from '@mui/material';
-import { icons } from '../components/icons';
-import ProfilePic from '../components/components/profilePic';
+import { icons } from '../auxiliars/icons';
+import ProfilePic from '../components/profilePic';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 const drawerWidthOpen = 200;

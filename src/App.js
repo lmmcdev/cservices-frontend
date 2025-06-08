@@ -3,24 +3,24 @@ import React, { useEffect, useState } from 'react';
 import { Box, CssBaseline } from '@mui/material';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-import Sidebar from './components/sideBar';
-import Topbar from './components/topBar';
+import Sidebar from './components/includes/sideBar';
+import Topbar from './components/includes/topBar';
 import TableTickets from './pages/tableTickets';
 import EditTicket from './pages/editTicket';
 import TableAgents from './pages/tableAgents';
 import EditAgent from './pages/editAgent';
-import AuthErrorScreen from './components/authErrorScreen';
-import UnknownAgentNotice from './components/unknownAgentNotice';
+import AuthErrorScreen from './pages/authErrorScreen';
+import UnknownAgentNotice from './pages/unknownAgentNotice';
 
-import { LoadingProvider, useLoading } from './components/loadingProvider';
+import { LoadingProvider, useLoading } from './providers/loadingProvider';
 import { fetchAgentData, fetchTableData } from './utils/api';
 
 import { AgentsProvider, useAgents } from './components/components/agentsContext';
-import { TicketsProvider, useTickets } from './providers/ticketsContext';
-import { SignalRProvider, useSignalR } from './utils/signalRContext';
+import { TicketsProvider, useTickets } from './context/ticketsContext';
+import { SignalRProvider, useSignalR } from './context/signalRContext';
 import { FiltersProvider } from './utils/js/filterContext';
-import { AuthProvider, useAuth } from './utils/authContext';
-import { useNotification, NotificationProvider } from './providers/notificationsContext';
+import { AuthProvider, useAuth } from './context/authContext';
+import { useNotification, NotificationProvider } from './context/notificationsContext';
 
 import MsalProviderWrapper from './providers/msalProvider';
 

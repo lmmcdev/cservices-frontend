@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useContext } from 'react';
-import { ticketReducer, initialState } from '../utils/ticketsReducer';
+import { ticketReducer, initialState } from '../store/ticketsReducer';
 
 const TicketsContext = createContext();
 

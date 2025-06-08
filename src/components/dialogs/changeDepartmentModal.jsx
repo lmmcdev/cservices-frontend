@@ -7,7 +7,7 @@ import {
   Box
 } from '@mui/material';
 import DepartmentSelect from '../components/departmentSelect';
-import ActionButtons from '../actionButtons';
+import ActionButtons from '../auxiliars/actionButtons';
 import { BsHousesFill } from 'react-icons/bs';
 
 const ChangeDepartmentModal = ({

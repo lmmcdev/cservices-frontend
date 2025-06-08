@@ -10,7 +10,7 @@ import {
   Tooltip
 } from '@mui/material';
 import { getUserPhotoByEmail } from '../utils/graphHelper'; // asegúrate del nombre correcto del archivo
-import { icons } from '../components/icons';
+import { icons } from './auxiliars/icons';
 import { Icon } from '@iconify/react';
 
 const statusColors = {

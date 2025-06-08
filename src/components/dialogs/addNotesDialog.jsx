@@ -8,7 +8,7 @@ import {
   DialogActions,
   TextField
 } from '@mui/material';
-import ActionButtons from '../actionButtons';
+import ActionButtons from '../auxiliars/actionButtons';
 
 export default function AddNoteDialog({ open, onClose, onSubmit, value, onChange }) {
   return (

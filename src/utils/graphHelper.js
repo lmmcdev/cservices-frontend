@@ -1,5 +1,5 @@
 // src/utils/graphHelpers.js
-import { msalInstance } from "../utils/authContext";
+import { msalInstance } from "../context/authContext";
 import { InteractionRequiredAuthError } from "@azure/msal-browser";
 
 const loginRequest = {

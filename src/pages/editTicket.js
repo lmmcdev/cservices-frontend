@@ -6,9 +6,9 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import TicketStatusBar from '../components/ticketStatusBar';
-import AlertSnackbar from '../components/alertSnackbar';
-import { ticketReducer, initialState } from '../utils/ticketsReducer';
-import { useLoading } from '../components/loadingProvider';
+import AlertSnackbar from '../components/auxiliars/alertSnackbar';
+import { ticketReducer, initialState } from '../store/ticketsReducer';
+import { useLoading } from '../providers/loadingProvider';
 import { changeStatus, 
           addNotes, 
           updateCollaborators, 
@@ -22,7 +22,7 @@ import TicketCollaborators from '../components/ticketCollaborators';
 import TicketAudio from '../components/ticketAudio';
 import AddNoteDialog from '../components/dialogs/addNotesDialog';
 import AgentSelectorDialog from '../components/dialogs/agentSelectorDialog';
-import ActionButtons from '../components/actionButtons';
+import ActionButtons from '../components/auxiliars/actionButtons';
 import TicketAssignee from '../components/ticketAssignee';
 import ChangeAgentModal from '../components/dialogs/changeAgentModal';
 import ChangeDepartmentModal from '../components/dialogs/changeDepartmentModal';
@@ -31,7 +31,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { useWorkTimer } from '../components/components/useWorkTimer';
 import TicketWorkTime from '../components/ticketWorkTime';
 import { useAgents } from '../components/components/agentsContext';
-import { useAuth } from '../utils/authContext';
+import { useAuth } from '../context/authContext';
 
 
 const statusColors = {

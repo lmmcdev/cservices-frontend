@@ -1,7 +1,7 @@
 // hooks/usePhoneHistory.js
 import   { useReducer, useState, useEffect } from 'react';
-import { ticketReducer, initialState } from '../../utils/ticketsReducer';
-import { useLoading } from '../loadingProvider';
+import { ticketReducer, initialState } from '../../store/ticketsReducer';
+import { useLoading } from '../../providers/loadingProvider';
 import { phoneHistory } from '../../utils/api';
 
 const usePhoneHistory = (phoneNumber) => {
