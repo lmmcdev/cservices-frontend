@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
 import { useTicketsDispatch } from './ticketsContext';
+import { useAuth } from './authContext';
 
 const SignalRContext = createContext();
 
@@ -8,7 +9,8 @@ const SignalRContext = createContext();
 export function SignalRProvider({ children }) {
   const connectionRef = useRef(null);
   const dispatch = useTicketsDispatch();
-
+  const { user, agentData, department } = useAuth();
+  console.log(department)
   const initializeSignalR = async (onTicketReceived) => {
     if (connectionRef.current) return;
 
@@ -27,16 +29,17 @@ export function SignalRProvider({ children }) {
 
       connection.on('ticketCreated', (ticket) => {
         //console.log('📥 Ticket recibido vía SignalR:', ticket);
-        dispatch({ type: 'ADD_TICKET', payload: ticket });
+        if(ticket.assigned_department === department) {
+          dispatch({ type: 'ADD_TICKET', payload: ticket });
 
-        // 👉 Llama al callback para mostrar notificación (si se provee)
-        if (onTicketReceived) {
-          onTicketReceived(ticket);
-        }
+          if (onTicketReceived) {
+            onTicketReceived(ticket);
+          }
+        }        
       });
 
       await connection.start();
-      console.log('✅ SignalR conectado');
+      //console.log('✅ SignalR conectado');
       connectionRef.current = connection;
 
     } catch (err) {
