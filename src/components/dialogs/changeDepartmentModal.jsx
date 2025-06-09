@@ -36,7 +36,7 @@ const ChangeDepartmentModal = ({
       fullWidth
       maxWidth="xs"
       PaperProps={{
-        sx: { width: '100%', maxWidth: '320px' }
+        sx: { width: '100%', maxWidth: '320px', borderRadius: '15px' }
       }}
     >
       <DialogTitle sx={{ color: '#00A1FF', p: 2, textAlign: 'center' }}>

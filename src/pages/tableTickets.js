@@ -15,7 +15,8 @@ import { useNavigate } from 'react-router-dom';
 import { useFilters } from '../utils/js/filterContext.js';
 //import { emailToFullName } from '../utils/js/emailToFullName.js'
 import StatusFilterBoxes from '../components/statusFilterBoxes';
-
+import { SortAscending, SortDescending } from 'phosphor-react';
+import SearchBar from '../components/searchBar';
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -28,6 +29,9 @@ const statusColors = {
 };
 
 export default function TableTickets({ agents }) {
+  //estado de busqueda
+  const [searchTerm, setSearchTerm] = useState('');
+
   const { filters } = useFilters();
   const { state, dispatch } = useTickets();
   //const [state, dispatch] = useReducer(ticketReducer, initialState);
@@ -108,19 +112,44 @@ export default function TableTickets({ agents }) {
 
   //ancho fijo para las columnas
   const columnWidths = {
-    status: 120,
+    status: 110,
     callerId: 120,
     name: 160,
     dob: 120,
     phone: 130,
     createdAt: 160,
-    edit: 80,
+    edit: 40,
     assign: 80,
     assignedTo: 160
   };
+
+    //para formatear la parte visual del phone
+    const formatPhone = (value) => {
+      const digits = value.replace(/\D/g, '').slice(-10); // extrae últimos 10 dígitos
+      const parts = [];
+      if (digits.length > 0) parts.push('(' + digits.slice(0, 3));
+      if (digits.length >= 4) parts[0] += ') ';
+      if (digits.length >= 4) parts.push(digits.slice(3, 6));
+      if (digits.length >= 7) parts.push('-' + digits.slice(6, 10));
+      return '+1 ' + parts.join('');
+    };
+
   return (
     <>
-      <Card elevation={3} sx={{ borderRadius: 4, position: 'fixed', top: 170, left: 200, right: 20, bottom: 20, display: 'flex', flexDirection: 'column' }}>
+      <Card
+        sx={{
+          borderRadius: 4,
+          position: 'fixed',
+          top: 170,
+          left: 200,
+          right: 20,
+          bottom: 20,
+          display: 'flex',
+          flexDirection: 'column',
+          boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
+          backgroundColor: '#fff',
+        }}
+      >
         <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {/*FILTROS*/}
           <Box sx={{ flexShrink: 0, mt: 4 }}>
@@ -139,7 +168,7 @@ export default function TableTickets({ agents }) {
 
           {/*TABLA CON SCROLL INTERNO*/}
           <Box sx={{ flex: 1, overflowY: 'auto' }}>
-            <TableContainer component={Paper} elevation={0}>
+            <TableContainer component={Paper} elevation={0} sx={{ maxHeight: '100%', overflowY: 'auto' }}>
               <Table stickyHeader sx={{ tableLayout: 'fixed' }}>
                 <TableHead>
                   <TableRow>
@@ -169,17 +198,20 @@ export default function TableTickets({ agents }) {
                       }}
                       onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
                     >
-                      Created At{' '}
-                      <FontAwesomeIcon
-                        icon={sortDirection === 'asc' ? icons.arrowUp : icons.arrowDown}
-                        style={{ marginLeft: 8 }}
-                      />
+                      <Box display="flex" alignItems="center">
+                        Created At{' '}
+                        {sortDirection === 'asc' ? (
+                          <SortAscending size={20} weight="bold" style={{ marginLeft: 8 }} />
+                        ) : (
+                          <SortDescending size={20} weight="bold" style={{ marginLeft: 8 }} />
+                        )}
+                      </Box>
                     </TableCell>
-                    <TableCell sx={{ width: columnWidths.edit, minWidth: columnWidths.edit }}></TableCell>
-                    <TableCell sx={{ width: columnWidths.assign, minWidth: columnWidths.assign }}></TableCell>
                     <TableCell sx={{ width: columnWidths.assignedTo, minWidth: columnWidths.assignedTo, fontWeight: 'bold' }}>
                       Assigned To
                     </TableCell>
+                    <TableCell sx={{ width: columnWidths.edit, minWidth: columnWidths.edit }}></TableCell>
+                    <TableCell sx={{ width: columnWidths.assign, minWidth: columnWidths.assign }}></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -188,31 +220,50 @@ export default function TableTickets({ agents }) {
                       <TableCell>
                         <Chip
                           label={row.status}
+                          size="small"
                           sx={{
                             backgroundColor: statusColors[row.status]?.bg || '#e0e0e0',
                             color: statusColors[row.status]?.text || '#000',
                             fontWeight: 'bold',
-                            fontSize: 14,
-                            px: 1,
-                            py: 0.5,
+                            fontSize: 12,
                             borderRadius: '16px',
+                            '& .MuiChip-label': {
+                              display: 'flex',
+                              alignItems: 'center',
+                              paddingY: '4px', // Padding vertical pequeño y balanceado
+                              paddingX: '15px', // Padding horizontal típico
+                              lineHeight: 1.5,
+                            },
                           }}
                         />
                       </TableCell>
                       <TableCell>{row.caller_id}</TableCell>
                       <TableCell>{row.patient_name}</TableCell>
                       <TableCell>{row.patient_dob}</TableCell>
-                      <TableCell>{row.phone || 'N/A'}</TableCell>
+                      <TableCell>{row.phone ? formatPhone(row.phone) : 'N/A'}</TableCell>
                       <TableCell>{row.creation_date}</TableCell>
+                      <TableCell>{row.agent_assigned}</TableCell>
                       <TableCell>
                         <Box display="flex" justifyContent="center">
                           <Tooltip title="Edit" placement="bottom">
                             <Box
                               sx={{
-                                fontSize: 22,
+                                backgroundColor: '#DFF3FF',
                                 color: '#00A1FF',
+                                borderRadius: '50%',
+                                padding: 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: 32,
+                                height: 32,
+                                fontSize: 18,
                                 cursor: 'pointer',
-                                '&:hover': { backgroundColor: 'transparent' },
+                                transition: 'background-color 0.3s, color 0.3s',
+                                '&:hover': {
+                                  backgroundColor: '#00A1FF',
+                                  color: '#FFFFFF',
+                                },
                               }}
                               onClick={() =>
                                 navigate(`/tickets/edit/${row.id}`, {
@@ -220,7 +271,7 @@ export default function TableTickets({ agents }) {
                                 })
                               }
                             >
-                              <FontAwesomeIcon icon={icons.edit} />
+                              <icons.edit style={{ fontSize: 16, color: 'inherit' }} />
                             </Box>
                           </Tooltip>
                         </Box>
@@ -231,18 +282,24 @@ export default function TableTickets({ agents }) {
                             <IconButton
                               onClick={() => setSelectedTicket(row)}
                               sx={{
-                                color: '#00a1ff',
+                                backgroundColor: '#daf8f4',
+                                color: '#00b8a3',
+                                borderRadius: '50%',
+                                padding: 1,
+                                width: 32,
+                                height: 32,
+                                transition: 'background-color 0.3s, color 0.3s',
                                 '&:hover': {
-                                  backgroundColor: 'transparent',
+                                  backgroundColor: '#00b8a3',
+                                  color: '#ffffff',
                                 },
                               }}
                             >
-                              <icons.assignToMe />
+                              <icons.assignToMe size={16} />
                             </IconButton>
                           </Tooltip>
                         )}
                       </TableCell>
-                      <TableCell>{row.agent_assigned}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

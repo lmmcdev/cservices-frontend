@@ -1,10 +1,11 @@
 import React from "react";
 import {
   Dialog, DialogContent, DialogActions, Box, Grid,
-  Button, Typography, Card
+  Button, Typography, Card, DialogTitle
 } from "@mui/material";
 import { assignAgent } from "../../utils/api";
 import ProfilePic from "../components/profilePic";
+import { icons } from '../auxiliars/icons';
 
 const AssignAgentModal = ({ open, onClose, ticket, agentEmail, dispatch, setLoading, onAssign }) => {
   const handleAssign = async () => {
@@ -19,29 +20,47 @@ const AssignAgentModal = ({ open, onClose, ticket, agentEmail, dispatch, setLoad
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth        PaperProps={{
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{
         sx: {
-        width: '500px', // o cualquier valor que necesites
-        maxWidth: '90%',
+          width: '500px',
+          maxWidth: '90%',
+          borderRadius: '15px',
         },
     }}>
-      <DialogContent dividers>
+      <DialogTitle sx={{ color: '#00A1FF', px: 4, pt: 3 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          {/* Título e icono */}
+          <Box display="flex" alignItems="center">
+            <icons.assignToMe size={20} style={{ color: '#00A1FF', marginRight: 8 }} />
+            <span style={{ fontWeight: 'bold', fontSize: '1.25rem', color: '#00A1FF' }}>
+              New Ticket
+            </span>
+          </Box>
+
+          {/* Imagen del agente */}
+          <ProfilePic />
+        </Box>
+      </DialogTitle>
+      <DialogContent>
         <Box sx={{ flexGrow: 1 }}>
           <Grid container spacing={2}>
-            <Grid item xs={12}><ProfilePic /></Grid>
             {ticket && (
               <>
                 <Grid item xs={6}>
                   <Card variant="outlined" sx={{p:2, border:'none'}}><Typography variant="body2"><strong>Patient Name</strong><br /> {ticket.patient_name}</Typography></Card>
                 </Grid>
                 <Grid item xs={6}>
-                  <Card variant="outlined" sx={{p:2, border:'none'}}><Typography variant="body2"><strong>Patient DOB</strong><br /> {ticket.patient_dob}</Typography></Card>
+                  <Card variant="outlined" sx={{p:2, border:'none'}}><Typography variant="body2"><strong>DOB</strong><br /> {ticket.patient_dob}</Typography></Card>
                 </Grid>
                 <Grid item xs={4}>
                   <Card variant="outlined" sx={{p:2, border:'none'}}><Typography variant="body2"><strong>Phone</strong><br /> {ticket.phone}</Typography></Card>
                 </Grid>
                 <Grid item xs={12}>
-                  <Typography variant="body2"><strong>Call Reason</strong><br /> {ticket.call_reason}</Typography>
+                  <Card variant="outlined" sx={{ p: 2, border: 'none' }}>
+                    <Typography variant="body2">
+                      <strong>Call Reason</strong><br /> {ticket.call_reason}
+                    </Typography>
+                  </Card>
                 </Grid>
               </>
             )}
@@ -49,23 +68,27 @@ const AssignAgentModal = ({ open, onClose, ticket, agentEmail, dispatch, setLoad
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button
-          onClick={handleAssign}
-          variant="contained"
-          sx={{
-            backgroundColor: '#e3f2fd',
-            border: '2px solid #1976d2',
-            color: '#1976d2',
-            fontWeight: 'bold',
-            '&:hover': {
-              backgroundColor: '#bbdefb',
-              borderColor: '#1565c0',
-              color: '#1565c0',
-            },
-          }}
-        >
-          Assign To me
-        </Button>
+        <Box sx={{ mt: 0, mb: 1.5, mr: 1.5, display: 'flex', justifyContent: 'flex-end' }}>
+          <Button
+            onClick={handleAssign}
+            sx={{
+              width: '130px',
+              height: '44px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              color: '#00A1FF',
+              backgroundColor: '#DFF3FF',
+              border: '2px solid #00A1FF',
+              textTransform: 'none',
+              '&:hover': {
+                backgroundColor: '#00A1FF',
+                color: '#FFFFFF',
+              },
+            }}
+          >
+            Assign To me
+          </Button>
+        </Box>
       </DialogActions>
     </Dialog>
   );
