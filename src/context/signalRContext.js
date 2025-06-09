@@ -9,7 +9,7 @@ const SignalRContext = createContext();
 export function SignalRProvider({ children }) {
   const connectionRef = useRef(null);
   const dispatch = useTicketsDispatch();
-  const { user, agentData, department } = useAuth();
+  const { department } = useAuth();
   console.log(department)
   const initializeSignalR = async (onTicketReceived) => {
     if (connectionRef.current) return;
