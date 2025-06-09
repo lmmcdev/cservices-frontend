@@ -14,7 +14,7 @@ import { ticketReducer, initialState } from '../../store/ticketsReducer';
 import AlertSnackbar from '../auxiliars/alertSnackbar';
 import { useFilters } from '../../utils/js/filterContext';
 //agentes desde el estado
-import { useAgents } from '../components/agentsContext';
+import { useAgents } from '../../context/agentsContext';
 
 export default function Topbar({ agent }) {
   const { state } = useAgents(); // agentes desde el estado

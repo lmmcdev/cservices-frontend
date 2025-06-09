@@ -30,7 +30,7 @@ import PatientProfileDialog from '../components/dialogs/patientProfileDialog';
 import Tooltip from '@mui/material/Tooltip';
 import { useWorkTimer } from '../components/components/useWorkTimer';
 import TicketWorkTime from '../components/ticketWorkTime';
-import { useAgents } from '../components/components/agentsContext';
+import { useAgents } from '../context/agentsContext';
 import { useAuth } from '../context/authContext';
 
 
