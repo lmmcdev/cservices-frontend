@@ -10,7 +10,7 @@ export function SignalRProvider({ children }) {
   const connectionRef = useRef(null);
   const dispatch = useTicketsDispatch();
   const { department } = useAuth();
-  console.log(department)
+  //console.log(department)
   const initializeSignalR = async (onTicketReceived) => {
     if (connectionRef.current) return;
 
@@ -38,8 +38,19 @@ export function SignalRProvider({ children }) {
         }        
       });
 
+      connection.on('ticketUpdated', (ticket) => {
+        //console.log('📥 Ticket recibido vía SignalR:', ticket);
+        if(ticket.assigned_department === department) {
+          dispatch({ type: 'UPD_TICKET', payload: ticket });
+
+          if (onTicketReceived) {
+            onTicketReceived(ticket);
+          }
+        }        
+      });
+
       await connection.start();
-      //console.log('✅ SignalR conectado');
+      console.log('✅ SignalR conectado');
       connectionRef.current = connection;
 
     } catch (err) {

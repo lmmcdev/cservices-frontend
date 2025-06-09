@@ -18,7 +18,7 @@ import { fetchAgentData, fetchTableData } from './utils/api';
 import { AgentsProvider, useAgents } from './context/agentsContext';
 import { TicketsProvider, useTickets } from './context/ticketsContext';
 import { SignalRProvider, useSignalR } from './context/signalRContext';
-import { FiltersProvider } from './utils/js/filterContext';
+import { FiltersProvider } from './context/filterContext';
 import { AuthProvider, useAuth } from './context/authContext';
 import { useNotification, NotificationProvider } from './context/notificationsContext';
 
