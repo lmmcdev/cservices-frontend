@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
   const [authError, setAuthError] = useState(null);
   const [authLoaded, setAuthLoaded] = useState(false);
 
-  console.log(agents)
+  //console.log(agents)
   const login = async () => {
     try {
       await msalInstance.initialize();

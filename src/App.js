@@ -74,20 +74,20 @@ function AppContent() {
     };
   }, [setLoading, agentDispatch, ticketDispatch, user?.username]);
 
-  useEffect(() => {
-    initializeSignalR();
-  }, [initializeSignalR]);
-
-  useEffect(() => {
-    initializeSignalR((ticket) => {
-      showNotification(`🎫 Nuevo ticket de ${ticket.patient_name || 'Paciente desconocido'}`, 'success');
-    });
-  }, [initializeSignalR, showNotification]);
   /*useEffect(() => {
-    // Puedes habilitar esto cuando integres SignalR:
-    initializeSignalR(ticketDispatch);
+    initializeSignalR();
   }, [initializeSignalR]);*/
 
+  useEffect(() => {
+  initializeSignalR({
+    onTicketCreated: (ticket) => {
+      showNotification(`🎫 New case from ${ticket.patient_name || 'Unknown patient'}`, 'success');
+    },
+    // No notificar por actualización (o podrías poner otra lógica más selectiva)
+    // onTicketUpdated: (ticket) => { ... }
+  });
+}, [initializeSignalR, showNotification]);
+ 
 
   if (!authLoaded) return null;
   if (authError) return <AuthErrorScreen errorMessage={authError} onRetry={login} />;

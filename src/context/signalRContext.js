@@ -11,7 +11,7 @@ export function SignalRProvider({ children }) {
   const dispatch = useTicketsDispatch();
   const { department } = useAuth();
   //console.log(department)
-  const initializeSignalR = async (onTicketReceived) => {
+  const initializeSignalR = async ({ onTicketCreated, onTicketUpdated }) => {
     if (connectionRef.current) return;
 
     try {
@@ -28,30 +28,23 @@ export function SignalRProvider({ children }) {
         .build();
 
       connection.on('ticketCreated', (ticket) => {
-        //console.log('📥 Ticket recibido vía SignalR:', ticket);
-        if(ticket.assigned_department === department) {
+        if (ticket.assigned_department === department) {
           dispatch({ type: 'ADD_TICKET', payload: ticket });
-
-          if (onTicketReceived) {
-            onTicketReceived(ticket);
-          }
-        }        
+          onTicketCreated?.(ticket);
+        }
       });
 
       connection.on('ticketUpdated', (ticket) => {
-        //console.log('📥 Ticket recibido vía SignalR:', ticket);
-        if(ticket.assigned_department === department) {
+        //console.log('updated action', ticket)
+        if (ticket.assigned_department === department) {
           dispatch({ type: 'UPD_TICKET', payload: ticket });
-
-          if (onTicketReceived) {
-            onTicketReceived(ticket);
-          }
-        }        
+          onTicketUpdated?.(ticket);
+        }
       });
 
       await connection.start();
       console.log('✅ SignalR conectado');
-      connectionRef.current = connection;
+      connectionRef.current = connection;       
 
     } catch (err) {
       console.error('❌ Error al conectar con SignalR:', err);
