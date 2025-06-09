@@ -74,8 +74,10 @@ export default function TableTickets() {
         filters.callerIds.length === 0 || filters.callerIds.includes(row.caller_id);
       const matchDate =
         !filters.date || row.creation_date?.startsWith(filters.date); // suponiendo formato 'YYYY-MM-DD...'
+      const matchDepartment = 
+        filters.assignedDepartment.length === 0 || filters.assignedDepartment.includes(row.assigned_department);
 
-      return matchStatus && matchAgent && matchCaller && matchDate;
+      return matchStatus && matchAgent && matchCaller && matchDate && matchDepartment;
     });
 
   const sortedRows = [...filteredRows].sort((a, b) => {
