@@ -15,7 +15,7 @@ import UnknownAgentNotice from './pages/unknownAgentNotice';
 import { LoadingProvider, useLoading } from './providers/loadingProvider';
 import { fetchAgentData, fetchTableData } from './utils/api';
 
-import { AgentsProvider, useAgents } from './components/components/agentsContext';
+import { AgentsProvider, useAgents } from './context/agentsContext';
 import { TicketsProvider, useTickets } from './context/ticketsContext';
 import { SignalRProvider, useSignalR } from './context/signalRContext';
 import { FiltersProvider } from './utils/js/filterContext';
@@ -126,25 +126,23 @@ function AppContent() {
 function App() {
   return (
     <MsalProviderWrapper>
-      <AuthProvider>
-        <LoadingProvider>
-          <TicketsProvider>
-          <SignalRProvider>
-            <NotificationProvider>
-            <FiltersProvider>
-              <AgentsProvider>
-                
-                  <BrowserRouter>
-                    <AppContent />
-                  </BrowserRouter>
-                
-              </AgentsProvider>
-            </FiltersProvider>
-            </NotificationProvider>
-          </SignalRProvider>
-          </TicketsProvider>
-        </LoadingProvider>
-      </AuthProvider>
+      <AgentsProvider> {/* 👈 Esto debe estar antes */}
+        <AuthProvider>  {/* 👈 Ahora sí puede usar useAgents */}
+          <LoadingProvider>
+            <TicketsProvider>
+              <SignalRProvider>
+                <NotificationProvider>
+                  <FiltersProvider>
+                    <BrowserRouter>
+                      <AppContent />
+                    </BrowserRouter>
+                  </FiltersProvider>
+                </NotificationProvider>
+              </SignalRProvider>
+            </TicketsProvider>
+          </LoadingProvider>
+        </AuthProvider>
+      </AgentsProvider>
     </MsalProviderWrapper>
   );
 }

@@ -13,7 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { icons } from '../components/auxiliars/icons';
 import { useNavigate } from 'react-router-dom';
 import CreateAgentModal from '../components/dialogs/createAgentDialog';
-import { useAgents } from '../components/components/agentsContext';
+import { useAgents } from '../context/agentsContext';
 
 export default function TableAgents({ supEmail }) {
     const { state } = useAgents(); // ⬅️ Aquí usas el contexto
