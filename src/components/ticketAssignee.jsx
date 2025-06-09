@@ -12,6 +12,7 @@ import {
 import { getUserPhotoByEmail } from '../utils/graphHelper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHandHoldingHand } from '@fortawesome/free-solid-svg-icons';
+import { faShuffle } from '@fortawesome/free-solid-svg-icons';
 import { BsHousesFill } from 'react-icons/bs';
 
 const statusColors = {
@@ -27,7 +28,8 @@ export default function TicketAssignee({
   assigneeEmail,
   status,
   onReassign,
-  onChangeDepartment
+  onChangeDepartment,
+  onChangeCenter
 }) {
   const [photoUrl, setPhotoUrl] = useState('');
   const [formattedName, setFormattedName] = useState('Unassigned');
@@ -89,6 +91,7 @@ export default function TicketAssignee({
                 </IconButton>
               </Tooltip>
             )}
+
             {onReassign && (
               <Tooltip title="Reassign agent">
                 <IconButton size="small" onClick={onReassign}>
@@ -96,6 +99,12 @@ export default function TicketAssignee({
                 </IconButton>
               </Tooltip>
             )}
+
+            <Tooltip title="Transfer case">
+                <IconButton size="small" onClick={onChangeCenter}>
+                  <FontAwesomeIcon icon={faShuffle} style={{ color: '#00a1ff', fontSize: '16px' }} />
+                </IconButton>
+              </Tooltip>
           </Box>
         </Box>
 

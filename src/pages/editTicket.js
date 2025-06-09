@@ -32,6 +32,7 @@ import { useWorkTimer } from '../components/components/useWorkTimer';
 import TicketWorkTime from '../components/ticketWorkTime';
 import { useAgents } from '../context/agentsContext';
 import { useAuth } from '../context/authContext';
+import ChangeCenterModal from '../components/dialogs/changeCenterModal';
 
 
 const statusColors = {
@@ -88,6 +89,8 @@ export default function EditTicket() {
   const [agentDialogOpen, setAgentDialogOpen] = useState(false);
   const [openReassignAgentModal, setOpenReassignAgentModal] = useState(false);
   const [openChangeDepartmentModal, setOpenChangeDepartmentModal] = useState(false);
+  const [openCenterModal, setOpenCenterModal] = useState(false);
+
   const [openPatientDialog, setOpenPatientDialog] = useState(false);
   //const [relatedCases, setRelatedCases] = useState([]);
   useWorkTimer( {ticketData:ticket, agentEmail, status, enabled:true} );
@@ -108,6 +111,9 @@ export default function EditTicket() {
       setAgentAssigned(ticket.agent_assigned || '');
       setCollaborators(ticket.collaborators);
       setStatus(ticket.status || '');
+      /*if(ticket.status === "New") {
+        handleStatusChange("In Progress")
+      }*/
     }
   }, [ticket]);
   
@@ -186,6 +192,21 @@ export default function EditTicket() {
       setErrorOpen(true);
     }
     setEditField(null);
+  };
+
+  //////////////////////////////////////////////////////////////////////////////
+  const handleChangeCenter = async (newCenter) => {
+    alert(newCenter)
+    /*if (!newDept) return;
+    const result = await updateTicketDepartment(dispatch, setLoading, ticketId, agentEmail, newDept);
+    if (result.success) {
+      setSuccessMessage(result.message);
+      setSuccessOpen(true);
+    } else {
+      setErrorMessage(result.message);
+      setErrorOpen(true);
+    }
+    setEditField(null);*/
   };
 
   /////////////////////Update Patient Fields///////////////////////////////////////////////////////
@@ -451,6 +472,7 @@ export default function EditTicket() {
                 status={status}
                 onReassign={() => setOpenReassignAgentModal(true)}
                 onChangeDepartment={() => setOpenChangeDepartmentModal(true)}
+                onChangeCenter={() => setOpenCenterModal(true)}
               />
               <TicketCollaborators
                 collaborators={collaborators}
@@ -549,6 +571,13 @@ export default function EditTicket() {
         open={openChangeDepartmentModal}
         onClose={() => setOpenChangeDepartmentModal(false)}
         onChangeDepartment={handleChangeDepartment}
+      />
+
+      {/**Dialog para transferir caso */}
+      <ChangeCenterModal
+        open={openCenterModal}
+        onClose={() => setOpenCenterModal(false)}
+        onchangeCenter={handleChangeCenter}
       />
 
       <PatientProfileDialog
