@@ -12,7 +12,7 @@ import { createNewTicket } from '../../utils/api';
 import { useLoading } from '../../providers/loadingProvider';
 import { ticketReducer, initialState } from '../../store/ticketsReducer';
 import AlertSnackbar from '../auxiliars/alertSnackbar';
-import { useFilters } from '../../utils/js/filterContext';
+import { useFilters } from '../../context/filterContext';
 //agentes desde el estado
 import { useAgents } from '../../context/agentsContext';
 

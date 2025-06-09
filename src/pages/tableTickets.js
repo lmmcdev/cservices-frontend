@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AssignAgentModal from '../components/dialogs/assignAgentDialog';
 import { icons } from '../components/auxiliars/icons.js';
 import { useNavigate } from 'react-router-dom';
-import { useFilters } from '../utils/js/filterContext.js';
+import { useFilters } from '../context/filterContext.js';
 //import { emailToFullName } from '../utils/js/emailToFullName.js'
 import StatusFilterBoxes from '../components/statusFilterBoxes';
 
@@ -27,7 +27,7 @@ const statusColors = {
   Total: { bg: '#f1f5ff', text: '#0947D7' },
 };
 
-export default function TableTickets({ agents }) {
+export default function TableTickets() {
   const { filters } = useFilters();
   const { state, dispatch } = useTickets();
   //const [state, dispatch] = useReducer(ticketReducer, initialState);
@@ -206,23 +206,26 @@ export default function TableTickets({ agents }) {
                       <TableCell>{row.creation_date}</TableCell>
                       <TableCell>
                         <Box display="flex" justifyContent="center">
-                          <Tooltip title="Edit" placement="bottom">
-                            <Box
-                              sx={{
-                                fontSize: 22,
-                                color: '#00A1FF',
-                                cursor: 'pointer',
-                                '&:hover': { backgroundColor: 'transparent' },
-                              }}
-                              onClick={() =>
-                                navigate(`/tickets/edit/${row.id}`, {
-                                  state: { ticket: row },
-                                })
-                              }
-                            >
-                              <FontAwesomeIcon icon={icons.edit} />
-                            </Box>
-                          </Tooltip>
+                          {row.agent_assigned !== '' && (
+                              <Tooltip title="Edit" placement="bottom">
+                                <Box
+                                  sx={{
+                                    fontSize: 22,
+                                    color: '#00A1FF',
+                                    cursor: 'pointer',
+                                    '&:hover': { backgroundColor: 'transparent' },
+                                  }}
+                                  onClick={() =>
+                                    navigate(`/tickets/edit/${row.id}`, {
+                                      state: { ticket: row },
+                                    })
+                                  }
+                                >
+                                  <FontAwesomeIcon icon={icons.edit} />
+                                </Box>
+                            </Tooltip>
+                          )}
+                          
                         </Box>
                       </TableCell>
                       <TableCell>
