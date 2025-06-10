@@ -40,7 +40,7 @@ export default function TableTickets() {
   const [sortDirection, setSortDirection] = useState('desc');
 
   //comprobar aqui si existe user.username
-  const loadData = useCallback(async () => {
+  /*const loadData = useCallback(async () => {
     setLoading(true);
     try {
       await fetchTableData(dispatch, setLoading, user.username);
@@ -52,7 +52,7 @@ export default function TableTickets() {
   useEffect(() => {
     if (!user?.username) return;
     loadData();
-  }, [loadData, user?.username]);
+  }, [loadData, user?.username]);*/
 
   useEffect(() => {
     setPage(0);
