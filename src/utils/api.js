@@ -332,7 +332,7 @@ export const updatePatientDOB = async (dispatch, setLoading, ticketId, currentAg
       throw new Error(data.message || 'Error updating patient bod');
     }
 
-    dispatch({ type: 'UPDATE_PATIENT_BOD', payload: newPatientBOD });
+    //dispatch({ type: 'UPDATE_PATIENT_BOD', payload: newPatientBOD });
     return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';

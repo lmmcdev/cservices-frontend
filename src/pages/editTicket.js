@@ -69,14 +69,17 @@ export default function EditTicket() {
   const [collaborators, setCollaborators] = useState(ticket?.collaborators || []);
   const [patientName, setPatientName] = useState(ticket?.patient_name || '');
   
-  const formatDateForInput = (dateStr = '01-01-1901') => {
-    const date = new Date(dateStr);
-    return date.toISOString().split('T')[0]; // 'YYYY-MM-DD'
-  };
+ const formatDateForInput = (dateStr = '01-01-1901') => {
+  const date = new Date(dateStr);
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // getMonth() es 0-indexado
+  const day = String(date.getDate()).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${month}/${day}/${year}`;
+};
+
   const [patientDob, setPatientDob] = useState(formatDateForInput(ticket?.patient_dob));
   const [callbakNumber, setCallbackNumber] = useState(ticket?.callback_number || '');
   const [ patientPhone, ] = useState(ticket?.phone || '')
-
 
   //state status
   const [errorOpen, setErrorOpen] = useState(false);
@@ -113,9 +116,6 @@ export default function EditTicket() {
       setAgentAssigned(ticket.agent_assigned || '');
       setCollaborators(ticket.collaborators);
       setStatus(ticket.status || '');
-      /*if(ticket.status === "New") {
-        handleStatusChange("In Progress")
-      }*/
     }
   }, [ticket]);
   
@@ -234,6 +234,7 @@ export default function EditTicket() {
       if (result.success) {
         setSuccessMessage(result.message);
         setSuccessOpen(true);
+        setPatientDob(mmddyyyy)
       } else {
         setErrorMessage(result.message);
         setErrorOpen(true);
