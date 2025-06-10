@@ -139,7 +139,7 @@ export default function TableTickets() {
         sx={{
           borderRadius: 4,
           position: 'fixed',
-          top: 170,
+          top: 150,
           left: 200,
           right: 20,
           bottom: 20,

@@ -2,7 +2,7 @@
 import { UserPlus } from 'react-feather';
 
 //Para importar los iconos de Font Awesome v6
-import { faArrowUp, faArrowDown } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUp, faArrowDown, faUserMd } from '@fortawesome/free-solid-svg-icons';
 
 //Para importar los iconos de Material UI
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -38,12 +38,14 @@ const FaUsersV4 = (props) => (
   <i className="fa fa-users" {...props}></i>
 );
 
+
 export const icons = {
     //Feather
     assignToMe: UserPlus,
     //Font Awesome v6
     arrowUp: faArrowUp,
     arrowDown: faArrowDown,
+    doctor: faUserMd,
     //Material UI
     filterOn: FilterListOffIcon,
     filterOff: FilterListIcon,

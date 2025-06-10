@@ -271,7 +271,6 @@ export default function EditTicket() {
           p: 4,
           width: '100%',
           mx: 'auto',
-          mt: 20,
           ml: 15,
           mr: 3,
           borderRadius: 4,
