@@ -37,11 +37,11 @@ export function SignalRProvider({ children }) {
 
       //evento ticket actualizado
       connection.on('ticketUpdated', (ticket) => {
-        //console.log('updated action', ticket)
-        if (ticket.assigned_department === department) {
+        console.log('updated action', ticket)
+        //if (ticket.assigned_department === department) {
           dispatch({ type: 'UPD_TICKET', payload: ticket });
           onTicketUpdated?.(ticket);
-        }
+        //}
       });
 
       //lock ticket
