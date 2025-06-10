@@ -156,11 +156,7 @@ export default function TableTickets() {
               setSelectedStatus={setSelectedStatus}
               ticketsCountByStatus={ticketsCountByStatus}
             />
-            {error && (
-              <Typography color="error" align="center" sx={{ mb: 2 }}>
-                Error al cargar los tickets: {error}
-              </Typography>
-            )}
+            
           </Box>
 
           {/*TABLA CON SCROLL INTERNO*/}
