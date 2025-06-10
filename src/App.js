@@ -9,6 +9,7 @@ import TableTickets from './pages/tableTickets';
 import EditTicket from './pages/editTicket';
 import TableAgents from './pages/tableAgents';
 import EditAgent from './pages/editAgent';
+import ProfileSearch from './pages/profileSearch';
 import AuthErrorScreen from './pages/authErrorScreen';
 import UnknownAgentNotice from './pages/unknownAgentNotice';
 
@@ -21,6 +22,7 @@ import { SignalRProvider, useSignalR } from './context/signalRContext';
 import { FiltersProvider } from './context/filterContext';
 import { AuthProvider, useAuth } from './context/authContext';
 import { useNotification, NotificationProvider } from './context/notificationsContext';
+import { ProfilePhotoProvider } from './context/profilePhotoContext';
 
 import MsalProviderWrapper from './providers/msalProvider';
 
@@ -107,9 +109,11 @@ function AppContent() {
   }
 
   return (
-    <Box sx={{ display: 'flex', bgcolor: '#f8fafd', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: '#f8fafd', minHeight: '100vh' }}>
       <CssBaseline />
       <Topbar agent={agentEmail} filters={filters} setFilters={setFilters} />
+      <Box sx={{ height: 150 }} /> {/*Espaciador para separar el topBar del contenido de abajo*/}
+      <Box sx={{ display: 'flex', flex: 1 }}>
       <Sidebar />
       <Routes>
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -117,8 +121,10 @@ function AppContent() {
         <Route path="/agents" element={<TableAgents />} />
         <Route path="/tickets/edit/:ticketId" element={<EditTicket />} />
         <Route path="/agent/edit" element={<EditAgent />} />
+        <Route path="/profile-search" element={<ProfileSearch />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
+    </Box>
     </Box>
   );
 }
@@ -133,9 +139,11 @@ function App() {
               <SignalRProvider>
                 <NotificationProvider>
                   <FiltersProvider>
-                    <BrowserRouter>
-                      <AppContent />
-                    </BrowserRouter>
+                    <ProfilePhotoProvider>
+                      <BrowserRouter>
+                        <AppContent />
+                      </BrowserRouter>
+                    </ProfilePhotoProvider>
                   </FiltersProvider>
                 </NotificationProvider>
               </SignalRProvider>

@@ -1,42 +1,35 @@
-// components/Header.js
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Avatar, Box } from "@mui/material";
-import { useAuth } from "../../context/authContext";
-import { getUserPhotoByEmail } from '../../utils/graphHelper';
+import { useProfilePhoto } from '../../context/profilePhotoContext';
+import { useAuth } from '../../context/authContext';
 
+const ProfilePic = ({ size = 40 }) => {
+  const { photoUrl } = useProfilePhoto(); //const photoUrl = null; //to test null image
+  const { user } = useAuth();
+  const [imgError, setImgError] = useState(false);
 
-const ProfilePic = ({email}) => {
-  const { user, } = useAuth();
-  const finalEmail = email || user?.username || '';
-  const [photos, setPhotos] = useState({});
+  const userInitial = user?.username?.[0]?.toUpperCase() || '?';
 
-  useEffect(() => {
-    const results = {};
-    const fetchPhotos = async () => {
-        try {
-          const url = await getUserPhotoByEmail(finalEmail);
-          if (url) results[email] = url;
-          setPhotos(results);
-        } catch (err) {
-          console.error('Error al obtener fotos de colaboradores:', err);
-        }
-      };
-  
-      fetchPhotos();
-    }, [finalEmail, email]);
-
-    return (
-      <Box display="flex" alignItems="center" gap={2}>
-        <Avatar 
-          src={photos[email]}
-          alt={finalEmail || "Usuario"} sx={{
-            width: 40,
-            height: 40,
-            border: '2px solid #00a1ff',
-          }}
-        />
-      </Box>
-    );
+  return (
+    <Box display="flex" alignItems="center" gap={2}>
+      <Avatar
+        src={!imgError && photoUrl ? photoUrl : undefined}
+        alt="User"
+        onError={() => setImgError(true)}
+        sx={{
+          width: size,
+          height: size,
+          border: '2px solid #00a1ff',
+          fontWeight: 'bold',
+          fontSize: size * 0.42,
+          backgroundColor: (!photoUrl || imgError) ? '#dff3ff' : 'transparent',
+          color: (!photoUrl || imgError) ? '#00a1ff' : undefined,
+        }}
+      >
+        {(!photoUrl || imgError) && userInitial}
+      </Avatar>
+    </Box>
+  );
 };
 
 export default ProfilePic;

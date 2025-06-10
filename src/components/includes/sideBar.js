@@ -26,6 +26,7 @@ export default function CollapsibleDrawer({ agents }) {
     { icon: <icons.dashboard style={{ fontSize: 22 }} />, label: 'Dashboard', path: '/home' },
     { icon: <icons.callLogs style={{ fontSize: 22 }} />, label: 'Call Logs', path: '/dashboard' },
     { icon: <icons.team style={{ fontSize: 22 }} />, label: 'Team', path: '/agents' },
+    { icon: <icons.searchIcon style={{ fontSize: 22 }} />, label: 'Find', path: '/profile-search' },
   ];
 
   const handleListItemClick = (path) => {

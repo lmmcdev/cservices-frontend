@@ -56,7 +56,7 @@ export default function TableAgents({ supEmail }) {
 
   return (
     <>
-      <Card elevation={3} sx={{ borderRadius: 4, position: 'fixed', top: 170, left: 200, right: 20 }}>
+      <Card sx={{ borderRadius: 4, position: 'fixed', top: 150, left: 200, right: 20, boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.04)' }}>
         <CardContent>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
             <Typography variant="h6">Agent Directory</Typography>
