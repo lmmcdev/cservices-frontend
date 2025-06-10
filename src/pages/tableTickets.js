@@ -4,7 +4,7 @@ import { useLoading } from '../providers/loadingProvider.jsx';
 import { useAuth } from '../context/authContext.js';
 import { useTickets } from '../context/ticketsContext.js';
 import {
-  Box, Chip, Typography, Card, CardContent,
+  Box, Chip, Card, CardContent,
   Paper, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, TablePagination, IconButton, Tooltip
 } from '@mui/material';
@@ -62,7 +62,7 @@ export default function TableTickets() {
     console.log("Asignar", agentEmail, "al ticket", ticketId);
   };
 
-  const { tickets, error } = state;
+  const { tickets, } = state;
   const validTickets = Array.isArray(tickets) ? tickets : [];
      //filtros de la tabla
     const filteredRows = validTickets.filter((row) => {
