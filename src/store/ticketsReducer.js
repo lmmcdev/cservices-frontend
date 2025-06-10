@@ -17,7 +17,6 @@ export const ticketReducer = (state, action) => {
       };
 
     case 'ADD_TICKET':
-      console.log(action.payload)
       const exists = state.tickets.some(t => t.id === action.payload.id);
       if (exists) return state; // No duplicar
 
@@ -25,6 +24,15 @@ export const ticketReducer = (state, action) => {
         ...state,
         tickets: [action.payload, ...state.tickets],
       };
+
+    case 'UPD_TICKET':
+      return {
+        ...state,
+        tickets: state.tickets.map(ticket =>
+          ticket.id === action.payload.id ? { ...ticket, ...action.payload } : ticket
+        )
+      };
+
 
     case 'SET_ERROR':
       return {

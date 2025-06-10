@@ -3,7 +3,7 @@ import {
   Dialog, DialogContent, DialogActions, Box, Grid,
   Button, Typography, Card, DialogTitle
 } from "@mui/material";
-import { assignAgent } from "../../utils/api";
+import { assignAgent, changeStatus } from "../../utils/api";
 import ProfilePic from "../components/profilePic";
 import { icons } from '../auxiliars/icons';
 
@@ -11,6 +11,7 @@ const AssignAgentModal = ({ open, onClose, ticket, agentEmail, dispatch, setLoad
   const handleAssign = async () => {
     try {
       await assignAgent(dispatch, setLoading, ticket.id, agentEmail, agentEmail); // desde ticket viene el actual, y tú eres el nuevo
+      await changeStatus(dispatch, setLoading, ticket.id, agentEmail,'In Progress') //cambiar status a in progress
       onAssign(); // para refrescar datos en el padre
       onClose();
     } catch (error) {

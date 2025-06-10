@@ -15,10 +15,10 @@ import UnknownAgentNotice from './pages/unknownAgentNotice';
 import { LoadingProvider, useLoading } from './providers/loadingProvider';
 import { fetchAgentData, fetchTableData } from './utils/api';
 
-import { AgentsProvider, useAgents } from './components/components/agentsContext';
+import { AgentsProvider, useAgents } from './context/agentsContext';
 import { TicketsProvider, useTickets } from './context/ticketsContext';
 import { SignalRProvider, useSignalR } from './context/signalRContext';
-import { FiltersProvider } from './utils/js/filterContext';
+import { FiltersProvider } from './context/filterContext';
 import { AuthProvider, useAuth } from './context/authContext';
 import { useNotification, NotificationProvider } from './context/notificationsContext';
 
@@ -74,20 +74,20 @@ function AppContent() {
     };
   }, [setLoading, agentDispatch, ticketDispatch, user?.username]);
 
-  useEffect(() => {
-    initializeSignalR();
-  }, [initializeSignalR]);
-
-  useEffect(() => {
-    initializeSignalR((ticket) => {
-      showNotification(`🎫 Nuevo ticket de ${ticket.patient_name || 'Paciente desconocido'}`, 'success');
-    });
-  }, [initializeSignalR, showNotification]);
   /*useEffect(() => {
-    // Puedes habilitar esto cuando integres SignalR:
-    initializeSignalR(ticketDispatch);
+    initializeSignalR();
   }, [initializeSignalR]);*/
 
+  useEffect(() => {
+  initializeSignalR({
+    onTicketCreated: (ticket) => {
+      showNotification(`🎫 New case from ${ticket.patient_name || 'Unknown patient'}`, 'success');
+    },
+    // No notificar por actualización (o podrías poner otra lógica más selectiva)
+    // onTicketUpdated: (ticket) => { ... }
+  });
+}, [initializeSignalR, showNotification]);
+ 
 
   if (!authLoaded) return null;
   if (authError) return <AuthErrorScreen errorMessage={authError} onRetry={login} />;
@@ -126,25 +126,23 @@ function AppContent() {
 function App() {
   return (
     <MsalProviderWrapper>
-      <AuthProvider>
-        <LoadingProvider>
-          <TicketsProvider>
-          <SignalRProvider>
-            <NotificationProvider>
-            <FiltersProvider>
-              <AgentsProvider>
-                
-                  <BrowserRouter>
-                    <AppContent />
-                  </BrowserRouter>
-                
-              </AgentsProvider>
-            </FiltersProvider>
-            </NotificationProvider>
-          </SignalRProvider>
-          </TicketsProvider>
-        </LoadingProvider>
-      </AuthProvider>
+      <AgentsProvider> {/* 👈 Esto debe estar antes */}
+        <AuthProvider>  {/* 👈 Ahora sí puede usar useAgents */}
+          <LoadingProvider>
+            <TicketsProvider>
+              <SignalRProvider>
+                <NotificationProvider>
+                  <FiltersProvider>
+                    <BrowserRouter>
+                      <AppContent />
+                    </BrowserRouter>
+                  </FiltersProvider>
+                </NotificationProvider>
+              </SignalRProvider>
+            </TicketsProvider>
+          </LoadingProvider>
+        </AuthProvider>
+      </AgentsProvider>
     </MsalProviderWrapper>
   );
 }

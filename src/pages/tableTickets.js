@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AssignAgentModal from '../components/dialogs/assignAgentDialog';
 import { icons } from '../components/auxiliars/icons.js';
 import { useNavigate } from 'react-router-dom';
-import { useFilters } from '../utils/js/filterContext.js';
+import { useFilters } from '../context/filterContext.js';
 //import { emailToFullName } from '../utils/js/emailToFullName.js'
 import StatusFilterBoxes from '../components/statusFilterBoxes';
 import { SortAscending, SortDescending } from 'phosphor-react';
@@ -28,10 +28,7 @@ const statusColors = {
   Total: { bg: '#f1f5ff', text: '#0947D7' },
 };
 
-export default function TableTickets({ agents }) {
-  //estado de busqueda
-  const [searchTerm, setSearchTerm] = useState('');
-
+export default function TableTickets() {
   const { filters } = useFilters();
   const { state, dispatch } = useTickets();
   //const [state, dispatch] = useReducer(ticketReducer, initialState);
@@ -78,8 +75,10 @@ export default function TableTickets({ agents }) {
         filters.callerIds.length === 0 || filters.callerIds.includes(row.caller_id);
       const matchDate =
         !filters.date || row.creation_date?.startsWith(filters.date); // suponiendo formato 'YYYY-MM-DD...'
+      const matchDepartment = 
+        filters.assignedDepartment.length === 0 || filters.assignedDepartment.includes(row.assigned_department);
 
-      return matchStatus && matchAgent && matchCaller && matchDate;
+      return matchStatus && matchAgent && matchCaller && matchDate && matchDepartment;
     });
 
   const sortedRows = [...filteredRows].sort((a, b) => {
@@ -245,12 +244,13 @@ export default function TableTickets({ agents }) {
                       <TableCell>{row.agent_assigned}</TableCell>
                       <TableCell>
                         <Box display="flex" justifyContent="center">
-                          <Tooltip title="Edit" placement="bottom">
-                            <Box
-                              sx={{
-                                backgroundColor: '#DFF3FF',
-                                color: '#00A1FF',
-                                borderRadius: '50%',
+                          {row.agent_assigned !== '' && (
+                              <Tooltip title="Edit" placement="bottom">
+                                <Box
+                                  sx={{
+                                    backgroundColor: '#DFF3FF',
+                                    color: '#00A1FF',
+                                    borderRadius: '50%',
                                 padding: 1,
                                 display: 'flex',
                                 alignItems: 'center',
@@ -259,21 +259,23 @@ export default function TableTickets({ agents }) {
                                 height: 32,
                                 fontSize: 18,
                                 cursor: 'pointer',
-                                transition: 'background-color 0.3s, color 0.3s',
+                                    transition: 'background-color 0.3s, color 0.3s',
                                 '&:hover': {
                                   backgroundColor: '#00A1FF',
                                   color: '#FFFFFF',
                                 },
-                              }}
-                              onClick={() =>
-                                navigate(`/tickets/edit/${row.id}`, {
-                                  state: { ticket: row },
-                                })
-                              }
-                            >
-                              <icons.edit style={{ fontSize: 16, color: 'inherit' }} />
-                            </Box>
-                          </Tooltip>
+                                  }}
+                                  onClick={() =>
+                                    navigate(`/tickets/edit/${row.id}`, {
+                                      state: { ticket: row },
+                                    })
+                                  }
+                                >
+                                  <icons.edit style={{ fontSize: 16, color: 'inherit' }} />
+                                </Box>
+                            </Tooltip>
+                          )}
+                          
                         </Box>
                       </TableCell>
                       <TableCell>

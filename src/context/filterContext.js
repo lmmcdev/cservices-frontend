@@ -8,6 +8,7 @@ export const FiltersProvider = ({ children }) => {
     date: '',
     assignedAgents: [],
     callerIds: [],
+    assignedDepartment: [],
   });
 
   return (

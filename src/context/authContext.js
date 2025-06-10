@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { PublicClientApplication, InteractionRequiredAuthError } from "@azure/msal-browser";
 import { msalConfig } from "../utils/azureAuth";
+import { useAgents } from "./agentsContext";
 
 export const msalInstance = new PublicClientApplication(msalConfig);
 
@@ -12,10 +13,14 @@ const loginRequest = {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const { state } = useAgents(); // ⬅️ Aquí usas el contexto
+  const agents = state.agents;
+  const [agentData, setAgentData] = useState(null);
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [authError, setAuthError] = useState(null);
-  const [authLoaded, setAuthLoaded] = useState(false); 
+  const [authLoaded, setAuthLoaded] = useState(false);
 
+  //console.log(agents)
   const login = async () => {
     try {
       await msalInstance.initialize();
@@ -52,7 +57,6 @@ export const AuthProvider = ({ children }) => {
       return await msalInstance.acquireTokenSilent({ ...loginRequest, account });
     } catch (error) {
       if (error instanceof InteractionRequiredAuthError) {
-        // Intenta recuperar el token mediante interacción (popup)
         return await msalInstance.acquireTokenPopup({ ...loginRequest, account });
       } else {
         throw error;
@@ -89,7 +93,16 @@ export const AuthProvider = ({ children }) => {
     msalInstance.logoutPopup();
     setUser(null);
     setProfilePhoto(null);
+    setAgentData(null);
   };
+
+  // 🔍 Asociar user con agente del sistema
+  useEffect(() => {
+    if (user && agents?.length > 0) {
+      const match = agents.find(agent => agent.agent_email?.toLowerCase() === user.username?.toLowerCase());
+      setAgentData(match || null);
+    }
+  }, [user, agents]);
 
   useEffect(() => {
     login();
@@ -97,7 +110,16 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, profilePhoto, login, logout, authError, authLoaded }}>
+    <AuthContext.Provider value={{
+      user,
+      profilePhoto,
+      login,
+      logout,
+      authError,
+      authLoaded,
+      agentData,
+      department: agentData?.agent_department || null
+    }}>
       {children}
     </AuthContext.Provider>
   );

@@ -11,8 +11,8 @@ import { createNewTicket } from '../../utils/api';
 import { useLoading } from '../../providers/loadingProvider';
 import { ticketReducer, initialState } from '../../store/ticketsReducer';
 import AlertSnackbar from '../auxiliars/alertSnackbar';
-import { useFilters } from '../../utils/js/filterContext';
-import { useAgents } from '../components/agentsContext';
+import { useFilters } from '../../context/filterContext';
+import { useAgents } from '../../context/agentsContext';
 import SearchBar from '../searchBar';
 
 export default function Topbar({ agent }) {
