@@ -16,7 +16,8 @@ import { changeStatus,
           updateTicketDepartment, 
           updatePatientName,
           updatePatientDOB, 
-          updateCallbackNumber} from '../utils/api';
+          updateCallbackNumber,
+          updateCenter} from '../utils/api';
 import TicketNotes from '../components/ticketNotes';
 import TicketCollaborators from '../components/ticketCollaborators';
 import TicketAudio from '../components/ticketAudio';
@@ -573,7 +574,6 @@ export default function EditTicket() {
             setErrorMessage(result.message);
             setErrorOpen(true);
           }
-          setSuccessOpen(true);
         }}
         agents={agents}
       />
@@ -589,7 +589,23 @@ export default function EditTicket() {
       <ChangeCenterModal
         open={openCenterModal}
         onClose={() => setOpenCenterModal(false)}
-        onchangeCenter={handleChangeCenter}
+        onChangeCenter={async (selectedCenter) => {
+          const depUpd = await updateTicketDepartment(dispatch,setLoading,ticketId,agentEmail,selectedCenter);
+          if (depUpd.success) {
+            //updateCenter in airtable with logic app
+            const updCenter = await updateCenter(dispatch, setLoading, agentEmail,ticket, selectedCenter);
+             if (updCenter.success) {
+              setSuccessMessage(updCenter.message);
+              setSuccessOpen(true);
+            } else {
+              setErrorMessage(updCenter.message);
+              setErrorOpen(true);
+            }
+          } else {
+            setErrorMessage(depUpd.message);
+            setErrorOpen(true);
+          }
+        }}
       />
 
       <PatientProfileDialog

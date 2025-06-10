@@ -18,9 +18,8 @@ const ChangeCenterModal = ({
   const [selectedCenter, setSelectedCenter] = useState('');
 
   const handleChange = async () => {
-     alert(selectedCenter)
     if (onChangeCenter && selectedCenter) {
-        alert(selectedCenter)
+        onChangeCenter(selectedCenter)
       //await onChangeCenter(selectedCenter);
     }
     //onClose();

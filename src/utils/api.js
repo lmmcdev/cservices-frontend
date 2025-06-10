@@ -189,7 +189,7 @@ export const updateCollaborators = async (dispatch, setLoading, ticketId, curren
       throw new Error(data.message || 'Error updating collaborators');
     }
 
-    dispatch({ type: 'UPDATE_COLLABORATORS', payload: collaborators });
+    //dispatch({ type: 'UPDATE_COLLABORATORS', payload: collaborators });
     return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';
@@ -212,7 +212,7 @@ export const updateTicketDepartment = async (dispatch, setLoading, ticketId, cur
       body: JSON.stringify({
         ticketId: ticketId,
         agent_email: currentAgentEmail,
-        new_department: newDepartment,
+        newDepartment: newDepartment,
       }),
     });
 
@@ -233,6 +233,48 @@ export const updateTicketDepartment = async (dispatch, setLoading, ticketId, cur
     setLoading(false);
   }
 };
+
+
+//update department on ticket
+export const updateCenter = async (dispatch, setLoading, agentEmail, formData, center) => {
+  setLoading(true);
+  try {
+    const response = await fetch(`https://prod-69.eastus.logic.azure.com:443/workflows/f358af2ae24b4e2e8957c471c02e7e7c/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=Ztx0ECBzmsTG6JxtrVDQX-WhrqyBQge74GDN59ng4g8`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        "Phone Number": formData.phone,
+        "Caller ID": center,
+        "First and last name": formData.patient_name,
+        "Reason for Calling": formData.call_reason,
+        "Date of Birth": formData.patient_dob,
+        "Summary": formData.summary,
+        "Audio Link": formData?.url_audio || '',
+        "Family Member Name": formData?.caller_name || '',
+        "Callback Number": formData?.callback_number || ''
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Error updating department');
+    }
+
+    //console.log(data.message)
+    //dispatch({ type: 'UPD_TICKET', payload: data.message });
+    return { success: true, message: data.message || 'Updated successfully' };
+  } catch (err) {
+    const message = err.message || 'Something went wrong';
+    dispatch({ type: 'SET_PATIENT_NAME_ERROR', payload: message });
+    return { success: false, message };
+  } finally {
+    setLoading(false);
+  }
+};
+
 
 
 //update patient name
