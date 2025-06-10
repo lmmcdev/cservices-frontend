@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 //import { fetchTableData } from '../utils/api';
 import { useLoading } from '../providers/loadingProvider.jsx';
 import { useAuth } from '../context/authContext.js';
@@ -65,19 +65,21 @@ export default function TableTickets() {
   const { tickets, } = state;
   const validTickets = Array.isArray(tickets) ? tickets : [];
      //filtros de la tabla
-    const filteredRows = validTickets.filter((row) => {
-      const matchStatus = selectedStatus === 'Total' || row.status === selectedStatus;
-      const matchAgent =
-        filters.assignedAgents.length === 0 || filters.assignedAgents.includes(row.agent_assigned);
-      const matchCaller =
-        filters.callerIds.length === 0 || filters.callerIds.includes(row.caller_id);
-      const matchDate =
-        !filters.date || row.creation_date?.startsWith(filters.date); // suponiendo formato 'YYYY-MM-DD...'
-      const matchDepartment = 
-        filters.assignedDepartment.length === 0 || filters.assignedDepartment.includes(row.assigned_department);
+    const filteredRows = useMemo(() => {
+      return validTickets.filter((row) => {
+        const matchStatus = selectedStatus === 'Total' || row.status === selectedStatus;
+        const matchAgent = filters.assignedAgents.length === 0 || filters.assignedAgents.includes(row.agent_assigned);
+        const matchCaller = filters.callerIds.length === 0 || filters.callerIds.includes(row.caller_id);
+        const matchDate = !filters.date || row.creation_date?.startsWith(filters.date);
+        const matchDepartment = 
+          filters.assignedDepartment.length === 0 ||
+          filters.assignedDepartment.some(dep =>
+            dep.trim().toLowerCase() === row.assigned_department?.trim().toLowerCase()
+          );
 
-      return matchStatus && matchAgent && matchCaller && matchDate && matchDepartment;
-    });
+        return matchStatus && matchAgent && matchCaller && matchDate && matchDepartment;
+      });
+    }, [validTickets, filters, selectedStatus]);
 
   const sortedRows = [...filteredRows].sort((a, b) => {
     const dateA = new Date(a.creation_date);
