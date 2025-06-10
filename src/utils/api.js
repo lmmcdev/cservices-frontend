@@ -235,7 +235,7 @@ export const updateTicketDepartment = async (dispatch, setLoading, ticketId, cur
 };
 
 
-//update department on ticket
+//transfer center
 export const updateCenter = async (dispatch, setLoading, agentEmail, formData, center) => {
   setLoading(true);
   try {

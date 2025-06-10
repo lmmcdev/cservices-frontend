@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { fetchTableData } from '../utils/api';
+import React, { useEffect, useState } from 'react';
+//import { fetchTableData } from '../utils/api';
 import { useLoading } from '../providers/loadingProvider.jsx';
 import { useAuth } from '../context/authContext.js';
 import { useTickets } from '../context/ticketsContext.js';
@@ -264,9 +264,7 @@ export default function TableTickets() {
                                 },
                                   }}
                                   onClick={() =>
-                                    navigate(`/tickets/edit/${row.id}`, {
-                                      state: { ticket: row },
-                                    })
+                                    navigate(`/tickets/edit/${row.id}`)
                                   }
                                 >
                                   <icons.edit style={{ fontSize: 16, color: 'inherit' }} />

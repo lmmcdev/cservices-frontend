@@ -1,5 +1,5 @@
-import React, { useReducer, useState, useEffect } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Box, Typography, Paper, Grid, Card, CardContent, TextField, IconButton
 } from '@mui/material';
@@ -196,20 +196,6 @@ export default function EditTicket() {
     setEditField(null);
   };
 
-  //////////////////////////////////////////////////////////////////////////////
-  const handleChangeCenter = async (newCenter) => {
-    alert(newCenter)
-    /*if (!newDept) return;
-    const result = await updateTicketDepartment(dispatch, setLoading, ticketId, agentEmail, newDept);
-    if (result.success) {
-      setSuccessMessage(result.message);
-      setSuccessOpen(true);
-    } else {
-      setErrorMessage(result.message);
-      setErrorOpen(true);
-    }
-    setEditField(null);*/
-  };
 
   /////////////////////Update Patient Fields///////////////////////////////////////////////////////
   ///////////patient name///////////////////////
