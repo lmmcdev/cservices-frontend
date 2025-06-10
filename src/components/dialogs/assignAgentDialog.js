@@ -10,10 +10,13 @@ import { icons } from '../auxiliars/icons';
 const AssignAgentModal = ({ open, onClose, ticket, agentEmail, dispatch, setLoading, onAssign }) => {
   const handleAssign = async () => {
     try {
-      await assignAgent(dispatch, setLoading, ticket.id, agentEmail, agentEmail); // desde ticket viene el actual, y tú eres el nuevo
-      await changeStatus(dispatch, setLoading, ticket.id, agentEmail,'In Progress') //cambiar status a in progress
-      onAssign(); // para refrescar datos en el padre
-      onClose();
+      const result = await assignAgent(dispatch, setLoading, ticket.id, agentEmail, agentEmail);
+      if (result.success) {
+        await changeStatus(dispatch, setLoading, ticket.id, agentEmail,'In Progress') //cambiar status a in progress
+        onAssign(); // para refrescar datos en el padre
+        onClose();
+      }
+      
     } catch (error) {
       console.error("Error asignando agente:", error);
       alert("No se pudo asignar el agente: " + error.message);

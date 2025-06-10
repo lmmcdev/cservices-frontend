@@ -82,14 +82,9 @@ export const assignAgent = async (dispatch, setLoading, ticketId, currentAgentEm
       throw new Error(data.message || 'Error al actualizar el agente');
     }
 
-    const updatedTicket = {
-      id: ticketId,
-      targetAgentEmail,
-    };
-
-    dispatch({type: 'ASSIGN_AGENT', payload: updatedTicket})
+    //dispatch({type: 'ASSIGN_AGENT', payload: updatedTicket})
     
-    return updatedTicket;
+    return { success: true, message: data.message || 'Updated successfully' };
     
   } catch (err) {
     const message = err.message || 'Something went wrong';
