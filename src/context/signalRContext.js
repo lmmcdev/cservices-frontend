@@ -27,6 +27,7 @@ export function SignalRProvider({ children }) {
         .withAutomaticReconnect()
         .build();
 
+      //evento ticket creado
       connection.on('ticketCreated', (ticket) => {
         if (ticket.assigned_department === department) {
           dispatch({ type: 'ADD_TICKET', payload: ticket });
@@ -34,12 +35,23 @@ export function SignalRProvider({ children }) {
         }
       });
 
+      //evento ticket actualizado
       connection.on('ticketUpdated', (ticket) => {
         //console.log('updated action', ticket)
         if (ticket.assigned_department === department) {
           dispatch({ type: 'UPD_TICKET', payload: ticket });
           onTicketUpdated?.(ticket);
         }
+      });
+
+      //lock ticket
+      connection.on('ticketLocked', ({ ticketId, agent }) => {
+        dispatch({ type: 'LOCK_TICKET', payload: {ticketId, agent }})
+      });
+
+      //unlock ticket
+      connection.on('ticketUnlocked', ({ticketId}) => {
+        dispatch({ type: 'UNLOCK_TICKET', payload: ticketId})
       });
 
       await connection.start();
@@ -51,8 +63,24 @@ export function SignalRProvider({ children }) {
     }
   };
 
+  const lockTicket = async ({ ticketId, agent }) => {
+    try {
+      await connectionRef.current?.invoke('LockTicket', { ticketId, agent });
+    } catch (err) {
+      console.error(`❌ Error bloqueando ticket ${ticketId}:`, err);
+    }
+  };
+
+  const unlockTicket = async ({ ticketId }) => {
+    try {
+      await connectionRef.current?.invoke('UnlockTicket', { ticketId });
+    } catch (err) {
+      console.error(`❌ Error desbloqueando ticket ${ticketId}:`, err);
+    }
+  };
+
   return (
-    <SignalRContext.Provider value={{ initializeSignalR }}>
+    <SignalRContext.Provider value={{ initializeSignalR, lockTicket, unlockTicket }}>
       {children}
     </SignalRContext.Provider>
   );

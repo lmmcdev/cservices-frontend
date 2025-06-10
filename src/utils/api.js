@@ -123,16 +123,11 @@ export const changeStatus = async (dispatch, setLoading, ticketId, currentAgentE
       throw new Error(data.message || 'Error al actualizar el estado');
     }
 
-    const updatedTicket = {
-      id: ticketId,
-      status: newStatus,
-    };
-
-    dispatch({ type: 'UPDATE_STATUS', payload: updatedTicket });
+    //dispatch({ type: 'UPD_TICKET', payload: data.message });
     return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';
-    dispatch({ type: 'SET_PATIENT_NAME_ERROR', payload: message });
+    dispatch({ type: 'SET_ERROR', payload: message });
     return { success: false, message };
   } finally {
     setLoading(false);
@@ -227,7 +222,8 @@ export const updateTicketDepartment = async (dispatch, setLoading, ticketId, cur
       throw new Error(data.message || 'Error updating department');
     }
 
-    dispatch({ type: 'UPDATE_TICKET_DEPARTMENT', payload: newDepartment });
+    //console.log(data.message)
+    //dispatch({ type: 'UPD_TICKET', payload: data.message });
     return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';
@@ -261,11 +257,11 @@ export const updatePatientName = async (dispatch, setLoading, ticketId, currentA
       throw new Error(data.message || 'Error updating patient name');
     }
 
-    dispatch({ type: 'UPDATE_PATIENT_NAME', payload: newPatientName });
+    //dispatch({ type: 'UPD_TICKET', payload: newPatientName });
     return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';
-    dispatch({ type: 'SET_PATIENT_NAME_ERROR', payload: message });
+    dispatch({ type: 'SET_ERROR', payload: message });
     return { success: false, message };
   } finally {
     setLoading(false);
