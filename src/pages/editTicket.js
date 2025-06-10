@@ -277,7 +277,19 @@ export default function EditTicket() {
 
   return (
     <>
-      <Paper elevation={3} sx={{ p: 4, width: '100%', mx: 'auto', mt: 20, ml: 15, mr: 3 }}>
+      <Paper
+        sx={{
+          p: 4,
+          width: '100%',
+          mx: 'auto',
+          mt: 20,
+          ml: 15,
+          mr: 3,
+          borderRadius: 4,
+          boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)', 
+          backgroundColor: '#fff',
+        }}
+      >
         {/* Row 2: StatusBar */}
         <Box sx={{ mb: 2 }}>
           <TicketStatusBar currentStatus={status} onStatusChange={handleStatusChange} />

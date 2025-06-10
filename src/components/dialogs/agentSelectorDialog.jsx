@@ -40,6 +40,7 @@ export default function AgentSelectorDialog({
         sx: {
           width: '100%',
           maxWidth: '320px', // o cualquier ancho que prefieras
+          borderRadius: '15px'
         },
       }}
     >
