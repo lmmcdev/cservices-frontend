@@ -7,7 +7,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import TicketStatusBar from '../components/ticketStatusBar';
 import AlertSnackbar from '../components/auxiliars/alertSnackbar';
-import { ticketReducer, initialState } from '../store/ticketsReducer';
 import { useLoading } from '../providers/loadingProvider';
 import { changeStatus, 
           addNotes, 
@@ -34,6 +33,8 @@ import TicketWorkTime from '../components/ticketWorkTime';
 import { useAgents } from '../context/agentsContext';
 import { useAuth } from '../context/authContext';
 import ChangeCenterModal from '../components/dialogs/changeCenterModal';
+import { useTickets } from '../context/ticketsContext.js';
+
 
 
 const statusColors = {
@@ -48,18 +49,18 @@ const statusColors = {
 
 export default function EditTicket() {
   //constants 
-  const [state, dispatch] = useReducer(ticketReducer, initialState);
+  const { state:ticketsAll, dispatch } = useTickets();
+  const tickets = ticketsAll.tickets;
   const { setLoading } = useLoading();
   const navigate = useNavigate();
   const { ticketId } = useParams();
-  const location = useLocation();
-  const ticket = location.state?.ticket;
+  //agarrando el ticket del contexto
+  const ticket = tickets.find(t => t.id === ticketId);
   const [ agentAssigned, setAgentAssigned ] = useState(ticket?.agent_assigned || '');
   const { state: agentsState } = useAgents();
   const agents = agentsState.agents;
   const { user } = useAuth();
   const agentEmail = user.username;
-  //console.log(supEmail)
   
 
   //statuses
@@ -97,9 +98,9 @@ export default function EditTicket() {
   useWorkTimer( {ticketData:ticket, agentEmail, status, enabled:true} );
 
   //useEffects
-  useEffect(() => {
+  /*useEffect(() => {
       if (state.error) setErrorOpen(true);
-    }, [state.error]);
+    }, [state.error]);*/
     
   useEffect(() => {
     if (ticket?.notes) {
@@ -171,7 +172,7 @@ export default function EditTicket() {
     if (result.success) {
       setSuccessMessage(result.message);
       setSuccessOpen(true);
-      setCollaborators(updated);
+      //setCollaborators(updated);
     } else {
       setErrorMessage(result.message);
       setErrorOpen(true);
@@ -488,7 +489,7 @@ export default function EditTicket() {
                 onChangeCenter={() => setOpenCenterModal(true)}
               />
               <TicketCollaborators
-                collaborators={collaborators}
+                collaborators={ticket?.collaborators}
                 onAddCollaborator={handleAddCollaboratorClick}
                 onRemoveCollaborator={handleRemoveCollaborator}
                 status={status}
@@ -547,7 +548,7 @@ export default function EditTicket() {
           if (result.success) {
             setSuccessMessage(result.message);
             setSuccessOpen(true);
-            setCollaborators(updated);
+            //setCollaborators(updated);
           } else {
             setErrorMessage(result.message);
             setErrorOpen(true);
@@ -555,7 +556,7 @@ export default function EditTicket() {
           
         }}
         agents={agents}
-        initialSelected={collaborators}
+        initialSelected={ticket?.collaborators}
       />
 
       {/*Dialog para reasignar agente*/}
