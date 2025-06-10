@@ -8,7 +8,6 @@ import {
   Paper, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, TablePagination, IconButton, Tooltip
 } from '@mui/material';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import AssignAgentModal from '../components/dialogs/assignAgentDialog';
 import { icons } from '../components/auxiliars/icons.js';
 import { useNavigate } from 'react-router-dom';
@@ -16,7 +15,6 @@ import { useFilters } from '../context/filterContext.js';
 //import { emailToFullName } from '../utils/js/emailToFullName.js'
 import StatusFilterBoxes from '../components/statusFilterBoxes';
 import { SortAscending, SortDescending } from 'phosphor-react';
-import SearchBar from '../components/searchBar';
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },

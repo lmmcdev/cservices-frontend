@@ -8,7 +8,7 @@ const SearchBar = ({ value, onChange, sx = {} }) => {
       size="small"
       value={value}
       onChange={onChange}
-      label="Search"
+      label="Search Bar"
       sx={{
         width: 240,
         '& .MuiOutlinedInput-root': {
