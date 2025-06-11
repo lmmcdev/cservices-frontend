@@ -1,15 +1,13 @@
 // src/App.js
 import React, { useEffect, useState } from 'react';
-import { Box, CssBaseline } from '@mui/material';
+import { Box } from '@mui/material';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-import Sidebar from './components/includes/sideBar';
-import Topbar from './components/includes/topBar';
 import TableTickets from './pages/tableTickets';
 import EditTicket from './pages/editTicket';
 import TableAgents from './pages/tableAgents';
 import EditAgent from './pages/editAgent';
-import ProfileSearch from './pages/profileSearch';
+//import ProfileSearch from './pages/profileSearch';
 import AuthErrorScreen from './pages/authErrorScreen';
 import UnknownAgentNotice from './pages/unknownAgentNotice';
 
