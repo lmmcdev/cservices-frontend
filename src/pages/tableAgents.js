@@ -9,7 +9,6 @@ import {
   Table, TableBody, TableCell, TableContainer, TableHead,
   TableRow, TablePagination, Paper, Tooltip, IconButton
 } from '@mui/material';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { icons } from '../components/auxiliars/icons';
 import { useNavigate } from 'react-router-dom';
 import CreateAgentModal from '../components/dialogs/createAgentDialog';
@@ -103,13 +102,13 @@ export default function TableAgents({ supEmail }) {
                       <Tooltip title="Edit Agent" placement="bottom">
                         <IconButton
                           onClick={() =>
-                            navigate(`/agent/edit`, {
+                            navigate(`/agent/edit/${agent.agent_email}`, {
                               state: { agents: agent },
                             })
                           }
                           sx={{ color: '#00A1FF' }}
                         >
-                          <FontAwesomeIcon icon={icons.edit} />
+                          <icons.edit style={{ fontSize: 16, color: 'inherit' }} />
                         </IconButton>
                       </Tooltip>
                     </TableCell>

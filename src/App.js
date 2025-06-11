@@ -60,7 +60,6 @@ function AppContent() {
 
         if (!isCancelled) {
           agentDispatch({ type: 'SET_AGENTS', payload: agentsData.message });
-          //console.log("agentsData.message", agentsData.message);
           ticketDispatch({ type: 'SET_TICKETS', payload: ticketsData.message });
         }
       } finally {
@@ -76,10 +75,6 @@ function AppContent() {
       isCancelled = true;
     };
   }, [setLoading, agentDispatch, ticketDispatch, user?.username]);
-
-  /*useEffect(() => {
-    initializeSignalR();
-  }, [initializeSignalR]);*/
 
   useEffect(() => {
   initializeSignalR({
@@ -109,7 +104,7 @@ if (!knownAgent) return <Navigate to="/unknown-agent" replace />;
           <Route path="/dashboard" element={<TableTickets filters={filters} />} />
           <Route path="/agents" element={<TableAgents />} />
           <Route path="/tickets/edit/:ticketId" element={<EditTicket />} />
-          <Route path="/agent/edit" element={<EditAgent />} />
+          <Route path="/agent/edit/:agent_email" element={<EditAgent />} />
         </Route>
 
         {/**Layput con sideBar solo */}

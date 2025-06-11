@@ -1,20 +1,22 @@
-import React, { useReducer, useState } from 'react';
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+
 import {
   Box, Paper, Grid, Card, CardContent, Typography,
   TextField, Checkbox, FormControlLabel, Button
 } from '@mui/material';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 import ProfilePic from '../components/components/profilePic';
 import DepartmentSelect from '../components/components/departmentSelect';
 import RolSelect from '../components/components/rolSelect';
 import AlertSnackbar from '../components/auxiliars/alertSnackbar';
-import { ticketReducer, initialState } from '../store/ticketsReducer';
 import { useLoading } from '../providers/loadingProvider';
 import { editAgent } from '../utils/api';
 import { useGraphEmailCheck } from '../utils/useGraphEmailCheck';
 import { useAuth } from '../context/authContext';
+import { useAgents } from '../context/agentsContext';
 
 
 // Validación con Yup
@@ -32,12 +34,13 @@ const AgentSchema = Yup.object().shape({
 export default function EditAgent() {
     const { verifyEmailExists } = useGraphEmailCheck();
     const navigate = useNavigate();
-    const location = useLocation();
     //user logueado desde el contexto
     const { user } = useAuth();
     const supEmail = user.username;
+    const { agent_email } = useParams();
     
-    const [, dispatch] = useReducer(ticketReducer, initialState);
+    
+    //const [, dispatch] = useReducer(ticketReducer, initialState);
     const { setLoading } = useLoading();
 
     const [errorOpen, setErrorOpen] = useState(false);
@@ -47,11 +50,10 @@ export default function EditAgent() {
     
 
     //const { agentEmail } = useParams();
-
-    const agent = location.state?.agents;
+    const {state: agentsAll, dispatch } = useAgents();
+    const agents = agentsAll.agents
+    const agent = agents.find(a => a.agent_email === agent_email);
     const agent_id = agent.id;
-
-    const agentEmail = agent.agent_email;
 
     const initialValues = {
       displayName: agent?.agent_name || '',
@@ -103,7 +105,7 @@ export default function EditAgent() {
                 <Card variant="outlined">
                   <CardContent>
                     <Box display="flex" justifyContent="center" mb={2}>
-                      <ProfilePic email={agentEmail}/>
+                      <ProfilePic email={values.email}/>
                     </Box>
                     <TextField
                       name="displayName"

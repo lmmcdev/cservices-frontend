@@ -1,14 +1,20 @@
-import React, { useState } from 'react';
-import { Avatar, Box } from "@mui/material";
+// components/ProfilePic.jsx
+import React, { useEffect, useState } from 'react';
+import { Avatar, Box } from '@mui/material';
 import { useProfilePhoto } from '../../context/profilePhotoContext';
 import { useAuth } from '../../context/authContext';
 
-const ProfilePic = ({ size = 40 }) => {
-  const { photoUrl } = useProfilePhoto(); //const photoUrl = null; //to test null image
+const ProfilePic = ({ email, size = 40 }) => {
   const { user } = useAuth();
+  const { photoUrl, loadPhoto } = useProfilePhoto();
   const [imgError, setImgError] = useState(false);
 
-  const userInitial = user?.username?.[0]?.toUpperCase() || '?';
+  const effectiveEmail = email || user?.username;
+  const userInitial = effectiveEmail?.[0]?.toUpperCase() || '?';
+
+  useEffect(() => {
+    loadPhoto(effectiveEmail);
+  }, [effectiveEmail, loadPhoto]);
 
   return (
     <Box display="flex" alignItems="center" gap={2}>
