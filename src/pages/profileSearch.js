@@ -24,7 +24,7 @@ import LocalPharmacyIcon from '@mui/icons-material/LocalPharmacy';
 import SecurityIcon from '@mui/icons-material/Security';
 import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 import EditIcon from '@mui/icons-material/Edit';
-import { useMemo } from 'react';
+//import { useMemo } from 'react';
 
 const mockData = [
   { 
@@ -171,8 +171,8 @@ export default function ProfileSearch() {
     });
 
   const [data, setData] = useState(mockData);
-  const filtered = useMemo(() => applyFilters(data), [data, query, filter]);
-
+  //const filtered = useMemo(() => applyFilters(data), [data, query, filter]);
+const filtered = applyFilters(data)
   return (
     <Card
       sx={{
