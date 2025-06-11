@@ -31,7 +31,7 @@ const AgentSchema = Yup.object().shape({
 });
 
 export default function EditAgent() {
-    const { agent_email } = useParams();
+    const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
     const { setLoading } = useLoading();
@@ -39,7 +39,7 @@ export default function EditAgent() {
     const { state, dispatch } = useAgents();
 
     const supEmail = user?.username;
-    const agent = state.agents.find(a => a.agent_email === agent_email);
+    const agent = state.agents.find(a => a.id === id );
     const agent_id = agent?.id;
 
     const [errorOpen, setErrorOpen] = useState(false);
@@ -116,35 +116,28 @@ export default function EditAgent() {
         >
           {({ values, errors, touched, handleChange, setFieldValue }) => (
             <Form>
-              <Grid container spacing={3}>
+              <Grid
+                container
+                spacing={3}
+                justifyContent="center"
+                alignItems="flex-start"
+              >
                 {/* Columna Izquierda */}
-                <Grid item xs={8} md={4}>
+                <Grid item xs={12} md={5}>
                   <Box display="flex" flexDirection="column" gap={2} alignItems="center">
-                    {/* Perfil */}
+                    {/* Agent Profile */}
                     <Card variant="outlined">
                       <CardContent sx={{ p: '20px 25px 25px 30px' }}>
-                        {/* Header visual */}
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                          <Box
-                            sx={{
-                              width: 8,
-                              height: 24,
-                              borderRadius: 10,
-                              backgroundColor: '#00A1FF',
-                            }}
-                          />
+                          <Box sx={{ width: 8, height: 24, borderRadius: 10, backgroundColor: '#00A1FF' }} />
                           <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00A1FF' }}>
                             Agent Profile
                           </Typography>
                         </Box>
-
                         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 3 }}>
-                          {/* Avatar a la izquierda */}
                           <Box sx={{ minWidth: 80 }}>
                             <ProfilePic email={agentEmail} size={80} />
                           </Box>
-
-                          {/* Campos a la derecha */}
                           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '540px' }}>
                             <TextField
                               name="displayName"
@@ -155,7 +148,6 @@ export default function EditAgent() {
                               error={touched.displayName && Boolean(errors.displayName)}
                               helperText={touched.displayName && errors.displayName}
                             />
-
                             <DepartmentSelect
                               value={values.department}
                               onChange={(val) => setFieldValue('department', val)}
@@ -163,7 +155,6 @@ export default function EditAgent() {
                               helperText={touched.department && errors.department}
                               sx={{ width: '540px' }}
                             />
-
                             <RolSelect
                               name="role"
                               label="Role"
@@ -173,7 +164,6 @@ export default function EditAgent() {
                               helperText={touched.role && errors.role}
                               sx={{ width: '540px' }}
                             />
-
                             <TextField
                               name="location"
                               label="Location"
@@ -183,7 +173,6 @@ export default function EditAgent() {
                               error={touched.location && Boolean(errors.location)}
                               helperText={touched.location && errors.location}
                             />
-
                             <TextField
                               name="accessLevel"
                               label="Access Level"
@@ -201,25 +190,17 @@ export default function EditAgent() {
                 </Grid>
 
                 {/* Columna Derecha */}
-                <Grid item xs={8} md={8}>
+                <Grid item xs={12} md={5}>
                   <Box display="flex" flexDirection="column" gap={2} alignItems="center">
-                    {/* Credenciales */}
+                    {/* Account Credentials */}
                     <Card variant="outlined">
                       <CardContent sx={{ p: '20px 25px 25px 30px' }}>
                         <Box display="flex" alignItems="center" gap={1} mb={2}>
-                          <Box
-                            sx={{
-                              width: 8,
-                              height: 24,
-                              borderRadius: 10,
-                              backgroundColor: '#00A1FF',
-                            }}
-                          />
+                          <Box sx={{ width: 8, height: 24, borderRadius: 10, backgroundColor: '#00A1FF' }} />
                           <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00A1FF' }}>
                             Account Credentials
                           </Typography>
                         </Box>
-
                         <TextField
                           name="email"
                           label="Email"
@@ -232,23 +213,15 @@ export default function EditAgent() {
                       </CardContent>
                     </Card>
 
-                    {/* Remote Status */}
+                    {/* Work Arrangement */}
                     <Card variant="outlined">
                       <CardContent sx={{ p: '20px 25px 25px 30px' }}>
                         <Box display="flex" alignItems="center" gap={1} mb={2}>
-                          <Box
-                            sx={{
-                              width: 8,
-                              height: 24,
-                              borderRadius: 10,
-                              backgroundColor: '#00A1FF',
-                            }}
-                          />
+                          <Box sx={{ width: 8, height: 24, borderRadius: 10, backgroundColor: '#00A1FF' }} />
                           <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00A1FF' }}>
                             Work Arrangement
                           </Typography>
                         </Box>
-
                         <FormControlLabel
                           control={
                             <Checkbox
@@ -262,17 +235,11 @@ export default function EditAgent() {
                       </CardContent>
                     </Card>
 
+                    {/* Disabled Agent */}
                     <Card variant="outlined">
                       <CardContent sx={{ p: '20px 25px 25px 30px' }}>
                         <Box display="flex" alignItems="center" gap={1} mb={2}>
-                          <Box
-                            sx={{
-                              width: 8,
-                              height: 24,
-                              borderRadius: 10,
-                              backgroundColor: '#00A1FF',
-                            }}
-                          />
+                          <Box sx={{ width: 8, height: 24, borderRadius: 10, backgroundColor: '#00A1FF' }} />
                           <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00A1FF' }}>
                             Disabled Agent
                           </Typography>

@@ -9,6 +9,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import ApartmentIcon from '@mui/icons-material/Apartment';
 //import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import HomeIcon from '@mui/icons-material/Home';
 import BusinessIcon from '@mui/icons-material/Business';
@@ -32,6 +33,12 @@ const DashboardIcon = (props) => (
 const PencilIcon = (props) => (
   <i className="bi bi-pencil" {...props}></i>
 );
+const LockIcon = (props) => (
+  <i className="fa fa-lock" {...props}></i>
+);
+const UnlockIcon = (props) => (
+  <i className="fa fa-unlock" {...props}></i>
+);
 
 //Para importar la libreria Font Awesome v4 como componentes perzonalizados
 const FaUsersV4 = (props) => (
@@ -50,7 +57,8 @@ export const icons = {
     filterOn: FilterListOffIcon,
     filterOff: FilterListIcon,
     collapseLeft: KeyboardDoubleArrowLeftIcon,
-    collapseRight: KeyboardDoubleArrowRightIcon, 
+    collapseRight: KeyboardDoubleArrowRightIcon,
+    onSite: ApartmentIcon, 
     //assignToMe: GroupAddIcon,
     addCollaborator: PersonAddIcon,
     searchIcon: SearchIcon,
@@ -63,6 +71,8 @@ export const icons = {
     team: PeopleIcon,
     dashboard: DashboardIcon,
     edit: PencilIcon,
+    lock: LockIcon,
+    unlock: UnlockIcon,
     //Font Awesome v4
     supervisorView: FaUsersV4,
 };
