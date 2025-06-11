@@ -2,7 +2,7 @@ import React from 'react';
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const commonStyles = {
+const defaultStyles = {
   fontSize: 12,
   height: 36,
   width: 240,
@@ -18,37 +18,32 @@ const commonStyles = {
   },
 };
 
+const roles = ['Customer Service', 'Supervisor'];
 
-const roles = [
-  'Customer Service',
-  'Supervisor',
-];
-
-export default function RolSelect({ value, onChange, label = "Role" }) {
+export default function RolSelect({ value, onChange, label = "Role", sx = {} }) {
   return (
-    <FormControl fullWidth variant="outlined" size="small">
+    <FormControl fullWidth variant="outlined" size="small" sx={sx}>
       <InputLabel 
-        id="department-select-label"
+        id="role-select-label"
         sx={{ fontSize: 12, color: 'text.secondary' }}
       >
         {label}
       </InputLabel>
       <Select
-        labelId="department-select-label"
-        id="department-select"
+        labelId="role-select-label"
+        id="role-select"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         label={label}
-        sx={commonStyles}
+        sx={{ ...defaultStyles, ...sx }}
         IconComponent={ExpandMoreIcon}
       >
-        {roles.map((dept) => (
-          <MenuItem key={dept} value={dept} sx={{ fontSize: 12 }}>
-            {dept}
+        {roles.map((role) => (
+          <MenuItem key={role} value={role} sx={{ fontSize: 12 }}>
+            {role}
           </MenuItem>
         ))}
       </Select>
     </FormControl>
-
   );
 }

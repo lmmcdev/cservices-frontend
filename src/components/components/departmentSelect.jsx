@@ -2,7 +2,7 @@ import React from 'react';
 import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const commonStyles = {
+const defaultStyles = {
   fontSize: 12,
   height: 36,
   width: 240,
@@ -18,16 +18,11 @@ const commonStyles = {
   },
 };
 
+const departments = ['OTC', 'Pharmacy', 'Referrals'];
 
-const departments = [
-  'OTC',
-  'Pharmacy',
-  'Referrals',
-];
-
-export default function DepartmentSelect({ value, onChange, label = "Department" }) {
+export default function DepartmentSelect({ value, onChange, label = "Department", sx = {} }) {
   return (
-    <FormControl fullWidth variant="outlined" size="small">
+    <FormControl fullWidth variant="outlined" size="small" sx={sx}>
       <InputLabel 
         id="department-select-label"
         sx={{ fontSize: 12, color: 'text.secondary' }}
@@ -40,7 +35,7 @@ export default function DepartmentSelect({ value, onChange, label = "Department"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         label={label}
-        sx={commonStyles}
+        sx={{ ...defaultStyles, ...sx }} // combinación de estilos
         IconComponent={ExpandMoreIcon}
       >
         {departments.map((dept) => (
@@ -50,6 +45,5 @@ export default function DepartmentSelect({ value, onChange, label = "Department"
         ))}
       </Select>
     </FormControl>
-
   );
 }

@@ -27,6 +27,15 @@ export default function TableAgents() {
   const { setLoading } = useLoading();
   const { user } = useAuth();
   const { verifyEmailExists } = useGraphEmailCheck();
+export default function TableAgents({ supEmail }) {
+  const { state } = useAgents();
+  const agents = state.agents;
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [openCreateModal, setOpenCreateModal] = useState(false);
+  const navigate = useNavigate();
+  const [, dispatch] = useReducer(ticketReducer, initialState);
+  const { setLoading } = useLoading();
 
   const [errorOpen, setErrorOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
@@ -78,10 +87,21 @@ export default function TableAgents() {
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
             <Typography variant="h5">Agent Directory</Typography>
             <Button
-              variant="contained"
-              color="primary"
               onClick={() => setOpenCreateModal(true)}
-              sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 'bold' }}
+              sx={{
+                width: '120px',
+                height: '44px',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                color: '#00A1FF',
+                backgroundColor: '#DFF3FF',
+                border: '2px solid #00A1FF',
+                textTransform: 'none',
+                '&:hover': {
+                  backgroundColor: '#00A1FF',
+                  color: '#FFFFFF',
+                },
+              }}
             >
               Add Agent
             </Button>
@@ -153,15 +173,18 @@ export default function TableAgents() {
             </Table>
           </TableContainer>
 
-          <TablePagination
-            component="div"
-            count={agents.length}
-            page={page}
-            onPageChange={handleChangePage}
-            rowsPerPage={rowsPerPage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            rowsPerPageOptions={[5, 10, 25, 50]}
-          />
+          {/* PAGINACIÓN */}
+          <Box sx={{ flexShrink: 0, px: 2, py: 1, backgroundColor: '#fff' }}>
+            <TablePagination
+              component="div"
+              count={agents.length}
+              page={page}
+              onPageChange={handleChangePage}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              rowsPerPageOptions={[5, 10, 25, 50]}
+            />
+          </Box>
         </CardContent>
       </Card>
 

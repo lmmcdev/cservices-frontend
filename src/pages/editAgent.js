@@ -17,8 +17,8 @@ import { useAuth } from '../context/authContext';
 import { useAgents } from '../context/agentsContext';
 import { useGraphEmailCheck } from '../utils/useGraphEmailCheck';
 
-import { updateAgent } from '../utils/js/agentActions';
 
+// Validación con Yup
 const AgentSchema = Yup.object().shape({
   displayName: Yup.string().required('Required'),
   department: Yup.string().required('Required'),
@@ -31,121 +31,152 @@ const AgentSchema = Yup.object().shape({
 });
 
 export default function EditAgent() {
-  const { agent_email } = useParams();
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const { setLoading } = useLoading();
-  const { verifyEmailExists } = useGraphEmailCheck();
-  const { state, dispatch } = useAgents();
+    const { verifyEmailExists } = useGraphEmailCheck();
+    const navigate = useNavigate();
+    const location = useLocation();
+    //user logueado desde el contexto
+    const { user } = useAuth();
+    const supEmail = user.username;
+    
+    const [, dispatch] = useReducer(ticketReducer, initialState);
+    const { setLoading } = useLoading();
 
-  const supEmail = user?.username;
-  const agent = state.agents.find(a => a.agent_email === agent_email);
-  const agent_id = agent?.id;
+    const [errorOpen, setErrorOpen] = useState(false);
+    const [successOpen, setSuccessOpen] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+    
 
-  const [errorOpen, setErrorOpen] = useState(false);
-  const [successOpen, setSuccessOpen] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+    //const { agentEmail } = useParams();
 
-  if (!agent) {
-    return <Typography sx={{ mt: 10, ml: 10 }}>Agent not found</Typography>;
-  }
+    const agent = location.state?.agents;
+    const agent_id = agent.id;
 
-  const initialValues = {
-    displayName: agent.agent_name || '',
-    department: agent.agent_department || '',
-    location: agent.agent_location || '',
-    role: agent.agent_rol || '',
-    accessLevel: agent.access_level || '',
-    email: agent.agent_email || '',
-    isRemote: agent.remote_agent || false,
-    isDisable: agent.is_disabled || false,
-  };
+    const agentEmail = agent.agent_email;
+
+    const initialValues = {
+      displayName: agent?.agent_name || '',
+      department: agent?.agent_department || '',
+      location: '', // No disponible en state, lo puedes adaptar
+      role: agent?.agent_rol || '',
+      accessLevel: '', // Adaptar según tu modelo
+      email: agent?.agent_email || '',
+      isRemote: agent?.remote_agent || false,
+    };
 
   const handleSubmit = async (values) => {
-    const data = {
-      values,
-      verifyEmailExists,
-      agentId: agent_id,
-      supEmail: supEmail,
-      dispatch,
-      setLoading,
-      setSuccessMessage,
-      setErrorMessage,
-      setSuccessOpen,
-      setErrorOpen
+    //console.log(values)
+    const exists = await verifyEmailExists(values.email);
+    if (!exists) {
+      setErrorMessage(`Email ${values.email} not found in Office365`);
+      setErrorOpen(true);
+      return;
+    }
+    let form = {...values, agent_id, supEmail }
+    //console.log("Submitting agent:", form);
+    setLoading(true);
+      const result = await editAgent(dispatch, setLoading, form);
+      if (result.success) {
+        setSuccessMessage(result.message);
+        setSuccessOpen(true);
+      } else {
+        setErrorMessage(result.message);
+        setErrorOpen(true);
+      } 
     };
-    await updateAgent(data);
-    
-  };
+    //console.log(agent.id)
+    // Aquí puedes llamar tu Azure Function o API para actualizar el agente
+
 
   return (
     <>
-      <Paper elevation={3} sx={{ p: 4, width: '100%', mx: 'auto', mt: 20, ml: 15, mr: 3 }}>
-        <Formik
-          initialValues={initialValues}
-          validationSchema={AgentSchema}
-          onSubmit={handleSubmit}
-        >
-          {({ values, errors, touched, handleChange, setFieldValue }) => (
-            <Form>
-              <Grid container spacing={3}>
-                {/* Panel izquierdo */}
-                <Grid item xs={8} md={4}>
-                  <Card variant="outlined">
-                    <CardContent>
-                      <Box display="flex" justifyContent="center" mb={2}>
-                        <ProfilePic email={values.email} />
-                      </Box>
-                      <TextField
-                        name="displayName"
-                        label="Display Name"
-                        fullWidth
-                        value={values.displayName}
-                        onChange={handleChange}
-                        error={touched.displayName && Boolean(errors.displayName)}
-                        helperText={touched.displayName && errors.displayName}
-                        sx={{ mb: 2 }}
-                      />
-                      <DepartmentSelect
+    <Paper elevation={3} sx={{ p: 4, width: '100%', mx: 'auto', mt: 20, ml: 15, mr: 3 }}>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={AgentSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ values, errors, touched, handleChange, setFieldValue }) => (
+          <Form>
+            <Grid container spacing={3}>
+              {/* Panel izquierdo */}
+              <Grid item xs={8} md={4}>
+                <Card variant="outlined">
+                  <CardContent>
+                    <Box display="flex" justifyContent="center" mb={2}>
+                      <ProfilePic email={agentEmail}/>
+                    </Box>
+                    <TextField
+                      name="displayName"
+                      label="Display Name"
+                      fullWidth
+                      value={values.displayName}
+                      onChange={handleChange}
+                      error={touched.displayName && Boolean(errors.displayName)}
+                      helperText={touched.displayName && errors.displayName}
+                      sx={{ mb: 2 }}
+                    />
+
+                    <DepartmentSelect 
                         value={values.department}
                         onChange={(val) => setFieldValue('department', val)}
                         error={touched.department && Boolean(errors.department)}
                         helperText={touched.department && errors.department}
-                      />
-                      <RolSelect
+                    />
+
+                    <RolSelect
+                        name="role"
+                        label="Role"
                         value={values.role}
                         onChange={(val) => setFieldValue('role', val)}
                         error={touched.role && Boolean(errors.role)}
                         helperText={touched.role && errors.role}
-                      />
-                      <TextField
-                        name="location"
-                        label="Location"
-                        fullWidth
-                        value={values.location}
-                        onChange={handleChange}
-                        sx={{ mb: 2 }}
-                      />
-                      <TextField
-                        name="accessLevel"
-                        label="Access Level"
-                        fullWidth
-                        value={values.accessLevel}
-                        onChange={handleChange}
-                      />
-                    </CardContent>
-                  </Card>
-                </Grid>
+                    />
 
-                {/* Panel derecho */}
+                    <TextField
+                      name="location"
+                      label="Location"
+                      fullWidth
+                      value={values.location}
+                      onChange={handleChange}
+                      error={touched.location && Boolean(errors.location)}
+                      helperText={touched.location && errors.location}
+                      sx={{ mb: 2 }}
+                    />
+                    
+                    <TextField
+                      name="accessLevel"
+                      label="Access Level"
+                      fullWidth
+                      value={values.accessLevel}
+                      onChange={handleChange}
+                      error={touched.accessLevel && Boolean(errors.accessLevel)}
+                      helperText={touched.accessLevel && errors.accessLevel}
+                    />
+                  </CardContent>
+                </Card>
+              </Grid>
+
+                {/* Columna Derecha */}
                 <Grid item xs={8} md={8}>
-                  <Box display="flex" flexDirection="column" gap={2}>
+                  <Box display="flex" flexDirection="column" gap={2} alignItems="center">
+                    {/* Credenciales */}
                     <Card variant="outlined">
-                      <CardContent>
-                        <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-                          Account Credentials
-                        </Typography>
+                      <CardContent sx={{ p: '20px 25px 25px 30px' }}>
+                        <Box display="flex" alignItems="center" gap={1} mb={2}>
+                          <Box
+                            sx={{
+                              width: 8,
+                              height: 24,
+                              borderRadius: 10,
+                              backgroundColor: '#00A1FF',
+                            }}
+                          />
+                          <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00A1FF' }}>
+                            Account Credentials
+                          </Typography>
+                        </Box>
+
                         <TextField
                           name="email"
                           label="Email"
@@ -154,47 +185,64 @@ export default function EditAgent() {
                           onChange={handleChange}
                           error={touched.email && Boolean(errors.email)}
                           helperText={touched.email && errors.email}
-                          sx={{ mb: 2 }}
                         />
                       </CardContent>
                     </Card>
 
-                    <Card variant="outlined">
-                      <CardContent>
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              name="isRemote"
-                              checked={values.isRemote}
-                              onChange={handleChange}
-                            />
-                          }
-                          label="Remote Agent"
-                        />
-                      </CardContent>
-                    </Card>
+                  {/* Remote Agent */}
+                  <Card variant="outlined">
+                    <CardContent>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            name="isRemote"
+                            checked={values.isRemote}
+                            onChange={handleChange}
+                          />
+                        }
+                        label="Remote Agent"
+                      />
+                    </CardContent>
+                  </Card>
 
-                    <Card variant="outlined">
-                      <CardContent>
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              name="isDisable"
-                              checked={values.isDisable}
-                              onChange={handleChange}
-                            />
-                          }
-                          label="Disabled agent"
-                        />
-                      </CardContent>
-                    </Card>
-
+                    {/* Botones */}
                     <Box display="flex" justifyContent="flex-end" gap={2}>
-                      <Button variant="contained" type="submit">
-                        Guardar Cambios
+                      <Button
+                        type="submit"
+                        sx={{
+                          width: '120px',
+                          height: '44px',
+                          fontSize: '16px',
+                          fontWeight: 'bold',
+                          color: '#00A1FF',
+                          backgroundColor: '#DFF3FF',
+                          border: '2px solid #00A1FF',
+                          textTransform: 'none',
+                          '&:hover': {
+                            backgroundColor: '#00A1FF',
+                            color: '#FFFFFF',
+                          },
+                        }}
+                      >
+                        Save
                       </Button>
-                      <Button variant="outlined" onClick={() => navigate(-1)}>
-                        Cancelar
+                      <Button
+                        onClick={() => navigate(-1)}
+                        sx={{
+                          width: '120px',
+                          height: '44px',
+                          fontSize: '16px',
+                          fontWeight: 'bold',
+                          color: '#000',
+                          backgroundColor: '#eeeff0',
+                          textTransform: 'none',
+                          '&:hover': {
+                            backgroundColor: '#B0200C',
+                            color: '#FFFFFF',
+                          },
+                        }}
+                      >
+                        Cancel
                       </Button>
                     </Box>
                   </Box>
@@ -203,7 +251,10 @@ export default function EditAgent() {
             </Form>
           )}
         </Formik>
-      </Paper>
+      </Box>
+    </CardContent>
+  </Card>
+
 
       <AlertSnackbar
         open={errorOpen}
