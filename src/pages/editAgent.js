@@ -17,8 +17,8 @@ import { useAuth } from '../context/authContext';
 import { useAgents } from '../context/agentsContext';
 import { useGraphEmailCheck } from '../utils/useGraphEmailCheck';
 
+import { updateAgent } from '../utils/js/agentActions';
 
-// Validación con Yup
 const AgentSchema = Yup.object().shape({
   displayName: Yup.string().required('Required'),
   department: Yup.string().required('Required'),
@@ -31,15 +31,16 @@ const AgentSchema = Yup.object().shape({
 });
 
 export default function EditAgent() {
-    const { verifyEmailExists } = useGraphEmailCheck();
+    const { agent_email } = useParams();
     const navigate = useNavigate();
-    const location = useLocation();
-    //user logueado desde el contexto
     const { user } = useAuth();
-    const supEmail = user.username;
-    
-    const [, dispatch] = useReducer(ticketReducer, initialState);
     const { setLoading } = useLoading();
+    const { verifyEmailExists } = useGraphEmailCheck();
+    const { state, dispatch } = useAgents();
+
+    const supEmail = user?.username;
+    const agent = state.agents.find(a => a.agent_email === agent_email);
+    const agent_id = agent?.id;
 
     const [errorOpen, setErrorOpen] = useState(false);
     const [successOpen, setSuccessOpen] = useState(false);
@@ -47,10 +48,6 @@ export default function EditAgent() {
     const [errorMessage, setErrorMessage] = useState('');
     
 
-    //const { agentEmail } = useParams();
-
-    const agent = location.state?.agents;
-    const agent_id = agent.id;
 
     const agentEmail = agent.agent_email;
 
@@ -62,100 +59,146 @@ export default function EditAgent() {
       accessLevel: '', // Adaptar según tu modelo
       email: agent?.agent_email || '',
       isRemote: agent?.remote_agent || false,
+       isDisable: agent.is_disabled || false,
     };
 
   const handleSubmit = async (values) => {
-    //console.log(values)
-    const exists = await verifyEmailExists(values.email);
-    if (!exists) {
-      setErrorMessage(`Email ${values.email} not found in Office365`);
-      setErrorOpen(true);
-      return;
-    }
-    let form = {...values, agent_id, supEmail }
-    //console.log("Submitting agent:", form);
-    setLoading(true);
-      const result = await editAgent(dispatch, setLoading, form);
-      if (result.success) {
-        setSuccessMessage(result.message);
-        setSuccessOpen(true);
-      } else {
-        setErrorMessage(result.message);
-        setErrorOpen(true);
-      } 
+    console.log(values)
+    const data = {
+      values,
+      verifyEmailExists,
+      agentId: agent_id,
+      supEmail: supEmail,
+      dispatch,
+      setLoading,
+      setSuccessMessage,
+      setErrorMessage,
+      setSuccessOpen,
+      setErrorOpen
     };
+    await updateAgent(data);
+    
+  };
+
     //console.log(agent.id)
     // Aquí puedes llamar tu Azure Function o API para actualizar el agente
 
 
   return (
     <>
-    <Paper elevation={3} sx={{ p: 4, width: '100%', mx: 'auto', mt: 20, ml: 15, mr: 3 }}>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={AgentSchema}
-        onSubmit={handleSubmit}
+      <Card
+        sx={{
+          borderRadius: 4,
+          position: 'fixed',
+          top: 150,
+          left: 200,
+          right: 20,
+          bottom: 20,
+          display: 'flex',
+          flexDirection: 'column',
+          boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
+          backgroundColor: '#fff',
+        }}
       >
-        {({ values, errors, touched, handleChange, setFieldValue }) => (
-          <Form>
-            <Grid container spacing={3}>
-              {/* Panel izquierdo */}
-              <Grid item xs={8} md={4}>
-                <Card variant="outlined">
-                  <CardContent>
-                    <Box display="flex" justifyContent="center" mb={2}>
-                      <ProfilePic email={agentEmail}/>
-                    </Box>
-                    <TextField
-                      name="displayName"
-                      label="Display Name"
-                      fullWidth
-                      value={values.displayName}
-                      onChange={handleChange}
-                      error={touched.displayName && Boolean(errors.displayName)}
-                      helperText={touched.displayName && errors.displayName}
-                      sx={{ mb: 2 }}
-                    />
+        <CardContent
+          sx={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
+        >
+          <Box sx={{ flex: 1, overflowY: 'auto' }}>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={AgentSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ values, errors, touched, handleChange, setFieldValue }) => (
+            <Form>
+              <Grid container spacing={3}>
+                {/* Columna Izquierda */}
+                <Grid item xs={8} md={4}>
+                  <Box display="flex" flexDirection="column" gap={2} alignItems="center">
+                    {/* Perfil */}
+                    <Card variant="outlined">
+                      <CardContent sx={{ p: '20px 25px 25px 30px' }}>
+                        {/* Header visual */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                          <Box
+                            sx={{
+                              width: 8,
+                              height: 24,
+                              borderRadius: 10,
+                              backgroundColor: '#00A1FF',
+                            }}
+                          />
+                          <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00A1FF' }}>
+                            Agent Profile
+                          </Typography>
+                        </Box>
 
-                    <DepartmentSelect 
-                        value={values.department}
-                        onChange={(val) => setFieldValue('department', val)}
-                        error={touched.department && Boolean(errors.department)}
-                        helperText={touched.department && errors.department}
-                    />
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 3 }}>
+                          {/* Avatar a la izquierda */}
+                          <Box sx={{ minWidth: 80 }}>
+                            <ProfilePic email={agentEmail} size={80} />
+                          </Box>
 
-                    <RolSelect
-                        name="role"
-                        label="Role"
-                        value={values.role}
-                        onChange={(val) => setFieldValue('role', val)}
-                        error={touched.role && Boolean(errors.role)}
-                        helperText={touched.role && errors.role}
-                    />
+                          {/* Campos a la derecha */}
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '540px' }}>
+                            <TextField
+                              name="displayName"
+                              label="Display Name"
+                              fullWidth
+                              value={values.displayName}
+                              onChange={handleChange}
+                              error={touched.displayName && Boolean(errors.displayName)}
+                              helperText={touched.displayName && errors.displayName}
+                            />
 
-                    <TextField
-                      name="location"
-                      label="Location"
-                      fullWidth
-                      value={values.location}
-                      onChange={handleChange}
-                      error={touched.location && Boolean(errors.location)}
-                      helperText={touched.location && errors.location}
-                      sx={{ mb: 2 }}
-                    />
-                    
-                    <TextField
-                      name="accessLevel"
-                      label="Access Level"
-                      fullWidth
-                      value={values.accessLevel}
-                      onChange={handleChange}
-                      error={touched.accessLevel && Boolean(errors.accessLevel)}
-                      helperText={touched.accessLevel && errors.accessLevel}
-                    />
-                  </CardContent>
-                </Card>
-              </Grid>
+                            <DepartmentSelect
+                              value={values.department}
+                              onChange={(val) => setFieldValue('department', val)}
+                              error={touched.department && Boolean(errors.department)}
+                              helperText={touched.department && errors.department}
+                              sx={{ width: '540px' }}
+                            />
+
+                            <RolSelect
+                              name="role"
+                              label="Role"
+                              value={values.role}
+                              onChange={(val) => setFieldValue('role', val)}
+                              error={touched.role && Boolean(errors.role)}
+                              helperText={touched.role && errors.role}
+                              sx={{ width: '540px' }}
+                            />
+
+                            <TextField
+                              name="location"
+                              label="Location"
+                              fullWidth
+                              value={values.location}
+                              onChange={handleChange}
+                              error={touched.location && Boolean(errors.location)}
+                              helperText={touched.location && errors.location}
+                            />
+
+                            <TextField
+                              name="accessLevel"
+                              label="Access Level"
+                              fullWidth
+                              value={values.accessLevel}
+                              onChange={handleChange}
+                              error={touched.accessLevel && Boolean(errors.accessLevel)}
+                              helperText={touched.accessLevel && errors.accessLevel}
+                            />
+                          </Box>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Box>
+                </Grid>
 
                 {/* Columna Derecha */}
                 <Grid item xs={8} md={8}>
@@ -189,21 +232,63 @@ export default function EditAgent() {
                       </CardContent>
                     </Card>
 
-                  {/* Remote Agent */}
-                  <Card variant="outlined">
-                    <CardContent>
-                      <FormControlLabel
-                        control={
-                          <Checkbox
-                            name="isRemote"
-                            checked={values.isRemote}
-                            onChange={handleChange}
+                    {/* Remote Status */}
+                    <Card variant="outlined">
+                      <CardContent sx={{ p: '20px 25px 25px 30px' }}>
+                        <Box display="flex" alignItems="center" gap={1} mb={2}>
+                          <Box
+                            sx={{
+                              width: 8,
+                              height: 24,
+                              borderRadius: 10,
+                              backgroundColor: '#00A1FF',
+                            }}
                           />
-                        }
-                        label="Remote Agent"
-                      />
-                    </CardContent>
-                  </Card>
+                          <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00A1FF' }}>
+                            Work Arrangement
+                          </Typography>
+                        </Box>
+
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              name="isRemote"
+                              checked={values.isRemote}
+                              onChange={handleChange}
+                            />
+                          }
+                          label="Remote Agent"
+                        />
+                      </CardContent>
+                    </Card>
+
+                    <Card variant="outlined">
+                      <CardContent sx={{ p: '20px 25px 25px 30px' }}>
+                        <Box display="flex" alignItems="center" gap={1} mb={2}>
+                          <Box
+                            sx={{
+                              width: 8,
+                              height: 24,
+                              borderRadius: 10,
+                              backgroundColor: '#00A1FF',
+                            }}
+                          />
+                          <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00A1FF' }}>
+                            Disabled Agent
+                          </Typography>
+                        </Box>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              name="isDisable"
+                              checked={values.isDisable}
+                              onChange={handleChange}
+                            />
+                          }
+                          label="Disabled agent"
+                        />
+                      </CardContent>
+                    </Card>
 
                     {/* Botones */}
                     <Box display="flex" justifyContent="flex-end" gap={2}>

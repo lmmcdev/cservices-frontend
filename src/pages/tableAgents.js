@@ -27,22 +27,14 @@ export default function TableAgents() {
   const { setLoading } = useLoading();
   const { user } = useAuth();
   const { verifyEmailExists } = useGraphEmailCheck();
-export default function TableAgents({ supEmail }) {
-  const { state } = useAgents();
-  const agents = state.agents;
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [openCreateModal, setOpenCreateModal] = useState(false);
-  const navigate = useNavigate();
-  const [, dispatch] = useReducer(ticketReducer, initialState);
-  const { setLoading } = useLoading();
 
   const [errorOpen, setErrorOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const paginatedAgents = agents.slice(
+
+    const paginatedAgents = agents.slice(
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
@@ -82,10 +74,40 @@ export default function TableAgents({ supEmail }) {
 
   return (
     <>
-      <Card sx={{ borderRadius: 4, position: 'fixed', top: 150, left: 200, right: 20, boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.04)' }}>
-        <CardContent>
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h5">Agent Directory</Typography>
+      <Card
+        sx={{
+          borderRadius: 4,
+          position: 'fixed',
+          top: 150,
+          left: 200,
+          right: 20,
+          bottom: 20,
+          display: 'flex',
+          flexDirection: 'column',
+          boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
+          backgroundColor: '#fff',
+        }}
+      >
+        <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          {/* HEADER Y BOTÓN */}
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} mt={1} px={1}>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Box
+                sx={{
+                  width: 8,
+                  height: 24,
+                  borderRadius: 10,
+                  backgroundColor: '#00a1ff',
+                }}
+              />
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 'bold', color: '#00a1ff' }}
+              >
+                Agent Directory
+              </Typography>
+            </Box>
+
             <Button
               onClick={() => setOpenCreateModal(true)}
               sx={{
@@ -107,37 +129,120 @@ export default function TableAgents({ supEmail }) {
             </Button>
           </Box>
 
-          <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 500, overflowY: 'auto' }}>
-            <Table stickyHeader>
-              <TableHead>
-                <TableRow>
-                  {['Name', 'Email', 'Department', 'Rol', 'Remote?', ''].map((header) => (
-                    <TableCell key={header} sx={{ fontWeight: 'bold', fontSize: 16 }}>
-                      {header}
-                    </TableCell>
+          {/* TABLA */}
+          <Box sx={{ flex: 1, overflowY: 'auto' }}>
+            <TableContainer component={Paper} elevation={0} sx={{ maxHeight: '100%' }}>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    {['Name', 'Email', 'Department', 'Rol', 'Remote Status', ''].map((header, index) => (
+                      <TableCell
+                        key={header}
+                        align={index === 4 ? 'center' : 'left'}
+                        sx={{ fontWeight: 'bold', fontSize: 16 }}
+                      >
+                        {header}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {paginatedAgents.map((agent) => (
+                    <TableRow key={agent.id} sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>
+                      <TableCell>{agent.agent_name}</TableCell>
+                      <TableCell>{agent.agent_email}</TableCell>
+                      <TableCell>{agent.agent_department}</TableCell>
+                      <TableCell>{agent.agent_rol}</TableCell>
+                      <TableCell align="center">
+                        <Tooltip title={agent.remote_agent ? 'Remote' : 'On Site'}>
+                          <IconButton>
+                            {agent.remote_agent ? (
+                              <icons.home sx={{ color: '#1976d2' }} />
+                            ) : (
+                              <icons.business sx={{ color: '#616161' }} />
+                            )}
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                      <TableCell>
+                        <Tooltip title="Edit Agent" placement="bottom">
+                          <Box
+                            sx={{
+                              backgroundColor: '#DFF3FF',
+                              color: '#00A1FF',
+                              borderRadius: '50%',
+                              padding: 1,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              width: 32,
+                              height: 32,
+                              fontSize: 18,
+                              cursor: 'pointer',
+                              transition: 'background-color 0.3s, color 0.3s',
+                              '&:hover': {
+                                backgroundColor: '#00A1FF',
+                                color: '#FFFFFF',
+                              },
+                            }}
+                            onClick={() =>
+                              navigate(`/agent/edit/${agent.agent_email}`)
+                            }
+                          >
+                            {icons.edit({ style: { fontSize: 16, color: 'inherit' } })}
+                          </Box>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {paginatedAgents.map((agent) => (
-                  <TableRow key={agent.id} sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>
-                    <TableCell>{agent.agent_name}</TableCell>
-                    <TableCell>{agent.agent_email}</TableCell>
-                    <TableCell>{agent.agent_department}</TableCell>
-                    <TableCell>{agent.agent_rol}</TableCell>
-                    <TableCell align="center">
-                      <Tooltip title={agent.remote_agent ? 'Remote' : 'On Site'}>
-                        <IconButton>
-                          {agent.remote_agent ? (
-                            <icons.home sx={{ color: '#1976d2' }} />
-                          ) : (
-                            <icons.business sx={{ color: '#616161' }} />
-                          )}
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                    <TableCell>
-                      <Tooltip title="Disable/Enable Agent" placement="bottom">
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
+
+          {/* PAGINACIÓN */}
+          <Box sx={{ flexShrink: 0, px: 2, py: 1, backgroundColor: '#fff' }}>
+            <TablePagination
+              component="div"
+              count={agents.length}
+              page={page}
+              onPageChange={handleChangePage}
+              rowsPerPage={rowsPerPage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+              rowsPerPageOptions={[5, 10, 25, 50]}
+            />
+          </Box>
+        </CardContent>
+      </Card>
+
+      {/* Modal para agregar agente */}
+      <CreateAgentModal
+        open={openCreateModal}
+        onClose={() => setOpenCreateModal(false)}
+        handleOnSubmit={handleSubmit}
+      />
+
+      {/* Alertas */}
+      <AlertSnackbar
+        open={errorOpen}
+        onClose={() => setErrorOpen(false)}
+        severity="error"
+        message={errorMessage}
+      />
+      <AlertSnackbar
+        open={successOpen}
+        onClose={() => setSuccessOpen(false)}
+        severity="success"
+        message={successMessage}
+      />
+    </>
+  );
+}
+
+
+/**onclick update
+ * 
+ * <Tooltip title="Disable/Enable Agent" placement="bottom">
                         <IconButton
                           onClick={() =>
                             handleUpdate({
@@ -156,56 +261,6 @@ export default function TableAgents({ supEmail }) {
                           <icons.edit style={{ fontSize: 16, color: 'inherit' }} />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="Edit Agent" placement="bottom">
-                        <IconButton
-                          onClick={() =>
-                            navigate(`/agent/edit/${agent.agent_email}`)
-                          }
-                          sx={{ color: '#00A1FF' }}
-                        >
-                          <icons.edit style={{ fontSize: 16, color: 'inherit' }} />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-
-          {/* PAGINACIÓN */}
-          <Box sx={{ flexShrink: 0, px: 2, py: 1, backgroundColor: '#fff' }}>
-            <TablePagination
-              component="div"
-              count={agents.length}
-              page={page}
-              onPageChange={handleChangePage}
-              rowsPerPage={rowsPerPage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-              rowsPerPageOptions={[5, 10, 25, 50]}
-            />
-          </Box>
-        </CardContent>
-      </Card>
-
-      <CreateAgentModal
-        open={openCreateModal}
-        onClose={() => setOpenCreateModal(false)}
-        handleOnSubmit={handleSubmit}
-      />
-
-      <AlertSnackbar
-        open={errorOpen}
-        onClose={() => setErrorOpen(false)}
-        severity="error"
-        message={errorMessage}
-      />
-      <AlertSnackbar
-        open={successOpen}
-        onClose={() => setSuccessOpen(false)}
-        severity="success"
-        message={successMessage}
-      />
-    </>
-  );
-}
+ * 
+ * 
+ */
