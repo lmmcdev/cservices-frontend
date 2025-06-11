@@ -39,15 +39,7 @@ import {
   handleCenterHandler
 } from '../utils/js/ticketActions.js';
 
-const statusColors = {
-  New: { bg: '#FFE2EA', text: '#FF6692' },
-  Emergency: { bg: '#FFF5DA', text: '#FFB900' },
-  'In Progress': { bg: '#DFF3FF', text: '#00A1FF' },
-  Pending: { bg: '#EAE8FA', text: '#8965E5' },
-  Done: { bg: '#DAF8F4', text: '#00b8a3' },
-  Duplicated: { bg: '#FFE3C4', text: '#FF8A00' },
-  Total: { bg: 'transparent', text: '#0947D7' },
-};
+import { getStatusColor } from '../utils/js/statusColors.js';
 
 export default function EditTicket() {
   //constants 
@@ -218,12 +210,12 @@ export default function EditTicket() {
                           width: 8,
                           height: 24,
                           borderRadius: 10,
-                          backgroundColor: statusColors[status]?.text || '#00a1ff',
+                          backgroundColor: getStatusColor(status, 'text') || '#00a1ff',
                         }}
                       />
                       <Typography
                         variant="h6"
-                        sx={{ fontWeight: 'bold', color: statusColors[status]?.text || '#00a1ff' }}
+                        sx={{ fontWeight: 'bold', color: getStatusColor(status, 'text') || '#00a1ff' }}
                       >
                         Patient Information
                       </Typography>
@@ -348,12 +340,12 @@ export default function EditTicket() {
                         width: 8,
                         height: 24,
                         borderRadius: 10,
-                        backgroundColor: statusColors[status]?.text || '#00a1ff',
+                        backgroundColor: getStatusColor(status, 'text') || '#00a1ff',
                       }}
                     />
                     <Typography
                       variant="h6"
-                      sx={{ fontWeight: 'bold', color: statusColors[status]?.text || '#00a1ff' }}
+                      sx={{ fontWeight: 'bold', color: getStatusColor(status, 'text') || '#00a1ff' }}
                     >
                       Call Information
                     </Typography>
@@ -410,12 +402,12 @@ export default function EditTicket() {
                       width: 8,
                       height: 24,
                       borderRadius: 10,
-                      backgroundColor: statusColors[status]?.text || '#00a1ff',
+                      backgroundColor: getStatusColor(status, 'text') || '#00a1ff',
                     }}
                   />
                   <Typography
                     variant="h6"
-                    sx={{ fontWeight: 'bold', color: statusColors[status]?.text || '#00a1ff' }}
+                    sx={{ fontWeight: 'bold', color: getStatusColor(status, 'text') || '#00a1ff' }}
                   >
                     Time on Task
                   </Typography>
