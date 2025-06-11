@@ -81,24 +81,26 @@ function AppContent() {
     onTicketCreated: (ticket) => {
       showNotification(`🎫 New case from ${ticket.patient_name || 'Unknown patient'}`, 'success');
     },
-    // No notificar por actualización (o podrías poner otra lógica más selectiva)
+    // No notificar por actualización
     // onTicketUpdated: (ticket) => { ... }
   });
 }, [initializeSignalR, showNotification]);
- 
 
-  if (!authLoaded) return null;
-  if (!authLoaded || !user || !agents || agents.length === 0) return null;
-
-const knownAgent = agents.find(agent => agent.agent_email === user.username);
-if (authError) return <Navigate to="/auth-error" replace />;
-if (!knownAgent) return <Navigate to="/unknown-agent" replace />;
+  const knownAgent = agents.find(agent => agent.agent_email === user.username);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: '#f8fafd', minHeight: '100vh' }}>
       <Box sx={{ height: 150 }} /> {/*Espaciador para separar el topBar del contenido de abajo*/}
       {/**Layout con sideBar y topBar */}
       <Routes>
+        <Route path="/" element={
+          !authLoaded ? null :
+          !user ? <Navigate to="/auth-error" replace /> :
+          !knownAgent
+            ? <Navigate to="/unknown-agent" replace />
+            : <Navigate to="/dashboard" replace />
+        } />
+
         <Route element={<MainLayout agentEmail={agentEmail} filters={filters} setFilters={setFilters} />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<TableTickets filters={filters} />} />
@@ -115,7 +117,7 @@ if (!knownAgent) return <Navigate to="/unknown-agent" replace />;
         <Route element={<MinimalCenteredLayout />}>
           <Route path="/auth-error" element={<AuthErrorScreen errorMessage={authError} onRetry={login} />} />
           <Route path="/unknown-agent" element={
-            <UnknownAgentNotice userEmail={user.username} onRetry={() => window.location.reload()} />}     />
+            <UnknownAgentNotice userEmail={user?.username} onRetry={() => window.location.reload()} />}     />
         </Route>
       </Routes>
     </Box>
