@@ -12,14 +12,17 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 const UnknownAgentNotice = ({ userEmail, onRetry }) => {
   return (
     <Box
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      minHeight="100vh"
-      bgcolor="#f9f9f9"
-    >
-      <Card elevation={3} sx={{ borderRadius: 4, maxWidth: 500, textAlign: 'center' }}>
-        <CardContent>
+          sx={{
+            width: '100%',
+            maxWidth: 500,
+            textAlign: 'center',
+            p: 4,
+            mx: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
           <Avatar sx={{ bgcolor: '#ff6f61', mx: 'auto', mb: 2 }}>
             <ErrorOutlineIcon />
           </Avatar>
@@ -35,8 +38,6 @@ const UnknownAgentNotice = ({ userEmail, onRetry }) => {
           <Button variant="contained" onClick={onRetry} sx={{ bgcolor: '#00a1ff' }}>
             Retry
           </Button>
-        </CardContent>
-      </Card>
     </Box>
   );
 };

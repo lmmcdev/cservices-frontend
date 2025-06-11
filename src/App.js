@@ -23,8 +23,10 @@ import { FiltersProvider } from './context/filterContext';
 import { AuthProvider, useAuth } from './context/authContext';
 import { useNotification, NotificationProvider } from './context/notificationsContext';
 import { ProfilePhotoProvider } from './context/profilePhotoContext';
-
 import MsalProviderWrapper from './providers/msalProvider';
+
+import MainLayout from './layouts/mainLayout';
+import MinimalCenteredLayout from './layouts/minimalCenterLayout';
 
 import './App.css';
 
@@ -92,39 +94,31 @@ function AppContent() {
  
 
   if (!authLoaded) return null;
-  if (authError) return <AuthErrorScreen errorMessage={authError} onRetry={login} />;
-  if (!user) return null;
+  if (!authLoaded || !user || !agents || agents.length === 0) return null;
 
-  // Validar si el usuario autenticado está en la lista de agentes
-  if (!agents || agents.length === 0) return null;
-
-  const knownAgent = agents.find(agent => agent.agent_email === user.username);
-  if (!knownAgent) {
-    return (
-      <UnknownAgentNotice
-        userEmail={user.username}
-        onRetry={() => window.location.reload()}
-      />
-    );
-  }
+const knownAgent = agents.find(agent => agent.agent_email === user.username);
+if (authError) return <Navigate to="/auth-error" replace />;
+if (!knownAgent) return <Navigate to="/unknown-agent" replace />;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: '#f8fafd', minHeight: '100vh' }}>
-      <CssBaseline />
-      <Topbar agent={agentEmail} filters={filters} setFilters={setFilters} />
       <Box sx={{ height: 150 }} /> {/*Espaciador para separar el topBar del contenido de abajo*/}
-      <Box sx={{ display: 'flex', flex: 1 }}>
-      <Sidebar />
+      {/**Layout con sideBar y topBar */}
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={<TableTickets filters={filters} />} />
-        <Route path="/agents" element={<TableAgents />} />
-        <Route path="/tickets/edit/:ticketId" element={<EditTicket />} />
-        <Route path="/agent/edit" element={<EditAgent />} />
-        <Route path="/profile-search" element={<ProfileSearch />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route element={<MainLayout agentEmail={agentEmail} filters={filters} setFilters={setFilters} />}>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<TableTickets filters={filters} />} />
+          <Route path="/agents" element={<TableAgents />} />
+          <Route path="/tickets/edit/:ticketId" element={<EditTicket />} />
+          <Route path="/agent/edit" element={<EditAgent />} />
+        </Route>
+
+        <Route element={<MinimalCenteredLayout />}>
+          <Route path="/auth-error" element={<AuthErrorScreen errorMessage={authError} onRetry={login} />} />
+          <Route path="/unknown-agent" element={
+            <UnknownAgentNotice userEmail={user.username} onRetry={() => window.location.reload()} />}     />
+        </Route>
       </Routes>
-    </Box>
     </Box>
   );
 }
