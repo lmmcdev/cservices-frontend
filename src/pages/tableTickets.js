@@ -15,16 +15,7 @@ import { useFilters } from '../context/filterContext.js';
 //import { emailToFullName } from '../utils/js/emailToFullName.js'
 import StatusFilterBoxes from '../components/statusFilterBoxes';
 import { SortAscending, SortDescending } from 'phosphor-react';
-
-const statusColors = {
-  New: { bg: '#FFE2EA', text: '#FF6692' },
-  Emergency: { bg: '#FFF5DA', text: '#FFB900' },
-  'In Progress': { bg: '#DFF3FF', text: '#00A1FF' },
-  Pending: { bg: '#EAE8FA', text: '#8965E5' },
-  Done: { bg: '#DAF8F4', text: '#00B8A3' },
-  Duplicated: { bg: '#FFE3C4', text: '#FF8A00' },
-  Total: { bg: '#f1f5ff', text: '#0947D7' },
-};
+import { getStatusColor } from '../utils/js/statusColors.js';
 
 export default function TableTickets() {
   const { filters } = useFilters();
@@ -38,21 +29,6 @@ export default function TableTickets() {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const navigate = useNavigate();
   const [sortDirection, setSortDirection] = useState('desc');
-
-  //comprobar aqui si existe user.username
-  /*const loadData = useCallback(async () => {
-    setLoading(true);
-    try {
-      await fetchTableData(dispatch, setLoading, user.username);
-    } finally {
-      setLoading(false);
-    }
-  }, [dispatch, setLoading, user.username]);
-
-  useEffect(() => {
-    if (!user?.username) return;
-    loadData();
-  }, [loadData, user?.username]);*/
 
   useEffect(() => {
     setPage(0);
@@ -152,7 +128,6 @@ export default function TableTickets() {
           {/*FILTROS*/}
           <Box sx={{ flexShrink: 0, mt: 4 }}>
             <StatusFilterBoxes
-              statusColors={statusColors}
               selectedStatus={selectedStatus}
               setSelectedStatus={setSelectedStatus}
               ticketsCountByStatus={ticketsCountByStatus}
@@ -216,8 +191,8 @@ export default function TableTickets() {
                           label={row.status}
                           size="small"
                           sx={{
-                            backgroundColor: statusColors[row.status]?.bg || '#e0e0e0',
-                            color: statusColors[row.status]?.text || '#000',
+                            backgroundColor: getStatusColor(row.status, 'bg') || '#e0e0e0',
+                            color: getStatusColor(row.status, 'text') || '#000',
                             fontWeight: 'bold',
                             fontSize: 12,
                             borderRadius: '16px',
