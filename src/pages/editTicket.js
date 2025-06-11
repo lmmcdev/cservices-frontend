@@ -8,15 +8,6 @@ import SaveIcon from '@mui/icons-material/Save';
 import TicketStatusBar from '../components/ticketStatusBar';
 import AlertSnackbar from '../components/auxiliars/alertSnackbar';
 import { useLoading } from '../providers/loadingProvider';
-import { changeStatus, 
-          addNotes, 
-          updateCollaborators, 
-          assignAgent, 
-          updateTicketDepartment, 
-          updatePatientName,
-          updatePatientDOB, 
-          updateCallbackNumber,
-          updateCenter} from '../utils/api';
 import TicketNotes from '../components/ticketNotes';
 import TicketCollaborators from '../components/ticketCollaborators';
 import TicketAudio from '../components/ticketAudio';
@@ -35,7 +26,18 @@ import { useAuth } from '../context/authContext';
 import ChangeCenterModal from '../components/dialogs/changeCenterModal';
 import { useTickets } from '../context/ticketsContext.js';
 
-
+import {
+  handleStatusChange,
+  handleAddNoteHandler,
+  handleRemoveCollaboratorHandler,
+  handleChangeDepartmentHandler,
+  updatePatientNameHandler,
+  updatePatientDobHandler,
+  updateCallbackNumberHandler,
+  updateCollaboratorsHandler,
+  updateAssigneeHandler,
+  handleCenterHandler
+} from '../utils/js/ticketActions.js';
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -62,7 +64,6 @@ export default function EditTicket() {
   const { user } = useAuth();
   const agentEmail = user.username;
   
-
   //statuses
   const [status, setStatus] = useState(ticket?.status || '');
   const [notes, setNotes] = useState(ticket?.notes || []);
@@ -97,14 +98,9 @@ export default function EditTicket() {
   const [openCenterModal, setOpenCenterModal] = useState(false);
 
   const [openPatientDialog, setOpenPatientDialog] = useState(false);
-  //const [relatedCases, setRelatedCases] = useState([]);
   useWorkTimer( {ticketData:ticket, agentEmail, status, enabled:true} );
 
-  //useEffects
-  /*useEffect(() => {
-      if (state.error) setErrorOpen(true);
-    }, [state.error]);*/
-    
+   
   useEffect(() => {
     if (ticket?.notes) {
       setNotes(ticket.notes);
@@ -123,143 +119,67 @@ export default function EditTicket() {
   if (!ticket) return <Typography>Ticket not found</Typography>;
 
     //handling functions
-    const handleStatusChange = async (newStatus) => {
-      setLoading(true);
-      const result = await changeStatus(dispatch, setLoading, ticketId, agentEmail, newStatus);
-      if (result.success) {
-        setSuccessMessage(result.message);
-        setStatus(newStatus);
-        setSuccessOpen(true);
-      } else {
-        setErrorMessage(result.message);
-        setErrorOpen(true);
-      }  
+    const handleStatusChangeUI = async (newStatus) => {
+      handleStatusChange({ dispatch, setLoading, ticketId, agentEmail, newStatus, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen });
     };
     ///////////////////////////////////////////////////////////////////////
     const handleAddNote = async () => {
-      if (!noteContent.trim()) return;
-      const newNote = [{
-        agent_email: agentEmail,
-        event_type: 'user_note',
-        content: noteContent.trim(),
-        datetime: new Date().toISOString()
-      }];
-      const result = await addNotes(dispatch, setLoading, ticketId, agentEmail, newNote);
-      if (result.success) {
-        setNotes((prev) => [...prev, ...newNote]);
-        setNoteContent('');
-        setOpenNoteDialog(false);
-        setSuccessMessage(result.message);
-        setSuccessOpen(true);
-      } else {
-        setErrorMessage(result.message);
-        setErrorOpen(true);
-      }
-      
+      await handleAddNoteHandler({dispatch, setLoading, ticketId, agentEmail, noteContent, setNotes, setNoteContent, setOpenNoteDialog, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
     };
     ////////////////////////////////////////////////////////////////////////////
     const handleAddCollaboratorClick = async (newCollaborator) => {
       setAgentDialogOpen(true);
-    /*const updated = [...collaborators, newCollaborator];
-    await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
-    setCollaborators(updated); // actualiza UI local si fue exitoso
-    setSuccessOpen(true);*/
-  };
+    };
 
   const handleRemoveCollaborator = async (emailToRemove) => {
-    const updated = collaborators.filter(c => c !== emailToRemove);
-    const result = await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
-    if (result.success) {
-      setSuccessMessage(result.message);
-      setSuccessOpen(true);
-      //setCollaborators(updated);
-    } else {
-      setErrorMessage(result.message);
-      setErrorOpen(true);
-    }
+    await handleRemoveCollaboratorHandler({dispatch, setLoading, ticketId, agentEmail, collaborators, emailToRemove, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
     setEditField(null);
-    
   };
-
 
   //////////////////////////////////////////////////////////////////////////////
   const handleChangeDepartment = async (newDept) => {
-    if (!newDept) return;
-    const result = await updateTicketDepartment(dispatch, setLoading, ticketId, agentEmail, newDept);
-    if (result.success) {
-      setSuccessMessage(result.message);
-      setSuccessOpen(true);
-    } else {
-      setErrorMessage(result.message);
-      setErrorOpen(true);
-    }
+    await handleChangeDepartmentHandler({dispatch, setLoading, ticketId, agentEmail, newDept, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
     setEditField(null);
   };
-
 
   /////////////////////Update Patient Fields///////////////////////////////////////////////////////
   ///////////patient name///////////////////////
   const updatePatientNameUI = async (newName) => {
-    const result = await updatePatientName(dispatch, setLoading, ticketId, agentEmail, newName);
-    if (result.success) {
-      setSuccessMessage(result.message);
-      setSuccessOpen(true);
-    } else {
-      setErrorMessage(result.message);
-      setErrorOpen(true);
-    }
+    await updatePatientNameHandler({dispatch, setLoading, ticketId, agentEmail, newName, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
     setEditField(null);
   };
 
   ////////////patient dob///////////////////////
   const updatePatientDobUI = async (newDob) => {
-    if (!newDob) {
-      setErrorMessage("La fecha de nacimiento está vacía.");
-      setErrorOpen(true);
-      return;
-    }
-
-    try {
-      // Convertir "YYYY-MM-DD" → "MM/DD/YYYY"
-      const [year, month, day] = newDob.split('-');
-      const mmddyyyy = `${month}/${day}/${year}`;
-
-      // Validación rápida en frontend
-      const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/\d{4}$/;
-      if (!regex.test(mmddyyyy)) throw new Error("Formato de fecha inválido");
-
-      // Llamar al backend con el nuevo formato
-      const result = await updatePatientDOB(dispatch, setLoading, ticketId, agentEmail, mmddyyyy);
-
-      if (result.success) {
-        setSuccessMessage(result.message);
-        setSuccessOpen(true);
-        setPatientDob(mmddyyyy)
-      } else {
-        setErrorMessage(result.message);
-        setErrorOpen(true);
-      }
-    } catch (err) {
-      setErrorMessage("Error al procesar la fecha: " + err.message);
-      setErrorOpen(true);
-    }
-
+    await updatePatientDobHandler({dispatch, setLoading, ticketId, agentEmail, newDob, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
     setEditField(null);
   };
 
 
   ///////////patient phone////////////////////////////////
   const updatecallbakNumberUI = async (newPhone) => {
-    const result = await updateCallbackNumber(dispatch, setLoading, ticketId, agentEmail, newPhone);
-    if (result.success) {
-      setSuccessMessage(result.message);
-      setSuccessOpen(true);
-    } else {
-      setErrorMessage(result.message);
-      setErrorOpen(true);
-    }
+    await updateCallbackNumberHandler({dispatch, setLoading, ticketId, agentEmail, newPhone, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
     setEditField(null);
   };
+
+  ///////////add ticket collaborator////////////////////////////////
+  const addCollaboratorUI = async (selectedAgents) => {
+    await updateCollaboratorsHandler({dispatch, setLoading, ticketId, agentEmail, collaborators, selectedAgents, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
+    setEditField(null);
+  };
+
+  ///////////add ticket collaborator////////////////////////////////
+  const ticketAssigneeUI = async (selectedAgent) => {
+    await updateAssigneeHandler({dispatch, setLoading, ticketId, agentEmail, selectedAgent, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
+    setEditField(null);
+  };
+
+  ///////////add ticket collaborator////////////////////////////////
+  const handleCenterHandlerUI = async (selectedCenter, ticket) => {
+    await handleCenterHandler({dispatch, setLoading, ticketId, ticket, agentEmail, selectedCenter, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
+    setEditField(null);
+  };
+
 
 
   if (!ticket) return <Typography>Ticket not found</Typography>;
@@ -280,7 +200,7 @@ export default function EditTicket() {
       >
         {/* Row 2: StatusBar */}
         <Box sx={{ mb: 2 }}>
-          <TicketStatusBar currentStatus={status} onStatusChange={handleStatusChange} />
+          <TicketStatusBar currentStatus={status} onStatusChange={handleStatusChangeUI} />
         </Box>
 
 
@@ -512,9 +432,7 @@ export default function EditTicket() {
         </Box>
       </Paper>
 
-     
-
-
+    
       {/* Dialog para agregar nota */}
       <AddNoteDialog
         open={openNoteDialog}
@@ -529,17 +447,7 @@ export default function EditTicket() {
         open={agentDialogOpen}
         onClose={() => setAgentDialogOpen(false)}
         onAdd={async (selectedAgents) => {
-          const updated = [...collaborators, ...selectedAgents.filter(a => !collaborators.includes(a))];
-          const result = await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
-          if (result.success) {
-            setSuccessMessage(result.message);
-            setSuccessOpen(true);
-            //setCollaborators(updated);
-          } else {
-            setErrorMessage(result.message);
-            setErrorOpen(true);
-          }
-          
+          await addCollaboratorUI(selectedAgents);          
         }}
         agents={agents}
         initialSelected={ticket?.collaborators}
@@ -549,18 +457,8 @@ export default function EditTicket() {
       <ChangeAgentModal
         open={openReassignAgentModal}
         onClose={() => setOpenReassignAgentModal(false)}
-        onReassignAgent={async (selectedAgents) => {
-          //const updated = [...selectedAgents];
-          //console.log(selectedAgents)
-          const result = await assignAgent(dispatch, setLoading, ticketId, agentEmail, selectedAgents);
-          if (result.success) {
-            setSuccessMessage(result.message);
-            setSuccessOpen(true);
-            setAgentAssigned(selectedAgents);
-          } else {
-            setErrorMessage(result.message);
-            setErrorOpen(true);
-          }
+        onReassignAgent={async (selectedAgent) => {
+          await ticketAssigneeUI(selectedAgent);
         }}
         agents={agents}
       />
@@ -577,21 +475,7 @@ export default function EditTicket() {
         open={openCenterModal}
         onClose={() => setOpenCenterModal(false)}
         onChangeCenter={async (selectedCenter) => {
-          const depUpd = await updateTicketDepartment(dispatch,setLoading,ticketId,agentEmail,selectedCenter);
-          if (depUpd.success) {
-            //updateCenter in airtable with logic app
-            const updCenter = await updateCenter(dispatch, setLoading, agentEmail,ticket, selectedCenter);
-             if (updCenter.success) {
-              setSuccessMessage(updCenter.message);
-              setSuccessOpen(true);
-            } else {
-              setErrorMessage(updCenter.message);
-              setErrorOpen(true);
-            }
-          } else {
-            setErrorMessage(depUpd.message);
-            setErrorOpen(true);
-          }
+          await handleCenterHandlerUI(selectedCenter, ticket);
         }}
       />
 
