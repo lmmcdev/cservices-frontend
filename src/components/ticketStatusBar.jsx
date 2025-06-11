@@ -10,14 +10,7 @@ import {
   Button
 } from '@mui/material';
 
-const statusColors = {
-  New: { bg: '#FFE2EA', text: '#FF6692' },
-  Duplicated: { bg: '#FFE3C4', text: '#FF8A00' },
-  Emergency: { bg: '#FFF5DA', text: '#FFB900' },
-  'In Progress': { bg: '#DFF3FF', text: '#00A1FF' },
-  Pending: { bg: '#EAE8FA', text: '#8965E5' },
-  Done: { bg: '#DAF8F4', text: '#00B8A3' },
-};
+import { getStatusColor } from '../utils/js/statusColors';
 
 const TicketStatusBar = ({ currentStatus, onStatusChange }) => {
   const [pendingStatus, setPendingStatus] = useState(null);
@@ -53,7 +46,9 @@ const TicketStatusBar = ({ currentStatus, onStatusChange }) => {
         boxShadow={0}
         sx={{ backgroundColor: '#fff' }}
       >
-        {Object.entries(statusColors).map(([status, { bg, text }]) => {
+        {['New', 'Duplicated', 'Emergency', 'In Progress', 'Pending', 'Done'].map((status) => {
+          const bg = getStatusColor(status, 'bg');
+          const text = getStatusColor(status, 'text');
           const isActive = currentStatus === status;
 
           return (
