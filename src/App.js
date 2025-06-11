@@ -28,6 +28,7 @@ import MinimalCenteredLayout from './layouts/minimalCenterLayout';
 
 import './App.css';
 import LayoutWithSidebarOnly from './layouts/sideBarLayout';
+import ProfileSearch from './pages/profileSearch';
 
 function AppContent() {
   const { setLoading } = useLoading();
@@ -106,7 +107,8 @@ function AppContent() {
           <Route path="/dashboard" element={<TableTickets filters={filters} />} />
           <Route path="/agents" element={<TableAgents />} />
           <Route path="/tickets/edit/:ticketId" element={<EditTicket />} />
-          <Route path="/agent/edit/:agent_email" element={<EditAgent />} />
+          <Route path="/agent/edit/:id" element={<EditAgent />} />
+          <Route path="/profile-search" element={<ProfileSearch />} />
         </Route>
 
         {/**Layput con sideBar solo */}

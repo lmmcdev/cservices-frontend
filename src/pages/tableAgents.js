@@ -157,41 +157,82 @@ export default function TableAgents() {
                         <Tooltip title={agent.remote_agent ? 'Remote' : 'On Site'}>
                           <IconButton>
                             {agent.remote_agent ? (
-                              <icons.home sx={{ color: '#1976d2' }} />
+                              <icons.home sx={{ color: '#8965e5' }} />
                             ) : (
-                              <icons.business sx={{ color: '#616161' }} />
+                              <icons.onSite sx={{ color: '#00A1FF' }} />
                             )}
                           </IconButton>
                         </Tooltip>
                       </TableCell>
                       <TableCell>
-                        <Tooltip title="Edit Agent" placement="bottom">
-                          <Box
-                            sx={{
-                              backgroundColor: '#DFF3FF',
-                              color: '#00A1FF',
-                              borderRadius: '50%',
-                              padding: 1,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              width: 32,
-                              height: 32,
-                              fontSize: 18,
-                              cursor: 'pointer',
-                              transition: 'background-color 0.3s, color 0.3s',
-                              '&:hover': {
-                                backgroundColor: '#00A1FF',
-                                color: '#FFFFFF',
-                              },
-                            }}
-                            onClick={() =>
-                              navigate(`/agent/edit/${agent.agent_email}`)
-                            }
-                          >
-                            {icons.edit({ style: { fontSize: 16, color: 'inherit' } })}
-                          </Box>
-                        </Tooltip>
+                        <Box display="flex" gap={1}>
+                          <Tooltip title="Edit Agent" placement="bottom">
+                            <Box
+                              sx={{
+                                backgroundColor: '#DFF3FF',
+                                color: '#00A1FF',
+                                borderRadius: '50%',
+                                padding: 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: 32,
+                                height: 32,
+                                fontSize: 18,
+                                cursor: 'pointer',
+                                transition: 'background-color 0.3s, color 0.3s',
+                                '&:hover': {
+                                  backgroundColor: '#00A1FF',
+                                  color: '#FFFFFF',
+                                },
+                              }}
+                              onClick={() =>
+                                navigate(`/agent/edit/${agent.id}`)
+                              }
+                            >
+                              {icons.edit({ style: { fontSize: 16, color: 'inherit' } })}
+                            </Box>
+                          </Tooltip>
+
+                          <Tooltip title="Disable/Enable Agent" placement="bottom">
+                            <Box
+                              sx={{
+                                backgroundColor: agent.is_disabled ? '#FFE2E2' : '#DFF3FF',
+                                color: agent.is_disabled ? '#FF4C4C' : '#00A1FF',
+                                borderRadius: '50%',
+                                padding: 1,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: 32,
+                                height: 32,
+                                fontSize: 18,
+                                cursor: 'pointer',
+                                transition: 'background-color 0.3s, color 0.3s',
+                                '&:hover': {
+                                  backgroundColor: agent.is_disabled ? '#FF4C4C' : '#00A1FF',
+                                  color: '#FFFFFF',
+                                },
+                              }}
+                              onClick={() =>
+                                handleUpdate({
+                                  agent_id: agent.id,
+                                  email: agent.agent_email,
+                                  displayName: agent.agent_name,
+                                  role: agent.agent_rol,
+                                  department: agent.agent_department,
+                                  location: agent.agent_location,
+                                  isRemote: agent.remote_agent,
+                                  isDisable: !agent.is_disabled,
+                                })
+                              }
+                            >
+                              {agent.is_disabled
+                                ? icons.lock({ style: { fontSize: 16, color: 'inherit' } })
+                                : icons.unlock({ style: { fontSize: 16, color: 'inherit' } })}
+                            </Box>
+                          </Tooltip>
+                        </Box>
                       </TableCell>
                     </TableRow>
                   ))}
