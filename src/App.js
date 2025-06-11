@@ -27,6 +27,7 @@ import MainLayout from './layouts/mainLayout';
 import MinimalCenteredLayout from './layouts/minimalCenterLayout';
 
 import './App.css';
+import LayoutWithSidebarOnly from './layouts/sideBarLayout';
 
 function AppContent() {
   const { setLoading } = useLoading();
@@ -111,6 +112,11 @@ if (!knownAgent) return <Navigate to="/unknown-agent" replace />;
           <Route path="/agent/edit" element={<EditAgent />} />
         </Route>
 
+        {/**Layput con sideBar solo */}
+        <Route element={<LayoutWithSidebarOnly />}>
+        </Route>
+
+        {/**Layout limpio */}
         <Route element={<MinimalCenteredLayout />}>
           <Route path="/auth-error" element={<AuthErrorScreen errorMessage={authError} onRetry={login} />} />
           <Route path="/unknown-agent" element={
