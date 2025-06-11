@@ -29,6 +29,7 @@ const AgentSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Required'),
   password: Yup.string(),
   isRemote: Yup.boolean(),
+  isDisable: Yup.boolean(),
 });
 
 export default function EditAgent() {
@@ -63,6 +64,7 @@ export default function EditAgent() {
       accessLevel: '', // Adaptar según tu modelo
       email: agent?.agent_email || '',
       isRemote: agent?.remote_agent || false,
+      isDisable: agent?.disable_agent || false
     };
 
   const handleSubmit = async (values) => {
@@ -74,16 +76,16 @@ export default function EditAgent() {
       return;
     }
     let form = {...values, agent_id, supEmail }
-    //console.log("Submitting agent:", form);
-    setLoading(true);
-      const result = await editAgent(dispatch, setLoading, form);
+    console.log("Submitting agent:", form);
+    //setLoading(true);
+      /*const result = await editAgent(dispatch, setLoading, form);
       if (result.success) {
         setSuccessMessage(result.message);
         setSuccessOpen(true);
       } else {
         setErrorMessage(result.message);
         setErrorOpen(true);
-      } 
+      } */
     };
     //console.log(agent.id)
     // Aquí puedes llamar tu Azure Function o API para actualizar el agente
@@ -193,6 +195,22 @@ export default function EditAgent() {
                           />
                         }
                         label="Remote Agent"
+                      />
+                    </CardContent>
+                  </Card>
+
+                  {/* Status Agent */}
+                  <Card variant="outlined">
+                    <CardContent>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            name="isDisable"
+                            checked={values.disable_agent}
+                            onChange={handleChange}
+                          />
+                        }
+                        label="Disabled agent"
                       />
                     </CardContent>
                   </Card>
