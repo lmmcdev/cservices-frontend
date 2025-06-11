@@ -76,17 +76,16 @@ export default function EditAgent() {
       return;
     }
     let form = {...values, agent_id, supEmail }
-    console.log("Submitting agent:", form);
-    //setLoading(true);
-      /*const result = await editAgent(dispatch, setLoading, form);
-      if (result.success) {
-        setSuccessMessage(result.message);
-        setSuccessOpen(true);
-      } else {
-        setErrorMessage(result.message);
-        setErrorOpen(true);
-      } */
-    };
+    setLoading(true);
+    const result = await editAgent(dispatch, setLoading, form);
+    if (result.success) {
+      setSuccessMessage(result.message);
+      setSuccessOpen(true);
+    } else {
+      setErrorMessage(result.message);
+      setErrorOpen(true);
+    } 
+  };
     //console.log(agent.id)
     // Aquí puedes llamar tu Azure Function o API para actualizar el agente
 
