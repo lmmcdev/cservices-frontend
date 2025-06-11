@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Box, Paper, Grid, Card, CardContent, Typography,
+  Box, Grid, Card, CardContent, Typography,
   TextField, Checkbox, FormControlLabel, Button
 } from '@mui/material';
 import { Formik, Form } from 'formik';
