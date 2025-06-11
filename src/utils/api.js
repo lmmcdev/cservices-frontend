@@ -472,7 +472,7 @@ export const editAgent = async (dispatch, setLoading, formData) => {
           agent_department: formData.department,
           agent_location: formData.location,
           remote_agent: formData.isRemote,
-          disabled_agent: formData.isDisabled
+          disabled_agent: formData.isDisable
       }),
     });
 
@@ -491,7 +491,7 @@ export const editAgent = async (dispatch, setLoading, formData) => {
       agent_department: formData.department,
       agent_location: formData.location,
       remote_agent: formData.isRemote,
-      disabled_agent: formData.isDisabled,
+      disabled_agent: formData.isDisable,
     }
 
     dispatch({ type: 'AGENT_EDITED', payload: updated_agent });
