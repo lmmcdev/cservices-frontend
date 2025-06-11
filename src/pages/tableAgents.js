@@ -1,6 +1,5 @@
 import React, { useState, useReducer } from 'react';
 import { ticketReducer, initialState } from '../store/ticketsReducer';
-import { createAgent } from '../utils/api';
 import { useLoading } from '../providers/loadingProvider';
 import AlertSnackbar from '../components/auxiliars/alertSnackbar';
 
@@ -13,16 +12,21 @@ import { icons } from '../components/auxiliars/icons';
 import { useNavigate } from 'react-router-dom';
 import CreateAgentModal from '../components/dialogs/createAgentDialog';
 import { useAgents } from '../context/agentsContext';
+import { useGraphEmailCheck } from '../utils/useGraphEmailCheck';
+import { useAuth } from '../context/authContext.js';
+import { submitNewAgent, updateAgent } from '../utils/js/agentActions.js';
 
-export default function TableAgents({ supEmail }) {
-    const { state } = useAgents(); // ⬅️ Aquí usas el contexto
-    const agents = state.agents;
-    const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [openCreateModal, setOpenCreateModal] = useState(false);
-    const navigate = useNavigate();
-    const [, dispatch] = useReducer(ticketReducer, initialState);
-    const { setLoading } = useLoading();
+export default function TableAgents() {
+  const { state } = useAgents();
+  const agents = state.agents;
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [openCreateModal, setOpenCreateModal] = useState(false);
+  const navigate = useNavigate();
+  const [, dispatch] = useReducer(ticketReducer, initialState);
+  const { setLoading } = useLoading();
+  const { user } = useAuth();
+  const { verifyEmailExists } = useGraphEmailCheck();
 
   const [errorOpen, setErrorOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
@@ -41,16 +45,30 @@ export default function TableAgents({ supEmail }) {
   };
 
   const handleSubmit = async (data) => {
-    const form = { ...data, supEmail };
-    setLoading(true);
-    const result = await createAgent(dispatch, setLoading, form);
-    if (result.success) {
-      setSuccessMessage(result.message);
-      setSuccessOpen(true);
-    } else {
-      setErrorMessage(result.message);
-      setErrorOpen(true);
-    }
+    await submitNewAgent({
+      data,
+      supEmail: user?.username,
+      dispatch,
+      setLoading,
+      setSuccessMessage,
+      setErrorMessage,
+      setSuccessOpen,
+      setErrorOpen,
+    });
+  };
+
+  const handleUpdate = async (values) => {
+    await updateAgent({
+      values,
+      verifyEmailExists,
+      user,
+      dispatch,
+      setLoading,
+      setSuccessMessage,
+      setErrorMessage,
+      setSuccessOpen,
+      setErrorOpen,
+    });
   };
 
   return (
@@ -101,9 +119,21 @@ export default function TableAgents({ supEmail }) {
                     <TableCell>
                       <Tooltip title="Disable/Enable Agent" placement="bottom">
                         <IconButton
+                          onClick={() =>
+                            handleUpdate({
+                              agent_id: agent.id,
+                              email: agent.agent_email,
+                              displayName: agent.agent_name,
+                              role: agent.agent_rol,
+                              department: agent.agent_department,
+                              location: agent.agent_location,
+                              isRemote: agent.remote_agent,
+                              isDisable: !agent.is_disabled,
+                            })
+                          }
                           sx={{ color: '#00A1FF' }}
                         >
-                          <icons.edit style={{ fontSize: 26, color: 'inherit' }} />
+                          <icons.edit style={{ fontSize: 16, color: 'inherit' }} />
                         </IconButton>
                       </Tooltip>
                       <Tooltip title="Edit Agent" placement="bottom">
@@ -135,14 +165,12 @@ export default function TableAgents({ supEmail }) {
         </CardContent>
       </Card>
 
-      {/* Modal para agregar agente */}
       <CreateAgentModal
         open={openCreateModal}
         onClose={() => setOpenCreateModal(false)}
         handleOnSubmit={handleSubmit}
       />
 
-      {/* Alertas */}
       <AlertSnackbar
         open={errorOpen}
         onClose={() => setErrorOpen(false)}
