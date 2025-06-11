@@ -58,7 +58,7 @@ export default function TableAgents({ supEmail }) {
       <Card sx={{ borderRadius: 4, position: 'fixed', top: 150, left: 200, right: 20, boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.04)' }}>
         <CardContent>
           <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-            <Typography variant="h6">Agent Directory</Typography>
+            <Typography variant="h5">Agent Directory</Typography>
             <Button
               variant="contained"
               color="primary"
@@ -99,12 +99,17 @@ export default function TableAgents({ supEmail }) {
                       </Tooltip>
                     </TableCell>
                     <TableCell>
+                      <Tooltip title="Disable/Enable Agent" placement="bottom">
+                        <IconButton
+                          sx={{ color: '#00A1FF' }}
+                        >
+                          <icons.edit style={{ fontSize: 26, color: 'inherit' }} />
+                        </IconButton>
+                      </Tooltip>
                       <Tooltip title="Edit Agent" placement="bottom">
                         <IconButton
                           onClick={() =>
-                            navigate(`/agent/edit/${agent.agent_email}`, {
-                              state: { agents: agent },
-                            })
+                            navigate(`/agent/edit/${agent.agent_email}`)
                           }
                           sx={{ color: '#00A1FF' }}
                         >
