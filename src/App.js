@@ -1,7 +1,7 @@
 // src/App.js
 import React, { useEffect, useState } from 'react';
 import { Box } from '@mui/material';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 import TableTickets from './pages/tableTickets';
 import EditTicket from './pages/editTicket';
@@ -29,16 +29,15 @@ import MinimalCenteredLayout from './layouts/minimalCenterLayout';
 import './App.css';
 import LayoutWithSidebarOnly from './layouts/sideBarLayout';
 import ProfileSearch from './pages/profileSearch';
+import PrivateRoute from './components/privateRoute';
 
 function AppContent() {
   const { setLoading } = useLoading();
-  const { state: agentsState, dispatch: agentDispatch } = useAgents();
-  const agents = agentsState.agents;
+  const { dispatch: agentDispatch } = useAgents();
   const { dispatch: ticketDispatch } = useTickets();
   const { initializeSignalR } = useSignalR();
   const { showNotification } = useNotification();
-  const { user, authError, authLoaded, login } = useAuth();
-  const navigate = useNavigate();
+  const { user, authError, login } = useAuth();
 
   const [agentEmail, setAgentEmail] = useState('');
   const [filters, setFilters] = useState({
@@ -46,8 +45,6 @@ function AppContent() {
     assignedAgents: [],
     callerIds: [],
   });
-
-  const knownAgent = agents.find(agent => agent.agent_email === user.username);
 
   // eslint-disable-next-line
   {/**actualizar el username (email de azure) */}
@@ -96,35 +93,22 @@ function AppContent() {
     });
   }, [initializeSignalR, showNotification]);
 
-  // eslint-disable-next-line
-  {/**detectar cambios en el login para redirigir */}
-  useEffect(() => {
-    if (authLoaded && user && knownAgent) {
-      navigate('/dashboard', { replace: true });
-    }
-  }, [authLoaded, user, knownAgent, navigate]);
-
-
+ 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: '#f8fafd', minHeight: '100vh' }}>
       <Box sx={{ height: 150 }} /> {/*Espaciador para separar el topBar del contenido de abajo*/}
       {/**Layout con sideBar y topBar */}
-      <Routes>
-        <Route path="/" element={
-          !authLoaded ? null :
-          !user ? <Navigate to="/auth-error" replace /> :
-          !knownAgent
-            ? <Navigate to="/unknown-agent" replace />
-            : <Navigate to="/dashboard" replace />
-        } />
 
-        <Route element={<MainLayout agentEmail={agentEmail} filters={filters} setFilters={setFilters} />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<TableTickets filters={filters} />} />
-          <Route path="/agents" element={<TableAgents />} />
-          <Route path="/tickets/edit/:ticketId" element={<EditTicket />} />
-          <Route path="/agent/edit/:id" element={<EditAgent />} />
-          <Route path="/profile-search" element={<ProfileSearch />} />
+      <Routes>
+       
+        <Route path="/" element={<PrivateRoute />}>
+          <Route element={<MainLayout agentEmail={agentEmail} filters={filters} setFilters={setFilters} />}>
+            <Route path="/dashboard" element={<TableTickets filters={filters} />} />
+            <Route path="/agents" element={<TableAgents />} />
+            <Route path="/tickets/edit/:ticketId" element={<EditTicket />} />
+            <Route path="/agent/edit/:id" element={<EditAgent />} />
+            <Route path="/profile-search" element={<ProfileSearch />} />
+          </Route>
         </Route>
 
         {/**Layput con sideBar solo */}
