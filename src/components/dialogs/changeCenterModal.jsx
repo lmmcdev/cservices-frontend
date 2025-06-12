@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import CenterSelect from '../components/centerSelect';
 import ActionButtons from '../auxiliars/actionButtons';
-import { BsHousesFill } from 'react-icons/bs';
+import { Shuffle } from 'phosphor-react';
 
 const ChangeCenterModal = ({
   open,
@@ -37,14 +37,18 @@ const ChangeCenterModal = ({
       fullWidth
       maxWidth="xs"
       PaperProps={{
-        sx: { width: '100%', maxWidth: '320px' }
+        sx: {
+          width: '100%',
+          maxWidth: '320px',
+          borderRadius: '15px' // mismo roundness que el otro modal
+        }
       }}
     >
       <DialogTitle sx={{ color: '#00A1FF', p: 2, textAlign: 'center' }}>
         <Box display="flex" alignItems="center" justifyContent="center">
-          <BsHousesFill style={{ color: '#00A1FF', marginRight: 8, fontSize: 20 }} />
+          <Shuffle size={20} weight="bold" color="#00A1FF" style={{ marginRight: 8 }} />
           <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-            Change Center
+            Transfer to Center
           </Typography>
         </Box>
       </DialogTitle>
@@ -71,7 +75,7 @@ const ChangeCenterModal = ({
         onCancel={handleCancel}
         onConfirm={handleChange}
         confirmDisabled={!selectedCenter}
-        confirmLabel="Change"
+        confirmLabel="Transfer"
       />
     </Dialog>
   );
