@@ -34,7 +34,7 @@ export async function handleAddNoteHandler({ dispatch, setLoading, ticketId, age
   }];
   const result = await addNotes(dispatch, setLoading, ticketId, agentEmail, newNote);
   if (result.success) {
-    setNotes((prev) => [...prev, ...newNote]);
+    //setNotes((prev) => [...prev, ...newNote]);
     setNoteContent('');
     setOpenNoteDialog(false);
     setSuccessMessage(result.message);
