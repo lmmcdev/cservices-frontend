@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useStats } from '../context/statsContext';
 import {
   Box,
@@ -11,7 +11,7 @@ import {
 import { getStatusColor } from '../utils/js/statusColors';
 
 export default function StatsScreen() {
-    const { state, dispatch } = useStats();
+    const { state } = useStats();
     const statistics = state.statistics;
 
     const entries = Object.entries(statistics).filter(
