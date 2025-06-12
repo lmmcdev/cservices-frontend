@@ -49,11 +49,13 @@ function AppContent() {
 
   const knownAgent = agents.find(agent => agent.agent_email === user.username);
 
+  // eslint-disable-next-line
   {/**actualizar el username (email de azure) */}
   useEffect(() => {
     if (user?.username) setAgentEmail(user.username);
   }, [user]);
 
+  // eslint-disable-next-line
   {/**cargar data inicial de tickets y agentes */}
   useEffect(() => {
     let isCancelled = false;
@@ -82,6 +84,7 @@ function AppContent() {
     };
   }, [setLoading, agentDispatch, ticketDispatch, user?.username]);
 
+  // eslint-disable-next-line
   {/**iniciar signalr */}
   useEffect(() => {
     initializeSignalR({
@@ -93,6 +96,7 @@ function AppContent() {
     });
   }, [initializeSignalR, showNotification]);
 
+  // eslint-disable-next-line
   {/**detectar cambios en el login para redirigir */}
   useEffect(() => {
     if (authLoaded && user && knownAgent) {
