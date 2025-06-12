@@ -545,3 +545,24 @@ export const createAgent = async (dispatch, setLoading, formData) => {
     setLoading(false);
   }
 };
+
+//statistics
+export const getStats = async () => {
+  try {
+    const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetStats`);
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message || 'Error fetching tickets');
+    }
+    
+    console.log(data.message)
+    //dispatch({ type: 'SET_TICKETS', payload: data.message });
+    return { success: true, message: data.message || 'Updated successfully' };
+  } catch (err) {
+    const message = err.message || 'Something went wrong';
+    //dispatch({ type: 'SET_ERROR', payload: message });
+    return { success: false, message };
+  } finally {
+    //setLoading(false);
+  }
+};

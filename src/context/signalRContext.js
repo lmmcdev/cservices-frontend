@@ -2,6 +2,7 @@ import React, { createContext, useContext, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
 import { useTicketsDispatch } from './ticketsContext';
 import { useAuth } from './authContext';
+import { getStats } from '../utils/api';
 
 const SignalRContext = createContext();
 
@@ -37,11 +38,15 @@ export function SignalRProvider({ children }) {
 
       //evento ticket actualizado
       connection.on('ticketUpdated', (ticket) => {
-        //console.log('updated action', ticket)
-        //if (ticket.assigned_department === department) {
           dispatch({ type: 'UPD_TICKET', payload: ticket });
           onTicketUpdated?.(ticket);
-        //}
+      });
+
+      //evento disparador estadisticas
+      connection.on('statsUpdated', () => {
+        // Aquí llamas al endpoint para actualizar las estadísticas
+        //console.log
+        getStats();
       });
 
       //lock ticket
