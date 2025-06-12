@@ -155,5 +155,4 @@ function App() {
     </MsalProviderWrapper>
   );
 }
-
 export default App;
