@@ -1,7 +1,7 @@
 // src/App.js
 import React, { useEffect, useState } from 'react';
 import { Box } from '@mui/material';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 
 import TableTickets from './pages/tableTickets';
 import EditTicket from './pages/editTicket';
@@ -38,6 +38,7 @@ function AppContent() {
   const { initializeSignalR } = useSignalR();
   const { showNotification } = useNotification();
   const { user, authError, authLoaded, login } = useAuth();
+  const navigate = useNavigate();
 
   const [agentEmail, setAgentEmail] = useState('');
   const [filters, setFilters] = useState({
@@ -46,10 +47,14 @@ function AppContent() {
     callerIds: [],
   });
 
+  const knownAgent = agents.find(agent => agent.agent_email === user.username);
+
+  {/**actualizar el username (email de azure) */}
   useEffect(() => {
     if (user?.username) setAgentEmail(user.username);
   }, [user]);
 
+  {/**cargar data inicial de tickets y agentes */}
   useEffect(() => {
     let isCancelled = false;
 
@@ -77,17 +82,24 @@ function AppContent() {
     };
   }, [setLoading, agentDispatch, ticketDispatch, user?.username]);
 
+  {/**iniciar signalr */}
   useEffect(() => {
-  initializeSignalR({
-    onTicketCreated: (ticket) => {
-      showNotification(`🎫 New case from ${ticket.patient_name || 'Unknown patient'}`, 'success');
-    },
-    // No notificar por actualización
-    // onTicketUpdated: (ticket) => { ... }
-  });
-}, [initializeSignalR, showNotification]);
+    initializeSignalR({
+      onTicketCreated: (ticket) => {
+        showNotification(`🎫 New case from ${ticket.patient_name || 'Unknown patient'}`, 'success');
+      },
+      // No notificar por actualización
+      // onTicketUpdated: (ticket) => { ... }
+    });
+  }, [initializeSignalR, showNotification]);
 
-  const knownAgent = agents.find(agent => agent.agent_email === user.username);
+  {/**detectar cambios en el login para redirigir */}
+  useEffect(() => {
+    if (authLoaded && user && knownAgent) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [authLoaded, user, knownAgent, navigate]);
+
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: '#f8fafd', minHeight: '100vh' }}>
