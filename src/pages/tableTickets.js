@@ -179,8 +179,9 @@ export default function TableTickets() {
                     <TableCell sx={{ width: columnWidths.assignedTo, minWidth: columnWidths.assignedTo, fontWeight: 'bold' }}>
                       Assigned To
                     </TableCell>
-                    <TableCell sx={{ width: columnWidths.edit, minWidth: columnWidths.edit }}></TableCell>
-                    <TableCell sx={{ width: columnWidths.assign, minWidth: columnWidths.assign }}></TableCell>
+                    <TableCell sx={{ width: 120, fontWeight: 'bold', textAlign: 'center' }}>
+                      Action
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -213,62 +214,60 @@ export default function TableTickets() {
                       <TableCell>{row.creation_date}</TableCell>
                       <TableCell>{row.agent_assigned}</TableCell>
                       <TableCell>
-                        <Box display="flex" justifyContent="center">
+                        <Box display="flex" justifyContent="center" gap={1}>
+                          {/* Edit Button (only if agent_assigned is not empty) */}
                           {row.agent_assigned !== '' && (
-                              <Tooltip title="Edit" placement="bottom">
-                                <Box
-                                  sx={{
-                                    backgroundColor: '#DFF3FF',
-                                    color: '#00A1FF',
-                                    borderRadius: '50%',
-                                padding: 1,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: 32,
-                                height: 32,
-                                fontSize: 18,
-                                cursor: 'pointer',
-                                    transition: 'background-color 0.3s, color 0.3s',
-                                '&:hover': {
-                                  backgroundColor: '#00A1FF',
-                                  color: '#FFFFFF',
-                                },
-                                  }}
-                                  onClick={() =>
-                                    navigate(`/tickets/edit/${row.id}`)
-                                  }
-                                >
-                                  <icons.edit style={{ fontSize: 16, color: 'inherit' }} />
-                                </Box>
+                            <Tooltip title="Edit" placement="bottom">
+                              <Box
+                                sx={{
+                                  backgroundColor: '#DFF3FF',
+                                  color: '#00A1FF',
+                                  borderRadius: '50%',
+                                  padding: 1,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  width: 32,
+                                  height: 32,
+                                  fontSize: 18,
+                                  cursor: 'pointer',
+                                  transition: 'background-color 0.3s, color 0.3s',
+                                  '&:hover': {
+                                    backgroundColor: '#00A1FF',
+                                    color: '#FFFFFF',
+                                  },
+                                }}
+                                onClick={() => navigate(`/tickets/edit/${row.id}`)}
+                              >
+                                <icons.edit style={{ fontSize: 16, color: 'inherit' }} />
+                              </Box>
                             </Tooltip>
                           )}
-                          
+
+                          {/* Assign to Me Button (only if not assigned) */}
+                          {row.agent_assigned === '' && (
+                            <Tooltip title="Assign to me" placement="bottom">
+                              <IconButton
+                                onClick={() => setSelectedTicket(row)}
+                                sx={{
+                                  backgroundColor: '#daf8f4',
+                                  color: '#00b8a3',
+                                  borderRadius: '50%',
+                                  padding: 1,
+                                  width: 32,
+                                  height: 32,
+                                  transition: 'background-color 0.3s, color 0.3s',
+                                  '&:hover': {
+                                    backgroundColor: '#00b8a3',
+                                    color: '#ffffff',
+                                  },
+                                }}
+                              >
+                                <icons.assignToMe size={16} />
+                              </IconButton>
+                            </Tooltip>
+                          )}
                         </Box>
-                      </TableCell>
-                      <TableCell>
-                        {row.agent_assigned === '' && (
-                          <Tooltip title="Assign to me" placement="bottom">
-                            <IconButton
-                              onClick={() => setSelectedTicket(row)}
-                              sx={{
-                                backgroundColor: '#daf8f4',
-                                color: '#00b8a3',
-                                borderRadius: '50%',
-                                padding: 1,
-                                width: 32,
-                                height: 32,
-                                transition: 'background-color 0.3s, color 0.3s',
-                                '&:hover': {
-                                  backgroundColor: '#00b8a3',
-                                  color: '#ffffff',
-                                },
-                              }}
-                            >
-                              <icons.assignToMe size={16} />
-                            </IconButton>
-                          </Tooltip>
-                        )}
                       </TableCell>
                     </TableRow>
                   ))}

@@ -76,7 +76,7 @@ export default function TicketCollaborators({
         </Box>
 
         {collaborators.length === 0 ? (
-          <Typography variant="body2">No collaborators.</Typography>
+          <Typography variant="body2" color="text.secondary">No collaborators.</Typography>
         ) : (
           <Stack spacing={1}>
             {collaborators.map((email, index) => {

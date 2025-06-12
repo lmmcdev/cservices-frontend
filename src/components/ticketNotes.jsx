@@ -20,7 +20,7 @@ const statusColors = {
 };
 
 function formatAgentName(email) {
-  if (!email || typeof email !== 'string' || !email.includes('@')) return 'Unknown';
+  if (!email || typeof email !== 'string' || !email.includes('@')) return 'System';
 
   const [namePart] = email.split('@');
   const parts = namePart.split('.');

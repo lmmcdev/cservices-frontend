@@ -59,7 +59,8 @@ const formik = useFormik({
       handleOnSubmit({
         ...values,
         phone: international,
-        createdBy: agentEmail
+        createdBy: agentEmail,
+        agent_assigned: agentEmail
       });
       onClose();
     }

@@ -180,18 +180,83 @@ export default function EditTicket() {
     <>
       <Paper
         sx={{
-          p: 4,
-          width: '100%',
-          mx: 'auto',
-          ml: 15,
-          mr: 3,
+          position: 'fixed', // <- esto es CLAVE para fijar el contenedor
+          top: 150,          // <- ajusta según la altura del topbar
+          left: 200,
+          right: 20,
+          bottom: 20,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
           borderRadius: 4,
-          boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)', 
+          p: 4,
           backgroundColor: '#fff',
-        }}
-      >
+          boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
+              }}
+            >
+              {/* Row 1: Flechas y X a la derecha */}
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 18,
+                  right: 0,
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  pr: 3,
+                  gap: 1,
+                }}
+              >
+                {/* Ir hacia atrás */}
+                <Tooltip title="Previous case">
+                  <IconButton
+                    onClick={() => navigate(-1)}
+                    sx={{
+                      '&:hover': {
+                        color: '#00a1ff',
+                        backgroundColor: 'transparent',
+                        transition: '0.2s',
+                      },
+                    }}
+                  >
+                    <i className="fa fa-arrow-left" style={{ fontSize: 17 }} />
+                  </IconButton>
+                </Tooltip>
+
+                {/* Ir hacia adelante */}
+                <Tooltip title="Next case">
+                  <IconButton
+                    onClick={() => navigate(1)}
+                    sx={{
+                      '&:hover': {
+                        color: '#00a1ff',
+                        backgroundColor: 'transparent',
+                        transition: '0.2s',
+                      },
+                    }}
+                  >
+                    <i className="fa fa-arrow-right" style={{ fontSize: 17 }} />
+                  </IconButton>
+                </Tooltip>
+
+                {/* Volver a tableTickets */}
+                <Tooltip title="Close">
+                  <IconButton
+                    onClick={() => navigate('/dashboard')}
+                    sx={{
+                      '&:hover': {
+                        color: '#B0200C',
+                        backgroundColor: 'transparent',
+                        transition: '0.2s',
+                      },
+                    }}
+                  >
+                    <i className="fa fa-close" style={{ fontSize: 20 }} />
+                  </IconButton>
+                </Tooltip>
+              </Box>
+
         {/* Row 2: StatusBar */}
-        <Box sx={{ mb: 2 }}>
+        <Box sx={{ mt: 3, mb: 2 }}>
           <TicketStatusBar currentStatus={status} onStatusChange={handleStatusChangeUI} />
         </Box>
 
@@ -289,8 +354,11 @@ export default function EditTicket() {
                     )}
                   </Box>
                   </Typography>
+                  <Typography sx={{ mb: 2.5 }}>
+                    <strong>Phone:</strong><br /> {ticket.phone}
+                  </Typography>
                   <Typography>
-                    <strong>CallBack Number:</strong><br />
+                    <strong>Callback Number:</strong><br />
                     <Box>
                     {editField === 'phone' ? (
                       <Box display="flex" alignItems="center" gap={1}>
@@ -357,9 +425,6 @@ export default function EditTicket() {
                     <strong>Caller Name:</strong><br /> {ticket.caller_Name}
                   </Typography>
                   <Typography sx={{ mb: 2.5 }}>
-                    <strong>Phone:</strong><br /> {ticket.phone}
-                  </Typography>
-                  <Typography sx={{ mb: 2.5 }}>
                     <strong>Call Reason:</strong><br /> {ticket.call_reason}
                   </Typography>
                   <Typography>
@@ -378,7 +443,7 @@ export default function EditTicket() {
         {/**sx={{ maxHeight: 500, overflowY: 'auto' }} */}
         <Grid item>
             
-            <Box display="flex" flexDirection="column" gap={2} sx={{ width: '350px' }}>
+            <Box display="flex" flexDirection="column" gap={2} sx={{ width: '380px', minWidth: '380px' }}>
               <TicketAssignee
                 assigneeEmail={agentAssigned}
                 status={status}
@@ -394,7 +459,7 @@ export default function EditTicket() {
               />
             </Box>
 
-            <Card variant="outlined" sx={{ mt: 2 }}>
+            <Card variant="outlined" sx={{ mt: 2, width: '100%' }}>
               <CardContent sx={{ p: '20px 25px 25px 30px' }}>
                 <Box display="flex" alignItems="center" gap={1} mb={2}>
                   <Box
@@ -412,19 +477,15 @@ export default function EditTicket() {
                     Time on Task
                   </Typography>
                 </Box>
-                <TicketWorkTime workTimeData={ticket.work_time} />
+                <Box sx={{ width: '100%', minWidth: '280px' }}>
+                  <TicketWorkTime workTimeData={ticket.work_time} />
+                </Box>
               </CardContent>
             </Card>
           </Grid>
         </Grid>
-        
-        {/* Row 4: Cancel button */}
-        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-          <ActionButtons onCancel={() => navigate(-1)} />
-        </Box>
       </Paper>
 
-    
       {/* Dialog para agregar nota */}
       <AddNoteDialog
         open={openNoteDialog}

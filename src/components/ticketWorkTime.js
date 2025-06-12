@@ -49,29 +49,29 @@ const TicketWorkTime = ({ workTimeData = [] }) => {
   }, [workTimeData]);
 
   return (
-    <Card variant="outlined" sx={{ p: 1 }}>
+    <Card variant="outlined" sx={{ p: 1, width: '100%', minWidth: '280px', maxWidth: '320px' }}>
       <CardContent sx={{ p: 1 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Grid container spacing={2}>
-            <Grid size={12}>
+            <Grid item xs={12}>
               <Typography variant="subtitle2" color="text.secondary">
                 ⏱ Total: {formatSeconds(totalSeconds)}
               </Typography>
             </Grid>
-          
-            <Grid>
+
+            <Grid item xs={12}>
               <Typography variant="caption" fontWeight="bold" color="text.secondary">
-                  Agent worktime:
-                </Typography>
-                <Stack spacing={0.5} sx={{ mt: 0.5 }}>
-                  {Object.entries(timeByUser).map(([name, seconds], i) => (
-                    <Typography key={i} variant="caption" sx={{ pl: 1 }}>
-                      • {name}: {formatSeconds(seconds)}
-                    </Typography>
-                  ))}
-                </Stack>
-              </Grid>
+                Agent worktime:
+              </Typography>
+              <Stack spacing={0.5} sx={{ mt: 0.5 }}>
+                {Object.entries(timeByUser).map(([name, seconds], i) => (
+                  <Typography key={i} variant="caption" sx={{ pl: 1 }}>
+                    • {name}: {formatSeconds(seconds)}
+                  </Typography>
+                ))}
+              </Stack>
             </Grid>
+          </Grid>
           <IconButton size="small" onClick={() => setShowDetails(!showDetails)}>
             {showDetails ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </IconButton>
@@ -105,7 +105,7 @@ const TicketWorkTime = ({ workTimeData = [] }) => {
                     <Typography variant="caption" sx={{ minWidth: 70 }}>
                       ⏱ {formatSeconds(entry.workTime)}
                     </Typography>
-                    <Typography variant="caption" sx={{ minWidth: 80 }}>
+                    <Typography variant="caption" sx={{ minWidth: 80, maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {fullName}
                     </Typography>
                     <Typography

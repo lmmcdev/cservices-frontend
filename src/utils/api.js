@@ -429,7 +429,8 @@ export const createNewTicket = async (dispatch, setLoading, formData) => {
           call_reason: formData.callReason,
           agent_note: formData.notes,
           assigned_department: formData.callDepartment,
-          agent_email: formData.agent_email
+          agent_email: formData.agent_email,
+          agent_assigned: formData.agent_email
         }
       }),
     });

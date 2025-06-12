@@ -206,9 +206,11 @@ export default function TicketAudio({ audioUrl, title = 'Audio', status }) {
               {title}
             </Typography>
           </Box>
-          <Typography variant="body2" color="text.secondary">
-            No audio file available.
-          </Typography>
+          <Box mt={2}>
+            <Typography variant="body2" color="text.secondary">
+              No audio file available.
+            </Typography>
+          </Box>
         </CardContent>
       </Card>
     );
