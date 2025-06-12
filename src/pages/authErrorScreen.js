@@ -18,13 +18,13 @@ const AuthErrorScreen = ({ errorMessage, onRetry }) => {
     >
       <ErrorOutlineIcon color="error" sx={{ fontSize: 60, mb: 2 }} />
       <Typography variant="h5" gutterBottom color="error">
-        Error al iniciar sesión
+        You need to sign in
       </Typography>
       <Typography variant="body1" sx={{ mb: 3 }}>
-        {errorMessage || 'Ocurrió un problema al autenticarse. Asegúrate de permitir ventanas emergentes en este sitio.'}
+        {errorMessage || 'There is a problem in your end, please check if your browser allows popups.'}
       </Typography>
       <Button variant="contained" color="primary" onClick={onRetry}>
-        Reintentar inicio de sesión
+        Get one more chance
       </Button>
     </Box>
   );
