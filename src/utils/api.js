@@ -509,7 +509,7 @@ export const editAgent = async (dispatch, setLoading, formData) => {
 //create agent
 export const createAgent = async (dispatch, setLoading, formData) => {
   //console
-  setLoading(true);
+  //setLoading(true);
   
   try {
     const response = await fetch('https://cservicesapi.azurewebsites.net/api/cosmoInsertAgent', {
@@ -547,7 +547,8 @@ export const createAgent = async (dispatch, setLoading, formData) => {
 };
 
 //statistics
-export const getStats = async () => {
+export const getStats = async (dispatch, setLoading) => {
+  //setLoading(true)
   try {
     const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetStats`);
     const data = await response.json();
@@ -555,8 +556,8 @@ export const getStats = async () => {
       throw new Error(data.message || 'Error fetching tickets');
     }
     
-    console.log(data.message)
-    //dispatch({ type: 'SET_TICKETS', payload: data.message });
+    //console.log(data.message)
+    dispatch({ type: 'SET_STATS', payload: data.message });
     return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';

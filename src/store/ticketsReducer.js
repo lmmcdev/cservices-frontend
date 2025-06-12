@@ -4,11 +4,21 @@ export const initialState = {
   agents: [],
   updated_agent: [],
   updated_action: [],
+  statistics:[],
   error: null,
 };
 
 export const ticketReducer = (state, action) => {
   switch (action.type) {
+    case 'SET_STATS':
+      console.log("inserting stats", action.payload)
+      return {
+        ...state,
+        statistics: action.payload,
+        error: null,
+      };
+
+
     case 'SET_TICKETS':
       return {
         ...state,
@@ -33,13 +43,6 @@ export const ticketReducer = (state, action) => {
         )
       };
 
-
-    case 'SET_ERROR':
-      return {
-        ...state,
-        error: action.payload,
-      };
-
     //agents
     case 'SET_AGENTS':
       return {
@@ -47,6 +50,15 @@ export const ticketReducer = (state, action) => {
         agents: action.payload,
         error: null,
       };
+
+
+    case 'SET_ERROR':
+      return {
+        ...state,
+        error: action.payload,
+      };
+
+    
     case 'SET_A_ERROR':
       return {
         ...state,
@@ -62,6 +74,8 @@ export const ticketReducer = (state, action) => {
           : ticket
       ),
     };
+
+
 
     case 'SET_ASSIGNMENT_ERROR':
       return {

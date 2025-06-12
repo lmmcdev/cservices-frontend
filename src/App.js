@@ -7,9 +7,9 @@ import TableTickets from './pages/tableTickets';
 import EditTicket from './pages/editTicket';
 import TableAgents from './pages/tableAgents';
 import EditAgent from './pages/editAgent';
-//import ProfileSearch from './pages/profileSearch';
 import AuthErrorScreen from './pages/authErrorScreen';
 import UnknownAgentNotice from './pages/unknownAgentNotice';
+import StatsScreen from './pages/statsScreen';
 
 import { LoadingProvider, useLoading } from './providers/loadingProvider';
 import { fetchAgentData, fetchTableData } from './utils/api';
@@ -22,6 +22,7 @@ import { AuthProvider, useAuth } from './context/authContext';
 import { useNotification, NotificationProvider } from './context/notificationsContext';
 import { ProfilePhotoProvider } from './context/profilePhotoContext';
 import MsalProviderWrapper from './providers/msalProvider';
+import { StatsProvider } from './context/statsContext';
 
 import MainLayout from './layouts/mainLayout';
 import MinimalCenteredLayout from './layouts/minimalCenterLayout';
@@ -113,6 +114,7 @@ function AppContent() {
 
         {/**Layput con sideBar solo */}
         <Route element={<LayoutWithSidebarOnly />}>
+          <Route path='statistics' element={<StatsScreen />} />
         </Route>
 
         {/**Layout limpio */}
@@ -132,6 +134,7 @@ function App() {
       <AgentsProvider> {/* 👈 Esto debe estar antes */}
         <AuthProvider>  {/* 👈 Ahora sí puede usar useAgents */}
           <LoadingProvider>
+            <StatsProvider>
             <TicketsProvider>
               <SignalRProvider>
                 <NotificationProvider>
@@ -145,6 +148,7 @@ function App() {
                 </NotificationProvider>
               </SignalRProvider>
             </TicketsProvider>
+            </StatsProvider>
           </LoadingProvider>
         </AuthProvider>
       </AgentsProvider>

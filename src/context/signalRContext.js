@@ -1,15 +1,19 @@
 import React, { createContext, useContext, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
 import { useTicketsDispatch } from './ticketsContext';
+import { useStatsDispatch } from './statsContext';
 import { useAuth } from './authContext';
+import { useLoading } from '../providers/loadingProvider';
 import { getStats } from '../utils/api';
 
 const SignalRContext = createContext();
 
 // signalRContext.js
 export function SignalRProvider({ children }) {
+  const { setLoading } = useLoading();
   const connectionRef = useRef(null);
   const dispatch = useTicketsDispatch();
+  const dispatchStats = useStatsDispatch();
   const { department } = useAuth();
   //console.log(department)
   const initializeSignalR = async ({ onTicketCreated, onTicketUpdated }) => {
@@ -44,9 +48,7 @@ export function SignalRProvider({ children }) {
 
       //evento disparador estadisticas
       connection.on('statsUpdated', () => {
-        // Aquí llamas al endpoint para actualizar las estadísticas
-        //console.log
-        getStats();
+        getStats(dispatchStats, setLoading);
       });
 
       //lock ticket
