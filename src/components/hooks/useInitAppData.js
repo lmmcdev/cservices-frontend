@@ -16,8 +16,9 @@ export const useInitAppData = () => {
     const load = async () => {
       setLoading(true);
       try {
-        const agents = await fetchAgentData(agentDispatch, setLoading);
-        const tickets = await fetchTableData(ticketDispatch, setLoading, user?.username);
+        const agents = await fetchAgentData();
+        const tickets = await fetchTableData(user?.username);
+        //console.log(tickets)
         agentDispatch({ type: 'SET_AGENTS', payload: agents.message });
         ticketDispatch({ type: 'SET_TICKETS', payload: tickets.message });
       } finally {

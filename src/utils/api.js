@@ -1,23 +1,13 @@
 // ticketUtils.js
 //import axios from 'axios';
 //fetch table tickets
-export const fetchTableData = async (dispatch, setLoading, agentAssigned) => {
-  try {
+export const fetchTableData = async (agentAssigned) => {
+ 
     const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGet?agent_assigned=${encodeURIComponent(agentAssigned)}`);
     const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || 'Error fetching tickets');
-    }
-    
-    dispatch({ type: 'SET_TICKETS', payload: data.message });
-    return { success: true, message: data.message || 'Updated successfully' };
-  } catch (err) {
-    const message = err.message || 'Something went wrong';
-    dispatch({ type: 'SET_ERROR', payload: message });
-    return { success: false, message };
-  } finally {
-    setLoading(false);
-  }
+    if (!response.ok) throw new Error(data.message || 'Error fetching tickets');
+    return data;
+  
 };
 
 //phone calls history
@@ -29,7 +19,6 @@ export const phoneHistory = async (dispatch, setLoading, phoneNumber) => {
       throw new Error(data.message || 'Error fetching calls history');
     }
     
-    dispatch({ type: 'SET_PHONE_CALLS_HISTORY', payload: data.message });
     return { success: true, message: data.items || 'Updated successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';
@@ -41,23 +30,14 @@ export const phoneHistory = async (dispatch, setLoading, phoneNumber) => {
 };
 
 //fetch table agents
-export const fetchAgentData = async (dispatch, setLoading) => {
-  try {
+export const fetchAgentData = async () => {
+  
     const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetAgents`);
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.message || 'Error fetching agents data');
     }
-
-    dispatch({ type: 'SET_AGENTS', payload: data.message });
-    return { success: true, message: data.message || 'Updated successfully' };
-  } catch (err) {
-    const message = err.message || 'Something went wrong';
-    dispatch({ type: 'SET_ERROR', payload: message });
-    return { success: false, message };
-  } finally {
-    setLoading(false);
-  }
+    return data;
 };
 
 // assign agent to a ticket
