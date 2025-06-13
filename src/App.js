@@ -4,7 +4,7 @@ import { Box } from '@mui/material';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
 // Contexts and utilities
-import { LoadingProvider, useLoading } from './providers/loadingProvider';
+import { LoadingProvider } from './providers/loadingProvider';
 import { AgentsProvider } from './context/agentsContext';
 import { TicketsProvider } from './context/ticketsContext';
 import { SignalRProvider, useSignalR } from './context/signalRContext';

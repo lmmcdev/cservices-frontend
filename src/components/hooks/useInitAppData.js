@@ -25,5 +25,6 @@ export const useInitAppData = () => {
       }
     };
     if (user?.username) load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.username]);
 };
