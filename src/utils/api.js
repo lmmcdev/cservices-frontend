@@ -1,6 +1,5 @@
 // ticketUtils.js
 //import axios from 'axios';
-//fetch table tickets
 export const fetchTableData = async (agentAssigned) => {
  
     const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGet?agent_assigned=${encodeURIComponent(agentAssigned)}`);
