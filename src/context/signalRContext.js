@@ -10,7 +10,6 @@ const SignalRContext = createContext();
 
 // signalRContext.js
 export function SignalRProvider({ children }) {
-  const { setLoading } = useLoading();
   const connectionRef = useRef(null);
   const dispatch = useTicketsDispatch();
   const dispatchStats = useStatsDispatch();

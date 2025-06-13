@@ -13,7 +13,6 @@ import TicketCollaborators from '../components/ticketCollaborators';
 import TicketAudio from '../components/ticketAudio';
 import AddNoteDialog from '../components/dialogs/addNotesDialog';
 import AgentSelectorDialog from '../components/dialogs/agentSelectorDialog';
-import ActionButtons from '../components/auxiliars/actionButtons';
 import TicketAssignee from '../components/ticketAssignee';
 import ChangeAgentModal from '../components/dialogs/changeAgentModal';
 import ChangeDepartmentModal from '../components/dialogs/changeDepartmentModal';
