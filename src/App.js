@@ -14,6 +14,7 @@ import { NotificationProvider, useNotification } from './context/notificationsCo
 import { ProfilePhotoProvider } from './context/profilePhotoContext';
 import MsalProviderWrapper from './providers/msalProvider';
 import { StatsProvider } from './context/statsContext';
+import SuspenseFallback from './components/auxiliars/suspenseFallback';
 
 import MainLayout from './layouts/mainLayout';
 import MinimalCenteredLayout from './layouts/minimalCenterLayout';
@@ -66,7 +67,7 @@ function AppContent() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: '#f8fafd', minHeight: '100vh' }}>
       <Box sx={{ mt: { xs: 8, sm: 12 } }} />
-      <Suspense fallback={<Box p={4}>Cargando componente...</Box>}>
+      <Suspense fallback={<SuspenseFallback />}>
         <Routes>
           <Route path="/" element={<PrivateRoute />}>
             <Route element={<MainLayout agentEmail={agentEmail} filters={filters} setFilters={setFilters} />}>
