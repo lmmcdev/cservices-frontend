@@ -1,45 +1,45 @@
 // src/App.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import { Box } from '@mui/material';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import TableTickets from './pages/tableTickets';
-import EditTicket from './pages/editTicket';
-import TableAgents from './pages/tableAgents';
-import EditAgent from './pages/editAgent';
-import AuthErrorScreen from './pages/authErrorScreen';
-import UnknownAgentNotice from './pages/unknownAgentNotice';
-import StatsScreen from './pages/statsScreen';
-
+// Contexts and utilities
 import { LoadingProvider, useLoading } from './providers/loadingProvider';
-import { fetchAgentData, fetchTableData } from './utils/api';
-
-import { AgentsProvider, useAgents } from './context/agentsContext';
-import { TicketsProvider, useTickets } from './context/ticketsContext';
+import { AgentsProvider } from './context/agentsContext';
+import { TicketsProvider } from './context/ticketsContext';
 import { SignalRProvider, useSignalR } from './context/signalRContext';
 import { FiltersProvider } from './context/filterContext';
 import { AuthProvider, useAuth } from './context/authContext';
-import { useNotification, NotificationProvider } from './context/notificationsContext';
+import { NotificationProvider, useNotification } from './context/notificationsContext';
 import { ProfilePhotoProvider } from './context/profilePhotoContext';
 import MsalProviderWrapper from './providers/msalProvider';
 import { StatsProvider } from './context/statsContext';
 
 import MainLayout from './layouts/mainLayout';
 import MinimalCenteredLayout from './layouts/minimalCenterLayout';
+import LayoutWithSidebarOnly from './layouts/sideBarLayout';
+import PrivateRoute from './components/privateRoute';
+import { useInitAppData } from './components/hooks/useInitAppData';
 
 import './App.css';
-import LayoutWithSidebarOnly from './layouts/sideBarLayout';
-import ProfileSearch from './pages/profileSearch';
-import PrivateRoute from './components/privateRoute';
+
+
+// Lazy-loaded pages
+const TableTickets = lazy(() => import('./pages/tableTickets'));
+const EditTicket = lazy(() => import('./pages/editTicket'));
+const TableAgents = lazy(() => import('./pages/tableAgents'));
+const EditAgent = lazy(() => import('./pages/editAgent'));
+const AuthErrorScreen = lazy(() => import('./pages/authErrorScreen'));
+const UnknownAgentNotice = lazy(() => import('./pages/unknownAgentNotice'));
+const StatsScreen = lazy(() => import('./pages/statsScreen'));
+const ProfileSearch = lazy(() => import('./pages/profileSearch'));
+const NotFoundPage = () => <Box p={4}>404 - Página no encontrada</Box>;
+
 
 function AppContent() {
-  const { setLoading } = useLoading();
-  const { dispatch: agentDispatch } = useAgents();
-  const { dispatch: ticketDispatch } = useTickets();
-  const { initializeSignalR } = useSignalR();
   const { showNotification } = useNotification();
-  const { user, authError, login } = useAuth();
-
+  const { initializeSignalR } = useSignalR();
+  const { user, authError, login, authLoaded } = useAuth();
   const [agentEmail, setAgentEmail] = useState('');
   const [filters, setFilters] = useState({
     date: '',
@@ -47,83 +47,49 @@ function AppContent() {
     callerIds: [],
   });
 
-  // eslint-disable-next-line
-  {/**actualizar el username (email de azure) */}
   useEffect(() => {
     if (user?.username) setAgentEmail(user.username);
   }, [user]);
 
-  // eslint-disable-next-line
-  {/**cargar data inicial de tickets y agentes */}
-  useEffect(() => {
-    let isCancelled = false;
+  useInitAppData();
 
-    const loadData = async () => {
-      setLoading(true);
-      try {
-        const agentsData = await fetchAgentData(agentDispatch, setLoading);
-        const ticketsData = await fetchTableData(ticketDispatch, setLoading, user.username);
-
-        if (!isCancelled) {
-          agentDispatch({ type: 'SET_AGENTS', payload: agentsData.message });
-          ticketDispatch({ type: 'SET_TICKETS', payload: ticketsData.message });
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (user?.username) {
-      loadData();
-    }
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [setLoading, agentDispatch, ticketDispatch, user?.username]);
-
-  // eslint-disable-next-line
-  {/**iniciar signalr */}
   useEffect(() => {
     initializeSignalR({
       onTicketCreated: (ticket) => {
         showNotification(`🎫 New case from ${ticket.patient_name || 'Unknown patient'}`, 'success');
       },
-      // No notificar por actualización
-      // onTicketUpdated: (ticket) => { ... }
     });
   }, [initializeSignalR, showNotification]);
 
- 
+  if (!authLoaded) return <Box p={4}>Cargando...</Box>;
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: '#f8fafd', minHeight: '100vh' }}>
-      <Box sx={{ height: 150 }} /> {/*Espaciador para separar el topBar del contenido de abajo*/}
-      {/**Layout con sideBar y topBar */}
-
-      <Routes>
-       
-        <Route path="/" element={<PrivateRoute />}>
-          <Route element={<MainLayout agentEmail={agentEmail} filters={filters} setFilters={setFilters} />}>
-            <Route path="/dashboard" element={<TableTickets filters={filters} />} />
-            <Route path="/agents" element={<TableAgents />} />
-            <Route path="/tickets/edit/:ticketId" element={<EditTicket />} />
-            <Route path="/agent/edit/:id" element={<EditAgent />} />
-            <Route path="/profile-search" element={<ProfileSearch />} />
+      <Box sx={{ mt: { xs: 8, sm: 12 } }} />
+      <Suspense fallback={<Box p={4}>Cargando componente...</Box>}>
+        <Routes>
+          <Route path="/" element={<PrivateRoute />}>
+            <Route element={<MainLayout agentEmail={agentEmail} filters={filters} setFilters={setFilters} />}>
+              <Route path="/dashboard" element={<TableTickets filters={filters} />} />
+              <Route path="/agents" element={<TableAgents />} />
+              <Route path="/tickets/edit/:ticketId" element={<EditTicket />} />
+              <Route path="/agent/edit/:id" element={<EditAgent />} />
+              <Route path="/profile-search" element={<ProfileSearch />} />
+            </Route>
           </Route>
-        </Route>
 
-        {/**Layput con sideBar solo */}
-        <Route element={<LayoutWithSidebarOnly />}>
-          <Route path='statistics' element={<StatsScreen />} />
-        </Route>
+          <Route element={<LayoutWithSidebarOnly />}>
+            <Route path='/statistics' element={<StatsScreen />} />
+          </Route>
 
-        {/**Layout limpio */}
-        <Route element={<MinimalCenteredLayout />}>
-          <Route path="/auth-error" element={<AuthErrorScreen errorMessage={authError} onRetry={login} />} />
-          <Route path="/unknown-agent" element={
-            <UnknownAgentNotice userEmail={user?.username} onRetry={() => window.location.reload()} />}     />
-        </Route>
-      </Routes>
+          <Route element={<MinimalCenteredLayout />}>
+            <Route path="/auth-error" element={<AuthErrorScreen errorMessage={authError} onRetry={login} />} />
+            <Route path="/unknown-agent" element={<UnknownAgentNotice userEmail={user?.username} onRetry={() => window.location.reload()} />} />
+          </Route>
+
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
     </Box>
   );
 }
@@ -131,23 +97,23 @@ function AppContent() {
 function App() {
   return (
     <MsalProviderWrapper>
-      <AgentsProvider> {/* 👈 Esto debe estar antes */}
-        <AuthProvider>  {/* 👈 Ahora sí puede usar useAgents */}
+      <AgentsProvider>
+        <AuthProvider>
           <LoadingProvider>
             <StatsProvider>
-            <TicketsProvider>
-              <SignalRProvider>
-                <NotificationProvider>
-                  <FiltersProvider>
-                    <ProfilePhotoProvider>
-                      <BrowserRouter>
-                        <AppContent />
-                      </BrowserRouter>
-                    </ProfilePhotoProvider>
-                  </FiltersProvider>
-                </NotificationProvider>
-              </SignalRProvider>
-            </TicketsProvider>
+              <TicketsProvider>
+                <SignalRProvider>
+                  <NotificationProvider>
+                    <FiltersProvider>
+                      <ProfilePhotoProvider>
+                        <BrowserRouter>
+                          <AppContent />
+                        </BrowserRouter>
+                      </ProfilePhotoProvider>
+                    </FiltersProvider>
+                  </NotificationProvider>
+                </SignalRProvider>
+              </TicketsProvider>
             </StatsProvider>
           </LoadingProvider>
         </AuthProvider>
@@ -155,4 +121,5 @@ function App() {
     </MsalProviderWrapper>
   );
 }
+
 export default App;
