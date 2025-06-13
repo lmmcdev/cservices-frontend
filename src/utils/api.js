@@ -1,6 +1,5 @@
 // ticketUtils.js
 //import axios from 'axios';
-
 //fetch table tickets
 export const fetchTableData = async (dispatch, setLoading, agentAssigned) => {
   try {
@@ -552,8 +551,8 @@ export const getStats = async (dispatch, accessToken) => {
   //setLoading(true)
   //console.log(accessToken)
   if (accessToken === null) return
-  
-  try {
+  //console.log(accessToken)
+ try {
     const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetStats`, {
       method: 'GET',
       headers: {

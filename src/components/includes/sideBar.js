@@ -23,11 +23,10 @@ export default function CollapsibleDrawer({ agents }) {
   const location = useLocation();
 
   const navItems = [
-    { icon: <icons.dashboard style={{ fontSize: 22 }} />, label: 'Dashboard', path: '/home' },
+    { icon: <icons.dashboard style={{ fontSize: 22 }} />, label: 'Dashboard', path: '/statistics' },
     { icon: <icons.callLogs style={{ fontSize: 22 }} />, label: 'Call Logs', path: '/dashboard' },
     { icon: <icons.team style={{ fontSize: 22 }} />, label: 'Team', path: '/agents' },
     { icon: <icons.searchIcon style={{ fontSize: 22 }} />, label: 'Find', path: '/profile-search' },
-    { icon: <icons.searchIcon style={{ fontSize: 22 }} />, label: 'Statistics', path: '/statistics' },
   ];
 
   const handleListItemClick = (path) => {
