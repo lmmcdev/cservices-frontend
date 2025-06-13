@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useEffect, useState, Suspense, lazy } from 'react';
+import React, { useEffect, useState, Suspense, lazy, Navigate } from 'react';
 import { Box } from '@mui/material';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
@@ -71,13 +71,14 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<PrivateRoute />}>
             <Route element={<MainLayout agentEmail={agentEmail} filters={filters} setFilters={setFilters} />}>
-              <Route path="/dashboard" element={<TableTickets filters={filters} />} />
-              <Route path="/agents" element={<TableAgents />} />
-              <Route path="/tickets/edit/:ticketId" element={<EditTicket />} />
-              <Route path="/agent/edit/:id" element={<EditAgent />} />
-              <Route path="/profile-search" element={<ProfileSearch />} />
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route path="dashboard" element={<TableTickets filters={filters} />} />
+              <Route path="agents" element={<TableAgents />} />
+              <Route path="tickets/edit/:ticketId" element={<EditTicket />} />
+              <Route path="agent/edit/:id" element={<EditAgent />} />
+              <Route path="profile-search" element={<ProfileSearch />} />
             </Route>
-          </Route>
+          
 
           <Route element={<LayoutWithSidebarOnly />}>
             <Route path='/statistics' element={<StatsScreen />} />
@@ -87,7 +88,7 @@ function AppContent() {
             <Route path="/auth-error" element={<AuthErrorScreen errorMessage={authError} onRetry={login} />} />
             <Route path="/unknown-agent" element={<UnknownAgentNotice userEmail={user?.username} onRetry={() => window.location.reload()} />} />
           </Route>
-
+        </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
