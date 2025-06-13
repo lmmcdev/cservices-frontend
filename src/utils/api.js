@@ -551,6 +551,8 @@ export const createAgent = async (dispatch, setLoading, formData) => {
 export const getStats = async (dispatch, accessToken) => {
   //setLoading(true)
   //console.log(accessToken)
+  if (accessToken === null) return
+  
   try {
     const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetStats`, {
       method: 'GET',
