@@ -3,7 +3,6 @@ import * as signalR from '@microsoft/signalr';
 import { useTicketsDispatch } from './ticketsContext';
 import { useStatsDispatch } from './statsContext';
 import { useAuth } from './authContext';
-import { useLoading } from '../providers/loadingProvider';
 import { getStats } from '../utils/api';
 
 const SignalRContext = createContext();
