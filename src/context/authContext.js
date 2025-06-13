@@ -19,6 +19,7 @@ export const AuthProvider = ({ children }) => {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [authError, setAuthError] = useState(null);
   const [authLoaded, setAuthLoaded] = useState(false);
+  const [accessToken, setAccessToken] = useState(null);
 
   //console.log(agents)
   const login = async () => {
@@ -41,6 +42,7 @@ export const AuthProvider = ({ children }) => {
 
       if (account) {
         setUser(account);
+        await getAccessToken(account);
         await getProfilePhoto(account);
       }
 
@@ -54,7 +56,9 @@ export const AuthProvider = ({ children }) => {
 
   const getAccessToken = async (account) => {
     try {
-      return await msalInstance.acquireTokenSilent({ ...loginRequest, account });
+      const response = await msalInstance.acquireTokenSilent({ ...loginRequest, account });
+      setAccessToken(response.accessToken); // ← guarda el token
+      return response;
     } catch (error) {
       if (error instanceof InteractionRequiredAuthError) {
         return await msalInstance.acquireTokenPopup({ ...loginRequest, account });
@@ -112,6 +116,7 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider value={{
       user,
+      accessToken,
       profilePhoto,
       login,
       logout,

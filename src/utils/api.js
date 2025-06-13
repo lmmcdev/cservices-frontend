@@ -548,10 +548,18 @@ export const createAgent = async (dispatch, setLoading, formData) => {
 };
 
 //statistics
-export const getStats = async (dispatch, setLoading) => {
+export const getStats = async (dispatch, accessToken) => {
   //setLoading(true)
+  //console.log(accessToken)
   try {
-    const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetStats`);
+    const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetStats`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+
+    );
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.message || 'Error fetching tickets');

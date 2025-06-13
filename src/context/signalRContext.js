@@ -14,7 +14,8 @@ export function SignalRProvider({ children }) {
   const connectionRef = useRef(null);
   const dispatch = useTicketsDispatch();
   const dispatchStats = useStatsDispatch();
-  const { department } = useAuth();
+  const { department, accessToken } = useAuth();
+  
   //console.log(department)
   const initializeSignalR = async ({ onTicketCreated, onTicketUpdated }) => {
     if (connectionRef.current) return;
@@ -48,7 +49,8 @@ export function SignalRProvider({ children }) {
 
       //evento disparador estadisticas
       connection.on('statsUpdated', () => {
-        getStats(dispatchStats, setLoading);
+
+        getStats(dispatchStats, accessToken);
       });
 
       //lock ticket
