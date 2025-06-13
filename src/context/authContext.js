@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [authError, setAuthError] = useState(null);
   const [authLoaded, setAuthLoaded] = useState(false);
-  const [accessToken, setAccessToken] = useState(null);
+  const [accessTokenMSAL, setAccessToken] = useState(null);
 
   //console.log(agents)
   const login = async () => {
@@ -116,7 +116,7 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider value={{
       user,
-      accessToken,
+      accessTokenMSAL,
       profilePhoto,
       login,
       logout,
