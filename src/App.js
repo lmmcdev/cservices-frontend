@@ -1,7 +1,7 @@
 // src/App.js
-import React, { useEffect, useState, Suspense, lazy, Navigate } from 'react';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
 import { Box } from '@mui/material';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 // Contexts and utilities
 import { LoadingProvider } from './providers/loadingProvider';
