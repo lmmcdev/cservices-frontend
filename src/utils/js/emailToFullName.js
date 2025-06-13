@@ -1,8 +1,8 @@
 export const emailToFullName = (email) => {
   if (!email) return "";
   //const e = {...email}
-  console.log(email[0])
-  const [localPart] = email[0].split("@");
+  console.log(email)
+  const [localPart] = email.split("@");
   const [first, last] = localPart.split(".");
 
   if (!first || !last) return email;

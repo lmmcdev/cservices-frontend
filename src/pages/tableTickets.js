@@ -12,10 +12,11 @@ import AssignAgentModal from '../components/dialogs/assignAgentDialog';
 import { icons } from '../components/auxiliars/icons.js';
 import { useNavigate } from 'react-router-dom';
 import { useFilters } from '../context/filterContext.js';
-//import { emailToFullName } from '../utils/js/emailToFullName.js'
+import { emailToFullName } from '../utils/js/emailToFullName.js'
 import StatusFilterBoxes from '../components/statusFilterBoxes';
 import { SortAscending, SortDescending } from 'phosphor-react';
 import { getStatusColor } from '../utils/js/statusColors.js';
+import SuspenseFallback from '../components/auxiliars/suspenseFallback.js';
 
 export default function TableTickets() {
   const { filters } = useFilters();
@@ -108,6 +109,10 @@ export default function TableTickets() {
       return '+1 ' + parts.join('');
     };
 
+     if (!Array.isArray(state.tickets) || state.tickets.length === 0) {
+        return <SuspenseFallback />;
+      }
+
   return (
     <>
       <Card
@@ -137,7 +142,14 @@ export default function TableTickets() {
 
           {/*TABLA CON SCROLL INTERNO*/}
           <Box sx={{ flex: 1, overflowY: 'auto' }}>
-            <TableContainer component={Paper} elevation={0} sx={{ maxHeight: '100%', overflowY: 'auto' }}>
+            <TableContainer component={Paper} elevation={0} sx={{
+                maxHeight: '100%',
+                overflowY: 'auto',
+                '& .MuiTableCell-stickyHeader': {
+                  backgroundColor: '#f3f4f6',
+                  boxShadow: '0px 2px 5px rgba(0,0,0,0.05)',
+                }
+              }}>
               <Table stickyHeader sx={{ tableLayout: 'fixed' }}>
                 <TableHead>
                   <TableRow>
@@ -212,7 +224,7 @@ export default function TableTickets() {
                       <TableCell>{row.patient_dob}</TableCell>
                       <TableCell>{row.phone ? formatPhone(row.phone) : 'N/A'}</TableCell>
                       <TableCell>{row.creation_date}</TableCell>
-                      <TableCell>{row.agent_assigned}</TableCell>
+                      <TableCell>{emailToFullName(row.agent_assigned)}</TableCell>
                       <TableCell>
                         <Box display="flex" justifyContent="center" gap={1}>
                           {/* Edit Button (only if agent_assigned is not empty) */}
