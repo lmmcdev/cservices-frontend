@@ -5,12 +5,14 @@ import { useAgents } from "../../context/agentsContext";
 import { useAuth } from "../../context/authContext";
 import { useLoading } from "../../providers/loadingProvider";
 import { fetchAgentData, fetchTableData } from "../../utils/api";
+import { useNavigate } from 'react-router-dom';
 
 export const useInitAppData = () => {
   const { user } = useAuth();
   const { dispatch: ticketDispatch } = useTickets();
   const { dispatch: agentDispatch } = useAgents();
   const { setLoading } = useLoading();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const load = async () => {
@@ -21,7 +23,11 @@ export const useInitAppData = () => {
         //console.log(tickets)
         agentDispatch({ type: 'SET_AGENTS', payload: agents.message });
         ticketDispatch({ type: 'SET_TICKETS', payload: tickets.message });
-      } finally {
+      } 
+      catch(err) {
+        navigate('/404');
+      }
+      finally {
         setLoading(false);
       }
     };

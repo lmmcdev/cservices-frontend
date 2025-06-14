@@ -20,6 +20,7 @@ import MainLayout from './layouts/mainLayout';
 import MinimalCenteredLayout from './layouts/minimalCenterLayout';
 import LayoutWithSidebarOnly from './layouts/sideBarLayout';
 import PrivateRoute from './components/privateRoute';
+import NotFound404 from './pages/404';
 import { useInitAppData } from './components/hooks/useInitAppData';
 
 import './App.css';
@@ -34,7 +35,6 @@ const AuthErrorScreen = lazy(() => import('./pages/authErrorScreen'));
 const UnknownAgentNotice = lazy(() => import('./pages/unknownAgentNotice'));
 const StatsScreen = lazy(() => import('./pages/statsScreen'));
 const ProfileSearch = lazy(() => import('./pages/profileSearch'));
-const NotFoundPage = () => <Box p={4}>404 - Página no encontrada</Box>;
 
 
 function AppContent() {
@@ -89,7 +89,7 @@ function AppContent() {
             <Route path="/unknown-agent" element={<UnknownAgentNotice userEmail={user?.username} onRetry={() => window.location.reload()} />} />
           </Route>
         </Route>
-          <Route path="*" element={<NotFoundPage />} />
+          <Route path="*" element={<NotFound404 />} />
         </Routes>
       </Suspense>
     </Box>
