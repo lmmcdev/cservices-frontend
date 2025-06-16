@@ -1,45 +1,36 @@
 import React from 'react';
-import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { FormControl, InputLabel, Select, MenuItem, OutlinedInput } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
-const defaultStyles = {
-  fontSize: 12,
-  height: 36,
-  width: 240,
-  color: 'text.secondary',
-  '& .MuiOutlinedInput-notchedOutline': {
-    borderColor: '#ccc',
-  },
-  '&:hover .MuiOutlinedInput-notchedOutline': {
-    borderColor: '#aaa',
-  },
-  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-    borderColor: '#00a1ff',
-  },
-};
 
 const departments = ['OTC', 'Pharmacy', 'Referrals'];
 
 export default function DepartmentSelect({ value, onChange, label = "Department", sx = {} }) {
   return (
-    <FormControl fullWidth variant="outlined" size="small" sx={sx}>
-      <InputLabel 
-        id="department-select-label"
-        sx={{ fontSize: 12, color: 'text.secondary' }}
-      >
-        {label}
-      </InputLabel>
+    <FormControl fullWidth variant="outlined" size="small" sx={{ width: '340px', ...sx }}>
+      <InputLabel id="department-select-label" shrink>{label}</InputLabel>
       <Select
         labelId="department-select-label"
         id="department-select"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         label={label}
-        sx={{ ...defaultStyles, ...sx }} // combinación de estilos
+        input={<OutlinedInput notched label={label} />}
         IconComponent={ExpandMoreIcon}
+        sx={{
+          fontSize: 16,
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#ccc',
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#aaa',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#00a1ff',
+          },
+        }}
       >
         {departments.map((dept) => (
-          <MenuItem key={dept} value={dept} sx={{ fontSize: 12 }}>
+          <MenuItem key={dept} value={dept} sx={{ fontSize: 14 }}>
             {dept}
           </MenuItem>
         ))}

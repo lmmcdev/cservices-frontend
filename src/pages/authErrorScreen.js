@@ -30,7 +30,7 @@ const AuthErrorScreen = ({ errorMessage, onRetry }) => {
       <Button variant="contained" color="primary" onClick={onRetry} sx={{mb:5}}>
         Retry sign in
       </Button>
-      <Button variant="contained" color="primary" onClick={navigate('/dashboard', { replace: true })}>
+      <Button variant="contained" color="primary" onClick={() => navigate('/dashboard', { replace: true })}>
         Try to enter
       </Button>
     </Box>
