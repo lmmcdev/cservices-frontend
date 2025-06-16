@@ -1,23 +1,36 @@
 import React, { createContext, useReducer, useContext } from 'react';
 import { ticketReducer, initialState } from '../store/ticketsReducer';
+import { getStats } from '../utils/apiStats';
 
 const StatsContext = createContext();
 
 export const StatsProvider = ({ children }) => {
   const [state, dispatch] = useReducer(ticketReducer, initialState);
 
+  const fetchStatistics = async (accessToken) => {
+    try {
+      const res = await getStats(accessToken);
+      if (res.success) {
+        console.log(res.message)
+        dispatch({ type: 'SET_STATS', payload: res.message });
+      } else {
+        console.error('Error fetching stats:', res.message);
+      }
+    } catch (error) {
+      console.error('Error fetching stats', error);
+    }
+  };
+
   return (
-    <StatsContext.Provider value={{ state, dispatch }}>
+    <StatsContext.Provider value={{ state, dispatch, fetchStatistics }}>
       {children}
     </StatsContext.Provider>
   );
 };
 
-// Hook para acceder al contexto completo
+// Hooks
 export const useStats = () => useContext(StatsContext);
-
-// Hook solo para el estado
 export const useStatsState = () => useContext(StatsContext).state;
-
-// Hook solo para el dispatch
 export const useStatsDispatch = () => useContext(StatsContext).dispatch;
+export const useFetchStatistics = () => useContext(StatsContext).fetchStatistics;
+

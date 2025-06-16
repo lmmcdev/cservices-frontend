@@ -3,7 +3,7 @@ import * as signalR from '@microsoft/signalr';
 import { useTicketsDispatch } from './ticketsContext';
 import { useStatsDispatch } from './statsContext';
 import { useAuth } from './authContext';
-import { getStats } from '../utils/apiStats';
+import { useFetchStatistics } from './statsContext';
 
 const SignalRContext = createContext();
 
@@ -12,6 +12,7 @@ export function SignalRProvider({ children }) {
   const connectionRef = useRef(null);
   const dispatch = useTicketsDispatch();
   const dispatchStats = useStatsDispatch();
+  const fetchStats = useFetchStatistics();
   const { department, accessTokenMSAL } = useAuth();
 
   //console.log(department)
@@ -47,7 +48,7 @@ export function SignalRProvider({ children }) {
 
       //evento disparador estadisticas
       connection.on('statsUpdated', () => {
-        getStats(dispatchStats, accessTokenMSAL);
+        fetchStats(accessTokenMSAL);
       });
 
      

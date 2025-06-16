@@ -1,5 +1,6 @@
-import React from 'react';
-import { useStats } from '../context/statsContext';
+import React, { useEffect } from 'react';
+import { useStatsState, useFetchStatistics } from '../context/statsContext';
+import { useMsal } from '@azure/msal-react';
 import {
   Box,
   Card,
@@ -11,14 +12,42 @@ import {
 import { getStatusColor } from '../utils/js/statusColors';
 
 export default function StatsScreen() {
-    const { state } = useStats();
-    const statistics = state.statistics;
+  const state = useStatsState();
+  const fetchStatistics = useFetchStatistics();
+  const { accounts, instance } = useMsal();
+ 
+  // Cargar estadísticas al montar
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const accessToken = await instance
+          .acquireTokenSilent({
+            scopes: ['User.Read'], // Cambia este scope al que uses en tu API
+            account: accounts[0],
+          })
+          .then(response => response.accessToken)
+          .catch(error => {
+            console.error('Error acquiring token', error);
+            return null;
+          });
 
-    const entries = Object.entries(statistics).filter(
-        ([key]) => key !== 'total'
-    );
-    return (
-        <Box sx={{ p: 3 }}>
+        if (accessToken) {
+          await fetchStatistics(accessToken);
+        }
+      } catch (error) {
+        console.error('Error fetching statistics:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const statistics = state.statistics || {};
+  console.log(state)
+  const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
+
+  return (
+    <Box sx={{ p: 3 }}>
       <Typography variant="h5" gutterBottom>
         Ticket Stats (Total: {state.total || 0})
       </Typography>
@@ -61,6 +90,5 @@ export default function StatsScreen() {
         })}
       </Grid>
     </Box>
-    )
-
+  );
 }
