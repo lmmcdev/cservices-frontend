@@ -12,22 +12,34 @@ import {
 import { icons } from '../auxiliars/icons';
 import ProfilePic from '../components/profilePic';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAgents } from '../../context/agentsContext';
+import { useAuth } from '../../context/authContext';
 
 const drawerWidthOpen = 200;
 const drawerWidthClosed = 80;
 
-export default function CollapsibleDrawer({ agents }) {
+export default function CollapsibleDrawer() {
   const [open, setOpen] = useState(false);
   //const [selectedIndex, setSelectedIndex] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const {state: allAgents} = useAgents();
+  const { user } = useAuth();
+  const agents = allAgents.agents;
+  const supEmail = user?.username;
+  const currentAgent = agents.find(a => a.agent_email === supEmail );
 
   const navItems = [
-    { icon: <icons.dashboard style={{ fontSize: 22 }} />, label: 'Dashboard', path: '/statistics' },
-    { icon: <icons.callLogs style={{ fontSize: 22 }} />, label: 'Call Logs', path: '/dashboard' },
-    { icon: <icons.team style={{ fontSize: 22 }} />, label: 'Team', path: '/agents' },
-    { icon: <icons.searchIcon style={{ fontSize: 22 }} />, label: 'Find', path: '/profile-search' },
+    { icon: <icons.dashboard style={{ fontSize: 22 }} />, label: 'Dashboard', path: '/statistics', roles: ['Supervisor'] },
+    { icon: <icons.callLogs style={{ fontSize: 22 }} />, label: 'Call Logs', path: '/dashboard', roles: ['Agent', 'Customer Service', 'Switchboard' , 'Supervisor'] },
+    { icon: <icons.team style={{ fontSize: 22 }} />, label: 'Team', path: '/agents', roles: ['Supervisor'] },
+    { icon: <icons.searchIcon style={{ fontSize: 22 }} />, label: 'Find', path: '/profile-search', roles: ['Supervisor'] },
   ];
+
+  // ✅ Solo ítems visibles para el rol del agente actual
+  const filteredItems = navItems.filter(item =>
+    item.roles.includes(currentAgent.agent_rol)
+  );
 
   const handleListItemClick = (path) => {
     navigate(path);
@@ -60,7 +72,7 @@ export default function CollapsibleDrawer({ agents }) {
     >
       <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         <List sx={{ width: '100%', px: open ? 1 : 0 }}>
-          {navItems.map(({ icon, label, path }) => {
+          {filteredItems.map(({ icon, label, path }) => {
             const isActive = location.pathname === path;
             return (
               <ListItemButton
