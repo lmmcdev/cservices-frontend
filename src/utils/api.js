@@ -491,7 +491,8 @@ export const createAgent = async (dispatch, setLoading, formData) => {
           rol: formData.agentRol,
           department: formData.agentDepartment,
           agent_location: formData.location,
-          remote_agent: formData.remoteAgent
+          remote_agent: formData.remoteAgent,
+          agent_extension: formData.agentExtension
       }),
     });
 
