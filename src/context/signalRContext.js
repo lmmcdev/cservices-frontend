@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
 import { useTicketsDispatch } from './ticketsContext';
-import { useStatsDispatch } from './statsContext';
 import { useAuth } from './authContext';
 import { useFetchStatistics } from './statsContext';
 
@@ -11,7 +10,6 @@ const SignalRContext = createContext();
 export function SignalRProvider({ children }) {
   const connectionRef = useRef(null);
   const dispatch = useTicketsDispatch();
-  const dispatchStats = useStatsDispatch();
   const fetchStats = useFetchStatistics();
   const { department, accessTokenMSAL } = useAuth();
 

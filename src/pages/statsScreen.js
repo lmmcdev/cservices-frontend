@@ -46,7 +46,7 @@ export default function StatsScreen() {
     };
 
     fetchData();
-  }, []);
+  }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
   const statistics = state.statistics || {};
   const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
