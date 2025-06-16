@@ -11,7 +11,6 @@ export const initialState = {
 export const ticketReducer = (state, action) => {
   switch (action.type) {
     case 'SET_STATS':
-      console.log("inserting stats", action.payload)
       return {
         ...state,
         statistics: action.payload,

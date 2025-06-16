@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useStatsState, useFetchStatistics } from '../context/statsContext';
 import { useMsal } from '@azure/msal-react';
 import {
@@ -8,14 +8,20 @@ import {
   Typography,
   Grid,
   Chip,
+  Drawer,
+  IconButton,
 } from '@mui/material';
 import { getStatusColor } from '../utils/js/statusColors';
+import CloseIcon from '@mui/icons-material/Close';
 
 export default function StatsScreen() {
   const state = useStatsState();
   const fetchStatistics = useFetchStatistics();
   const { accounts, instance } = useMsal();
- 
+
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState(null);
+
   // Cargar estadísticas al montar
   useEffect(() => {
     const fetchData = async () => {
@@ -43,28 +49,38 @@ export default function StatsScreen() {
   }, []);
 
   const statistics = state.statistics || {};
-  console.log(state)
   const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
 
-  return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h5" gutterBottom>
-        Ticket Stats (Total: {state.total || 0})
-      </Typography>
+  const handleBoxClick = (status) => {
+    setSelectedStatus(status);
+    setDrawerOpen(true);
+  };
 
-      <Grid container spacing={2}>
+  const handleDrawerClose = () => {
+    setDrawerOpen(false);
+    setSelectedStatus(null);
+  };
+
+  return (
+    <Box sx={{ flexGrow: 1, p: 2 }}>
+      <Grid container spacing={2} mb={2}>
         {entries.map(([status, count]) => {
           const bgColor = getStatusColor(status, 'bg');
           const textColor = getStatusColor(status, 'text');
 
           return (
-            <Grid item xs={12} sm={6} md={4} lg={3} key={status}>
+            <Grid  size={3} height='50%' key={status} onClick={() => handleBoxClick(status)}>
               <Card
                 sx={{
                   backgroundColor: bgColor,
                   color: textColor,
                   borderLeft: `6px solid ${textColor}`,
                   boxShadow: 2,
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s',
+                  '&:hover': {
+                    transform: 'scale(1.03)',
+                  },
                 }}
               >
                 <CardContent>
@@ -89,6 +105,26 @@ export default function StatsScreen() {
           );
         })}
       </Grid>
+
+      {/* Drawer lateral */}
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={handleDrawerClose}
+        PaperProps={{ sx: { width: 400, p: 2 } }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Typography variant="h6">Detalles de {selectedStatus}</Typography>
+          <IconButton onClick={handleDrawerClose}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+
+        {/* Aquí puedes agregar la tabla o cualquier contenido que desees */}
+        <Typography variant="body1">
+          Aquí puedes mostrar la tabla de tickets filtrados por estado: {selectedStatus}
+        </Typography>
+      </Drawer>
     </Box>
   );
 }

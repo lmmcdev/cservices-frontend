@@ -11,7 +11,6 @@ export const StatsProvider = ({ children }) => {
     try {
       const res = await getStats(accessToken);
       if (res.success) {
-        console.log(res.message)
         dispatch({ type: 'SET_STATS', payload: res.message });
       } else {
         console.error('Error fetching stats:', res.message);

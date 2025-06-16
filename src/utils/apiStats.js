@@ -13,7 +13,6 @@ export const getStats = async (accessToken) => {
     });
 
     const data = await response.json();
-    console.log(data.message)
     if (!response.ok) {
       throw new Error(data.message || 'Error fetching tickets');
     }
