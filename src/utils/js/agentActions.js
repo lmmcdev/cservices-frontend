@@ -1,4 +1,4 @@
-import { createAgent, editAgent } from "../api";
+import { createAgent, editAgent } from "../apiAgents";
 
 export async function submitNewAgent({
   data,

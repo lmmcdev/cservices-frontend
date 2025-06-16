@@ -7,7 +7,7 @@ import CollaboratorAutoComplete from '../auxiliars/collaboratorAutocomplete';
 import CallerIDAutoComplete from '../auxiliars/callerIDAutocomplete';
 import { icons } from '../auxiliars/icons';
 import CreateTicketDialog from '../dialogs/createTicketDialog';
-import { createNewTicket } from '../../utils/api';
+import { createNewTicket } from '../../utils/apiTickets';
 import { useLoading } from '../../providers/loadingProvider';
 import { ticketReducer, initialState } from '../../store/ticketsReducer';
 import AlertSnackbar from '../auxiliars/alertSnackbar';

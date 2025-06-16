@@ -3,7 +3,7 @@ import * as signalR from '@microsoft/signalr';
 import { useTicketsDispatch } from './ticketsContext';
 import { useStatsDispatch } from './statsContext';
 import { useAuth } from './authContext';
-import { getStats } from '../utils/api';
+import { getStats } from '../utils/apiStats';
 
 const SignalRContext = createContext();
 
@@ -47,20 +47,10 @@ export function SignalRProvider({ children }) {
 
       //evento disparador estadisticas
       connection.on('statsUpdated', () => {
-
         getStats(dispatchStats, accessTokenMSAL);
       });
 
-      //lock ticket
-      connection.on('ticketLocked', ({ ticketId, agent }) => {
-        dispatch({ type: 'LOCK_TICKET', payload: {ticketId, agent }})
-      });
-
-      //unlock ticket
-      connection.on('ticketUnlocked', ({ticketId}) => {
-        dispatch({ type: 'UNLOCK_TICKET', payload: ticketId})
-      });
-
+     
       await connection.start();
       console.log('✅ SignalR conectado');
       connectionRef.current = connection;       

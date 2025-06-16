@@ -9,7 +9,7 @@ import {
   updateCallbackNumber,
   assignAgent,
   updateCenter
-} from '../api';
+} from '../apiTickets';
 
 export async function handleStatusChange({ dispatch, setLoading, ticketId, agentEmail, newStatus, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen }) {
   setLoading(true);

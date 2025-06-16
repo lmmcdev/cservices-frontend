@@ -4,7 +4,8 @@ import { useTickets } from "../../context/ticketsContext";
 import { useAgents } from "../../context/agentsContext";
 import { useAuth } from "../../context/authContext";
 import { useLoading } from "../../providers/loadingProvider";
-import { fetchAgentData, fetchTableData } from "../../utils/api";
+import { fetchTableData } from "../../utils/apiTickets";
+import { fetchAgentData } from '../../utils/apiAgents';
 import { useNavigate } from 'react-router-dom';
 
 export const useInitAppData = () => {

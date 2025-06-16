@@ -1,7 +1,7 @@
 import { useEffect, useRef, useReducer } from 'react';
 import { ticketReducer, initialState } from '../../store/ticketsReducer';
 import { useLoading } from '../../providers/loadingProvider';
-import { updateWorkTime } from '../../utils/api'; // Este es tu helper correcto
+import { updateWorkTime } from '../../utils/apiTickets';
 
 export function useWorkTimer({ ticketData, agentEmail, status, enabled }) {
 

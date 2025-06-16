@@ -3,7 +3,7 @@ import {
   Dialog, DialogContent, DialogActions, Box, Grid,
   Button, Typography, Card, DialogTitle
 } from "@mui/material";
-import { assignAgent, changeStatus } from "../../utils/api";
+import { assignAgent, changeStatus } from "../../utils/apiTickets";
 import ProfilePic from "../components/profilePic";
 import { icons } from '../auxiliars/icons';
 
