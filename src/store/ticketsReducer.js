@@ -5,6 +5,7 @@ export const initialState = {
   updated_agent: [],
   updated_action: [],
   statistics:[],
+  historical_statistics: [],
   error: null,
 };
 
@@ -17,6 +18,12 @@ export const ticketReducer = (state, action) => {
         error: null,
       };
 
+    case 'SET_HISTORICAL_STATS':
+      return {
+        ...state,
+        historical_statistics: action.payload,
+        error: null,
+      };
 
     case 'SET_TICKETS':
       return {
