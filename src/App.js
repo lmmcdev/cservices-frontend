@@ -14,6 +14,8 @@ import { NotificationProvider, useNotification } from './context/notificationsCo
 import { ProfilePhotoProvider } from './context/profilePhotoContext';
 import MsalProviderWrapper from './providers/msalProvider';
 import { StatsProvider } from './context/statsContext';
+import { HistoricalStatsProvider } from './context/historicalStatsContext';
+import HistoricStatistics from './pages/historicalStatsScreen';
 import SuspenseFallback from './components/auxiliars/suspenseFallback';
 
 import MainLayout from './layouts/mainLayout';
@@ -34,6 +36,7 @@ const EditAgent = lazy(() => import('./pages/editAgent'));
 const AuthErrorScreen = lazy(() => import('./pages/authErrorScreen'));
 const UnknownAgentNotice = lazy(() => import('./pages/unknownAgentNotice'));
 const StatsScreen = lazy(() => import('./pages/statsScreen'));
+//const HistoricalStats = lazy(() => import ('./pages/historicalStatsScreen'));
 const ProfileSearch = lazy(() => import('./pages/profileSearch'));
 
 
@@ -82,6 +85,7 @@ function AppContent() {
 
           <Route element={<LayoutWithSidebarOnly />}>
             <Route path='/statistics' element={<StatsScreen />} />
+            <Route path='/historical_statistics' element={<HistoricalStatsProvider><HistoricStatistics /></HistoricalStatsProvider>} />
           </Route>
 
           <Route element={<MinimalCenteredLayout />}>
