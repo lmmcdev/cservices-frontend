@@ -3,8 +3,7 @@ import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const commonStyles = {
-  fontSize: 12,
-  height: 36,
+  fontSize: 16,
   width: 240,
   color: 'text.secondary',
   '& .MuiOutlinedInput-notchedOutline': {
@@ -30,7 +29,7 @@ export default function CenterSelect({ value, onChange, label = "Center" }) {
     <FormControl fullWidth variant="outlined" size="small">
       <InputLabel 
         id="center-select-label"
-        sx={{ fontSize: 12, color: 'text.secondary' }}
+        sx={{ fontSize: 16, color: 'text.secondary' }}
       >
         {label}
       </InputLabel>
@@ -44,7 +43,7 @@ export default function CenterSelect({ value, onChange, label = "Center" }) {
         IconComponent={ExpandMoreIcon}
       >
         {centers.map((dept) => (
-          <MenuItem key={dept} value={dept} sx={{ fontSize: 12 }}>
+          <MenuItem key={dept} value={dept} sx={{ fontSize: 16 }}>
             {dept}
           </MenuItem>
         ))}

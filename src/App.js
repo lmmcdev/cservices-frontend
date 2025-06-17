@@ -15,6 +15,7 @@ import { ProfilePhotoProvider } from './context/profilePhotoContext';
 import MsalProviderWrapper from './providers/msalProvider';
 import { StatsProvider } from './context/statsContext';
 import SuspenseFallback from './components/auxiliars/suspenseFallback';
+import { SidebarProvider } from './context/sidebarContext';
 
 import MainLayout from './layouts/mainLayout';
 import MinimalCenteredLayout from './layouts/minimalCenterLayout';
@@ -108,9 +109,11 @@ function App() {
                   <NotificationProvider>
                     <FiltersProvider>
                       <ProfilePhotoProvider>
-                        <BrowserRouter>
-                          <AppContent />
-                        </BrowserRouter>
+                        <SidebarProvider>
+                          <BrowserRouter>
+                            <AppContent />
+                          </BrowserRouter>
+                        </SidebarProvider>
                       </ProfilePhotoProvider>
                     </FiltersProvider>
                   </NotificationProvider>

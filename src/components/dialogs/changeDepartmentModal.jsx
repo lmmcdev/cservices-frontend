@@ -4,9 +4,13 @@ import {
   DialogTitle,
   DialogContent,
   Typography,
-  Box
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  OutlinedInput
 } from '@mui/material';
-import DepartmentSelect from '../components/departmentSelect';
 import ActionButtons from '../auxiliars/actionButtons';
 import { BsHousesFill } from 'react-icons/bs';
 
@@ -60,7 +64,32 @@ const ChangeDepartmentModal = ({
         <Box width="100%" maxWidth="400px">
           <Box display="flex" justifyContent="center" width="100%">
             <Box width="94%">
-              <DepartmentSelect value={selectedDepartment} onChange={setSelectedDepartment} />
+              <FormControl fullWidth variant="outlined" size="small">
+                <InputLabel id="department-label">Department</InputLabel>
+                <Select
+                    labelId="department-label"
+                    id="department-select"
+                    value={selectedDepartment}
+                    onChange={(e) => setSelectedDepartment(e.target.value)}
+                    input={<OutlinedInput label="Department" />}
+                    sx={{
+                    fontSize: 16,
+                    '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#ccc',
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#aaa',
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#00a1ff',
+                    },
+                    }}
+                >
+                    <MenuItem value="OTC">OTC</MenuItem>
+                    <MenuItem value="Pharmacy">Pharmacy</MenuItem>
+                    <MenuItem value="Referrals">Referrals</MenuItem>
+                </Select>
+                </FormControl>
             </Box>
           </Box>
         </Box>

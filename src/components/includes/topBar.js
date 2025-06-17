@@ -66,7 +66,7 @@ export default function Topbar({ agent }) {
         sx={{
           position: 'fixed',
           top: 40,
-          left: 200,
+          left: 220,
           right: 20,
           zIndex: (theme) => theme.zIndex.drawer + 1,
           borderRadius: 2,
