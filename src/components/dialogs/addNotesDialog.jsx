@@ -19,6 +19,7 @@ export default function AddNoteDialog({ open, onClose, onSubmit, value, onChange
           <span style={{ fontWeight: 'bold', fontSize: '1.25rem' }}>Add New Note</span>
         </Box>
       </DialogTitle>
+
       <DialogContent>
         <TextField
           multiline
@@ -28,8 +29,19 @@ export default function AddNoteDialog({ open, onClose, onSubmit, value, onChange
           value={value}
           onChange={onChange}
           margin="dense"
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              '&.Mui-focused fieldset': {
+                borderColor: '#00A1FF',
+              },
+            },
+            '&:hover .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#aaa', 
+            },
+          }}
         />
       </DialogContent>
+
       <DialogActions>
         <ActionButtons
           onCancel={onClose}

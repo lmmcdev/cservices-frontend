@@ -17,6 +17,7 @@ import { StatsProvider } from './context/statsContext';
 import { HistoricalStatsProvider } from './context/historicalStatsContext';
 import HistoricStatistics from './pages/historicalStatsScreen';
 import SuspenseFallback from './components/auxiliars/suspenseFallback';
+import { SidebarProvider } from './context/sidebarContext';
 
 import MainLayout from './layouts/mainLayout';
 import MinimalCenteredLayout from './layouts/minimalCenterLayout';
@@ -112,9 +113,11 @@ function App() {
                   <NotificationProvider>
                     <FiltersProvider>
                       <ProfilePhotoProvider>
-                        <BrowserRouter>
-                          <AppContent />
-                        </BrowserRouter>
+                        <SidebarProvider>
+                          <BrowserRouter>
+                            <AppContent />
+                          </BrowserRouter>
+                        </SidebarProvider>
                       </ProfilePhotoProvider>
                     </FiltersProvider>
                   </NotificationProvider>

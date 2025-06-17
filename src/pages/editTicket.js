@@ -181,7 +181,7 @@ export default function EditTicket() {
         sx={{
           position: 'fixed', // <- esto es CLAVE para fijar el contenedor
           top: 150,          // <- ajusta según la altura del topbar
-          left: 200,
+          left: 220,
           right: 20,
           bottom: 20,
           display: 'flex',

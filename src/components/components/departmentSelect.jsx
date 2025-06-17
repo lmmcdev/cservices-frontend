@@ -4,10 +4,29 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const departments = ['OTC', 'Pharmacy', 'Referrals'];
 
-export default function DepartmentSelect({ value, onChange, label = "Department", sx = {} }) {
+export default function DepartmentSelect({
+  value,
+  onChange,
+  label = "Department",
+  sx = {},
+  InputLabelProps = {} // 👈 permite personalización opcional del label
+}) {
   return (
-    <FormControl fullWidth variant="outlined" size="small" sx={{ width: '340px', ...sx }}>
-      <InputLabel id="department-select-label" shrink>{label}</InputLabel>
+    <FormControl
+      fullWidth
+      variant="outlined"
+      size="small"
+      sx={{
+        ...sx, // se hereda estilo externo
+      }}
+    >
+      <InputLabel
+        id="department-select-label"
+        shrink={InputLabelProps?.shrink ?? true} // 👈 shrink por defecto, a menos que se indique lo contrario
+      >
+        {label}
+      </InputLabel>
+
       <Select
         labelId="department-select-label"
         id="department-select"
@@ -16,6 +35,8 @@ export default function DepartmentSelect({ value, onChange, label = "Department"
         label={label}
         input={<OutlinedInput notched label={label} />}
         IconComponent={ExpandMoreIcon}
+        displayEmpty
+        renderValue={(selected) => selected || ''}
         sx={{
           fontSize: 16,
           '& .MuiOutlinedInput-notchedOutline': {

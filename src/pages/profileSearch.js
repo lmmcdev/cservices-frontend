@@ -179,7 +179,7 @@ const filtered = applyFilters(data)
         borderRadius: 4,
         position: 'fixed',
         top: 150,
-        left: 200,
+        left: 220,
         right: 20,
         bottom: 20,
         display: 'flex',

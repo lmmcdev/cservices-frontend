@@ -22,6 +22,8 @@ import { updateAgent } from '../utils/js/agentActions';
 
 import PersonOffIcon from '@mui/icons-material/PersonOff';
 
+import { useSidebar } from '../context/sidebarContext';
+
 const AgentSchema = Yup.object().shape({
   displayName: Yup.string().required('Required'),
   department: Yup.string().required('Required'),
@@ -50,7 +52,7 @@ export default function EditAgent() {
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     
-
+    const { open } = useSidebar();
 
     const agentEmail = agent.agent_email;
 
@@ -94,7 +96,8 @@ export default function EditAgent() {
           borderRadius: 4,
           position: 'fixed',
           top: 150,
-          left: 200,
+          left: 220,
+          transition: 'left 0.3s ease',
           right: 20,
           bottom: 20,
           display: 'flex',

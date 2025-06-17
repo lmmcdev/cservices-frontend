@@ -79,7 +79,7 @@ export default function TableAgents() {
           borderRadius: 4,
           position: 'fixed',
           top: 150,
-          left: 200,
+          left: 220,
           right: 20,
           bottom: 20,
           display: 'flex',
@@ -90,7 +90,7 @@ export default function TableAgents() {
       >
         <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {/* HEADER Y BOTÓN */}
-          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} mt={1} px={1}>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} mt={2} pl={3} pr={3}>
             <Box display="flex" alignItems="center" gap={1}>
               <Box
                 sx={{
@@ -131,112 +131,125 @@ export default function TableAgents() {
 
           {/* TABLA */}
           <Box sx={{ flex: 1, overflowY: 'auto' }}>
-            <TableContainer component={Paper} elevation={0} sx={{ maxHeight: '100%' }}>
-              <Table stickyHeader>
-                <TableHead>
-                  <TableRow>
-                    {['Name', 'Email', 'Department', 'Rol', 'Remote Status', 'Action'].map((header, index) => (
-                      <TableCell
-                        key={header}
-                        align={index === 4 || index === 5 ? 'center' : 'left'}
-                        sx={{ fontWeight: 'bold', fontSize: 16 }}
-                      >
-                        {header}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {paginatedAgents.map((agent) => (
-                    <TableRow key={agent.id} sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>
-                      <TableCell>{agent.agent_name}</TableCell>
-                      <TableCell>{agent.agent_email}</TableCell>
-                      <TableCell>{agent.agent_department}</TableCell>
-                      <TableCell>{agent.agent_rol}</TableCell>
-                      <TableCell align="center">
-                        <Tooltip title={agent.remote_agent ? 'Remote' : 'On Site'}>
-                          <IconButton>
-                            {agent.remote_agent ? (
-                              <icons.home sx={{ color: '#8965e5' }} />
-                            ) : (
-                              <icons.onSite sx={{ color: '#00A1FF' }} />
-                            )}
-                          </IconButton>
-                        </Tooltip>
-                      </TableCell>
-                      <TableCell align="center">
-                        <Box display="flex" justifyContent="center" gap={1}>
-                          <Tooltip title="Edit Agent" placement="bottom">
-                            <Box
-                              sx={{
-                                backgroundColor: '#DFF3FF',
-                                color: '#00A1FF',
-                                borderRadius: '50%',
-                                padding: 1,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: 32,
-                                height: 32,
-                                fontSize: 18,
-                                cursor: 'pointer',
-                                transition: 'background-color 0.3s, color 0.3s',
-                                '&:hover': {
-                                  backgroundColor: '#00A1FF',
-                                  color: '#FFFFFF',
-                                },
-                              }}
-                              onClick={() => navigate(`/agent/edit/${agent.id}`)}
-                            >
-                              {icons.edit({ style: { fontSize: 16, color: 'inherit' } })}
-                            </Box>
-                          </Tooltip>
-
-                          <Tooltip title="Disable/Enable Agent" placement="bottom">
-                            <Box
-                              sx={{
-                                backgroundColor: agent.is_disabled ? '#FFE2E2' : '#DFF3FF',
-                                color: agent.is_disabled ? '#FF4C4C' : '#00A1FF',
-                                borderRadius: '50%',
-                                padding: 1,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                width: 32,
-                                height: 32,
-                                fontSize: 18,
-                                cursor: 'pointer',
-                                transition: 'background-color 0.3s, color 0.3s',
-                                '&:hover': {
-                                  backgroundColor: agent.is_disabled ? '#FF4C4C' : '#00A1FF',
-                                  color: '#FFFFFF',
-                                },
-                              }}
-                              onClick={() =>
-                                handleUpdate({
-                                  agent_id: agent.id,
-                                  email: agent.agent_email,
-                                  displayName: agent.agent_name,
-                                  role: agent.agent_rol,
-                                  department: agent.agent_department,
-                                  location: agent.agent_location,
-                                  isRemote: agent.remote_agent,
-                                  isDisable: !agent.is_disabled,
-                                })
-                              }
-                            >
-                              {agent.is_disabled
-                                ? icons.lock({ style: { fontSize: 16, color: 'inherit' } })
-                                : icons.unlock({ style: { fontSize: 16, color: 'inherit' } })}
-                            </Box>
-                          </Tooltip>
-                        </Box>
-                      </TableCell>
+            <Box sx={{ px: 3 }}>
+              <TableContainer
+                component={Paper}
+                elevation={0}
+                sx={{
+                  maxHeight: '100%',
+                  overflowY: 'auto',
+                  '& .MuiTableCell-stickyHeader': {
+                    backgroundColor: '#f6f7f9',
+                    boxShadow: '0px 2px 5px rgba(0,0,0,0.05)',
+                  },
+                }}
+              >
+                <Table stickyHeader sx={{ tableLayout: 'fixed' }}>
+                  <TableHead>
+                    <TableRow>
+                      {['Name', 'Email', 'Department', 'Rol', 'Remote Status', 'Action'].map((header, index) => (
+                        <TableCell
+                          key={header}
+                          align={index === 4 || index === 5 ? 'center' : 'left'}
+                          sx={{ fontWeight: 'bold', fontSize: 16 }}
+                        >
+                          {header}
+                        </TableCell>
+                      ))}
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  </TableHead>
+                  <TableBody>
+                    {paginatedAgents.map((agent) => (
+                      <TableRow key={agent.id} sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>
+                        <TableCell>{agent.agent_name}</TableCell>
+                        <TableCell>{agent.agent_email}</TableCell>
+                        <TableCell>{agent.agent_department}</TableCell>
+                        <TableCell>{agent.agent_rol}</TableCell>
+                        <TableCell align="center">
+                          <Tooltip title={agent.remote_agent ? 'Remote' : 'On Site'}>
+                            <IconButton>
+                              {agent.remote_agent ? (
+                                <icons.home sx={{ color: '#8965e5' }} />
+                              ) : (
+                                <icons.onSite sx={{ color: '#00A1FF' }} />
+                              )}
+                            </IconButton>
+                          </Tooltip>
+                        </TableCell>
+                        <TableCell align="center">
+                          <Box display="flex" justifyContent="center" gap={1}>
+                            <Tooltip title="Edit Agent" placement="bottom">
+                              <Box
+                                sx={{
+                                  backgroundColor: '#DFF3FF',
+                                  color: '#00A1FF',
+                                  borderRadius: '50%',
+                                  padding: 1,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  width: 32,
+                                  height: 32,
+                                  fontSize: 18,
+                                  cursor: 'pointer',
+                                  transition: 'background-color 0.3s, color 0.3s',
+                                  '&:hover': {
+                                    backgroundColor: '#00A1FF',
+                                    color: '#FFFFFF',
+                                  },
+                                }}
+                                onClick={() => navigate(`/agent/edit/${agent.id}`)}
+                              >
+                                {icons.edit({ style: { fontSize: 16, color: 'inherit' } })}
+                              </Box>
+                            </Tooltip>
+
+                            <Tooltip title="Disable/Enable Agent" placement="bottom">
+                              <Box
+                                sx={{
+                                  backgroundColor: agent.is_disabled ? '#FFE2E2' : '#DFF3FF',
+                                  color: agent.is_disabled ? '#FF4C4C' : '#00A1FF',
+                                  borderRadius: '50%',
+                                  padding: 1,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  width: 32,
+                                  height: 32,
+                                  fontSize: 18,
+                                  cursor: 'pointer',
+                                  transition: 'background-color 0.3s, color 0.3s',
+                                  '&:hover': {
+                                    backgroundColor: agent.is_disabled ? '#FF4C4C' : '#00A1FF',
+                                    color: '#FFFFFF',
+                                  },
+                                }}
+                                onClick={() =>
+                                  handleUpdate({
+                                    agent_id: agent.id,
+                                    email: agent.agent_email,
+                                    displayName: agent.agent_name,
+                                    role: agent.agent_rol,
+                                    department: agent.agent_department,
+                                    location: agent.agent_location,
+                                    isRemote: agent.remote_agent,
+                                    isDisable: !agent.is_disabled,
+                                  })
+                                }
+                              >
+                                {agent.is_disabled
+                                  ? icons.lock({ style: { fontSize: 16, color: 'inherit' } })
+                                  : icons.unlock({ style: { fontSize: 16, color: 'inherit' } })}
+                              </Box>
+                            </Tooltip>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
           </Box>
 
           {/* PAGINACIÓN */}
