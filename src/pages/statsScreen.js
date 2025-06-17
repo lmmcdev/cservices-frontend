@@ -9,7 +9,6 @@ import {
   Typography,
   Grid,
   Chip,
-  Button
   TextField,
   Button,
 } from '@mui/material';
@@ -120,7 +119,7 @@ export default function StatsScreen() {
           const textColor = getStatusColor(status, 'text');
 
           return (
-            <Griditem xs={12} sm={6} md={2} key={status} onClick={() => handleBoxClick(status)}>
+            <Grid size={2} height='50%' key={status} onClick={() => handleBoxClick(status)}>
               <Card
                 sx={{
                   backgroundColor: bgColor,
@@ -157,8 +156,8 @@ export default function StatsScreen() {
         })}
       </Grid>
 
-      {/* Título y Filtro */}
-      <Box mt={4} mb={2} textAlign="center">
+
+<Box mt={4} mb={2} textAlign="center">
         <Typography variant="h6" color="#4858FF">
           Agent Activity - Top {pageSize}
         </Typography>
@@ -217,28 +216,14 @@ export default function StatsScreen() {
           Next
         </Button>
       </Box>
-
-      {/* Drawer lateral */}
-      <Drawer
-        anchor="right"
+      {/* Drawer lateral reutilizable */}
+      <RightDrawer
         open={drawerOpen}
         onClose={handleDrawerClose}
         status={selectedStatus}
         accessToken={accessTokenMSAL}
         date={selectedDate} // 👉 Nueva prop
       />
-        PaperProps={{ sx: { width: 400, p: 2 } }}
-      >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6">Details for {selectedStatus}</Typography>
-          <IconButton onClick={handleDrawerClose}>
-            <CloseIcon />
-          </IconButton>
-        </Box>
-        <Typography variant="body1">
-          Aquí puedes mostrar la tabla de tickets filtrados por estado: {selectedStatus}
-        </Typography>
-      </Drawer>
     </Box>
   );
 }
