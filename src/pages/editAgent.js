@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box, Grid, Card, CardContent, Typography,
-  TextField, Checkbox, FormControlLabel, Button
+  TextField, Checkbox, FormControlLabel, Button,
+  IconButton, Tooltip
 } from '@mui/material';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
@@ -18,6 +19,8 @@ import { useAgents } from '../context/agentsContext';
 import { useGraphEmailCheck } from '../utils/useGraphEmailCheck';
 
 import { updateAgent } from '../utils/js/agentActions';
+
+import PersonOffIcon from '@mui/icons-material/PersonOff';
 
 const AgentSchema = Yup.object().shape({
   displayName: Yup.string().required('Required'),
@@ -108,7 +111,7 @@ export default function EditAgent() {
             overflow: 'hidden',
           }}
         >
-          <Box sx={{ flex: 1, overflowY: 'auto' }}>
+          <Box sx={{ flex: 1, overflowY: 'auto', mt: 4 }}>
         <Formik
           initialValues={initialValues}
           validationSchema={AgentSchema}
@@ -138,7 +141,7 @@ export default function EditAgent() {
                           <Box sx={{ minWidth: 80 }}>
                             <ProfilePic email={agentEmail} size={80} />
                           </Box>
-                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '540px' }}>
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.2, width: '540px', height: '354px' }}>
                             <TextField
                               name="displayName"
                               label="Display Name"
@@ -147,13 +150,33 @@ export default function EditAgent() {
                               onChange={handleChange}
                               error={touched.displayName && Boolean(errors.displayName)}
                               helperText={touched.displayName && errors.displayName}
+                              sx={{ height: '56px',
+                                '& .MuiOutlinedInput-root': {
+                                  '&.Mui-focused fieldset': {
+                                    borderColor: '#00A1FF',
+                                  },
+                                },
+                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: '#aaa',
+                                },
+                              }}
                             />
                             <DepartmentSelect
                               value={values.department}
                               onChange={(val) => setFieldValue('department', val)}
                               error={touched.department && Boolean(errors.department)}
                               helperText={touched.department && errors.department}
-                              sx={{ width: '540px' }}
+                              sx={{
+                                width: '540px',
+                                '& .MuiInputLabel-root': {
+                                  fontSize: '16px',
+                                },
+                                '& .MuiSelect-select': {
+                                  fontSize: '16px',
+                                  padding: '14px',
+                                },
+                                height: '56px'
+                              }}
                             />
                             <RolSelect
                               name="role"
@@ -162,7 +185,17 @@ export default function EditAgent() {
                               onChange={(val) => setFieldValue('role', val)}
                               error={touched.role && Boolean(errors.role)}
                               helperText={touched.role && errors.role}
-                              sx={{ width: '540px' }}
+                              sx={{
+                                width: '540px',
+                                '& .MuiInputLabel-root': {
+                                  fontSize: '16px',
+                                },
+                                '& .MuiSelect-select': {
+                                  fontSize: '16px',
+                                  padding: '14px',
+                                },
+                                height: '56px'
+                              }}
                             />
                             <TextField
                               name="location"
@@ -172,6 +205,17 @@ export default function EditAgent() {
                               onChange={handleChange}
                               error={touched.location && Boolean(errors.location)}
                               helperText={touched.location && errors.location}
+                              InputLabelProps={{ shrink: true }}
+                              sx={{ height: '56px',
+                                '& .MuiOutlinedInput-root': {
+                                  '&.Mui-focused fieldset': {
+                                    borderColor: '#00A1FF',
+                                  },
+                                },
+                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: '#aaa',
+                                },
+                              }}
                             />
                             <TextField
                               name="accessLevel"
@@ -181,6 +225,17 @@ export default function EditAgent() {
                               onChange={handleChange}
                               error={touched.accessLevel && Boolean(errors.accessLevel)}
                               helperText={touched.accessLevel && errors.accessLevel}
+                              InputLabelProps={{ shrink: true }}
+                              sx={{ height: '56px',
+                                '& .MuiOutlinedInput-root': {
+                                  '&.Mui-focused fieldset': {
+                                    borderColor: '#00A1FF',
+                                  },
+                                },
+                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: '#aaa',
+                                },
+                              }}
                             />
                           </Box>
                         </Box>
@@ -193,7 +248,7 @@ export default function EditAgent() {
                 <Grid item xs={12} md={5}>
                   <Box display="flex" flexDirection="column" gap={2} alignItems="center">
                     {/* Account Credentials */}
-                    <Card variant="outlined">
+                    <Card variant="outlined" sx={{ width: '350px' }}>
                       <CardContent sx={{ p: '20px 25px 25px 30px' }}>
                         <Box display="flex" alignItems="center" gap={1} mb={2}>
                           <Box sx={{ width: 8, height: 24, borderRadius: 10, backgroundColor: '#00A1FF' }} />
@@ -209,12 +264,22 @@ export default function EditAgent() {
                           onChange={handleChange}
                           error={touched.email && Boolean(errors.email)}
                           helperText={touched.email && errors.email}
+                          sx={{ height: '56px',
+                                '& .MuiOutlinedInput-root': {
+                                  '&.Mui-focused fieldset': {
+                                    borderColor: '#00A1FF',
+                                  },
+                                },
+                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: '#aaa',
+                                },
+                              }}
                         />
                       </CardContent>
                     </Card>
 
                     {/* Work Arrangement */}
-                    <Card variant="outlined">
+                    <Card variant="outlined" sx={{ width: '350px' }}>
                       <CardContent sx={{ p: '20px 25px 25px 30px' }}>
                         <Box display="flex" alignItems="center" gap={1} mb={2}>
                           <Box sx={{ width: 8, height: 24, borderRadius: 10, backgroundColor: '#00A1FF' }} />
@@ -236,29 +301,59 @@ export default function EditAgent() {
                     </Card>
 
                     {/* Disabled Agent */}
-                    <Card variant="outlined">
+                    <Card variant="outlined" sx={{ width: '350px' }}>
                       <CardContent sx={{ p: '20px 25px 25px 30px' }}>
-                        <Box display="flex" alignItems="center" gap={1} mb={2}>
-                          <Box sx={{ width: 8, height: 24, borderRadius: 10, backgroundColor: '#00A1FF' }} />
-                          <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00A1FF' }}>
-                            Disabled Agent
-                          </Typography>
-                        </Box>
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              name="isDisable"
-                              checked={values.isDisable}
-                              onChange={handleChange}
+                        <Box mb={2}>
+                          {/* Header con botón alineado a la derecha */}
+                          <Box display="flex" alignItems="center" justifyContent="space-between">
+                            {/* Título */}
+                            <Box display="flex" alignItems="center" gap={1}>
+                              <Box sx={{ width: 8, height: 24, borderRadius: 10, backgroundColor: '#00A1FF' }} />
+                              <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00A1FF' }}>
+                                Account Status
+                              </Typography>
+                            </Box>
+
+                            {/* Botón con tooltip */}
+                            <Tooltip title="Deactivate">
+                              <span>
+                                <IconButton
+                                  onClick={() => setFieldValue("isDisable", true)}
+                                  disabled={!values.email}
+                                  sx={{
+                                    color: values.email ? '#00A1FF' : '#B0B0B0',
+                                    cursor: values.email ? 'pointer' : 'not-allowed',
+                                  }}
+                                >
+                                  <PersonOffIcon />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          </Box>
+
+                          {/* Estado visual debajo */}
+                          <Box display="flex" alignItems="center" gap={1} mt={1} ml={'15px'}>
+                            <Box
+                              sx={{
+                                width: 12,
+                                height: 12,
+                                borderRadius: '50%',
+                                backgroundColor: values.email ? 'success.main' : 'error.main',
+                              }}
                             />
-                          }
-                          label="Disabled agent"
-                        />
+                            <Typography
+                              variant="body2"
+                              sx={{ color: values.email ? 'success.main' : 'error.main', fontWeight: 'bold' }}
+                            >
+                              {values.email ? 'Enabled' : 'Deactivated'}
+                            </Typography>
+                          </Box>
+                        </Box>
                       </CardContent>
                     </Card>
 
                     {/* Botones */}
-                    <Box display="flex" justifyContent="flex-end" gap={2}>
+                    <Box display="flex" justifyContent="flex-end" gap={2} sx={{ width: '100%' }}>
                       <Button
                         type="submit"
                         sx={{
