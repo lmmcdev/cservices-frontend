@@ -7,9 +7,9 @@ const StatsContext = createContext();
 export const StatsProvider = ({ children }) => {
   const [state, dispatch] = useReducer(ticketReducer, initialState);
 
-  const fetchStatistics = async (accessToken) => {
+  const fetchStatistics = async (accessToken, date) => {
     try {
-      const res = await getStats(accessToken);
+      const res = await getStats(accessToken, date);
       if (res.success) {
         dispatch({ type: 'SET_STATS', payload: res.message });
       } else {

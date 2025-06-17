@@ -8,11 +8,11 @@ import {
   Typography,
   Grid,
   Chip,
-  Drawer,
-  IconButton,
+  Button
 } from '@mui/material';
 import { getStatusColor } from '../utils/js/statusColors';
-import CloseIcon from '@mui/icons-material/Close';
+import RightDrawer from '../components/rightDrawer';
+ import { useNavigate } from 'react-router-dom';
 
 export default function StatsScreen() {
   const state = useStatsState();
@@ -21,14 +21,23 @@ export default function StatsScreen() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(null);
+  const [accessTokenMSAL, setAccessTokenMSAL] = useState(null);
 
-  // Cargar estadísticas al montar
+  const time = Date.now();
+  const today = new Date(time);
+  const selectedDate = today.toLocaleDateString();
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate('/historical_statistics');
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const accessToken = await instance
           .acquireTokenSilent({
-            scopes: ['User.Read'], // Cambia este scope al que uses en tu API
+            scopes: ['User.Read'],
             account: accounts[0],
           })
           .then(response => response.accessToken)
@@ -38,7 +47,8 @@ export default function StatsScreen() {
           });
 
         if (accessToken) {
-          await fetchStatistics(accessToken);
+          setAccessTokenMSAL(accessToken);
+          await fetchStatistics(accessToken); 
         }
       } catch (error) {
         console.error('Error fetching statistics:', error);
@@ -46,10 +56,7 @@ export default function StatsScreen() {
     };
 
     fetchData();
-  }, []);// eslint-disable-line react-hooks/exhaustive-deps
-
-  const statistics = state.statistics || {};
-  const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleBoxClick = (status) => {
     setSelectedStatus(status);
@@ -61,15 +68,20 @@ export default function StatsScreen() {
     setSelectedStatus(null);
   };
 
+  const statistics = state.statistics || {};
+  const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
+
   return (
     <Box sx={{ flexGrow: 1, p: 2 }}>
+      {/* Campo de búsqueda por fecha y botón */}
+      <Button variant="contained" onClick={handleClick} sx={{m:2}}>Historic</Button>
       <Grid container spacing={2} mb={2}>
         {entries.map(([status, count]) => {
           const bgColor = getStatusColor(status, 'bg');
           const textColor = getStatusColor(status, 'text');
 
           return (
-            <Grid  size={3} height='50%' key={status} onClick={() => handleBoxClick(status)}>
+            <Grid size={2} height='50%' key={status} onClick={() => handleBoxClick(status)}>
               <Card
                 sx={{
                   backgroundColor: bgColor,
@@ -106,25 +118,14 @@ export default function StatsScreen() {
         })}
       </Grid>
 
-      {/* Drawer lateral */}
-      <Drawer
-        anchor="right"
+      {/* Drawer lateral reutilizable */}
+      <RightDrawer
         open={drawerOpen}
         onClose={handleDrawerClose}
-        PaperProps={{ sx: { width: 400, p: 2 } }}
-      >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6">Detalles de {selectedStatus}</Typography>
-          <IconButton onClick={handleDrawerClose}>
-            <CloseIcon />
-          </IconButton>
-        </Box>
-
-        {/* Aquí puedes agregar la tabla o cualquier contenido que desees */}
-        <Typography variant="body1">
-          Aquí puedes mostrar la tabla de tickets filtrados por estado: {selectedStatus}
-        </Typography>
-      </Drawer>
+        status={selectedStatus}
+        accessToken={accessTokenMSAL}
+        date={selectedDate} // 👉 Nueva prop
+      />
     </Box>
   );
 }
