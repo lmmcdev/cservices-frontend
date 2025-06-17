@@ -1,6 +1,7 @@
 // src/pages/statsScreen.js
 import React, { useEffect, useState, useMemo } from 'react';
 import { useStatsState, useFetchStatistics } from '../context/statsContext';
+import { useDoneStatsState, useDoneFetchStatistics } from '../context/doneTicketsContext';
 import { useMsal } from '@azure/msal-react';
 import {
   Box,
@@ -29,6 +30,9 @@ import {
 export default function StatsScreen() {
   const state = useStatsState();
   const fetchStatistics = useFetchStatistics();
+  const doneState = useDoneStatsState();
+  const fetchDoneStats = useDoneFetchStatistics();
+
   const { accounts, instance } = useMsal();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -39,26 +43,14 @@ export default function StatsScreen() {
   const pageSize = 10;
 
   // Simular datos de agentes
-  const allAgents = useMemo(() => {
+  /*const allAgents = useMemo(() => {
     return Array.from({ length: 60 }, (_, i) => ({
       id: i + 1,
       name: `Agent ${i + 1}`,
       callsAttended: Math.floor(Math.random() * 200),
     }));
-  }, []);
+  }, []);*/
 
-  const filteredSortedAgents = useMemo(() => {
-    return allAgents
-      .filter(agent => agent.callsAttended >= minCalls)
-      .sort((a, b) => b.callsAttended - a.callsAttended);
-  }, [allAgents, minCalls]);
-
-  const currentPageAgents = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return filteredSortedAgents.slice(start, start + pageSize);
-  }, [filteredSortedAgents, page]);
-
-  const totalPages = Math.ceil(filteredSortedAgents.length / pageSize);
   const [accessTokenMSAL, setAccessTokenMSAL] = useState(null);
 
   const time = Date.now();
@@ -87,6 +79,7 @@ export default function StatsScreen() {
         if (accessToken) {
           setAccessTokenMSAL(accessToken);
           await fetchStatistics(accessToken); 
+          await fetchDoneStats(accessToken);
         }
       } catch (error) {
         console.error('Error fetching statistics:', error);
@@ -107,7 +100,27 @@ export default function StatsScreen() {
   };
 
   const statistics = state.statistics || {};
+  const doneStatistics = doneState.closedTickets_statistics || {};
   const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
+  const transformed = doneStatistics.map((item, index) => ({
+      id: index + 1,
+      name: item.agent_assigned,
+      callsAttended: item.resolvedCount
+    }));
+
+    const filteredSortedAgents = useMemo(() => {
+    return transformed
+      .filter(agent => agent.callsAttended >= minCalls)
+      .sort((a, b) => b.callsAttended - a.callsAttended);
+  }, [transformed, minCalls]);
+
+  const currentPageAgents = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredSortedAgents.slice(start, start + pageSize);
+  }, [filteredSortedAgents, page]);
+
+  const totalPages = Math.ceil(filteredSortedAgents.length / pageSize);
+  //console.log(transformed)
 
   return (
     <Box sx={{ flexGrow: 1, p: 2 }}>
@@ -157,7 +170,7 @@ export default function StatsScreen() {
       </Grid>
 
 
-<Box mt={4} mb={2} textAlign="center">
+      <Box mt={4} mb={2} textAlign="center">
         <Typography variant="h6" color="#4858FF">
           Agent Activity - Top {pageSize}
         </Typography>
