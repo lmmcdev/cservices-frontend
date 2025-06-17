@@ -2,7 +2,7 @@ import React from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, Button, Typography,
-  MenuItem, Box, FormControlLabel, Checkbox,
+  Box, FormControlLabel, Checkbox,
   Card, CardContent
 } from '@mui/material';
 import { Formik, Form } from 'formik';
