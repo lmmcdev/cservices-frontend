@@ -135,10 +135,10 @@ export default function TableAgents() {
               <Table stickyHeader>
                 <TableHead>
                   <TableRow>
-                    {['Name', 'Email', 'Department', 'Rol', 'Remote Status', ''].map((header, index) => (
+                    {['Name', 'Email', 'Department', 'Rol', 'Remote Status', 'Action'].map((header, index) => (
                       <TableCell
                         key={header}
-                        align={index === 4 ? 'center' : 'left'}
+                        align={index === 4 || index === 5 ? 'center' : 'left'}
                         sx={{ fontWeight: 'bold', fontSize: 16 }}
                       >
                         {header}
@@ -164,8 +164,8 @@ export default function TableAgents() {
                           </IconButton>
                         </Tooltip>
                       </TableCell>
-                      <TableCell>
-                        <Box display="flex" gap={1}>
+                      <TableCell align="center">
+                        <Box display="flex" justifyContent="center" gap={1}>
                           <Tooltip title="Edit Agent" placement="bottom">
                             <Box
                               sx={{
@@ -186,9 +186,7 @@ export default function TableAgents() {
                                   color: '#FFFFFF',
                                 },
                               }}
-                              onClick={() =>
-                                navigate(`/agent/edit/${agent.id}`)
-                              }
+                              onClick={() => navigate(`/agent/edit/${agent.id}`)}
                             >
                               {icons.edit({ style: { fontSize: 16, color: 'inherit' } })}
                             </Box>
