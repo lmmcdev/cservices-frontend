@@ -229,6 +229,7 @@ export default function StatsScreen() {
           Next
         </Button>
       </Box>
+      
       {/* Drawer lateral reutilizable */}
       <RightDrawer
         open={drawerOpen}

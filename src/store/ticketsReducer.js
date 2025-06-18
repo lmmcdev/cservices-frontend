@@ -7,6 +7,7 @@ export const initialState = {
   statistics:[],
   historical_statistics: [],
   closedTickets_statistics: [],
+  closedHistoricalTickets_statistics: [],
   error: null,
 };
 
@@ -32,7 +33,13 @@ export const ticketReducer = (state, action) => {
         closedTickets_statistics: action.payload,
         error: null,
       };
-    
+
+  case 'SET_HISTORICAL_CLOSED_TICKETS':
+      return {
+        ...state,
+        closedHistoricalTickets_statistics: action.payload,
+        error: null,
+      };
 
     case 'SET_TICKETS':
       return {
