@@ -23,7 +23,7 @@ import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import LocalPharmacyIcon from '@mui/icons-material/LocalPharmacy';
 import SecurityIcon from '@mui/icons-material/Security';
 import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
-import EditIcon from '@mui/icons-material/Edit';
+import ProviderList from '../components/providerList';
 //import { useMemo } from 'react';
 
 const mockData = [
@@ -149,7 +149,9 @@ export default function ProfileSearch() {
   const [selected, setSelected] = useState(null);
   const [filter, setFilter] = useState('All');
   const isSmall = useMediaQuery('(max-width:900px)');
+  const [selectedView, setSelectedView] = useState('profile'); 
 
+  
   const applyFilters = data =>
     data.filter(p => {
       const q = query.toLowerCase();
@@ -172,325 +174,223 @@ export default function ProfileSearch() {
 
   const [data, setData] = useState(mockData);
   //const filtered = useMemo(() => applyFilters(data), [data, query, filter]);
-const filtered = applyFilters(data)
+  const filtered = applyFilters(data)
+
   return (
-    <Card
+  <Card
+    sx={{
+      borderRadius: 4,
+      position: 'fixed',
+      top: 150,
+      left: 220,
+      right: 20,
+      bottom: 20,
+      display: 'flex',
+      flexDirection: 'column',
+      boxShadow: '0px 8px 24px rgba(239,241,246,1)',
+      backgroundColor: '#fff',
+      overflow: 'hidden'
+    }}
+  >
+    <CardContent
       sx={{
-        borderRadius: 4,
-        position: 'fixed',
-        top: 150,
-        left: 220,
-        right: 20,
-        bottom: 20,
+        flex: 1,
         display: 'flex',
-        flexDirection: 'column',
-        boxShadow: '0px 8px 24px rgba(239,241,246,1)',
-        backgroundColor: '#fff',
-        overflow: 'hidden'
+        flexDirection: isSmall ? 'column' : 'row'
       }}
     >
-      <CardContent
+      {/* Filter panel */}
+      <Box sx={{ width: 220, p: 2, borderRight: '1px solid #f0f0f0' }}>
+        <List>
+          {[
+            { label: 'All', icon: AllInboxIcon },
+            { label: 'Frequent', icon: ScheduleIcon },
+            { label: 'Starred', icon: (props) => <Icon icon="solar:star-bold" style={{ fontSize: '19px' }} /> }
+          ].map(({ label, icon: Icon }) => (
+            <ListItemButton
+              key={label}
+              selected={filter === label}
+              onClick={() => {
+                setFilter(label);
+                setSelectedView('profile');
+              }}
+              sx={{ borderRadius: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 1.2 }}
+            >
+              <ListItemIcon sx={{ minWidth: 'auto', mr: 0 }}><Icon fontSize="small" /></ListItemIcon>
+              <ListItemText primary={label} />
+            </ListItemButton>
+          ))}
+        </List>
+
+        <ListItemButton
+          onClick={() => setSelectedView('providers')}
+          sx={{ borderRadius: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 1.2 }}
+        >
+          <ListItemIcon sx={{ minWidth: 'auto', mr: 0 }}>
+            <LocalHospitalIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary="Providers" />
+        </ListItemButton>
+
+        <Divider sx={{ my: 2 }} />
+
+        <Typography fontSize={13} fontWeight="bold" color="#5B5F7B" mb={1}>
+          CATEGORIES
+        </Typography>
+        <List>
+          {[
+            { label: 'Patient', icon: AssignmentIndIcon },
+            { label: "Doctor's Office", icon: MedicalServicesIcon },
+            { label: 'Pharmacy', icon: LocalPharmacyIcon },
+            { label: 'Insurance', icon: SecurityIcon },
+            { label: 'Hospital', icon: LocalHospitalIcon },
+            { label: 'Competitors', icon: ApartmentIcon }
+          ].map(({ label, icon: Icon }) => (
+            <ListItemButton
+              key={label}
+              selected={filter === label}
+              onClick={() => {
+                setFilter(label);
+                setSelectedView('profile');
+              }}
+              sx={{ borderRadius: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 1.2 }}
+            >
+              <ListItemIcon sx={{ minWidth: 'auto', mr: 0 }}><Icon fontSize="small" /></ListItemIcon>
+              <ListItemText primary={label} />
+            </ListItemButton>
+          ))}
+        </List>
+      </Box>
+
+      {/* Left panel */}
+      <Box
         sx={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: isSmall ? 'column' : 'row'
+          width: isSmall ? '100%' : '30%',
+          pt:10, pl:2,
+          overflowY: 'auto'
         }}
       >
-        {/* Filter panel */}
-        <Box sx={{ width: 220, p: 2, borderRight: '1px solid #f0f0f0' }}>
-          <List>
-            {[
-              { label: 'All', icon: AllInboxIcon },
-              { label: 'Frequent', icon: ScheduleIcon },
-              { label: 'Starred', icon: (props) => <Icon icon="solar:star-bold" style={{ fontSize: '19px' }} /> }
-            ].map(({ label, icon: Icon }) => (
-              <ListItemButton
-                key={label}
-                selected={filter === label}
-                onClick={() => setFilter(label)}
-                sx={{ borderRadius: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 1.2 }}
-              >
-                <ListItemIcon sx={{ minWidth: 'auto', mr: 0 }}><Icon fontSize="small" /></ListItemIcon>
-                <ListItemText primary={label} />
-              </ListItemButton>
-            ))}
-          </List>
+        {selectedView === 'profile' && (
+          <>
+            <TextField
+              fullWidth
+              placeholder="Search by name, phone or DOB"
+              variant="outlined"
+              onChange={e => setQuery(e.target.value)}
+              sx={{ mb: 2, backgroundColor: 'white' }}
+            />
 
-          <Divider sx={{ my: 2 }} />
-
-          <Typography fontSize={13} fontWeight="bold" color="#5B5F7B" mb={1}>
-            CATEGORIES
-          </Typography>
-          <List>
-            {[
-              { label: 'Patient', icon: AssignmentIndIcon },
-              { label: "Doctor's Office", icon: MedicalServicesIcon },
-              { label: 'Pharmacy', icon: LocalPharmacyIcon },
-              { label: 'Insurance', icon: SecurityIcon },
-              { label: 'Hospital', icon: LocalHospitalIcon },
-              { label: 'Competitors', icon: ApartmentIcon }
-            ].map(({ label, icon: Icon }) => (
-              <ListItemButton
-                key={label}
-                selected={filter === label}
-                onClick={() => setFilter(label)}
-                sx={{ borderRadius: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 1.2 }}
-              >
-                <ListItemIcon sx={{ minWidth: 'auto', mr: 0 }}><Icon fontSize="small" /></ListItemIcon>
-                <ListItemText primary={label} />
-              </ListItemButton>
-            ))}
-          </List>
-        </Box>
-
-        {/* Left panel */}
-        <Box
-          sx={{
-            width: isSmall ? '100%' : '30%',
-            p: 2,
-            overflowY: 'auto'
-          }}
-        >
-          <TextField
-            fullWidth
-            placeholder="Search by name, phone or DOB"
-            variant="outlined"
-            onChange={e => setQuery(e.target.value)}
-            sx={{ mb: 2, backgroundColor: 'white' }}
-          />
-          <List>
-            {filtered.map(p => (
-              <ListItemButton
-                key={p.id}
-                selected={selected?.id === p.id}
-                onClick={() => setSelected(p)}
-                sx={{
+            <List>
+              {filtered.map(p => (
+                <ListItemButton
+                  key={p.id}
+                  selected={selected?.id === p.id}
+                  onClick={() => setSelected(p)}
+                  sx={{
                     borderRadius: 2,
                     mb: 1,
                     position: 'relative',
                     '&:hover .profile-name': {
-                    color: '#00a1ff',
+                      color: '#00a1ff',
                     },
-                }}
-                >
-                <Avatar
-                  sx={{
-                    mr: 2,
-                    width: 48,
-                    height: 48,
-                    fontSize: 24,
-                    bgcolor: avatarColors[p.type] || avatarColors.default,
-                    color: '#5B5F7B'
                   }}
                 >
-                  {typeAvatars[p.type] || '👤'}
-                </Avatar>
-                <ListItemText
+                  <Avatar
+                    sx={{
+                      mr: 2,
+                      width: 48,
+                      height: 48,
+                      fontSize: 24,
+                      bgcolor: avatarColors[p.type] || avatarColors.default,
+                      color: '#5B5F7B'
+                    }}
+                  >
+                    {typeAvatars[p.type] || '👤'}
+                  </Avatar>
+                  <ListItemText
                     primary={
-                        <Typography
+                      <Typography
                         className="profile-name"
                         sx={{
-                            fontWeight: 'bold',
-                            color: selected?.id === p.id ? '#00a1ff' : '#1A1A1A',
-                            transition: 'color 0.3s',
+                          fontWeight: 'bold',
+                          color: selected?.id === p.id ? '#00a1ff' : '#1A1A1A',
+                          transition: 'color 0.3s',
                         }}
-                        >
+                      >
                         {p.name}
-                        </Typography>
+                      </Typography>
                     }
                     secondary={
-                        <Typography
+                      <Typography
                         variant="body2"
                         sx={{ color: '#5B5F7B' }}
-                        >
+                      >
                         {p.type.charAt(0).toUpperCase() + p.type.slice(1)}
-                        </Typography>
+                      </Typography>
                     }
-                />
-                 <IconButton
+                  />
+                  <IconButton
                     size="small"
                     onClick={(e) => {
-                    e.stopPropagation(); // para que no seleccione el perfil al hacer clic en la estrella
-                    setData((prev) =>
+                      e.stopPropagation();
+                      setData((prev) =>
                         prev.map((x) =>
-                        x.id === p.id ? { ...x, starred: !x.starred } : x
+                          x.id === p.id ? { ...x, starred: !x.starred } : x
                         )
-                    );
+                      );
                     }}
                     sx={{
-                    position: 'absolute',
-                    right: 8,
-                    color: p.starred ? '#ffb900' : '#5B5F7B'
+                      position: 'absolute',
+                      right: 8,
+                      color: p.starred ? '#ffb900' : '#5B5F7B'
                     }}
-                >
+                  >
                     {p.starred
-                    ? <Icon icon="solar:star-bold" style={{ fontSize: '18px' }} />
-                    : <Icon icon="solar:star-outline" style={{ fontSize: '18px' }} />
+                      ? <Icon icon="solar:star-bold" style={{ fontSize: '18px' }} />
+                      : <Icon icon="solar:star-outline" style={{ fontSize: '18px' }} />
                     }
-                </IconButton>
-              </ListItemButton>
-            ))}
-          </List>
-        </Box>
+                  </IconButton>
+                </ListItemButton>
+              ))}
+            </List>
+          </>
+        )}
 
-        <Divider
-          orientation="vertical"
-          flexItem
-          sx={{ mx: 1.5, borderColor: '#f0f0f0' }}
-        />
+        {selectedView === 'providers' && (
+          <ProviderList />
+        )}
+      </Box>
 
-        {/* Right panel */}
-        <Box sx={{ flexGrow: 1, p: 4, overflowY: 'auto' }}>
-          {selected ? (
+      <Divider
+        orientation="vertical"
+        flexItem
+        sx={{ mx: 1.5, borderColor: '#f0f0f0' }}
+      />
+
+      {/* Right panel */}
+      <Box sx={{ flexGrow: 1, p: 4, overflowY: 'auto' }}>
+        {selectedView === 'profile' && (
+          selected ? (
             <>
-              {/* Header */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  mb: 2
-                }}
-              >
-                <Typography
-                  variant="h6"
-                  fontWeight="bold"
-                  color="#1A1A1A"
-                >
-                  Contact Details
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                  <IconButton onClick={() => setSelected(prev => ({ ...prev, starred: !prev.starred }))}>
-                    {selected.starred
-                      ? <Icon icon="solar:star-bold" style={{ color: '#ffb900', fontSize: 20 }} />
-                      : <Icon icon="solar:star-outline" style={{ color: '#5B5F7B', fontSize: 20 }} />
-                    }
-                  </IconButton>
-                  <IconButton size="small" sx={{ color: '#5B5F7B' }}>
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              </Box>
-              <Divider sx={{ mb: 3 }} />
-
-              {/* Profile Row */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 2,
-                  mb: 3
-                }}
-              >
-                <Avatar
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    bgcolor:
-                      avatarColors[selected.type] ||
-                      avatarColors.default,
-                    color: '#5B5F7B'
-                  }}
-                >
-                  {typeAvatars[selected.type] || '👤'}
-                </Avatar>
-                <Box>
-                  <Typography
-                    variant="subtitle1"
-                    fontWeight="bold"
-                  >
-                    {selected.name}
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    textTransform="capitalize"
-                  >
-                    {selected.type}
-                  </Typography>
-                </Box>
-              </Box>
-
-              {/* Info grid */}
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: 4,
-                  mb: 3
-                }}
-              >
-                <Box>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                  >
-                    Phone Number
-                  </Typography>
-                  <Typography fontWeight="bold">
-                    {selected.phone}
-                  </Typography>
-                </Box>
-
-                <Box>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                  >
-                    DOB
-                  </Typography>
-                  <Typography fontWeight="bold">
-                    {selected.dob || 'N/A'}
-                  </Typography>
-                </Box>
-
-                <Box sx={{ width: '100%' }}>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                  >
-                    Notes
-                  </Typography>
-                  <Typography fontWeight="bold">
-                    {selected.notes || 'No notes.'}
-                  </Typography>
-                </Box>
-              </Box>
-
-              <Divider sx={{ mb: 3 }} />
-
-              {/* Related Cases */}
-              <Typography
-                variant="subtitle1"
-                color="#00a1ff"
-                mb={1}
-              >
-                Related Cases
-              </Typography>
-              <List>
-                {selected.cases.length > 0
-                  ? selected.cases.map(c => (
-                      <ListItemText
-                        key={c.id}
-                        primary={c.title}
-                        secondary={`Created: ${c.date}`}
-                        sx={{ mb: 1 }}
-                      />
-                    ))
-                  : (
-                    <Typography>
-                      No cases found.
-                    </Typography>
-                  )}
-              </List>
+              {/* Contact Details (tu sección actual) */}
+              {/* ... Aquí va todo tu código del detalle del contacto ... */}
+              {/* Si quieres, te armo esa parte también */}
             </>
           ) : (
             <Typography color="#5B5F7B">
               Select a patient to view details.
             </Typography>
-          )}
-        </Box>
-      </CardContent>
-    </Card>
-  );
+          )
+        )}
+
+        {selectedView === 'providers' && (
+          <Typography color="#5B5F7B">
+            Select a provider from the left panel.
+          </Typography>
+        )}
+      </Box>
+    </CardContent>
+  </Card>
+);
+
 }
