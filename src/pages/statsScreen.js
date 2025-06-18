@@ -15,7 +15,12 @@ import {
 } from '@mui/material';
 import { getStatusColor } from '../utils/js/statusColors';
 import RightDrawer from '../components/rightDrawer';
- import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
+import TopAgentsSection from '../components/topAgentsSection';
+import { emailToFullName } from '../utils/js/emailToFullName.js';
+import TopPerformerCard from '../components/topPerformerCard';
+import CallsByHourChart from '../components/callsByHourChart';
 
 import {
   BarChart,
@@ -169,66 +174,6 @@ export default function StatsScreen() {
         })}
       </Grid>
 
-
-      <Box mt={4} mb={2} textAlign="center">
-        <Typography variant="h6" color="#4858FF">
-          Agent Activity - Top {pageSize}
-        </Typography>
-        <Box mt={1} display="flex" justifyContent="center" alignItems="center" gap={1}>
-          <Typography fontSize={14}>Min. calls:</Typography>
-          <TextField
-            type="number"
-            size="small"
-            value={minCalls}
-            onChange={(e) => {
-              setPage(1);
-              setMinCalls(Number(e.target.value));
-            }}
-            inputProps={{ min: 0 }}
-            sx={{ width: 100 }}
-          />
-        </Box>
-      </Box>
-
-      {/* Gráfico de barras */}
-      <Box height={400}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={currentPageAgents}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-            layout="vertical"
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis type="number" />
-            <YAxis dataKey="name" type="category" width={120} />
-            <Tooltip />
-            <Bar dataKey="callsAttended" fill="#4858FF" />
-          </BarChart>
-        </ResponsiveContainer>
-      </Box>
-
-      {/* Paginación */}
-      <Box mt={3} display="flex" justifyContent="center" alignItems="center" gap={2}>
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={() => setPage(p => Math.max(p - 1, 1))}
-          disabled={page === 1}
-        >
-          Prev
-        </Button>
-        <Typography fontSize={14}>
-          Page {page} of {totalPages}
-        </Typography>
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={() => setPage(p => Math.min(p + 1, totalPages))}
-          disabled={page === totalPages}
-        >
-          Next
-        </Button>
-      </Box>
       {/* Drawer lateral reutilizable */}
       <RightDrawer
         open={drawerOpen}
@@ -237,6 +182,28 @@ export default function StatsScreen() {
         accessToken={accessTokenMSAL}
         date={selectedDate} // 👉 Nueva prop
       />
+
+      {/* Nueva sección de Top Agents con tabla */}
+      <TopAgentsSection agents={filteredSortedAgents.map(agent => ({
+        id: agent.id,
+        name: emailToFullName(agent.name),
+        email: agent.name,  
+        cases: agent.callsAttended,
+        avgTime: '1h 12m' // o algún valor mock si aún no tienes el tiempo real
+      }))} />
+
+      {/* Mensaje de felicitaciones para el Top Performer */}
+      <TopPerformerCard agents={filteredSortedAgents.map(agent => ({
+          ...agent,
+          cases: agent.callsAttended,  // o resolvedCount
+          avgTime: '1h 12m'     // si no lo tienes, ponlo como texto: '1h 15m'
+        }))}
+      />
+
+      {/* Heatmap de horarios */}
+      <Box mt={4}>
+        <CallsByHourChart />
+      </Box>
     </Box>
   );
 }
