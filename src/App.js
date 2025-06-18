@@ -18,6 +18,7 @@ import { HistoricalStatsProvider } from './context/historicalStatsContext';
 import HistoricStatistics from './pages/historicalStatsScreen';
 import SuspenseFallback from './components/auxiliars/suspenseFallback';
 import { SidebarProvider } from './context/sidebarContext';
+import { DoneTicketsProvider } from './context/doneTicketsContext';
 
 import MainLayout from './layouts/mainLayout';
 import MinimalCenteredLayout from './layouts/minimalCenterLayout';
@@ -86,7 +87,7 @@ function AppContent() {
 
           <Route element={<LayoutWithSidebarOnly />}>
             <Route path='/statistics' element={<StatsScreen />} />
-            <Route path='/historical_statistics' element={<HistoricalStatsProvider><HistoricStatistics /></HistoricalStatsProvider>} />
+            <Route path='/historical_statistics' element={<HistoricalStatsProvider><DoneTicketsProvider><HistoricStatistics /></DoneTicketsProvider></HistoricalStatsProvider>} />
           </Route>
 
           <Route element={<MinimalCenteredLayout />}>
@@ -108,6 +109,7 @@ function App() {
         <AuthProvider>
           <LoadingProvider>
             <StatsProvider>
+              <DoneTicketsProvider>
               <TicketsProvider>
                 <SignalRProvider>
                   <NotificationProvider>
@@ -123,6 +125,7 @@ function App() {
                   </NotificationProvider>
                 </SignalRProvider>
               </TicketsProvider>
+              </DoneTicketsProvider>
             </StatsProvider>
           </LoadingProvider>
         </AuthProvider>
