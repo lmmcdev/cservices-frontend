@@ -9,16 +9,22 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  ToggleButton,
-  ToggleButtonGroup
 } from '@mui/material';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import ChevronRight from '@mui/icons-material/ChevronRight';
 import ProfilePic from './components/profilePic';
+import { keyframes } from '@emotion/react';
+
+// Animación de rebote para las medallas
+const bounceHover = keyframes`
+  0% { transform: scale(1); }
+  30% { transform: scale(1.2) rotate(-5deg); }
+  60% { transform: scale(0.95) rotate(3deg); }
+  100% { transform: scale(1); }
+`;
 
 export default function TopAgentsSection({ agents = [] }) {
   const [page, setPage] = useState(1);
-  const [range, setRange] = useState('7d');
   const pageSize = 10;
 
   const sortedAgents = useMemo(() => {
@@ -31,12 +37,6 @@ export default function TopAgentsSection({ agents = [] }) {
   }, [page, sortedAgents]);
 
   const totalPages = Math.ceil(sortedAgents.length / pageSize);
-
-  const handleRangeChange = (_, newRange) => {
-    if (newRange !== null) {
-      setRange(newRange);
-    }
-  };
 
   return (
     <Box
@@ -52,47 +52,13 @@ export default function TopAgentsSection({ agents = [] }) {
     >
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Box sx={{ ml: 1 }}>
-          <Typography fontSize='26px' fontWeight="bold" color='#00A1FF'>Top {page * pageSize} Agents</Typography>
-          <Typography fontSize='16px' color="textSecondary">Activity</Typography>
+          <Typography fontSize="26px" fontWeight="bold" color="#00A1FF">
+            Top {page * pageSize} Agents
+          </Typography>
+          <Typography fontSize="16px" color="textSecondary">
+            Activity
+          </Typography>
         </Box>
-        <ToggleButtonGroup
-          value={range}
-          exclusive
-          onChange={handleRangeChange}
-          size="small"
-          sx={{
-            borderRadius: 6,
-            overflow: 'hidden',
-            boxShadow: 'inset 0 0 0 1px #e0e0e0',
-          }}
-        >
-          {['7d', '30d', 'all'].map((val) => (
-            <ToggleButton
-              key={val}
-              value={val}
-              sx={{
-                textTransform: 'none',
-                px: 2,
-                border: 'none',
-                borderRadius: 0,
-                fontWeight: 'bold',
-                '&.Mui-selected': {
-                  backgroundColor: '#00A1FF',
-                  color: '#fff',
-                  fontWeight: 'bold',
-                  '&:hover': {
-                    backgroundColor: '#008ed6',
-                  },
-                },
-                '&:not(:last-of-type)': {
-                  borderRight: '1px solid #e0e0e0',
-                },
-              }}
-            >
-              {val === '7d' ? 'Top 7 days' : val === '30d' ? 'Top 30 days' : 'All times'}
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
       </Box>
 
       <TableContainer component={Box}>
@@ -110,40 +76,67 @@ export default function TopAgentsSection({ agents = [] }) {
         >
           <TableHead>
             <TableRow>
-              <TableCell align="center"><strong>#</strong></TableCell>
-              <TableCell><strong>Agent</strong></TableCell>
-              <TableCell><strong>Calls</strong></TableCell>
-              <TableCell><strong>Average Time</strong></TableCell>
+              <TableCell align="center">
+                <strong>#</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Agent</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Calls</strong>
+              </TableCell>
+              <TableCell>
+                <strong>Average Time</strong>
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {currentAgents.map((agent, index) => (
-              <TableRow key={agent.id || index}>
-                <TableCell align="center">
-                  {index + 1 + (page - 1) * pageSize === 1 ? (
-                    <span style={{ fontSize: '24px' }}>🥇</span>
-                  ) : index + 1 + (page - 1) * pageSize === 2 ? (
-                    <span style={{ fontSize: '24px' }}>🥈</span>
-                  ) : index + 1 + (page - 1) * pageSize === 3 ? (
-                    <span style={{ fontSize: '24px' }}>🥉</span>
-                  ) : (
-                    <Typography>{index + 1 + (page - 1) * pageSize}</Typography>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <Box sx={{ '& .MuiAvatar-root': { border: 'none !important' } }}>
-                      <ProfilePic email={agent.email} size={40} />
+            {currentAgents.map((agent, index) => {
+              const rank = index + 1 + (page - 1) * pageSize;
+              const medal =
+                rank === 1
+                  ? '🥇'
+                  : rank === 2
+                  ? '🥈'
+                  : rank === 3
+                  ? '🥉'
+                  : null;
+
+              return (
+                <TableRow key={agent.id || index}>
+                  <TableCell align="center">
+                    {medal ? (
+                      <Box
+                        sx={{
+                          fontSize: '24px',
+                          display: 'inline-block',
+                          transition: 'transform 0.3s ease-in-out',
+                          '&:hover': {
+                            animation: `${bounceHover} 0.6s ease`,
+                          },
+                        }}
+                      >
+                        {medal}
+                      </Box>
+                    ) : (
+                      <Typography>{rank}</Typography>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Box sx={{ '& .MuiAvatar-root': { border: 'none !important' } }}>
+                        <ProfilePic email={agent.email} size={40} />
+                      </Box>
+                      <Typography>{agent.name}</Typography>
                     </Box>
-                    <Typography>{agent.name}</Typography>
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Typography>{agent.cases?.toLocaleString()}</Typography>
-                </TableCell>
-                <TableCell>{agent.avgTime || 'N/A'}</TableCell>
-              </TableRow>
-            ))}
+                  </TableCell>
+                  <TableCell>
+                    <Typography>{agent.cases?.toLocaleString()}</Typography>
+                  </TableCell>
+                  <TableCell>{agent.avgTime || 'N/A'}</TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
