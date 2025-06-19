@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { getProviders, searchProviders } from '../utils/apiProviders';
+import { getProviders } from '../utils/apiProviders';
 import {
   Box,
   Typography,
@@ -8,11 +8,10 @@ import {
   Avatar,
   ListItemText,
   IconButton,
-  CircularProgress,
   Divider,
-  TextField
 } from '@mui/material';
 import { Icon } from '@iconify/react';
+import ProviderAutocomplete from './components/providersAutocomplete';
 
 const typeAvatars = {
   provider: '👨‍⚕️',
@@ -29,8 +28,7 @@ const ProviderList = ({ onSelect }) => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
+  const [isSearching, ] = useState(false);
 
   // 🔹 Cargar paginación por defecto
   const fetchProviders = useCallback(async () => {
@@ -84,49 +82,11 @@ const ProviderList = ({ onSelect }) => {
     }
   }, [fetchProviders, isSearching, providers.length]);
 
-  // 🔹 Campo de búsqueda
-  const handleSearch = async () => {
-    if (!searchTerm) return;
 
-    setIsSearching(true);
-    setLoading(true);
-    try {
-      const prov = await searchProviders(searchTerm);
-      setProviders(prov.message.value || []);
-      setHasMore(false); // desactiva paginación en modo búsqueda
-      setContinuationToken(null);
-    } catch (err) {
-      console.error('Search error', err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <Box sx={{ p: 4, maxWidth: '600px', mx: 'auto', height: '500px', overflowY: 'auto' }}>
-      <TextField
-        fullWidth
-        placeholder="Search by Provider Name, Office Phone or Taxonomy Description"
-        variant="outlined"
-        value={searchTerm}
-        onChange={(e) => {
-          const value = e.target.value;
-          setSearchTerm(value);
-          if (value === '') {
-            // 🔹 Se limpió el campo → volver al modo paginación
-            setIsSearching(false);
-            setProviders([]);
-            setContinuationToken(null);
-            setHasMore(true);
-          }
-        }}
-        onKeyDown={async (e) => {
-          if (e.key === 'Enter') {
-            await handleSearch();
-          }
-        }}
-        sx={{ mb: 2 }}
-      />
+      <ProviderAutocomplete onSelect={(provider) => onSelect(provider)} />
 
       <Stack spacing={2}>
         {providers.map((provider, index) => {
@@ -200,12 +160,6 @@ const ProviderList = ({ onSelect }) => {
           );
         })}
       </Stack>
-
-      {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          <CircularProgress />
-        </Box>
-      )}
 
       {!hasMore && !loading && providers.length === 0 && (
         <Typography variant="body2" color="textSecondary" align="center" sx={{ mt: 4 }}>
