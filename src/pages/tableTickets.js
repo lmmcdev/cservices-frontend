@@ -130,167 +130,168 @@ export default function TableTickets() {
         }}
       >
         <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {/*FILTROS*/}
+          {/* FILTROS */}
           <Box sx={{ flexShrink: 0, mt: 4 }}>
             <StatusFilterBoxes
               selectedStatus={selectedStatus}
               setSelectedStatus={setSelectedStatus}
               ticketsCountByStatus={ticketsCountByStatus}
             />
-            
           </Box>
 
-          {/*TABLA CON SCROLL INTERNO*/}
-          <Box sx={{ flex: 1, overflowY: 'auto' }}>
-            <Box sx={{ px: 4 }}>
-              <TableContainer component={Paper} elevation={0} sx={{
-                  maxHeight: '100%',
-                  overflowY: 'auto',
-                  '& .MuiTableCell-stickyHeader': {
-                    backgroundColor: '#f6f7f9',
-                    boxShadow: '0px 2px 5px rgba(0,0,0,0.05)',
-                  }
-                }}>
-                <Table stickyHeader sx={{ tableLayout: 'fixed' }}>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell sx={{ width: columnWidths.status, minWidth: columnWidths.status, fontWeight: 'bold', pl: 3 }}>
-                        Status
+          {/* TABLA CON HEADERS FIJOS */}
+          <Box sx={{ flex: 1, overflow: 'hidden', px: 4 }}>
+            <TableContainer
+              component={Paper}
+              elevation={0}
+              sx={{
+                maxHeight: '100%',
+                overflowY: 'auto',
+                '& thead th': {
+                  position: 'sticky',
+                  top: 0,
+                  backgroundColor: '#f6f7f9',
+                  zIndex: 1,
+                  boxShadow: '0px 2px 5px rgba(0,0,0,0.05)',
+                },
+              }}
+            >
+              <Table stickyHeader sx={{ tableLayout: 'fixed' }}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell sx={{ width: columnWidths.status, minWidth: columnWidths.status, fontWeight: 'bold', pl: 3 }}>
+                      Status
+                    </TableCell>
+                    <TableCell sx={{ width: columnWidths.callerId, minWidth: columnWidths.callerId, fontWeight: 'bold' }}>
+                      Caller ID
+                    </TableCell>
+                    <TableCell sx={{ width: columnWidths.name, minWidth: columnWidths.name, fontWeight: 'bold' }}>
+                      Name
+                    </TableCell>
+                    <TableCell sx={{ width: columnWidths.dob, minWidth: columnWidths.dob, fontWeight: 'bold' }}>
+                      DOB
+                    </TableCell>
+                    <TableCell sx={{ width: columnWidths.phone, minWidth: columnWidths.phone, fontWeight: 'bold' }}>
+                      Phone
+                    </TableCell>
+                    <TableCell
+                      sx={{
+                        width: columnWidths.createdAt,
+                        minWidth: columnWidths.createdAt,
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        userSelect: 'none',
+                        whiteSpace: 'nowrap',
+                      }}
+                      onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
+                    >
+                      <Box display="flex" alignItems="center">
+                        Created At{' '}
+                        {sortDirection === 'asc' ? (
+                          <SortAscending size={20} weight="bold" style={{ marginLeft: 8 }} />
+                        ) : (
+                          <SortDescending size={20} weight="bold" style={{ marginLeft: 8 }} />
+                        )}
+                      </Box>
+                    </TableCell>
+                    <TableCell sx={{ width: columnWidths.assignedTo, minWidth: columnWidths.assignedTo, fontWeight: 'bold' }}>
+                      Assigned To
+                    </TableCell>
+                    <TableCell sx={{ width: 120, fontWeight: 'bold', textAlign: 'center' }}>
+                      Action
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {paginatedRows.map((row, idx) => (
+                    <TableRow key={row.id && row.id !== '' ? row.id : `fallback-${idx}`} sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>
+                      <TableCell>
+                        <Chip
+                          label={row.status}
+                          size="small"
+                          sx={{
+                            backgroundColor: getStatusColor(row.status, 'bg') || '#e0e0e0',
+                            color: getStatusColor(row.status, 'text') || '#000',
+                            fontWeight: 'bold',
+                            fontSize: 12,
+                            borderRadius: '16px',
+                            '& .MuiChip-label': {
+                              display: 'flex',
+                              alignItems: 'center',
+                              paddingY: '4px',
+                              paddingX: '15px',
+                              lineHeight: 1.5,
+                            },
+                          }}
+                        />
                       </TableCell>
-                      <TableCell sx={{ width: columnWidths.callerId, minWidth: columnWidths.callerId, fontWeight: 'bold' }}>
-                        Caller ID
-                      </TableCell>
-                      <TableCell sx={{ width: columnWidths.name, minWidth: columnWidths.name, fontWeight: 'bold' }}>
-                        Name
-                      </TableCell>
-                      <TableCell sx={{ width: columnWidths.dob, minWidth: columnWidths.dob, fontWeight: 'bold' }}>
-                        DOB
-                      </TableCell>
-                      <TableCell sx={{ width: columnWidths.phone, minWidth: columnWidths.phone, fontWeight: 'bold' }}>
-                        Phone
-                      </TableCell>
-                      <TableCell
-                        sx={{
-                          width: columnWidths.createdAt,
-                          minWidth: columnWidths.createdAt,
-                          fontWeight: 'bold',
-                          cursor: 'pointer',
-                          userSelect: 'none',
-                          whiteSpace: 'nowrap',
-                        }}
-                        onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
-                      >
-                        <Box display="flex" alignItems="center">
-                          Created At{' '}
-                          {sortDirection === 'asc' ? (
-                            <SortAscending size={20} weight="bold" style={{ marginLeft: 8 }} />
-                          ) : (
-                            <SortDescending size={20} weight="bold" style={{ marginLeft: 8 }} />
+                      <TableCell>{row.caller_id}</TableCell>
+                      <TableCell>{row.patient_name}</TableCell>
+                      <TableCell>{row.patient_dob}</TableCell>
+                      <TableCell>{row.phone ? formatPhone(row.phone) : 'N/A'}</TableCell>
+                      <TableCell>{row.creation_date}</TableCell>
+                      <TableCell>{emailToFullName(row.agent_assigned)}</TableCell>
+                      <TableCell>
+                        <Box display="flex" justifyContent="center" gap={1}>
+                          {row.agent_assigned !== '' && (
+                            <Tooltip title="Edit" placement="bottom">
+                              <Box
+                                sx={{
+                                  backgroundColor: '#DFF3FF',
+                                  color: '#00A1FF',
+                                  borderRadius: '50%',
+                                  padding: 1,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  width: 32,
+                                  height: 32,
+                                  fontSize: 18,
+                                  cursor: 'pointer',
+                                  transition: 'background-color 0.3s, color 0.3s',
+                                  '&:hover': {
+                                    backgroundColor: '#00A1FF',
+                                    color: '#FFFFFF',
+                                  },
+                                }}
+                                onClick={() => navigate(`/tickets/edit/${row.id}`)}
+                              >
+                                <icons.edit style={{ fontSize: 16, color: 'inherit' }} />
+                              </Box>
+                            </Tooltip>
+                          )}
+                          {row.agent_assigned === '' && (
+                            <Tooltip title="Assign to me" placement="bottom">
+                              <IconButton
+                                onClick={() => setSelectedTicket(row)}
+                                sx={{
+                                  backgroundColor: '#daf8f4',
+                                  color: '#00b8a3',
+                                  borderRadius: '50%',
+                                  padding: 1,
+                                  width: 32,
+                                  height: 32,
+                                  transition: 'background-color 0.3s, color 0.3s',
+                                  '&:hover': {
+                                    backgroundColor: '#00b8a3',
+                                    color: '#ffffff',
+                                  },
+                                }}
+                              >
+                                <icons.assignToMe size={16} />
+                              </IconButton>
+                            </Tooltip>
                           )}
                         </Box>
                       </TableCell>
-                      <TableCell sx={{ width: columnWidths.assignedTo, minWidth: columnWidths.assignedTo, fontWeight: 'bold' }}>
-                        Assigned To
-                      </TableCell>
-                      <TableCell sx={{ width: 120, fontWeight: 'bold', textAlign: 'center' }}>
-                        Action
-                      </TableCell>
                     </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {paginatedRows.map((row, idx) => (
-                      <TableRow key={row.id && row.id !== '' ? row.id : `fallback-${idx}`} sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>
-                        <TableCell>
-                          <Chip
-                            label={row.status}
-                            size="small"
-                            sx={{
-                              backgroundColor: getStatusColor(row.status, 'bg') || '#e0e0e0',
-                              color: getStatusColor(row.status, 'text') || '#000',
-                              fontWeight: 'bold',
-                              fontSize: 12,
-                              borderRadius: '16px',
-                              '& .MuiChip-label': {
-                                display: 'flex',
-                                alignItems: 'center',
-                                paddingY: '4px', // Padding vertical pequeño y balanceado
-                                paddingX: '15px', // Padding horizontal típico
-                                lineHeight: 1.5,
-                              },
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell>{row.caller_id}</TableCell>
-                        <TableCell>{row.patient_name}</TableCell>
-                        <TableCell>{row.patient_dob}</TableCell>
-                        <TableCell>{row.phone ? formatPhone(row.phone) : 'N/A'}</TableCell>
-                        <TableCell>{row.creation_date}</TableCell>
-                        <TableCell>{emailToFullName(row.agent_assigned)}</TableCell>
-                        <TableCell>
-                          <Box display="flex" justifyContent="center" gap={1}>
-                            {/* Edit Button (only if agent_assigned is not empty) */}
-                            {row.agent_assigned !== '' && (
-                              <Tooltip title="Edit" placement="bottom">
-                                <Box
-                                  sx={{
-                                    backgroundColor: '#DFF3FF',
-                                    color: '#00A1FF',
-                                    borderRadius: '50%',
-                                    padding: 1,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    width: 32,
-                                    height: 32,
-                                    fontSize: 18,
-                                    cursor: 'pointer',
-                                    transition: 'background-color 0.3s, color 0.3s',
-                                    '&:hover': {
-                                      backgroundColor: '#00A1FF',
-                                      color: '#FFFFFF',
-                                    },
-                                  }}
-                                  onClick={() => navigate(`/tickets/edit/${row.id}`)}
-                                >
-                                  <icons.edit style={{ fontSize: 16, color: 'inherit' }} />
-                                </Box>
-                              </Tooltip>
-                            )}
-
-                            {/* Assign to Me Button (only if not assigned) */}
-                            {row.agent_assigned === '' && (
-                              <Tooltip title="Assign to me" placement="bottom">
-                                <IconButton
-                                  onClick={() => setSelectedTicket(row)}
-                                  sx={{
-                                    backgroundColor: '#daf8f4',
-                                    color: '#00b8a3',
-                                    borderRadius: '50%',
-                                    padding: 1,
-                                    width: 32,
-                                    height: 32,
-                                    transition: 'background-color 0.3s, color 0.3s',
-                                    '&:hover': {
-                                      backgroundColor: '#00b8a3',
-                                      color: '#ffffff',
-                                    },
-                                  }}
-                                >
-                                  <icons.assignToMe size={16} />
-                                </IconButton>
-                              </Tooltip>
-                            )}
-                          </Box>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Box>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </Box>
 
-          {/*PAGINADOR - FIJO ABAJO*/}
+          {/* Paginador */}
           <Box sx={{ flexShrink: 0, px: 2, py: 1, backgroundColor: '#fff' }}>
             <TablePagination
               component="div"
@@ -303,7 +304,6 @@ export default function TableTickets() {
             />
           </Box>
         </CardContent>
-
       </Card>
 
       {selectedTicket && user?.username && (
