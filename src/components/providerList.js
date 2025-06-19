@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { getProviders } from '../utils/apiProviders';
+import { getProviders, searchProviders } from '../utils/apiProviders';
 import {
   Box,
   Typography,
@@ -10,11 +10,12 @@ import {
   IconButton,
   CircularProgress,
   Divider,
+  TextField
 } from '@mui/material';
 import { Icon } from '@iconify/react';
 
 const typeAvatars = {
-  provider: '👨‍⚕️', // Cambié a uno más adecuado
+  provider: '👨‍⚕️',
 };
 
 const avatarColors = {
@@ -22,19 +23,19 @@ const avatarColors = {
   default: '#f1f5ff',
 };
 
-
 const ProviderList = ({ onSelect }) => {
   const [providers, setProviders] = useState([]);
   const [continuationToken, setContinuationToken] = useState(null);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
 
+  // 🔹 Cargar paginación por defecto
   const fetchProviders = useCallback(async () => {
-    if (loading || !hasMore) return;
-
+    if (loading || !hasMore || isSearching) return;
     setLoading(true);
-
     try {
       const response = await getProviders({
         params: {
@@ -44,13 +45,9 @@ const ProviderList = ({ onSelect }) => {
       });
 
       const { items, continuationToken: nextToken } = response.message;
-
-      //const mappedItems = items.map(mapProviderToSimple);
-      const mappedItems = items
-
       setProviders((prev) => {
         const ids = new Set(prev.map((item) => item.id));
-        const newItems = mappedItems.filter((item) => !ids.has(item.id));
+        const newItems = items.filter((item) => !ids.has(item.id));
         return [...prev, ...newItems];
       });
 
@@ -61,12 +58,12 @@ const ProviderList = ({ onSelect }) => {
     } finally {
       setLoading(false);
     }
-  }, [continuationToken, hasMore, loading]);
+  }, [continuationToken, hasMore, loading, isSearching]);
 
+  // 🔹 Observador para scroll infinito
   const lastProviderRef = useCallback(
     (node) => {
-      if (loading) return;
-
+      if (loading || isSearching) return;
       if (observer.current) observer.current.disconnect();
 
       observer.current = new IntersectionObserver((entries) => {
@@ -77,21 +74,60 @@ const ProviderList = ({ onSelect }) => {
 
       if (node) observer.current.observe(node);
     },
-    [fetchProviders, hasMore, loading]
+    [fetchProviders, hasMore, loading, isSearching]
   );
 
+  // 🔹 Cargar los primeros resultados SOLO si no estamos buscando
   useEffect(() => {
-    fetchProviders();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!isSearching && providers.length === 0) {
+      fetchProviders();
+    }
+  }, [fetchProviders, isSearching, providers.length]);
+
+  // 🔹 Campo de búsqueda
+  const handleSearch = async () => {
+    if (!searchTerm) return;
+
+    setIsSearching(true);
+    setLoading(true);
+    try {
+      const prov = await searchProviders(searchTerm);
+      setProviders(prov.message.value || []);
+      setHasMore(false); // desactiva paginación en modo búsqueda
+      setContinuationToken(null);
+    } catch (err) {
+      console.error('Search error', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <Box sx={{
-        p: 4,
-        maxWidth: '600px',
-        mx: 'auto',
-        height: '500px',
-        overflowY: 'auto',
-    }}>
+    <Box sx={{ p: 4, maxWidth: '600px', mx: 'auto', height: '500px', overflowY: 'auto' }}>
+      <TextField
+        fullWidth
+        placeholder="Search by Provider Name, Office Phone or Taxonomy Description"
+        variant="outlined"
+        value={searchTerm}
+        onChange={(e) => {
+          const value = e.target.value;
+          setSearchTerm(value);
+          if (value === '') {
+            // 🔹 Se limpió el campo → volver al modo paginación
+            setIsSearching(false);
+            setProviders([]);
+            setContinuationToken(null);
+            setHasMore(true);
+          }
+        }}
+        onKeyDown={async (e) => {
+          if (e.key === 'Enter') {
+            await handleSearch();
+          }
+        }}
+        sx={{ mb: 2 }}
+      />
+
       <Stack spacing={2}>
         {providers.map((provider, index) => {
           const isLastItem = index === providers.length - 1;
@@ -99,7 +135,7 @@ const ProviderList = ({ onSelect }) => {
           return (
             <ListItemButton
               key={provider.id}
-              ref={isLastItem ? lastProviderRef : null}
+              ref={isLastItem && !isSearching ? lastProviderRef : null}
               onClick={() => onSelect(provider)}
               sx={{
                 borderRadius: 2,
@@ -125,27 +161,19 @@ const ProviderList = ({ onSelect }) => {
 
               <ListItemText
                 primary={
-                  <Typography
-                    className="profile-name"
-                    sx={{
-                      fontWeight: 'bold',
-                      color: '#1A1A1A',
-                      transition: 'color 0.3s',
-                    }}
-                  >
-                    {provider["First Name"] - provider["Last Name"]}
+                  <Typography className="profile-name" sx={{ fontWeight: 'bold', color: '#1A1A1A' }}>
+                    {provider["First_Name"] || "N/A"} {provider["Last_Name"] || "N/A"}
                   </Typography>
                 }
                 secondary={
                   <>
-                  <Typography variant="body2" sx={{ color: '#5B5F7B' }}>
-                    {provider["Provider Name"]} <Divider />
-                    {provider["Office Address"]}
-                  </Typography>
-
-                  <Typography variant="p" sx={{ color: '#5B5F7B' }}>
-                    {provider["Taxonomy Description"]} <Divider />
-                  </Typography>
+                    <Typography variant="body2" sx={{ color: '#5B5F7B' }}>
+                      {provider["Provider_Name"]} <Divider />
+                      {provider["Office_Address"]}
+                    </Typography>
+                    <Typography variant="p" sx={{ color: '#5B5F7B' }}>
+                      {provider["Taxonomy_Description"]} <Divider />
+                    </Typography>
                   </>
                 }
               />
@@ -166,11 +194,7 @@ const ProviderList = ({ onSelect }) => {
                   color: provider.starred ? '#ffb900' : '#5B5F7B',
                 }}
               >
-                {provider.starred ? (
-                  <Icon icon="solar:star-bold" style={{ fontSize: '18px' }} />
-                ) : (
-                  <Icon icon="solar:star-outline" style={{ fontSize: '18px' }} />
-                )}
+                <Icon icon={provider.starred ? "solar:star-bold" : "solar:star-outline"} style={{ fontSize: '18px' }} />
               </IconButton>
             </ListItemButton>
           );
@@ -183,13 +207,8 @@ const ProviderList = ({ onSelect }) => {
         </Box>
       )}
 
-      {!hasMore && !loading && (
-        <Typography
-          variant="body2"
-          color="textSecondary"
-          align="center"
-          sx={{ mt: 4 }}
-        >
+      {!hasMore && !loading && providers.length === 0 && (
+        <Typography variant="body2" color="textSecondary" align="center" sx={{ mt: 4 }}>
           No hay más datos
         </Typography>
       )}
