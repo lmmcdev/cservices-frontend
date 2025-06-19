@@ -10,7 +10,6 @@ import {
   Typography,
   Grid,
   Chip,
-  TextField,
   Button,
 } from '@mui/material';
 import { getStatusColor } from '../utils/js/statusColors';
@@ -22,15 +21,6 @@ import { emailToFullName } from '../utils/js/emailToFullName.js';
 import TopPerformerCard from '../components/topPerformerCard';
 import CallsByHourChart from '../components/callsByHourChart';
 
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ResponsiveContainer,
-} from 'recharts';
 
 export default function StatsScreen() {
   const state = useStatsState();
@@ -43,18 +33,8 @@ export default function StatsScreen() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(null);
 
-  const [minCalls, setMinCalls] = useState(0);
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const [minCalls, ] = useState(0);
 
-  // Simular datos de agentes
-  /*const allAgents = useMemo(() => {
-    return Array.from({ length: 60 }, (_, i) => ({
-      id: i + 1,
-      name: `Agent ${i + 1}`,
-      callsAttended: Math.floor(Math.random() * 200),
-    }));
-  }, []);*/
 
   const [accessTokenMSAL, setAccessTokenMSAL] = useState(null);
 
@@ -119,13 +99,6 @@ export default function StatsScreen() {
       .sort((a, b) => b.callsAttended - a.callsAttended);
   }, [transformed, minCalls]);
 
-  const currentPageAgents = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return filteredSortedAgents.slice(start, start + pageSize);
-  }, [filteredSortedAgents, page]);
-
-  const totalPages = Math.ceil(filteredSortedAgents.length / pageSize);
-  //console.log(transformed)
 
   return (
     <Box sx={{ flexGrow: 1, p: 2 }}>

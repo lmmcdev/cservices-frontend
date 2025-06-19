@@ -6,7 +6,6 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  CartesianGrid,
 } from 'recharts';
 import { Card, CardContent, Box, Typography } from '@mui/material';
 

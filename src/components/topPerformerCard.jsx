@@ -46,7 +46,7 @@ export default function TopPerformerCard({ agents = [] }) {
     });
 
     return sorted[0] || null;
-  }, [agents]);
+  }, [agents]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleConfetti = () => {
     const trophyBox = document.getElementById('trophy-zone');
