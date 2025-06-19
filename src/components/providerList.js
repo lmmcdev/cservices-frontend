@@ -9,6 +9,7 @@ import {
   ListItemText,
   IconButton,
   CircularProgress,
+  Divider,
 } from '@mui/material';
 import { Icon } from '@iconify/react';
 
@@ -21,19 +22,8 @@ const avatarColors = {
   default: '#f1f5ff',
 };
 
-function mapProviderToSimple(provider) {
-  return {
-    id: provider.id,
-    name: provider['Provider Name'] || `${provider['First Name']} ${provider['Last Name']}`,
-    type: 'provider',
-    phone: provider['Office Phone'] ? provider['Office Phone'].toString() : '',
-    dob: provider['Effective To'] || '',
-    starred: false,
-    notes: provider.notes || '',
-  };
-}
 
-const ProviderList = () => {
+const ProviderList = ({ onSelect }) => {
   const [providers, setProviders] = useState([]);
   const [continuationToken, setContinuationToken] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -55,7 +45,8 @@ const ProviderList = () => {
 
       const { items, continuationToken: nextToken } = response.message;
 
-      const mappedItems = items.map(mapProviderToSimple);
+      //const mappedItems = items.map(mapProviderToSimple);
+      const mappedItems = items
 
       setProviders((prev) => {
         const ids = new Set(prev.map((item) => item.id));
@@ -109,6 +100,7 @@ const ProviderList = () => {
             <ListItemButton
               key={provider.id}
               ref={isLastItem ? lastProviderRef : null}
+              onClick={() => onSelect(provider)}
               sx={{
                 borderRadius: 2,
                 mb: 1,
@@ -141,13 +133,20 @@ const ProviderList = () => {
                       transition: 'color 0.3s',
                     }}
                   >
-                    {provider.name}
+                    {provider["First Name"] - provider["Last Name"]}
                   </Typography>
                 }
                 secondary={
+                  <>
                   <Typography variant="body2" sx={{ color: '#5B5F7B' }}>
-                    {provider.phone}
+                    {provider["Provider Name"]} <Divider />
+                    {provider["Office Address"]}
                   </Typography>
+
+                  <Typography variant="p" sx={{ color: '#5B5F7B' }}>
+                    {provider["Taxonomy Description"]} <Divider />
+                  </Typography>
+                  </>
                 }
               />
 
