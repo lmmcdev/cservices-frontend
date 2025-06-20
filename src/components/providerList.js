@@ -3,7 +3,7 @@ import { getProviders } from '../utils/apiProviders';
 import {
   Box,
   Typography,
-  Stack,
+  List,
   ListItemButton,
   Avatar,
   ListItemText,
@@ -85,10 +85,10 @@ const ProviderList = ({ onSelect }) => {
 
 
   return (
+    <><ProviderAutocomplete onSelect={(provider) => onSelect(provider)} />
     <Box sx={{ p: 4, maxWidth: '600px', mx: 'auto', height: '500px', overflowY: 'auto' }}>
-      <ProviderAutocomplete onSelect={(provider) => onSelect(provider)} />
 
-      <Stack spacing={2}>
+      <List spacing={2}>
         {providers.map((provider, index) => {
           const isLastItem = index === providers.length - 1;
 
@@ -131,9 +131,6 @@ const ProviderList = ({ onSelect }) => {
                       {provider["Provider_Name"]} <Divider />
                       {provider["Office_Address"]}
                     </Typography>
-                    <Typography variant="p" sx={{ color: '#5B5F7B' }}>
-                      {provider["Taxonomy_Description"]} <Divider />
-                    </Typography>
                   </>
                 }
               />
@@ -159,14 +156,14 @@ const ProviderList = ({ onSelect }) => {
             </ListItemButton>
           );
         })}
-      </Stack>
+      </List>
 
       {!hasMore && !loading && providers.length === 0 && (
         <Typography variant="body2" color="textSecondary" align="center" sx={{ mt: 4 }}>
           No hay más datos
         </Typography>
       )}
-    </Box>
+    </Box></>
   );
 };
 

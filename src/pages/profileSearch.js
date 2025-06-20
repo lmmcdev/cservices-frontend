@@ -25,6 +25,9 @@ import SecurityIcon from '@mui/icons-material/Security';
 import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 import ProviderList from '../components/providerList';
 import ProviderEditForm from './editProvider';
+import { handleUpdateProvider } from '../utils/js/providerActions';
+import { useLoading } from '../providers/loadingProvider';
+import AlertSnackbar from '../components/auxiliars/alertSnackbar';
 //import { useMemo } from 'react';
 
 const mockData = [
@@ -152,6 +155,14 @@ export default function ProfileSearch() {
   const isSmall = useMediaQuery('(max-width:900px)');
   const [selectedView, setSelectedView] = useState('profile'); 
   const [selectedProvider, setSelectedProvider] = useState(null);
+  const { setLoading } = useLoading();
+
+  const [errorOpen, setErrorOpen] = useState(false);
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  
+  
   
   const applyFilters = data =>
     data.filter(p => {
@@ -176,7 +187,16 @@ export default function ProfileSearch() {
   const [data, setData] = useState(mockData);
   //const filtered = useMemo(() => applyFilters(data), [data, query, filter]);
   const filtered = applyFilters(data)
+    
+  const updateProviderUI = async (data, id) => {
+    const dataProvider = { ...data, id}
+    await handleUpdateProvider({setLoading, dataProvider, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
+  
+  };
+
+
   return (
+    <>
     <Card
       sx={{
         borderRadius: 4,
@@ -201,28 +221,12 @@ export default function ProfileSearch() {
       >
         {/* Filter panel */}
         <Box sx={{ width: 220, p: 2, borderRight: '1px solid #f0f0f0' }}>
-          <List>
-            {[
-              { label: 'All', icon: AllInboxIcon },
-              { label: 'Frequent', icon: ScheduleIcon },
-              { label: 'Starred', icon: (props) => <Icon icon="solar:star-bold" style={{ fontSize: '19px' }} /> }
-            ].map(({ label, icon: Icon }) => (
-              <ListItemButton
-                key={label}
-                selected={filter === label}
-                onClick={() => {
-                  setFilter(label);
-                  setSelectedView('profile');
-                }}
-                sx={{ borderRadius: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 1.2 }}
-              >
-                <ListItemIcon sx={{ minWidth: 'auto', mr: 0 }}><Icon fontSize="small" /></ListItemIcon>
-                <ListItemText primary={label} />
-              </ListItemButton>
-            ))}
-          </List>
 
-          <ListItemButton
+          <List>
+            
+
+            
+            <ListItemButton
             onClick={() => setSelectedView('providers')}
             sx={{ borderRadius: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 1.2 }}
           >
@@ -231,6 +235,11 @@ export default function ProfileSearch() {
             </ListItemIcon>
             <ListItemText primary="Providers" />
           </ListItemButton>
+          </List>
+
+
+
+          
 
           <Divider sx={{ my: 2 }} />
 
@@ -385,10 +394,8 @@ export default function ProfileSearch() {
             selectedProvider ? (
               <ProviderEditForm
                 initialData={selectedProvider}
-                onSubmit={(updatedValues) => {
-                  // Aquí puedes actualizar la base de datos o el contexto
-                  console.log('Updated Provider:', updatedValues);
-                  // Opcional: cerrar el formulario, o actualizar el listado, etc.
+                onSubmit={async (updatedValues, providerID) => {
+                  await updateProviderUI(updatedValues, providerID)
                 }}
               />
             ) : (
@@ -400,6 +407,21 @@ export default function ProfileSearch() {
         </Box>
       </CardContent>
     </Card>
+
+    {/* Snackbars */}
+          <AlertSnackbar
+            open={errorOpen}
+            onClose={() => setErrorOpen(false)}
+            severity="error"
+            message={errorMessage}
+          />
+          <AlertSnackbar
+            open={successOpen}
+            onClose={() => setSuccessOpen(false)}
+            severity="success"
+            message={successMessage}
+          />
+          </>
   );
 
 }
