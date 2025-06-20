@@ -20,7 +20,9 @@ import TopAgentsSection from '../components/topAgentsSection';
 import { emailToFullName } from '../utils/js/emailToFullName.js';
 import TopPerformerCard from '../components/topPerformerCard';
 import CallsByHourChart from '../components/callsByHourChart';
-
+import AverageResolutionTime from '../components/averageResolutionTime';
+import ActiveAgents from '../components/activeAgents.jsx';
+import CustomerSatisfaction from '../components/customerSatisfaction.jsx';
 
 export default function StatsScreen() {
   const state = useStatsState();
@@ -173,10 +175,24 @@ export default function StatsScreen() {
         }))}
       />
 
-      {/* Heatmap de horarios */}
+      {/* Chart de total de llamadas por intervalo horario */}
       <Box mt={4}>
         <CallsByHourChart />
       </Box>
+
+      {/* Caja que muestra el tiempo de resolucion promedio de los casos */}
+      <AverageResolutionTime />
+
+      {/* Caja que muestra numero de usuarios activos en este momento */}
+      <Box mt={4}>
+        <ActiveAgents />
+      </Box>
+
+      {/* Caja que muestra nivel de satisfaccion al cliente */}
+      <Box mt={4}>
+        <CustomerSatisfaction />
+      </Box>
+
     </Box>
   );
 }
