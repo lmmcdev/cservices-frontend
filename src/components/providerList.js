@@ -8,12 +8,13 @@ import {
   Avatar,
   ListItemText,
   IconButton,
-  CircularProgress,
+  Divider,
 } from '@mui/material';
 import { Icon } from '@iconify/react';
+import ProviderAutocomplete from './components/providersAutocomplete';
 
 const typeAvatars = {
-  provider: '👨‍⚕️', // Cambié a uno más adecuado
+  provider: '👨‍⚕️',
 };
 
 const avatarColors = {
@@ -21,30 +22,18 @@ const avatarColors = {
   default: '#f1f5ff',
 };
 
-function mapProviderToSimple(provider) {
-  return {
-    id: provider.id,
-    name: provider['Provider Name'] || `${provider['First Name']} ${provider['Last Name']}`,
-    type: 'provider',
-    phone: provider['Office Phone'] ? provider['Office Phone'].toString() : '',
-    dob: provider['Effective To'] || '',
-    starred: false,
-    notes: provider.notes || '',
-  };
-}
-
-const ProviderList = () => {
+const ProviderList = ({ onSelect }) => {
   const [providers, setProviders] = useState([]);
   const [continuationToken, setContinuationToken] = useState(null);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef();
+  const [isSearching, ] = useState(false);
 
+  // 🔹 Cargar paginación por defecto
   const fetchProviders = useCallback(async () => {
-    if (loading || !hasMore) return;
-
+    if (loading || !hasMore || isSearching) return;
     setLoading(true);
-
     try {
       const response = await getProviders({
         params: {
@@ -54,12 +43,9 @@ const ProviderList = () => {
       });
 
       const { items, continuationToken: nextToken } = response.message;
-
-      const mappedItems = items.map(mapProviderToSimple);
-
       setProviders((prev) => {
         const ids = new Set(prev.map((item) => item.id));
-        const newItems = mappedItems.filter((item) => !ids.has(item.id));
+        const newItems = items.filter((item) => !ids.has(item.id));
         return [...prev, ...newItems];
       });
 
@@ -70,12 +56,12 @@ const ProviderList = () => {
     } finally {
       setLoading(false);
     }
-  }, [continuationToken, hasMore, loading]);
+  }, [continuationToken, hasMore, loading, isSearching]);
 
+  // 🔹 Observador para scroll infinito
   const lastProviderRef = useCallback(
     (node) => {
-      if (loading) return;
-
+      if (loading || isSearching) return;
       if (observer.current) observer.current.disconnect();
 
       observer.current = new IntersectionObserver((entries) => {
@@ -86,21 +72,22 @@ const ProviderList = () => {
 
       if (node) observer.current.observe(node);
     },
-    [fetchProviders, hasMore, loading]
+    [fetchProviders, hasMore, loading, isSearching]
   );
 
+  // 🔹 Cargar los primeros resultados SOLO si no estamos buscando
   useEffect(() => {
-    fetchProviders();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!isSearching && providers.length === 0) {
+      fetchProviders();
+    }
+  }, [fetchProviders, isSearching, providers.length]);
+
+
 
   return (
-    <Box sx={{
-        p: 4,
-        maxWidth: '600px',
-        mx: 'auto',
-        height: '500px',
-        overflowY: 'auto',
-    }}>
+    <Box sx={{ p: 4, maxWidth: '600px', mx: 'auto', height: '500px', overflowY: 'auto' }}>
+      <ProviderAutocomplete onSelect={(provider) => onSelect(provider)} />
+
       <Stack spacing={2}>
         {providers.map((provider, index) => {
           const isLastItem = index === providers.length - 1;
@@ -108,7 +95,8 @@ const ProviderList = () => {
           return (
             <ListItemButton
               key={provider.id}
-              ref={isLastItem ? lastProviderRef : null}
+              ref={isLastItem && !isSearching ? lastProviderRef : null}
+              onClick={() => onSelect(provider)}
               sx={{
                 borderRadius: 2,
                 mb: 1,
@@ -133,21 +121,20 @@ const ProviderList = () => {
 
               <ListItemText
                 primary={
-                  <Typography
-                    className="profile-name"
-                    sx={{
-                      fontWeight: 'bold',
-                      color: '#1A1A1A',
-                      transition: 'color 0.3s',
-                    }}
-                  >
-                    {provider.name}
+                  <Typography className="profile-name" sx={{ fontWeight: 'bold', color: '#1A1A1A' }}>
+                    {provider["First_Name"] || "N/A"} {provider["Last_Name"] || "N/A"}
                   </Typography>
                 }
                 secondary={
-                  <Typography variant="body2" sx={{ color: '#5B5F7B' }}>
-                    {provider.phone}
-                  </Typography>
+                  <>
+                    <Typography variant="body2" sx={{ color: '#5B5F7B' }}>
+                      {provider["Provider_Name"]} <Divider />
+                      {provider["Office_Address"]}
+                    </Typography>
+                    <Typography variant="p" sx={{ color: '#5B5F7B' }}>
+                      {provider["Taxonomy_Description"]} <Divider />
+                    </Typography>
+                  </>
                 }
               />
 
@@ -167,30 +154,15 @@ const ProviderList = () => {
                   color: provider.starred ? '#ffb900' : '#5B5F7B',
                 }}
               >
-                {provider.starred ? (
-                  <Icon icon="solar:star-bold" style={{ fontSize: '18px' }} />
-                ) : (
-                  <Icon icon="solar:star-outline" style={{ fontSize: '18px' }} />
-                )}
+                <Icon icon={provider.starred ? "solar:star-bold" : "solar:star-outline"} style={{ fontSize: '18px' }} />
               </IconButton>
             </ListItemButton>
           );
         })}
       </Stack>
 
-      {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          <CircularProgress />
-        </Box>
-      )}
-
-      {!hasMore && !loading && (
-        <Typography
-          variant="body2"
-          color="textSecondary"
-          align="center"
-          sx={{ mt: 4 }}
-        >
+      {!hasMore && !loading && providers.length === 0 && (
+        <Typography variant="body2" color="textSecondary" align="center" sx={{ mt: 4 }}>
           No hay más datos
         </Typography>
       )}
