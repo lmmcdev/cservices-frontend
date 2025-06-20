@@ -221,28 +221,12 @@ export default function ProfileSearch() {
       >
         {/* Filter panel */}
         <Box sx={{ width: 220, p: 2, borderRight: '1px solid #f0f0f0' }}>
-          <List>
-            {[
-              { label: 'All', icon: AllInboxIcon },
-              { label: 'Frequent', icon: ScheduleIcon },
-              { label: 'Starred', icon: (props) => <Icon icon="solar:star-bold" style={{ fontSize: '19px' }} /> }
-            ].map(({ label, icon: Icon }) => (
-              <ListItemButton
-                key={label}
-                selected={filter === label}
-                onClick={() => {
-                  setFilter(label);
-                  setSelectedView('profile');
-                }}
-                sx={{ borderRadius: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 1.2 }}
-              >
-                <ListItemIcon sx={{ minWidth: 'auto', mr: 0 }}><Icon fontSize="small" /></ListItemIcon>
-                <ListItemText primary={label} />
-              </ListItemButton>
-            ))}
-          </List>
 
-          <ListItemButton
+          <List>
+            
+
+            
+            <ListItemButton
             onClick={() => setSelectedView('providers')}
             sx={{ borderRadius: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 1.2 }}
           >
@@ -251,6 +235,11 @@ export default function ProfileSearch() {
             </ListItemIcon>
             <ListItemText primary="Providers" />
           </ListItemButton>
+          </List>
+
+
+
+          
 
           <Divider sx={{ my: 2 }} />
 
