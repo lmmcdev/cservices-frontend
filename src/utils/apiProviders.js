@@ -5,7 +5,6 @@ export const getProviders = async ({params}, accessToken) => {
   //if (accessToken === null) return { success: false, message: 'No access token provided' };
     const token = params.continuationToken;
     let tokenCosmos = ''
-    console.log(token)
     let url = `https://cservicesapi.azurewebsites.net/api/cosmoGetProviders`;
     if (params.continuationToken) {
       tokenCosmos = token;

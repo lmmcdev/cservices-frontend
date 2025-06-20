@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
-import { Autocomplete, TextField, CircularProgress, Box, Typography, Divider } from '@mui/material';
+import {
+  Autocomplete,
+  TextField,
+  CircularProgress,
+  Box,
+  Typography,
+  Divider,
+} from '@mui/material';
 import { searchProviders } from '../../utils/apiProviders';
 
 const ProviderAutocomplete = ({ onSelect }) => {
   const [options, setOptions] = useState([]);
-  const [, setInput] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSearch = async (value) => {
-    setInput(value);
-
+    setInputValue(value);
     if (!value || value.length < 2) {
       setOptions([]);
       return;
@@ -18,9 +24,18 @@ const ProviderAutocomplete = ({ onSelect }) => {
     setLoading(true);
     try {
       const result = await searchProviders(value);
-      setOptions(result?.message?.value || []);
+      const data = result?.message?.value || [];
+      console.log(result?.message?.value.length)
+
+      // Agrega identificador interno seguro
+      const normalized = data.map((item) => ({
+        ...item,
+        _internalId: item.id,
+      }));
+
+      setOptions(normalized.slice(0, 25)); // opcional: limita para evitar overload visual
     } catch (e) {
-      console.error('Autocomplete search error:', e);
+      console.error('Error de búsqueda:', e);
       setOptions([]);
     } finally {
       setLoading(false);
@@ -29,44 +44,45 @@ const ProviderAutocomplete = ({ onSelect }) => {
 
   return (
     <Autocomplete
-      freeSolo
-      options={options}
-      loading={loading}
-      getOptionLabel={(option) =>
-        `${option?.Provider_Name || ''} - ${option?.Office_Address || ''}`
-      }
-      onInputChange={(event, value) => handleSearch(value)}
-      onChange={(event, value) => {
-        if (value) onSelect(value);
+  disablePortal
+  options={options}
+  inputValue={inputValue}
+  loading={loading}
+  fullWidth
+  onInputChange={(e, value) => handleSearch(value)}
+  isOptionEqualToValue={(option, value) => option._internalId === value?._internalId}
+  getOptionLabel={(option) => typeof option === 'string' ? option : option.Provider_Name || 'Unnamed Provider'}
+  onChange={(e, value) => {
+    if (value && typeof value === 'object') onSelect(value);
+  }}
+  renderInput={(params) => (
+    <TextField
+      {...params}
+      label="Search Provider"
+      placeholder="e.g. Ryan, Allergy"
+      variant="outlined"
+      InputProps={{
+        ...params.InputProps,
+        endAdornment: (
+          <>
+            {loading && <CircularProgress color="inherit" size={18} />}
+            {params.InputProps.endAdornment}
+          </>
+        ),
       }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label="Search Provider"
-          placeholder="Nombre, teléfono o especialidad"
-          variant="outlined"
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {loading ? <CircularProgress color="inherit" size={18} /> : null}
-                {params.InputProps.endAdornment}
-              </>
-            ),
-          }}
-        />
-      )}
-      renderOption={(props, option) => (
-        <Box component="li" {...props} key={option.id} sx={{ display: 'block' }}>
-          <Typography fontWeight="bold">{option.Provider_Name}</Typography>
-          <Typography variant="body2">{option.Office_Address}</Typography>
-          <Typography variant="caption" color="text.secondary">
-            {option.Taxonomy_Description}
-          </Typography>
-          <Divider sx={{ my: 1 }} />
-        </Box>
-      )}
     />
+  )}
+  renderOption={(props, option) => (
+    <Box component="li" {...props} key={option._internalId} sx={{ py: 1 }}>
+      <Typography fontWeight="bold">{option.Provider_Name || 'Sin nombre'}</Typography>
+      <Typography variant="body2">{option.Office_Address || 'Sin dirección'}</Typography>
+      <Typography variant="caption" color="text.secondary">
+        {option.Taxonomy_Description || ''}
+      </Typography>
+      <Divider sx={{ my: 1 }} />
+    </Box>
+  )}
+/>
   );
 };
 

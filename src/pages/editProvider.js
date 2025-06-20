@@ -53,13 +53,12 @@ const ProviderEditSchema = Yup.object().shape({
 export default function ProviderEditForm({ initialData, onSubmit }) {
   const [counties, setCounties] = useState([]);
   const [zips, setZips] = useState([]);
-  const [selectedCounty, setSelectedCounty] = useState(initialData['Office County Name'] || '');
+  const [selectedCounty, setSelectedCounty] = useState(initialData['Office_County_Name'] || '');
 
-  console.log(initialData)
   useEffect(() => {
     setCounties(floridaCounties);
-    if (initialData['Office County Name']) {
-      const arr = zipCodesByCounty[initialData['Office County Name']] || [];
+    if (initialData['Office_County_Name']) {
+      const arr = zipCodesByCounty[initialData['Office_County_Name']] || [];
       setZips(arr);
     }
   }, [initialData]);
@@ -104,7 +103,7 @@ export default function ProviderEditForm({ initialData, onSubmit }) {
     >
       {({ values, errors, touched, handleChange, setFieldValue }) => (
         <Form>
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2, height: '800px', overflowY: 'auto', p:5 }}>
             <TextField name="ProvidOrg" label="Org" value={values.ProvidOrg} onChange={handleChange} />
             <TextField name="firstName" label="First Name" value={values.firstName} onChange={handleChange}
               error={touched.firstName && !!errors.firstName} helperText={errors.firstName} />

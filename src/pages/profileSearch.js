@@ -176,7 +176,6 @@ export default function ProfileSearch() {
   const [data, setData] = useState(mockData);
   //const filtered = useMemo(() => applyFilters(data), [data, query, filter]);
   const filtered = applyFilters(data)
-console.log(selectedProvider)
   return (
     <Card
       sx={{
