@@ -25,7 +25,6 @@ const ProviderAutocomplete = ({ onSelect }) => {
     try {
       const result = await searchProviders(value);
       const data = result?.message?.value || [];
-      console.log(result?.message?.value.length)
 
       // Agrega identificador interno seguro
       const normalized = data.map((item) => ({
@@ -50,8 +49,10 @@ const ProviderAutocomplete = ({ onSelect }) => {
   loading={loading}
   fullWidth
   onInputChange={(e, value) => handleSearch(value)}
-  isOptionEqualToValue={(option, value) => option._internalId === value?._internalId}
-  getOptionLabel={(option) => typeof option === 'string' ? option : option.Provider_Name || 'Unnamed Provider'}
+  isOptionEqualToValue={(option, value) => JSON.stringify(option) === JSON.stringify(value)}
+  getOptionLabel={(option) =>
+    option?.Provider_Name?.toString() || 'Unnamed Provider'
+  }
   onChange={(e, value) => {
     if (value && typeof value === 'object') onSelect(value);
   }}

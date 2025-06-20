@@ -85,8 +85,8 @@ const ProviderList = ({ onSelect }) => {
 
 
   return (
+    <><ProviderAutocomplete onSelect={(provider) => onSelect(provider)} />
     <Box sx={{ p: 4, maxWidth: '600px', mx: 'auto', height: '500px', overflowY: 'auto' }}>
-      <ProviderAutocomplete onSelect={(provider) => onSelect(provider)} />
 
       <Stack spacing={2}>
         {providers.map((provider, index) => {
@@ -166,7 +166,7 @@ const ProviderList = ({ onSelect }) => {
           No hay más datos
         </Typography>
       )}
-    </Box>
+    </Box></>
   );
 };
 
