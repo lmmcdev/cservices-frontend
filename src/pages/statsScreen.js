@@ -34,10 +34,7 @@ export default function StatsScreen() {
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(null);
-
-  const [minCalls, ] = useState(0);
-
-
+  const [minCalls] = useState(0);
   const [accessTokenMSAL, setAccessTokenMSAL] = useState(null);
 
   const time = Date.now();
@@ -65,7 +62,7 @@ export default function StatsScreen() {
 
         if (accessToken) {
           setAccessTokenMSAL(accessToken);
-          await fetchStatistics(accessToken); 
+          await fetchStatistics(accessToken);
           await fetchDoneStats(accessToken);
         }
       } catch (error) {
@@ -74,7 +71,7 @@ export default function StatsScreen() {
     };
 
     fetchData();
-  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleBoxClick = (status) => {
     setSelectedStatus(status);
@@ -90,29 +87,30 @@ export default function StatsScreen() {
   const doneStatistics = doneState.closedTickets_statistics || {};
   const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
   const transformed = doneStatistics.map((item, index) => ({
-      id: index + 1,
-      name: item.agent_assigned,
-      callsAttended: item.resolvedCount
-    }));
+    id: index + 1,
+    name: item.agent_assigned,
+    callsAttended: item.resolvedCount,
+  }));
 
-    const filteredSortedAgents = useMemo(() => {
+  const filteredSortedAgents = useMemo(() => {
     return transformed
       .filter(agent => agent.callsAttended >= minCalls)
       .sort((a, b) => b.callsAttended - a.callsAttended);
   }, [transformed, minCalls]);
 
-
   return (
     <Box sx={{ flexGrow: 1, p: 2 }}>
-      {/* Campo de búsqueda por fecha y botón */}
-      <Button variant="contained" onClick={handleClick} sx={{m:2}}>Historic</Button>
+      <Button variant="contained" onClick={handleClick} sx={{ m: 2 }}>
+        Historic
+      </Button>
+
       <Grid container spacing={2} mb={2}>
         {entries.map(([status, count]) => {
           const bgColor = getStatusColor(status, 'bg');
           const textColor = getStatusColor(status, 'text');
 
           return (
-            <Grid size={2} height='50%' key={status} onClick={() => handleBoxClick(status)}>
+            <Grid size={2} height="50%" key={status} onClick={() => handleBoxClick(status)}>
               <Card
                 sx={{
                   backgroundColor: bgColor,
@@ -149,50 +147,62 @@ export default function StatsScreen() {
         })}
       </Grid>
 
-      {/* Drawer lateral reutilizable */}
       <RightDrawer
         open={drawerOpen}
         onClose={handleDrawerClose}
         status={selectedStatus}
         accessToken={accessTokenMSAL}
-        date={selectedDate} // 👉 Nueva prop
+        date={selectedDate}
       />
 
-      {/* Nueva sección de Top Agents con tabla */}
-      <TopAgentsSection agents={filteredSortedAgents.map(agent => ({
-        id: agent.id,
-        name: emailToFullName(agent.name),
-        email: agent.name,  
-        cases: agent.callsAttended,
-        avgTime: '1h 12m' // o algún valor mock si aún no tienes el tiempo real
-      }))} />
+      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap', mt: 4 }}>
+        {/* Columna izquierda: TopAgentsSection + CustomerSatisfaction + AvgTime */}
+        <Box>
+          <Box sx={{ width: '800px' }}>
+            <TopAgentsSection
+              agents={filteredSortedAgents.map(agent => ({
+                id: agent.id,
+                name: emailToFullName(agent.name),
+                email: agent.name,
+                cases: agent.callsAttended,
+                avgTime: '1h 12m'
+              }))}
+            />
+          </Box>
 
-      {/* Mensaje de felicitaciones para el Top Performer */}
-      <TopPerformerCard agents={filteredSortedAgents.map(agent => ({
-          ...agent,
-          cases: agent.callsAttended,  // o resolvedCount
-          avgTime: '1h 12m'     // si no lo tienes, ponlo como texto: '1h 15m'
-        }))}
-      />
+          <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+            <Box sx={{ width: '320px' }}>
+              <CustomerSatisfaction />
+            </Box>
+            <Box sx={{ width: '250px' }}>
+              <AverageResolutionTime />
+            </Box>
+          </Box>
+        </Box>
 
-      {/* Chart de total de llamadas por intervalo horario */}
-      <Box mt={4}>
-        <CallsByHourChart />
+        {/* Columna derecha: Felicitaciones + Active Agents + Gráfico */}
+        <Box>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Box sx={{ width: '470px' }}>
+              <TopPerformerCard
+                agents={filteredSortedAgents.map(agent => ({
+                  ...agent,
+                  cases: agent.callsAttended,
+                  avgTime: '1h 12m'
+                }))}
+              />
+            </Box>
+
+            <Box sx={{ width: '320px' }}>
+              <ActiveAgents />
+            </Box>
+          </Box>
+
+          <Box sx={{ width: '900px', mt: 2 }}>
+            <CallsByHourChart />
+          </Box>
+        </Box>
       </Box>
-
-      {/* Caja que muestra el tiempo de resolucion promedio de los casos */}
-      <AverageResolutionTime />
-
-      {/* Caja que muestra numero de usuarios activos en este momento */}
-      <Box mt={4}>
-        <ActiveAgents />
-      </Box>
-
-      {/* Caja que muestra nivel de satisfaccion al cliente */}
-      <Box mt={4}>
-        <CustomerSatisfaction />
-      </Box>
-
     </Box>
   );
 }
