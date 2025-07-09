@@ -51,8 +51,12 @@ export const getTicketsByStatus = async (accessToken, status, date) => {
 export const getTicketResolvedByAgents = async (accessToken, date) => {
   if (accessToken === null) return { success: false, message: 'No access token provided' };
   
+  // Si date es null o vacío, usa la fecha actual
+  const today = new Date();
+  const resolvedDate = date || today.toISOString().split('T')[0]; // YYYY-MM-DD
+
   try {
-    const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetDailyResolvedByAgent?date=${encodeURIComponent(date)}`, {
+    const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetDailyResolvedByAgent?date=${encodeURIComponent(resolvedDate)}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`,
