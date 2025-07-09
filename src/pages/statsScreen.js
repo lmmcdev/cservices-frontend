@@ -109,8 +109,19 @@ export default function StatsScreen() {
           const bgColor = getStatusColor(status, 'bg');
           const textColor = getStatusColor(status, 'text');
 
+          const customMarginLeft =
+            status.toLowerCase() === 'new' || status.toLowerCase() === 'manualcalls' ? '100px' : '0px';
+
           return (
-            <Grid size={2} height="50%" key={status} onClick={() => handleBoxClick(status)}>
+            <Grid
+              key={status}
+              item
+              sx={{
+                width: '250px',
+                ml: customMarginLeft,
+              }}
+              onClick={() => handleBoxClick(status)}
+            >
               <Card
                 sx={{
                   backgroundColor: bgColor,
@@ -158,7 +169,7 @@ export default function StatsScreen() {
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap', mt: 4 }}>
         {/* Columna izquierda: TopAgentsSection + CustomerSatisfaction + AvgTime */}
         <Box>
-          <Box sx={{ width: '800px' }}>
+          <Box sx={{ width: '800px', mb: '10px' }}>
             <TopAgentsSection
               agents={filteredSortedAgents.map(agent => ({
                 id: agent.id,
@@ -170,7 +181,7 @@ export default function StatsScreen() {
             />
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+          <Box sx={{ display: 'flex', gap: 2 }}>
             <Box sx={{ width: '320px' }}>
               <CustomerSatisfaction />
             </Box>
