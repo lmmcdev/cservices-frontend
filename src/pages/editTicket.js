@@ -24,6 +24,15 @@ import { useAgents } from '../context/agentsContext';
 import { useAuth } from '../context/authContext';
 import ChangeCenterModal from '../components/dialogs/changeCenterModal';
 import { useTickets } from '../context/ticketsContext.js';
+import FlagIcon from '@mui/icons-material/Flag';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import EventIcon from '@mui/icons-material/Event';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import PersonOffIcon from '@mui/icons-material/PersonOff';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
+import AltRouteIcon from '@mui/icons-material/AltRoute';
+import CategoryIcon from '@mui/icons-material/Category';
 
 import {
   handleStatusChange,
@@ -47,6 +56,8 @@ export default function EditTicket() {
   const { setLoading } = useLoading();
   const navigate = useNavigate();
   const { ticketId } = useParams();
+  
+
   //agarrando el ticket del contexto
   const ticket = tickets.find(t => t.id === ticketId);
   const [ agentAssigned, setAgentAssigned ] = useState(ticket?.agent_assigned || '');
@@ -106,6 +117,38 @@ export default function EditTicket() {
     }
   }, [ticket]);
   
+  const getPriorityColor = (priority) => {
+    switch ((priority || '').toLowerCase()) {
+      case 'high': return '#d32f2f';     // rojo
+      case 'normal': return '#fbc02d';   // amarillo
+      case 'low': return '#388e3c';      // verde
+      default: return '#bdbdbd';         // gris
+    }
+  };
+
+  const getRiskColor = (risk) => {
+    switch ((risk || '').toLowerCase()) {
+      case 'none': return '#4caf50';         // verde
+      case 'legal': return '#ff9800';        // naranja
+      case 'desenrollment': return '#f44336'; // rojo
+      default: return '#bdbdbd';             // gris
+    }
+  };
+
+  const getCategoryIcon = (category) => {
+    const cat = (category || '').toLowerCase();
+    switch (cat) {
+      case 'transport': return <DirectionsCarIcon fontSize="small" />;
+      case 'appointment': return <EventIcon fontSize="small" />;
+      case 'new patient': return <PersonAddIcon fontSize="small" />;
+      case 'desenrollment': return <PersonOffIcon fontSize="small" />;
+      case 'personal attention': return <SupportAgentIcon fontSize="small" />;
+      case 'new direction': return <AltRouteIcon fontSize="small" />;
+      case 'others': return <CategoryIcon fontSize="small" />;
+      default: return <CategoryIcon fontSize="small" />; // <-- esto es importante
+    }
+  };
+
   //introducir un modal aqui
   if (!ticket) return <Typography>Ticket not found</Typography>;
 
@@ -401,22 +444,43 @@ export default function EditTicket() {
               {/* Call Information */}
               <Card variant="outlined">
                 <CardContent sx={{ p: '20px 25px 25px 30px' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5 }}>
-                    <Box
-                      sx={{
-                        width: 8,
-                        height: 24,
-                        borderRadius: 10,
-                        backgroundColor: getStatusColor(status, 'text') || '#00a1ff',
-                      }}
-                    />
-                    <Typography
-                      variant="h6"
-                      sx={{ fontWeight: 'bold', color: getStatusColor(status, 'text') || '#00a1ff' }}
-                    >
-                      Call Information
-                    </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{
+                          width: 8,
+                          height: 24,
+                          borderRadius: 10,
+                          backgroundColor: getStatusColor(status, 'text') || '#00a1ff',
+                        }}
+                      />
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: 'bold', color: getStatusColor(status, 'text') || '#00a1ff' }}
+                      >
+                        Call Information
+                      </Typography>
+                    </Box>
+
+                    {/* Iconos: Priority / Risk / Category */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pr: 1 }}>
+                      {/* PRIORITY */}
+                      <Tooltip title={`Priority: ${ticket.priority || 'N/A'}`}>
+                        <FlagIcon sx={{ color: getPriorityColor(ticket.priority), fontSize: 20 }} />
+                      </Tooltip>
+
+                      {/* RISK */}
+                      <Tooltip title={`Risk: ${ticket.risk || 'N/A'}`}>
+                        <ReportProblemIcon sx={{ color: getRiskColor(ticket.risk), fontSize: 20 }} />
+                      </Tooltip>
+
+                      {/* CATEGORY */}
+                      <Tooltip title={`Category: ${ticket.category || 'N/A'}`}>
+                        {getCategoryIcon(ticket.category)}
+                      </Tooltip>
+                    </Box>
                   </Box>
+
                   <Typography sx={{ mb: 2.5 }}>
                     <strong>Caller ID:</strong><br /> {ticket.caller_id}
                   </Typography>
