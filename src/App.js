@@ -20,6 +20,7 @@ import SuspenseFallback from './components/auxiliars/suspenseFallback';
 import { SidebarProvider } from './context/sidebarContext';
 import { DoneTicketsProvider } from './context/doneTicketsContext';
 import { DoneHistoricalTicketsProvider } from './context/doneHistoricalTicketsContext';
+import { DailyStatsProvider } from './context/dailyStatsContext';
 
 import MainLayout from './layouts/mainLayout';
 import MinimalCenteredLayout from './layouts/minimalCenterLayout';
@@ -109,9 +110,11 @@ function App() {
       <AgentsProvider>
         <AuthProvider>
           <LoadingProvider>
+              
             <StatsProvider>
               <DoneTicketsProvider>
               <TicketsProvider>
+                <DailyStatsProvider>
                 <SignalRProvider>
                   <NotificationProvider>
                     <FiltersProvider>
@@ -125,9 +128,11 @@ function App() {
                     </FiltersProvider>
                   </NotificationProvider>
                 </SignalRProvider>
+                </DailyStatsProvider>
               </TicketsProvider>
               </DoneTicketsProvider>
             </StatsProvider>
+            
           </LoadingProvider>
         </AuthProvider>
       </AgentsProvider>

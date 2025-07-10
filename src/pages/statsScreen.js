@@ -17,12 +17,12 @@ import RightDrawer from '../components/rightDrawer';
 import { useNavigate } from 'react-router-dom';
 
 import TopAgentsSection from '../components/topAgentsSection';
-import { emailToFullName } from '../utils/js/emailToFullName.js';
 import TopPerformerCard from '../components/topPerformerCard';
 import CallsByHourChart from '../components/callsByHourChart';
 import AverageResolutionTime from '../components/averageResolutionTime';
 import ActiveAgents from '../components/activeAgents.jsx';
 import CustomerSatisfaction from '../components/customerSatisfaction.jsx';
+import TicketCategoriesChart from '../components/ticketsCategoriesChart.jsx';
 
 export default function StatsScreen() {
   const state = useStatsState();
@@ -99,26 +99,22 @@ export default function StatsScreen() {
   }, [transformed, minCalls]);
 
   return (
-    <Box sx={{ flexGrow: 1, p: 2 }}>
+    <>
       <Button variant="contained" onClick={handleClick} sx={{ m: 2 }}>
         Historic
       </Button>
-
-      <Grid container spacing={2} mb={2}>
+      <Grid container spacing={2} mb={4} ml={4}>
         {entries.map(([status, count]) => {
           const bgColor = getStatusColor(status, 'bg');
           const textColor = getStatusColor(status, 'text');
-
-          const customMarginLeft =
-            status.toLowerCase() === 'new' || status.toLowerCase() === 'manualcalls' ? '100px' : '0px';
 
           return (
             <Grid
               key={status}
               item
               sx={{
-                width: '250px',
-                ml: customMarginLeft,
+                width: '15.8%',
+                
               }}
               onClick={() => handleBoxClick(status)}
             >
@@ -158,6 +154,25 @@ export default function StatsScreen() {
         })}
       </Grid>
 
+      <Grid container spacing={2} mb={2} ml={4}>
+       <Grid size={4}>
+          <TopAgentsSection />
+        </Grid>
+
+        <Grid size={8}>
+          <CallsByHourChart />
+        </Grid>
+
+        <Grid size={4}>
+          <TicketCategoriesChart />
+        </Grid>
+    <Box sx={{ flexGrow: 1, p: 1 }}>
+
+
+      
+
+      
+
       <RightDrawer
         open={drawerOpen}
         onClose={handleDrawerClose}
@@ -166,24 +181,19 @@ export default function StatsScreen() {
         date={selectedDate}
       />
 
+       
+
       <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap', mt: 4 }}>
         {/* Columna izquierda: TopAgentsSection + CustomerSatisfaction + AvgTime */}
         <Box>
-          <Box sx={{ width: '800px', mb: '10px' }}>
-            <TopAgentsSection
-              agents={filteredSortedAgents.map(agent => ({
-                id: agent.id,
-                name: emailToFullName(agent.name),
-                email: agent.name,
-                cases: agent.callsAttended,
-                avgTime: '1h 12m'
-              }))}
-            />
-          </Box>
+          
 
           <Box sx={{ display: 'flex', gap: 2 }}>
             <Box sx={{ width: '320px' }}>
               <CustomerSatisfaction />
+            </Box>
+            <Box sx={{ width: '320px' }}>
+              
             </Box>
             <Box sx={{ width: '250px' }}>
               <AverageResolutionTime />
@@ -209,11 +219,10 @@ export default function StatsScreen() {
             </Box>
           </Box>
 
-          <Box sx={{ width: '900px', mt: 2 }}>
-            <CallsByHourChart />
-          </Box>
         </Box>
       </Box>
     </Box>
+    </Grid>
+    </>
   );
 }

@@ -14,8 +14,10 @@ import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import ChevronRight from '@mui/icons-material/ChevronRight';
 import ProfilePic from './components/profilePic';
 import { keyframes } from '@emotion/react';
+import { useDailyStatsState } from '../context/dailyStatsContext';
+import { formatMinutesToHoursPretty } from '../utils/js/minutosToHourMinutes';
 
-// Animación de rebote para las medallas
+// Animación para medallas
 const bounceHover = keyframes`
   0% { transform: scale(1); }
   30% { transform: scale(1.2) rotate(-5deg); }
@@ -23,13 +25,17 @@ const bounceHover = keyframes`
   100% { transform: scale(1); }
 `;
 
-export default function TopAgentsSection({ agents = [] }) {
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
+export default function TopAgentsSection() {
+  const { daily_statistics } = useDailyStatsState();
 
+  const [page, setPage] = useState(1);
+  const pageSize = 4;
+
+  // Ordenar por resolvedCount desc
   const sortedAgents = useMemo(() => {
-    return [...agents].sort((a, b) => b.cases - a.cases);
-  }, [agents]);
+    const agentsStats = daily_statistics?.agentStats || [];
+    return [...agentsStats].sort((a, b) => b.resolvedCount - a.resolvedCount);
+  }, [daily_statistics]);
 
   const currentAgents = useMemo(() => {
     const start = (page - 1) * pageSize;
@@ -40,23 +46,21 @@ export default function TopAgentsSection({ agents = [] }) {
 
   return (
     <Box
-      mt={4}
       sx={{
         backgroundColor: '#fff',
         borderRadius: 3,
         p: 3,
         boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
-        maxWidth: 800,
         mx: 'auto',
       }}
     >
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Box sx={{ ml: 1 }}>
           <Typography fontSize="26px" fontWeight="bold" color="#00A1FF">
-            Top {page * pageSize} Agents
+            Top {pageSize} Agents
           </Typography>
           <Typography fontSize="16px" color="textSecondary">
-            Activity
+            Daily Activity
           </Typography>
         </Box>
       </Box>
@@ -86,7 +90,7 @@ export default function TopAgentsSection({ agents = [] }) {
                 <strong>Calls</strong>
               </TableCell>
               <TableCell>
-                <strong>Average Time</strong>
+                <strong>Avg Time</strong>
               </TableCell>
             </TableRow>
           </TableHead>
@@ -94,16 +98,10 @@ export default function TopAgentsSection({ agents = [] }) {
             {currentAgents.map((agent, index) => {
               const rank = index + 1 + (page - 1) * pageSize;
               const medal =
-                rank === 1
-                  ? '🥇'
-                  : rank === 2
-                  ? '🥈'
-                  : rank === 3
-                  ? '🥉'
-                  : null;
+                rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : null;
 
               return (
-                <TableRow key={agent.id || index}>
+                <TableRow key={agent.agentEmail || index}>
                   <TableCell align="center">
                     {medal ? (
                       <Box
@@ -125,15 +123,17 @@ export default function TopAgentsSection({ agents = [] }) {
                   <TableCell>
                     <Box display="flex" alignItems="center" gap={1}>
                       <Box sx={{ '& .MuiAvatar-root': { border: 'none !important' } }}>
-                        <ProfilePic email={agent.email} size={40} />
+                        <ProfilePic email={agent.agentEmail} size={40} />
                       </Box>
-                      <Typography>{agent.name}</Typography>
+                      <Typography>{agent.agentEmail}</Typography>
                     </Box>
                   </TableCell>
                   <TableCell>
-                    <Typography>{agent.cases?.toLocaleString()}</Typography>
+                    <Typography>{agent.resolvedCount?.toLocaleString()}</Typography>
                   </TableCell>
-                  <TableCell>{agent.avgTime || 'N/A'}</TableCell>
+                  <TableCell>
+                    {formatMinutesToHoursPretty(agent.avgResolutionTimeMins)}
+                  </TableCell>
                 </TableRow>
               );
             })}

@@ -13,6 +13,7 @@ export const initialState = {
 
 export const ticketReducer = (state, action) => {
   switch (action.type) {
+
     case 'SET_STATS':
       return {
         ...state,

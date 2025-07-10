@@ -8,28 +8,30 @@ import {
   LabelList,
 } from 'recharts';
 import { Card, CardContent, Box, Typography } from '@mui/material';
+import { useDailyStatsState } from '../context/dailyStatsContext';
 
-// 📊 Tus datos
-const data = [
-  { hour: '7 AM - 8 AM', calls: 103 },
-  { hour: '8 AM - 9 AM', calls: 233 },
-  { hour: '9 AM - 10 AM', calls: 286 },
-  { hour: '10 AM - 11 AM', calls: 352 },
-  { hour: '11 AM - 12 PM', calls: 362 }, // 🔥
-  { hour: '12 PM - 1 PM', calls: 227 },
-  { hour: '1 PM - 2 PM', calls: 257 },
-  { hour: '2 PM - 3 PM', calls: 257 },
-  { hour: '3 PM - 4 PM', calls: 211 },
-  { hour: '4 PM - 5 PM', calls: 131 },
-  { hour: '5 PM - 6 PM', calls: 7 }, // 😴
-];
+// Animaciones CSS para tooltip
+const animations = `
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  @keyframes sleepy {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(10deg); }
+  }
+  @keyframes burn {
+    0% { transform: scale(1) rotate(0deg); filter: brightness(1); }
+    100% { transform: scale(1.02) rotate(0.3deg); filter: brightness(1.1); }
+  }
+  @keyframes zzz {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(0.98); }
+  }
+`;
 
-// 🔍 Máximo y mínimo
-const maxCalls = Math.max(...data.map(d => d.calls));
-const minCalls = Math.min(...data.map(d => d.calls));
-
-// 🔧 Tooltip personalizado con efectos especiales
-const CustomTooltip = ({ active, payload, label }) => {
+// Tooltip personalizado con colores y animaciones para máximos y mínimos
+const CustomTooltip = ({ active, payload, label, maxCalls, minCalls }) => {
   if (active && payload && payload.length) {
     const value = payload[0].value;
     const isMax = value === maxCalls;
@@ -97,34 +99,48 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-// 💫 Animaciones
-const animations = `
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-5px); }
-  }
-
-  @keyframes sleepy {
-    0%, 100% { transform: rotate(0deg); }
-    50% { transform: rotate(10deg); }
-  }
-
-  @keyframes burn {
-    0% { transform: scale(1) rotate(0deg); filter: brightness(1); }
-    100% { transform: scale(1.02) rotate(0.3deg); filter: brightness(1.1); }
-  }
-
-  @keyframes zzz {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(0.98); }
-  }
-`;
-
 export default function CallsByHourChart() {
+  const { daily_statistics } = useDailyStatsState();
+  // Horas laborales a mostrar, por ejemplo de 7 a 18
+  const workHours = Array.from({ length: 12 }, (_, i) => i + 6); // [7,8,9,...,18]
+
+  // Datos recibidos
+  const hourlyRaw = daily_statistics?.hourlyBreakdown || [];
+
+  // Mapea las horas con datos para acceso rápido
+  const hourlyMap = new Map(hourlyRaw.map(item => [item.hour, item.count]));
+
+  // Completa todas las horas con valor 0 si no existen
+  const completedHours = workHours.map(hour => ({
+    hour,
+    count: hourlyMap.get(hour) ?? 0,
+  }));
+
+  // Transforma al formato que recharts espera
+  const hourlyData = completedHours.map(({ hour, count }) => {
+    const startHour = hour;
+    const endHour = (startHour + 1) % 24;
+
+    const formatHour = h => {
+      const period = h >= 12 ? 'PM' : 'AM';
+      const hour12 = h % 12 === 0 ? 12 : h % 12;
+      return `${hour12} ${period}`;
+    };
+
+    return {
+      hour: `${formatHour(startHour)} - ${formatHour(endHour)}`,
+      calls: count,
+    };
+  });
+
+  const callsArray = hourlyData.map(d => d.calls);
+  const maxCalls = callsArray.length ? Math.max(...callsArray) : 0;
+  const minCalls = callsArray.length ? Math.min(...callsArray) : 0;
+
   return (
     <>
       <style>{animations}</style>
-      <Box sx={{ maxWidth: 900, mx: 'auto', mt: 4 }}>
+      <Box>
         <Card sx={{ borderRadius: 3, boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)' }}>
           <CardContent>
             <Typography
@@ -135,7 +151,10 @@ export default function CallsByHourChart() {
               Total Calls by Hour Interval
             </Typography>
             <ResponsiveContainer width="100%" height={400}>
-              <AreaChart data={data} margin={{ top: 30, right: 60, left: 60, bottom: 20 }}>
+              <AreaChart
+                data={hourlyData}
+                margin={{ top: 30, right: 60, left: 60, bottom: 20 }}
+              >
                 <defs>
                   <linearGradient id="colorCalls" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#00a1ff" stopOpacity={0.5} />
@@ -150,7 +169,10 @@ export default function CallsByHourChart() {
                   height={80}
                   tick={{ fontSize: 12 }}
                 />
-                <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '4 5', strokeWidth: 1 }} />
+                <Tooltip
+                  content={<CustomTooltip maxCalls={maxCalls} minCalls={minCalls} />}
+                  cursor={{ strokeDasharray: '4 5', strokeWidth: 1 }}
+                />
                 <Area
                   type="monotone"
                   dataKey="calls"

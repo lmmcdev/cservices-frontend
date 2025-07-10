@@ -1,12 +1,18 @@
 import React from 'react';
 import { Card, CardContent, Box, Typography } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime'; // ⏱️
+import { useDailyStatsState } from '../context/dailyStatsContext';
+import { formatMinutesToHoursPretty } from '../utils/js/minutosToHourMinutes';
+
 
 export default function AverageResolutionTime() {
-  const averageTime = '2h 14m';
+  //const averageTime = '2h 14m';
+  const { daily_statistics } = useDailyStatsState();
+  const globalStats = daily_statistics?.globalStats || [];
 
+  const averageTime = formatMinutesToHoursPretty(globalStats.avgResolutionTimeMins)
   return (
-    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 4 }}>
+    <Box >
       <Card
         sx={{
           borderRadius: 3,

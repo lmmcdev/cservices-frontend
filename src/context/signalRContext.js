@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useRef } from 'react';
 import * as signalR from '@microsoft/signalr';
 import { useTicketsDispatch } from './ticketsContext';
+import { useDailyStatsDispatch } from './dailyStatsContext';
 import { useAuth } from './authContext';
 import { useFetchStatistics } from './statsContext';
 import { useDoneFetchStatistics } from './doneTicketsContext';
@@ -11,9 +12,11 @@ const SignalRContext = createContext();
 export function SignalRProvider({ children }) {
   const connectionRef = useRef(null);
   const dispatch = useTicketsDispatch();
+  const dailyStatsDispatch = useDailyStatsDispatch(); 
   const fetchStats = useFetchStatistics();
   const fetchDoneStats = useDoneFetchStatistics();
-  const { department, accessTokenMSAL } = useAuth();
+  //const { department, accessTokenMSAL } = useAuth();
+  const { department, } = useAuth();
 
   //console.log(department)
   const initializeSignalR = async ({ onTicketCreated, onTicketUpdated }) => {
@@ -48,13 +51,17 @@ export function SignalRProvider({ children }) {
 
       //evento disparador estadisticas
       connection.on('statsUpdated', () => {
-        fetchStats(accessTokenMSAL);
+        fetchStats();
       });
 
       //evento disparador tickets closed by agents
       connection.on('ticketClosed', () => {
-        fetchDoneStats(accessTokenMSAL);
+        fetchDoneStats();
       });
+
+      connection.on('dailyStats', (data) => {
+        dailyStatsDispatch({type: 'SET_DAILY_STATS', payload: data})
+      })
 
      
       await connection.start();
