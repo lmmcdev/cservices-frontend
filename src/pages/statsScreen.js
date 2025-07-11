@@ -23,6 +23,9 @@ import AverageResolutionTime from '../components/averageResolutionTime';
 import ActiveAgents from '../components/activeAgents.jsx';
 import CustomerSatisfaction from '../components/customerSatisfaction.jsx';
 import TicketCategoriesChart from '../components/ticketsCategoriesChart.jsx';
+import StatusTicketsCard from '../components/ticketsByStatusBoard.js';
+import IdsTicketsCard from '../components/ticketsByIdsBoard.js';
+import { getTicketsByStatus, getTicketsByIds } from '../utils/apiStats';
 
 export default function StatsScreen() {
   const state = useStatsState();
@@ -33,9 +36,15 @@ export default function StatsScreen() {
   const { accounts, instance } = useMsal();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const [drawerStatus, setDrawerStatus] = useState('');
+  const [drawerTickets, setDrawerTickets] = useState([]);
+
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [minCalls] = useState(0);
   const [accessTokenMSAL, setAccessTokenMSAL] = useState(null);
+  const [selectedTicketIds, setSelectedTicketIds] = useState([]);
+
 
   const time = Date.now();
   const today = new Date(time);
@@ -74,14 +83,33 @@ export default function StatsScreen() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleBoxClick = (status) => {
-    setSelectedStatus(status);
+  setSelectedStatus(status);
+  setSelectedTicketIds([]); // Limpia cualquier selección por IDs
+  setDrawerTickets([]);     // Limpia tickets previos
+  setDrawerStatus(status);
+  setDrawerOpen(true);
+};
+
+ 
+  const handleOpenDrawer = ({ status, tickets }) => {
+    setDrawerStatus(status);
+    setDrawerTickets(tickets);
     setDrawerOpen(true);
   };
 
-  const handleDrawerClose = () => {
+  const handleCloseDrawer = () => {
     setDrawerOpen(false);
-    setSelectedStatus(null);
+    setDrawerStatus('');
+    setDrawerTickets([]);
   };
+
+  const handleCategoryClick = ({ category, ticketIds }) => {
+  setSelectedTicketIds(ticketIds);
+  setDrawerStatus(category);
+  setDrawerTickets([]); // Limpia tickets previos
+  setDrawerOpen(true);
+};
+
 
   const statistics = state.statistics || {};
   const doneStatistics = doneState.closedTickets_statistics || {};
@@ -100,9 +128,10 @@ export default function StatsScreen() {
 
   return (
     <>
-      <Button variant="contained" onClick={handleClick} sx={{ m: 2 }}>
-        Historic
-      </Button>
+        <Button variant="contained" onClick={handleClick} sx={{ m: 2 }}>
+          Historic
+        </Button>
+     
       <Grid container spacing={2} mb={4} ml={4}>
         {entries.map(([status, count]) => {
           const bgColor = getStatusColor(status, 'bg');
@@ -155,7 +184,7 @@ export default function StatsScreen() {
       </Grid>
 
       <Grid container spacing={2} mb={2} ml={4}>
-       <Grid size={4}>
+        <Grid size={4}>
           <TopAgentsSection />
         </Grid>
 
@@ -164,22 +193,40 @@ export default function StatsScreen() {
         </Grid>
 
         <Grid size={4}>
-          <TicketCategoriesChart />
+          <TicketCategoriesChart onCategoryClick={handleCategoryClick} />
         </Grid>
-    <Box sx={{ flexGrow: 1, p: 1 }}>
 
+        <Grid size={2}>
+              <AverageResolutionTime />
 
+        </Grid>
+    
+        <Box sx={{ flexGrow: 1, p: 1 }}>
+          <StatusTicketsCard
+              onOpenDrawer={handleOpenDrawer}
+              status={selectedStatus}
+              accessToken={accessTokenMSAL}
+              getTicketsByStatus={getTicketsByStatus}
+              date={selectedDate}
+          />
+
+          <IdsTicketsCard
+              onOpenDrawer={handleOpenDrawer}
+              accessToken={accessTokenMSAL}
+              ids={selectedTicketIds}
+              getTicketsByIds={getTicketsByIds}
+              status={drawerStatus} // 👈 importante!
+          />
+          
+          <RightDrawer
+              open={drawerOpen}
+              onClose={handleCloseDrawer}
+              status={drawerStatus}
+              tickets={drawerTickets}
+          />
       
 
       
-
-      <RightDrawer
-        open={drawerOpen}
-        onClose={handleDrawerClose}
-        status={selectedStatus}
-        accessToken={accessTokenMSAL}
-        date={selectedDate}
-      />
 
        
 
@@ -196,7 +243,6 @@ export default function StatsScreen() {
               
             </Box>
             <Box sx={{ width: '250px' }}>
-              <AverageResolutionTime />
             </Box>
           </Box>
         </Box>

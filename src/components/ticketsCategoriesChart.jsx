@@ -1,120 +1,137 @@
-// src/components/TicketCategoriesRadialChart.jsx
 import React from 'react';
 import {
   Box,
   Card,
   CardContent,
   Typography,
-  Stack
 } from '@mui/material';
 import {
-  RadialBarChart,
-  RadialBar,
-  ResponsiveContainer, Legend
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+  Cell,
 } from 'recharts';
 import { useDailyStatsState } from '../context/dailyStatsContext';
 
-const style = {
-  top: 0,
-  left: 350,
-  lineHeight: "24px"
-};
-// 🎨 Paleta de colores (puedes ampliarla si hay más categorías)
 const COLORS = ['#00b8a3', '#00a1ff', '#ffb900', '#ff6692', '#6f42c1', '#34c38f', '#f46a6a', '#556ee6'];
 
-export default function TicketCategoriesChart() {
+export default function TicketCategoriesChart({ onCategoryClick }) {
   const { daily_statistics } = useDailyStatsState();
   const categories = daily_statistics?.aiClassificationStats?.category || {};
+  const risks = daily_statistics?.aiClassificationStats?.risk || {};
 
-  // Calcula total de tickets
-  const totalCount = Object.values(categories).reduce((acc, cat) => acc + cat.count, 0);
-
-  // Datos transformados para RadialBarChart
-  const data = Object.entries(categories).map(([name, obj], index) => ({
+  // 🔹 DATOS CATEGORÍAS
+  const totalCategories = Object.values(categories).reduce((acc, cat) => acc + cat.count, 0);
+  const dataCategories = Object.entries(categories).map(([name, obj], index) => ({
     name,
-    value: totalCount > 0 ? (obj.count / totalCount) * 100 : 0,
+    value: obj.count,
+    percent: totalCategories > 0 ? (obj.count / totalCategories) * 100 : 0,
     fill: COLORS[index % COLORS.length],
+    ticketIds: obj.ticketIds,
   }));
+
+  // 🔹 DATOS RISKS (EXCLUYENDO 'none')
+  const risksFiltered = Object.entries(risks).filter(([risk]) => risk.toLowerCase() !== 'none');
+  const totalRisks = risksFiltered.reduce((acc, [_, obj]) => acc + obj.count, 0);
+  const dataRisks = risksFiltered.map(([name, obj], index) => ({
+    name,
+    value: obj.count,
+    percent: totalRisks > 0 ? (obj.count / totalRisks) * 100 : 0,
+    fill: COLORS[index % COLORS.length],
+    ticketIds: obj.ticketIds,
+  }));
+
+  // 🔹 HANDLERS
+  const handleCategoryClick = (data) => {
+    if (data?.ticketIds) {
+      onCategoryClick({
+        category: data.name,
+        ticketIds: data.ticketIds,
+      });
+    }
+  };
+
+  const handleRiskClick = (data) => {
+    if (data?.ticketIds) {
+      onCategoryClick({
+        category: data.name,
+        ticketIds: data.ticketIds,
+      });
+    }
+  };
 
   return (
     <Box>
+      {/* 📌 Gráfico de Categorías */}
       <Card
         sx={{
           borderRadius: 3,
-          height: 600,
-          position: 'relative',
+          mb: 4,
           overflow: 'hidden',
           backgroundColor: '#fff',
           boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
         }}
       >
-        <CardContent
-          sx={{
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            position: 'relative',
-            zIndex: 1,
-            padding: '16px !important',
-          }}
-        >
+        <CardContent>
           <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
             Ticket Categories Breakdown
           </Typography>
 
-          <Box sx={{ height: 250, width: '100%' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <RadialBarChart
-                cx={150}
-                cy={150}    // 🔑 Baja el centro vertical, 70%-80% funciona bien para semi-círculos
-                innerRadius={20}
-                outerRadius={140}
-                barSize={15}
-                data={data}
-                
-              >
-                
-                <RadialBar
-        minAngle={15}
-        label={{ position: "insideStart", fill: "#fff" }}
-        background
-        clockWise
-        dataKey="value"
-      />
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart
+              layout="vertical"
+              data={dataCategories}
+              margin={{ top: 20, right: 30, left: 100, bottom: 20 }}
+            >
+              <XAxis type="number" />
+              <YAxis type="category" dataKey="name" />
+              <Tooltip formatter={(value, name, props) => [`${value} Tickets`]} />
+              <Legend />
+              <Bar dataKey="value" onClick={handleCategoryClick}>
+                {dataCategories.map((entry, index) => (
+                  <Cell key={`cell-cat-${index}`} fill={entry.fill} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
 
-      <Legend
-        iconSize={10}
-        width={120}
-        height={140}
-        layout="vertical"
-        verticalAlign="middle"
-        wrapperStyle={style}
-      />
-              </RadialBarChart>
+      {/* 📌 Gráfico de Riesgos */}
+      <Card
+        sx={{
+          borderRadius: 3,
+          overflow: 'hidden',
+          backgroundColor: '#fff',
+          boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
+        }}
+      >
+        <CardContent>
+          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+            Ticket Risks Breakdown
+          </Typography>
 
-            </ResponsiveContainer>
-          </Box>
-
-          {/* Leyenda de categorías */}
-          <Stack spacing={1} sx={{ mt: 2 }}>
-            {data.map((entry, idx) => (
-              <Box key={entry.name} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Box
-                  sx={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: '50%',
-                    backgroundColor: entry.fill,
-                  }}
-                />
-                <Typography variant="body2">
-                  {entry.name}: {entry.value.toFixed(1)}%
-                </Typography>
-              </Box>
-            ))}
-          </Stack>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart
+              layout="vertical"
+              data={dataRisks}
+              margin={{ top: 20, right: 30, left: 100, bottom: 20 }}
+            >
+              <XAxis type="number" />
+              <YAxis type="category" dataKey="name" />
+              <Tooltip formatter={(value, name, props) => [`${value} Tickets`]} />
+              <Legend />
+              <Bar dataKey="value" onClick={handleRiskClick}>
+                {dataRisks.map((entry, index) => (
+                  <Cell key={`cell-risk-${index}`} fill={entry.fill} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
         </CardContent>
       </Card>
     </Box>
