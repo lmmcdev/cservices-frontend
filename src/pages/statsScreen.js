@@ -137,20 +137,26 @@ export default function StatsScreen() {
           Historic
         </Button>
      
-      <Grid container spacing={2} mb={4} ml={4}>
-        {entries.map(([status, count]) => {
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 2,
+          ml: 4,
+          mb: 4,
+          width: 'calc(100% - 32px)', // ajuste del margin izquierdo
+        }}
+      >
+        {[...entries, ['Total', statistics.total]].map(([status, count]) => {
           const bgColor = getStatusColor(status, 'bg');
           const textColor = getStatusColor(status, 'text');
 
           return (
-            <Grid
+            <Box
               key={status}
-              item
               sx={{
-                width: '15.8%',
-                
+                flex: 1, // hace que todos crezcan proporcionalmente
               }}
-              onClick={() => handleBoxClick(status)}
+              onClick={status === 'Total' ? undefined : () => handleBoxClick(status)}
             >
               <Card
                 sx={{
@@ -158,8 +164,12 @@ export default function StatsScreen() {
                   color: textColor,
                   borderLeft: `6px solid ${textColor}`,
                   boxShadow: 2,
-                  cursor: 'pointer',
+                  cursor: status === 'Total' ? 'default' : 'pointer',
+                  '&:hover': {
+                    transform: status === 'Total' ? 'none' : 'scale(1.03)',
+                  },
                   transition: 'transform 0.2s',
+                  height: '100%',
                   '&:hover': {
                     transform: 'scale(1.03)',
                   },
@@ -183,10 +193,10 @@ export default function StatsScreen() {
                   />
                 </CardContent>
               </Card>
-            </Grid>
+            </Box>
           );
         })}
-      </Grid>
+      </Box>
 
       <Grid container spacing={2} mb={2} ml={4}>
         <Grid size={4}>
