@@ -19,22 +19,23 @@ import { useDailyStatsState } from '../context/dailyStatsContext';
 
 const COLORS = ['#00b8a3', '#00a1ff', '#ffb900', '#ff6692', '#6f42c1', '#34c38f', '#f46a6a', '#556ee6'];
 
-export default function TicketCategoriesChart({ onCategoryClick }) {
+export default function TicketPriorityChart({ onCategoryClick }) {
   const { daily_statistics } = useDailyStatsState();
-  const categories = daily_statistics?.aiClassificationStats?.category || {};
+  const tickets = daily_statistics?.aiClassificationStats?.priority || {};
 
-  // 🔹 DATOS CATEGORÍAS
-  const totalCategories = Object.values(categories).reduce((acc, cat) => acc + cat.count, 0);
-  const dataCategories = Object.entries(categories).map(([name, obj], index) => ({
+  // 🔹 DATOS RISKS (EXCLUYENDO 'none')
+  const ticketsFiltered = Object.entries(tickets).filter(([risk]) => risk.toLowerCase() !== 'normal');
+  const totalPriority = ticketsFiltered.reduce((acc, [_, obj]) => acc + obj.count, 0);
+  const dataRisks = ticketsFiltered.map(([name, obj], index) => ({
     name,
     value: obj.count,
-    percent: totalCategories > 0 ? (obj.count / totalCategories) * 100 : 0,
+    percent: totalPriority > 0 ? (obj.count / totalPriority) * 100 : 0,
     fill: COLORS[index % COLORS.length],
     ticketIds: obj.ticketIds,
   }));
 
   // 🔹 HANDLERS
-  const handleCategoryClick = (data) => {
+  const handleRiskClick = (data) => {
     if (data?.ticketIds) {
       onCategoryClick({
         category: data.name,
@@ -44,12 +45,10 @@ export default function TicketCategoriesChart({ onCategoryClick }) {
   };
 
   return (
-    <Box>
-      {/* 📌 Gráfico de Categorías */}
+    <Box>      
       <Card
         sx={{
           borderRadius: 3,
-          mb: 4,
           overflow: 'hidden',
           backgroundColor: '#fff',
           boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
@@ -57,22 +56,22 @@ export default function TicketCategoriesChart({ onCategoryClick }) {
       >
         <CardContent>
           <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
-            Ticket Categories Breakdown
+            Ticket Priority Breakdown
           </Typography>
 
           <ResponsiveContainer width="100%" height={400}>
             <BarChart
               layout="vertical"
-              data={dataCategories}
+              data={dataRisks}
               margin={{ top: 20, right: 30, left: 100, bottom: 20 }}
             >
               <XAxis type="number" />
               <YAxis type="category" dataKey="name" />
               <Tooltip formatter={(value, name, props) => [`${value} Tickets`]} />
               <Legend />
-              <Bar dataKey="value" onClick={handleCategoryClick}>
-                {dataCategories.map((entry, index) => (
-                  <Cell key={`cell-cat-${index}`} fill={entry.fill} />
+              <Bar dataKey="value" onClick={handleRiskClick}>
+                {dataRisks.map((entry, index) => (
+                  <Cell key={`cell-risk-${index}`} fill={entry.fill} />
                 ))}
               </Bar>
             </BarChart>

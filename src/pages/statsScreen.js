@@ -26,6 +26,8 @@ import TicketCategoriesChart from '../components/ticketsCategoriesChart.jsx';
 import StatusTicketsCard from '../components/ticketsByStatusBoard.js';
 import IdsTicketsCard from '../components/ticketsByIdsBoard.js';
 import { getTicketsByStatus, getTicketsByIds } from '../utils/apiStats';
+import TicketRiskChart from '../components/ticketsRiskChart.jsx';
+import TicketPriorityChart from '../components/ticketsPriorityChart.jsx';
 
 export default function StatsScreen() {
   const state = useStatsState();
@@ -112,6 +114,7 @@ export default function StatsScreen() {
 
 
   const statistics = state.statistics || {};
+
   const doneStatistics = doneState.closedTickets_statistics || {};
   const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
   const transformed = doneStatistics.map((item, index) => ({
@@ -194,6 +197,14 @@ export default function StatsScreen() {
 
         <Grid size={4}>
           <TicketCategoriesChart onCategoryClick={handleCategoryClick} />
+        </Grid>
+
+        <Grid size={4}>
+          <TicketRiskChart onCategoryClick={handleCategoryClick} />
+        </Grid>
+
+        <Grid size={4}>
+          <TicketPriorityChart onCategoryClick={handleCategoryClick} />
         </Grid>
 
         <Grid size={2}>

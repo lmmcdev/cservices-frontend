@@ -153,7 +153,7 @@ export default function CallsByHourChart() {
             <ResponsiveContainer width="100%" height={400}>
               <AreaChart
                 data={hourlyData}
-                margin={{ top: 30, right: 60, left: 60, bottom: 20 }}
+                margin={{ top: 30, right: 60, left: 60, bottom: 10 }}
               >
                 <defs>
                   <linearGradient id="colorCalls" x1="0" y1="0" x2="0" y2="1">
