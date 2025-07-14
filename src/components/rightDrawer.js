@@ -15,6 +15,7 @@ export default function RightDrawer({ open, onClose, status, tickets = [] }) {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  console.log(tickets)
   const handleTicketClick = (ticket) => {
     setSelectedTicket(ticket);
     setDialogOpen(true);

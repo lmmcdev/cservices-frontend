@@ -26,6 +26,9 @@ import { getStatusColor } from '../utils/js/statusColors';
 import { HistoricalTopAgents } from '../components/topAgentsSection';
 import { HistoricalCallsByHour } from '../components/callsByHourChart';
 import { HistoricalTicketRiskChart } from '../components/ticketsRiskChart';
+import IdsTicketsCard from '../components/ticketsByIdsBoard';
+import { getTicketsByIds } from '../utils/apiStats';
+import { HistoricalTicketCategoriesChart } from '../components/ticketsCategoriesChart';
 
 import {
   BarChart,
@@ -51,6 +54,8 @@ const HistoricStatistics = () => {
   const [loading, setLoading] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [accessTokenMSAL, setAccessTokenMSAL] = useState(null);
+    const [selectedTicketIds, setSelectedTicketIds] = useState([]);
+  
 
   const [drawerStatus, setDrawerStatus] = useState('');
   const [drawerTickets, setDrawerTickets] = useState([]);
@@ -90,14 +95,17 @@ const HistoricStatistics = () => {
   };
 
   const handleBoxClick = (status) => {
-    setDrawerStatus(status);
-    setDrawerTickets([]);
-    setDrawerOpen(true);
-  };
+  setSelectedStatus(status);
+  setSelectedTicketIds([]); // Limpia cualquier selección por IDs
+  setDrawerTickets([]);     // Limpia tickets previos
+  setDrawerStatus(status);
+  setDrawerOpen(true);
+};
 
-  const handleRiskClick = ({ category, ticketIds }) => {
-    setDrawerStatus(category);
-    setDrawerTickets(ticketIds);
+ 
+  const handleOpenDrawer = ({ status, tickets }) => {
+    setDrawerStatus(status);
+    setDrawerTickets(tickets);
     setDrawerOpen(true);
   };
 
@@ -106,6 +114,16 @@ const HistoricStatistics = () => {
     setDrawerStatus('');
     setDrawerTickets([]);
   };
+
+  const handleCategoryClick = ({ category, ticketIds }) => {
+    console.log(ticketIds)
+  setSelectedTicketIds(ticketIds);
+  setDrawerStatus(category);
+  setDrawerTickets([]); // Limpia tickets previos
+  setDrawerOpen(true);
+};
+
+  
 
   const statistics = state.historical_statistics || {};
   const doneStatistics = stateDone.closedHistoricalTickets_statistics || [];
@@ -207,7 +225,11 @@ const HistoricStatistics = () => {
         </Grid>
 
         <Grid size={4}>
-          <HistoricalTicketRiskChart onCategoryClick={handleRiskClick} />
+                  <HistoricalTicketCategoriesChart onCategoryClick={handleCategoryClick} />
+                </Grid>
+
+        <Grid size={4}>
+          <HistoricalTicketRiskChart onCategoryClick={handleCategoryClick} />
         </Grid>
       </Grid>
 
@@ -269,6 +291,13 @@ const HistoricStatistics = () => {
         </Button>
       </Box>
 
+<IdsTicketsCard
+              onOpenDrawer={handleOpenDrawer}
+              accessToken={accessTokenMSAL}
+              ids={selectedTicketIds}
+              getTicketsByIds={getTicketsByIds}
+              status={drawerStatus} // 👈 importante!
+          />
       <RightDrawer
         open={drawerOpen}
         onClose={handleCloseDrawer}

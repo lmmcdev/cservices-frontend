@@ -99,6 +99,8 @@ export default function TicketRiskChart({ stats, onCategoryClick }) {
 export function DailyTicketRiskChart({ onCategoryClick }) {
   const dailyStats = useDailyStatsState();
   const stats = dailyStats.daily_statistics || {};
+    console.log('TicketRiskChart stats:', stats);
+
   return <TicketRiskChart stats={stats} onCategoryClick={onCategoryClick} />;
 }
 
