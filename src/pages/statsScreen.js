@@ -28,6 +28,7 @@ import { getTicketsByStatus, getTicketsByIds } from '../utils/apiStats';
 import {DailyTicketRiskChart} from '../components/ticketsRiskChart.jsx';
 import { DailyTopAgents } from '../components/topAgentsSection';
 import TicketPriorityChart from '../components/ticketsPriorityChart.jsx';
+import { DailyTicketCategoriesChart } from '../components/ticketsCategoriesChart.jsx';
 
 export default function StatsScreen() {
   const state = useStatsState();
@@ -106,6 +107,7 @@ export default function StatsScreen() {
   };
 
   const handleCategoryClick = ({ category, ticketIds }) => {
+    console.log(ticketIds)
   setSelectedTicketIds(ticketIds);
   setDrawerStatus(category);
   setDrawerTickets([]); // Limpia tickets previos
@@ -196,7 +198,7 @@ export default function StatsScreen() {
         </Grid>
 
         <Grid size={4}>
-          <TicketCategoriesChart onCategoryClick={handleCategoryClick} />
+          <DailyTicketCategoriesChart onCategoryClick={handleCategoryClick} />
         </Grid>
 
         <Grid size={4}>

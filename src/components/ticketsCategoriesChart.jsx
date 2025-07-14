@@ -15,16 +15,29 @@ import {
   Legend,
   Cell,
 } from 'recharts';
+
 import { useDailyStatsState } from '../context/dailyStatsContext';
+import { useHistoricalStats } from '../context/historicalStatsContext';
 
-const COLORS = ['#00b8a3', '#00a1ff', '#ffb900', '#ff6692', '#6f42c1', '#34c38f', '#f46a6a', '#556ee6'];
+const COLORS = [
+  '#00b8a3',
+  '#00a1ff',
+  '#ffb900',
+  '#ff6692',
+  '#6f42c1',
+  '#34c38f',
+  '#f46a6a',
+  '#556ee6',
+];
 
-export default function TicketCategoriesChart({ onCategoryClick }) {
-  const { daily_statistics } = useDailyStatsState();
-  const categories = daily_statistics?.aiClassificationStats?.category || {};
+function TicketCategoriesChartBase({ stats, onCategoryClick }) {
+  const categories = stats?.aiClassificationStats?.category || {};
 
-  // 🔹 DATOS CATEGORÍAS
-  const totalCategories = Object.values(categories).reduce((acc, cat) => acc + cat.count, 0);
+  const totalCategories = Object.values(categories).reduce(
+    (acc, cat) => acc + cat.count,
+    0
+  );
+
   const dataCategories = Object.entries(categories).map(([name, obj], index) => ({
     name,
     value: obj.count,
@@ -33,9 +46,8 @@ export default function TicketCategoriesChart({ onCategoryClick }) {
     ticketIds: obj.ticketIds,
   }));
 
-  // 🔹 HANDLERS
   const handleCategoryClick = (data) => {
-    if (data?.ticketIds) {
+    if (data?.ticketIds && onCategoryClick) {
       onCategoryClick({
         category: data.name,
         ticketIds: data.ticketIds,
@@ -45,7 +57,6 @@ export default function TicketCategoriesChart({ onCategoryClick }) {
 
   return (
     <Box>
-      {/* 📌 Gráfico de Categorías */}
       <Card
         sx={{
           borderRadius: 3,
@@ -68,7 +79,7 @@ export default function TicketCategoriesChart({ onCategoryClick }) {
             >
               <XAxis type="number" />
               <YAxis type="category" dataKey="name" />
-              <Tooltip formatter={(value, name, props) => [`${value} Tickets`]} />
+              <Tooltip formatter={(value) => [`${value} Tickets`]} />
               <Legend />
               <Bar dataKey="value" onClick={handleCategoryClick}>
                 {dataCategories.map((entry, index) => (
@@ -81,4 +92,17 @@ export default function TicketCategoriesChart({ onCategoryClick }) {
       </Card>
     </Box>
   );
+}
+
+// ✅ Wrapper para DAILY
+export function DailyTicketCategoriesChart({ onCategoryClick }) {
+  const { daily_statistics } = useDailyStatsState();
+  return <TicketCategoriesChartBase stats={daily_statistics} onCategoryClick={onCategoryClick} />;
+}
+
+// ✅ Wrapper para HISTORICAL
+export function HistoricalTicketCategoriesChart({ onCategoryClick }) {
+  const { stateStats } = useHistoricalStats();
+  const stats = stateStats.historic_daily_stats || {};
+  return <TicketCategoriesChartBase stats={stats} onCategoryClick={onCategoryClick} />;
 }
