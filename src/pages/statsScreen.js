@@ -21,14 +21,13 @@ import { DailyCallsByHour } from '../components/callsByHourChart';
 import AverageResolutionTime from '../components/averageResolutionTime';
 import ActiveAgents from '../components/activeAgents.jsx';
 import CustomerSatisfaction from '../components/customerSatisfaction.jsx';
-import TicketCategoriesChart from '../components/ticketsCategoriesChart.jsx';
 import StatusTicketsCard from '../components/ticketsByStatusBoard.js';
 import IdsTicketsCard from '../components/ticketsByIdsBoard.js';
 import { getTicketsByStatus, getTicketsByIds } from '../utils/apiStats';
 import {DailyTicketRiskChart} from '../components/ticketsRiskChart.jsx';
 import { DailyTopAgents } from '../components/topAgentsSection';
-import TicketPriorityChart from '../components/ticketsPriorityChart.jsx';
 import { DailyTicketCategoriesChart } from '../components/ticketsCategoriesChart.jsx';
+import { DailyTicketPriorityChart } from '../components/ticketsPriorityChart.jsx';
 
 export default function StatsScreen() {
   const state = useStatsState();
@@ -216,7 +215,7 @@ export default function StatsScreen() {
         </Grid>
 
         <Grid size={4}>
-          <TicketPriorityChart onCategoryClick={handleCategoryClick} />
+          <DailyTicketPriorityChart onCategoryClick={handleCategoryClick} />
         </Grid>
 
         <Grid size={2}>
