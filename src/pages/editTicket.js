@@ -60,6 +60,7 @@ export default function EditTicket() {
 
   //agarrando el ticket del contexto
   const ticket = tickets.find(t => t.id === ticketId);
+  console.log(tickets)
   const [ agentAssigned, setAgentAssigned ] = useState(ticket?.agent_assigned || '');
   const { state: agentsState } = useAgents();
   const agents = agentsState.agents;

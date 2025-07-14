@@ -9,6 +9,7 @@ import {
 } from 'recharts';
 import { Card, CardContent, Box, Typography } from '@mui/material';
 import { useDailyStatsState } from '../context/dailyStatsContext';
+import { useHistoricalStats } from '../context/historicalStatsContext';
 
 // Animaciones CSS para tooltip
 const animations = `
@@ -30,7 +31,7 @@ const animations = `
   }
 `;
 
-// Tooltip personalizado con colores y animaciones para máximos y mínimos
+// Tooltip personalizado
 const CustomTooltip = ({ active, payload, label, maxCalls, minCalls }) => {
   if (active && payload && payload.length) {
     const value = payload[0].value;
@@ -99,24 +100,18 @@ const CustomTooltip = ({ active, payload, label, maxCalls, minCalls }) => {
   return null;
 };
 
-export default function CallsByHourChart() {
-  const { daily_statistics } = useDailyStatsState();
-  // Horas laborales a mostrar, por ejemplo de 7 a 18
-  const workHours = Array.from({ length: 12 }, (_, i) => i + 6); // [7,8,9,...,18]
+// Componente genérico reutilizable
+export default function CallsByHourChart({ stats }) {
+  const workHours = Array.from({ length: 12 }, (_, i) => i + 6); // [6,7,...,17]
+  const hourlyRaw = stats?.hourlyBreakdown || [];
 
-  // Datos recibidos
-  const hourlyRaw = daily_statistics?.hourlyBreakdown || [];
-
-  // Mapea las horas con datos para acceso rápido
   const hourlyMap = new Map(hourlyRaw.map(item => [item.hour, item.count]));
 
-  // Completa todas las horas con valor 0 si no existen
   const completedHours = workHours.map(hour => ({
     hour,
     count: hourlyMap.get(hour) ?? 0,
   }));
 
-  // Transforma al formato que recharts espera
   const hourlyData = completedHours.map(({ hour, count }) => {
     const startHour = hour;
     const endHour = (startHour + 1) % 24;
@@ -194,4 +189,19 @@ export default function CallsByHourChart() {
       </Box>
     </>
   );
+}
+
+// ✅ Wrapper Daily
+export function DailyCallsByHour() {
+  const dailyStats = useDailyStatsState();
+  const stats = dailyStats.daily_statistics || {};
+  return <CallsByHourChart stats={stats} />;
+}
+
+// ✅ Wrapper Historical
+export function HistoricalCallsByHour() {
+  const { stateStats } = useHistoricalStats();
+  const stats = stateStats.historic_daily_stats || {};
+  console.log('HistoricalCallsByHour stats:', stats);
+  return <CallsByHourChart stats={stats} />;
 }
