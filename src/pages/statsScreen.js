@@ -26,7 +26,6 @@ import IdsTicketsCard from '../components/ticketsByIdsBoard.js';
 import { getTicketsByStatus, getTicketsByIds } from '../utils/apiStats';
 import {DailyTicketRiskChart} from '../components/ticketsRiskChart.jsx';
 import { DailyTopAgents } from '../components/topAgentsSection';
-import TicketPriorityChart from '../components/ticketsPriorityChart.jsx';
 import { DailyTicketCategoriesChart } from '../components/ticketsCategoriesChart.jsx';
 import { DailyTicketPriorityChart } from '../components/ticketsPriorityChart.jsx';
 

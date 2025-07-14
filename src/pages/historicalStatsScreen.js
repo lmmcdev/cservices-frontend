@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Button,
@@ -17,7 +17,6 @@ import {
   useFetchAllHistoricalStatistics,
 } from '../context/historicalStatsContext';
 import {
-  useHistoricalDoneStatsState,
   useHistoricalDoneFetchStatistics,
 } from '../context/doneHistoricalTicketsContext';
 
@@ -31,39 +30,24 @@ import { getTicketsByIds } from '../utils/apiStats';
 import { HistoricalTicketCategoriesChart } from '../components/ticketsCategoriesChart';
 import { HistoricalTicketPriorityChart } from '../components/ticketsPriorityChart';
 
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-  ResponsiveContainer,
-} from 'recharts';
-
 const HistoricStatistics = () => {
   const { accounts, instance } = useMsal();
 
   const { state } = useHistoricalStats();
   const fetchAllHistoricalStats = useFetchAllHistoricalStatistics();
 
-  const stateDone = useHistoricalDoneStatsState();
   const fetchHistoricalDoneTickets = useHistoricalDoneFetchStatistics();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [date, setDate] = useState('');
   const [loading, setLoading] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [, setSelectedStatus] = useState(null);
   const [accessTokenMSAL, setAccessTokenMSAL] = useState(null);
     const [selectedTicketIds, setSelectedTicketIds] = useState([]);
   
 
   const [drawerStatus, setDrawerStatus] = useState('');
   const [drawerTickets, setDrawerTickets] = useState([]);
-
-  const [minCalls, setMinCalls] = useState(0);
-  const [page, setPage] = useState(1);
-  const pageSize = 10;
 
   const handleFetch = async () => {
     if (!date) return;
@@ -127,29 +111,10 @@ const HistoricStatistics = () => {
   
 
   const statistics = state.historical_statistics || {};
-  const doneStatistics = stateDone.closedHistoricalTickets_statistics || [];
 
   const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
 
-  const transformed = doneStatistics.map((item, index) => ({
-    id: index + 1,
-    name: item.agent_assigned,
-    callsAttended: item.resolvedCount,
-  }));
-
-  const filteredSortedAgents = useMemo(() => {
-    return transformed
-      .filter((agent) => agent.callsAttended >= minCalls)
-      .sort((a, b) => b.callsAttended - a.callsAttended);
-  }, [transformed, minCalls]);
-
-  const currentPageAgents = useMemo(() => {
-    const start = (page - 1) * pageSize;
-    return filteredSortedAgents.slice(start, start + pageSize);
-  }, [filteredSortedAgents, page]);
-
-  const totalPages = Math.ceil(filteredSortedAgents.length / pageSize);
-
+   
   return (
     <>
       <Typography variant="h5" mb={3}>
