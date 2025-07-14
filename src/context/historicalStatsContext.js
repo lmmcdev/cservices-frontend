@@ -1,12 +1,15 @@
 import React, { createContext, useReducer, useContext } from 'react';
 import { ticketReducer, initialState } from '../store/ticketsReducer';
-import { getStats } from '../utils/apiStats';
+import { dailyStatsReducer, initialDailyStatsState } from '../store/statsReducer';
+import { getStats, getDailyStats } from '../utils/apiStats';
 
 const HistoricalStatsContext = createContext();
 
 export const HistoricalStatsProvider = ({ children }) => {
   const [state, dispatch] = useReducer(ticketReducer, initialState);
+  const [stateStats, dispatchStats ] = useReducer(dailyStatsReducer, initialDailyStatsState);
 
+  // 🗂️ Obtiene los datos agregados (mensual o por rango)
   const fetchHistoricalStatistics = async (accessToken, date) => {
     try {
       const res = await getStats(accessToken, date);
@@ -20,8 +23,39 @@ export const HistoricalStatsProvider = ({ children }) => {
     }
   };
 
+  // 📅 Obtiene los datos diarios
+  const fetchDailyStatistics = async (accessToken, date) => {
+    try {
+      const res = await getDailyStats(date);
+      if (res.success) {
+        dispatchStats({ type: 'SET_HISTORIC_DAILY_STATS', payload: res.message });
+      } else {
+        console.error('Error fetching historical daily stats:', res.message);
+      }
+    } catch (error) {
+      console.error('Error fetching historical daily stats', error);
+    }
+  };
+
+  // 🚀 NUEVA: Ejecuta ambas juntas
+  const fetchAllHistoricalStats = async (accessToken, date) => {
+    await Promise.all([
+      fetchHistoricalStatistics(accessToken, date),
+      fetchDailyStatistics(accessToken, date)
+    ]);
+  };
+
   return (
-    <HistoricalStatsContext.Provider value={{ state, dispatch, fetchHistoricalStatistics }}>
+    <HistoricalStatsContext.Provider
+      value={{
+        state,
+        stateStats,
+        dispatch,
+        fetchHistoricalStatistics,
+        fetchDailyStatistics,
+        fetchAllHistoricalStats, // 👈 exporta la nueva
+      }}
+    >
       {children}
     </HistoricalStatsContext.Provider>
   );
@@ -32,3 +66,5 @@ export const useHistoricalStats = () => useContext(HistoricalStatsContext);
 export const useHistoricalStatsState = () => useContext(HistoricalStatsContext).state;
 export const useHistoricalStatsDispatch = () => useContext(HistoricalStatsContext).dispatch;
 export const useFetchHistoricalStatistics = () => useContext(HistoricalStatsContext).fetchHistoricalStatistics;
+export const useFetchHistoricalDailyStatistics = () => useContext(HistoricalStatsContext).fetchDailyStatistics;
+export const useFetchAllHistoricalStatistics = () => useContext(HistoricalStatsContext).fetchAllHistoricalStats;

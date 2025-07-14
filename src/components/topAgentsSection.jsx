@@ -1,4 +1,3 @@
-// src/components/TopAgentsSection.jsx
 import React, { useState, useMemo } from 'react';
 import {
   Box,
@@ -14,8 +13,9 @@ import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import ChevronRight from '@mui/icons-material/ChevronRight';
 import ProfilePic from './components/profilePic';
 import { keyframes } from '@emotion/react';
-import { useDailyStatsState } from '../context/dailyStatsContext';
 import { formatMinutesToHoursPretty } from '../utils/js/minutosToHourMinutes';
+import { useDailyStatsState } from '../context/dailyStatsContext';
+import { useHistoricalStats } from '../context/historicalStatsContext';
 
 // Animación para medallas
 const bounceHover = keyframes`
@@ -25,17 +25,14 @@ const bounceHover = keyframes`
   100% { transform: scale(1); }
 `;
 
-export default function TopAgentsSection() {
-  const { daily_statistics } = useDailyStatsState();
-
+export default function TopAgentsSection({ stats }) {
   const [page, setPage] = useState(1);
   const pageSize = 4;
 
-  // Ordenar por resolvedCount desc
   const sortedAgents = useMemo(() => {
-    const agentsStats = daily_statistics?.agentStats || [];
+    const agentsStats = stats?.agentStats || [];
     return [...agentsStats].sort((a, b) => b.resolvedCount - a.resolvedCount);
-  }, [daily_statistics]);
+  }, [stats]);
 
   const currentAgents = useMemo(() => {
     const start = (page - 1) * pageSize;
@@ -60,7 +57,7 @@ export default function TopAgentsSection() {
             Top {pageSize} Agents
           </Typography>
           <Typography fontSize="16px" color="textSecondary">
-            Daily Activity
+            Activity
           </Typography>
         </Box>
       </Box>
@@ -168,4 +165,18 @@ export default function TopAgentsSection() {
       </Box>
     </Box>
   );
+}
+
+// ✅ Daily wrapper: usa dailyStatsContext
+export function DailyTopAgents() {
+  const dailyStats = useDailyStatsState();
+  const stats = dailyStats.daily_statistics || {}; // asegúrate de seguir tu shape
+  return <TopAgentsSection stats={stats} />;
+}
+
+// ✅ Historical wrapper: usa nuevo estado combinado
+export function HistoricalTopAgents() {
+  const { stateStats } = useHistoricalStats(); // 👈 Ahora obtienes ambos
+  const stats = stateStats.historic_daily_stats || {}; 
+  return <TopAgentsSection stats={stats} />;
 }

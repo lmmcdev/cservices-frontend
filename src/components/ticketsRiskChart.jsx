@@ -16,16 +16,30 @@ import {
   Cell,
 } from 'recharts';
 import { useDailyStatsState } from '../context/dailyStatsContext';
+import { useHistoricalStats } from '../context/historicalStatsContext';
 
-const COLORS = ['#00b8a3', '#00a1ff', '#ffb900', '#ff6692', '#6f42c1', '#34c38f', '#f46a6a', '#556ee6'];
+const COLORS = [
+  '#00b8a3',
+  '#00a1ff',
+  '#ffb900',
+  '#ff6692',
+  '#6f42c1',
+  '#34c38f',
+  '#f46a6a',
+  '#556ee6',
+];
 
-export default function TicketRiskChart({ onCategoryClick }) {
-  const { daily_statistics } = useDailyStatsState();
-  const risks = daily_statistics?.aiClassificationStats?.risk || {};
+// Componente genérico
+export default function TicketRiskChart({ stats, onCategoryClick }) {
+  const risks = stats?.aiClassificationStats?.risk || {};
 
-  // 🔹 DATOS RISKS (EXCLUYENDO 'none')
-  const risksFiltered = Object.entries(risks).filter(([risk]) => risk.toLowerCase() !== 'none');
+  // Excluye 'none'
+  const risksFiltered = Object.entries(risks).filter(
+    ([risk]) => risk.toLowerCase() !== 'none'
+  );
+
   const totalRisks = risksFiltered.reduce((acc, [_, obj]) => acc + obj.count, 0);
+
   const dataRisks = risksFiltered.map(([name, obj], index) => ({
     name,
     value: obj.count,
@@ -34,9 +48,8 @@ export default function TicketRiskChart({ onCategoryClick }) {
     ticketIds: obj.ticketIds,
   }));
 
-  // 🔹 HANDLERS
   const handleRiskClick = (data) => {
-    if (data?.ticketIds) {
+    if (data?.ticketIds && onCategoryClick) {
       onCategoryClick({
         category: data.name,
         ticketIds: data.ticketIds,
@@ -45,8 +58,7 @@ export default function TicketRiskChart({ onCategoryClick }) {
   };
 
   return (
-    <Box>      
-      {/* 📌 Gráfico de Riesgos */}
+    <Box>
       <Card
         sx={{
           borderRadius: 3,
@@ -68,7 +80,7 @@ export default function TicketRiskChart({ onCategoryClick }) {
             >
               <XAxis type="number" />
               <YAxis type="category" dataKey="name" />
-              <Tooltip formatter={(value, name, props) => [`${value} Tickets`]} />
+              <Tooltip formatter={(value) => [`${value} Tickets`]} />
               <Legend />
               <Bar dataKey="value" onClick={handleRiskClick}>
                 {dataRisks.map((entry, index) => (
@@ -81,4 +93,19 @@ export default function TicketRiskChart({ onCategoryClick }) {
       </Card>
     </Box>
   );
+}
+
+// ✅ Daily wrapper
+export function DailyTicketRiskChart({ onCategoryClick }) {
+  const dailyStats = useDailyStatsState();
+  const stats = dailyStats.daily_statistics || {};
+  return <TicketRiskChart stats={stats} onCategoryClick={onCategoryClick} />;
+}
+
+// ✅ Historical wrapper
+export function HistoricalTicketRiskChart({ onCategoryClick }) {
+  const { stateStats } = useHistoricalStats();
+  const stats = stateStats.historic_daily_stats || {};
+  console.log('HistoricalTicketRiskChart stats:', stats);
+  return <TicketRiskChart stats={stats} onCategoryClick={onCategoryClick} />;
 }

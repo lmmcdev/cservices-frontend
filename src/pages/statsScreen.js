@@ -16,9 +16,8 @@ import { getStatusColor } from '../utils/js/statusColors';
 import RightDrawer from '../components/rightDrawer';
 import { useNavigate } from 'react-router-dom';
 
-import TopAgentsSection from '../components/topAgentsSection';
 import TopPerformerCard from '../components/topPerformerCard';
-import CallsByHourChart from '../components/callsByHourChart';
+import { DailyCallsByHour } from '../components/callsByHourChart';
 import AverageResolutionTime from '../components/averageResolutionTime';
 import ActiveAgents from '../components/activeAgents.jsx';
 import CustomerSatisfaction from '../components/customerSatisfaction.jsx';
@@ -26,7 +25,8 @@ import TicketCategoriesChart from '../components/ticketsCategoriesChart.jsx';
 import StatusTicketsCard from '../components/ticketsByStatusBoard.js';
 import IdsTicketsCard from '../components/ticketsByIdsBoard.js';
 import { getTicketsByStatus, getTicketsByIds } from '../utils/apiStats';
-import TicketRiskChart from '../components/ticketsRiskChart.jsx';
+import {DailyTicketRiskChart} from '../components/ticketsRiskChart.jsx';
+import { DailyTopAgents } from '../components/topAgentsSection';
 import TicketPriorityChart from '../components/ticketsPriorityChart.jsx';
 
 export default function StatsScreen() {
@@ -188,11 +188,11 @@ export default function StatsScreen() {
 
       <Grid container spacing={2} mb={2} ml={4}>
         <Grid size={4}>
-          <TopAgentsSection />
+          <DailyTopAgents />
         </Grid>
 
         <Grid size={8}>
-          <CallsByHourChart />
+          <DailyCallsByHour />
         </Grid>
 
         <Grid size={4}>
@@ -200,7 +200,7 @@ export default function StatsScreen() {
         </Grid>
 
         <Grid size={4}>
-          <TicketRiskChart onCategoryClick={handleCategoryClick} />
+          <DailyTicketRiskChart onCategoryClick={handleCategoryClick} />
         </Grid>
 
         <Grid size={4}>

@@ -79,7 +79,7 @@ export const getTicketResolvedByAgents = async (accessToken, date) => {
 
 
 /**usar para obtener la estadistica por hora de un dia especifico (container tickets_stats) */
-export const getDailyStats = async (date) => {
+export const getDailyStats = async (date, scope='date') => {
   //if (accessToken === null) return { success: false, message: 'No access token provided' };
   
   // Si date es null o vacío, usa la fecha actual
@@ -87,7 +87,7 @@ export const getDailyStats = async (date) => {
   const resolvedDate = date || today.toISOString().split('T')[0]; // YYYY-MM-DD
 
   try {
-    const response = await fetch(`https://cservicesapi.azurewebsites.net/api/getTicketStats?date=${encodeURIComponent(resolvedDate)}`, {
+    const response = await fetch(`https://cservicesapi.azurewebsites.net/api/getTicketStats?${scope}=${encodeURIComponent(resolvedDate)}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer `,
