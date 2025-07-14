@@ -29,6 +29,7 @@ import { HistoricalTicketRiskChart } from '../components/ticketsRiskChart';
 import IdsTicketsCard from '../components/ticketsByIdsBoard';
 import { getTicketsByIds } from '../utils/apiStats';
 import { HistoricalTicketCategoriesChart } from '../components/ticketsCategoriesChart';
+import { HistoricalTicketPriorityChart } from '../components/ticketsPriorityChart';
 
 import {
   BarChart,
@@ -231,65 +232,12 @@ const HistoricStatistics = () => {
         <Grid size={4}>
           <HistoricalTicketRiskChart onCategoryClick={handleCategoryClick} />
         </Grid>
+
+        <Grid size={4}>
+                  <HistoricalTicketPriorityChart onCategoryClick={handleCategoryClick} />
+                </Grid>
       </Grid>
 
-      <Box mt={4} mb={2} textAlign="center">
-        <Typography variant="h6" color="#4858FF">
-          Agent Activity - Top {pageSize}
-        </Typography>
-        <Box mt={1} display="flex" justifyContent="center" alignItems="center" gap={1}>
-          <Typography fontSize={14}>Min. calls:</Typography>
-          <TextField
-            type="number"
-            size="small"
-            value={minCalls}
-            onChange={(e) => {
-              setPage(1);
-              setMinCalls(Number(e.target.value));
-            }}
-            inputProps={{ min: 0 }}
-            sx={{ width: 100 }}
-          />
-        </Box>
-      </Box>
-
-      <Box height={400}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={currentPageAgents}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-            layout="vertical"
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis type="number" />
-            <YAxis dataKey="name" type="category" width={120} />
-            <Tooltip />
-            <Bar dataKey="callsAttended" fill="#4858FF" />
-          </BarChart>
-        </ResponsiveContainer>
-      </Box>
-
-      <Box mt={3} display="flex" justifyContent="center" alignItems="center" gap={2}>
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={() => setPage((p) => Math.max(p - 1, 1))}
-          disabled={page === 1}
-        >
-          Prev
-        </Button>
-        <Typography fontSize={14}>
-          Page {page} of {totalPages}
-        </Typography>
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-          disabled={page === totalPages}
-        >
-          Next
-        </Button>
-      </Box>
 
 <IdsTicketsCard
               onOpenDrawer={handleOpenDrawer}
