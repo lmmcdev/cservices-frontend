@@ -19,6 +19,16 @@ import { getStatusColor } from '../utils/js/statusColors.js';
 import SuspenseFallback from '../components/auxiliars/suspenseFallback.js';
 
 export default function TableTickets() {
+
+  const getPriorityColor = (priority) => {
+  switch ((priority || '').toLowerCase()) {
+    case 'high': return '#d32f2f';     // rojo
+    case 'medium': return '#fbc02d';   // amarillo
+    case 'low': return '#388e3c';      // verde
+    default: return '#bdbdbd';         // gris
+  }
+};
+
   const { filters } = useFilters();
   const { state, dispatch } = useTickets();
   //const [state, dispatch] = useReducer(ticketReducer, initialState);
@@ -162,6 +172,9 @@ export default function TableTickets() {
                     <TableCell sx={{ width: columnWidths.status, minWidth: columnWidths.status, fontWeight: 'bold', pl: 3 }}>
                       Status
                     </TableCell>
+                    <TableCell sx={{ width: 100, fontWeight: 'bold' }}>
+                      Flags
+                    </TableCell>
                     <TableCell sx={{ width: columnWidths.callerId, minWidth: columnWidths.callerId, fontWeight: 'bold' }}>
                       Caller ID
                     </TableCell>
@@ -224,6 +237,48 @@ export default function TableTickets() {
                             },
                           }}
                         />
+                      </TableCell>
+                      <TableCell>
+                        <Box display="flex" gap={1} alignItems="center">
+                          {/* PRIORITY */}
+                          {row.aiClassification?.priority && (
+                            <Tooltip title={`Priority: ${row.aiClassification.priority}`}>
+                              <icons.priority
+                                sx={{
+                                  fontSize: 18,
+                                  color: getPriorityColor(row.aiClassification.priority),
+                                }}
+                              />
+                            </Tooltip>
+                          )}
+
+
+                          {/* RISK */}
+                          {row.aiClassification?.risk &&
+                            row.aiClassification.risk.toLowerCase() !== 'none' && (
+                              <Tooltip title={`Risk: ${row.aiClassification.risk}`}>
+                                <icons.risk sx={{ fontSize: 18, color: '#f57c00' }} />
+                              </Tooltip>
+                            )}
+
+
+                          {/* CATEGORY */}
+                          {(() => {
+                            const rawCategory = row.aiClassification?.category;
+                            const normalizedCategory = rawCategory?.toLowerCase().replace(/\s+/g, '_') || 'others';
+                            const CategoryIcon = icons[normalizedCategory] || icons.others;
+
+                            return (
+                              CategoryIcon && (
+                                <Tooltip title={`Category: ${rawCategory || 'Others'}`}>
+                                  {React.createElement(CategoryIcon, {
+                                    sx: { fontSize: 18, color: '#00a1ff' },
+                                  })}
+                                </Tooltip>
+                              )
+                            );
+                          })()}
+                        </Box>
                       </TableCell>
                       <TableCell>{row.caller_id}</TableCell>
                       <TableCell>{row.patient_name}</TableCell>

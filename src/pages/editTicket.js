@@ -28,11 +28,12 @@ import FlagIcon from '@mui/icons-material/Flag';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import DepartureBoardIcon from '@mui/icons-material/DepartureBoard';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import ElderlyIcon from '@mui/icons-material/Elderly';
 import NoAccountsIcon from '@mui/icons-material/NoAccounts';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
-import AltRouteIcon from '@mui/icons-material/AltRoute';
-import PsychologyAltIcon from '@mui/icons-material/PsychologyAlt';
+import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
+import HelpIcon from '@mui/icons-material/Help';
+import LocalHospitalIcon from '@mui/icons-material/LocalHospital'; 
 
 import {
   handleStatusChange,
@@ -120,7 +121,7 @@ export default function EditTicket() {
   const getPriorityColor = (priority) => {
     switch ((priority || '').toLowerCase()) {
       case 'high': return '#d32f2f';     // rojo
-      case 'normal': return '#fbc02d';   // amarillo
+      case 'medium': return '#fbc02d';   // amarillo
       case 'low': return '#388e3c';      // verde
       default: return '#bdbdbd';         // gris
     }
@@ -140,12 +141,13 @@ export default function EditTicket() {
     switch (cat) {
       case 'transport': return <DepartureBoardIcon fontSize="small" />;
       case 'appointment': return <CalendarMonthIcon fontSize="small" />;
-      case 'new patient': return <PersonAddIcon fontSize="small" />;
+      case 'new patient': return <ElderlyIcon fontSize="small" />;
       case 'desenrollment': return <NoAccountsIcon fontSize="small" />;
-      case 'personal attention': return <SupportAgentIcon fontSize="small" />;
-      case 'new direction': return <AltRouteIcon fontSize="small" />;
-      case 'others': return <PsychologyAltIcon fontSize="small" />;
-      default: return <PsychologyAltIcon fontSize="small" />; // <-- esto es importante
+      case 'customer service': return <SupportAgentIcon fontSize="small" />;
+      case 'new address': return <AddLocationAltIcon fontSize="small" />;
+      case 'hospitalization': return <LocalHospitalIcon fontSize="small" />;
+      case 'others': return <HelpIcon fontSize="small" />;
+      default: return <HelpIcon fontSize="small" />; // <-- esto es importante
     }
   };
 
@@ -467,27 +469,42 @@ export default function EditTicket() {
                       {/* PRIORITY */}
                       {ticket.aiClassification?.priority && (
                         <Tooltip title={`Priority: ${ticket.aiClassification.priority}`}>
-                          <FlagIcon sx={{ color: getPriorityColor(ticket.aiClassification.priority), fontSize: 20 }} />
+                          <FlagIcon
+                            sx={{
+                              color: getPriorityColor(ticket.aiClassification.priority),
+                              fontSize: 20,
+                            }}
+                          />
                         </Tooltip>
                       )}
 
                       {/* RISK */}
-                      {ticket.aiClassification?.risk?.toLowerCase() !== 'none' && (
-                        <Tooltip title={`Risk: ${ticket.aiClassification.risk}`}>
-                          <ReportProblemIcon sx={{ color: getRiskColor(ticket.aiClassification.risk), fontSize: 20 }} />
-                        </Tooltip>
-                      )}
+                      {ticket.aiClassification?.risk &&
+                        ticket.aiClassification.risk.toLowerCase() !== 'none' && (
+                          <Tooltip title={`Risk: ${ticket.aiClassification.risk}`}>
+                            <ReportProblemIcon
+                              sx={{
+                                color: getRiskColor(ticket.aiClassification.risk),
+                                fontSize: 20,
+                              }}
+                            />
+                          </Tooltip>
+                        )}
 
                       {/* CATEGORY */}
-                      {ticket.aiClassification?.category && (
-                        <Tooltip title={`Category: ${ticket.aiClassification.category}`}>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            {React.cloneElement(getCategoryIcon(ticket.aiClassification.category), {
-                              sx: { color: '#00a1ff', fontSize: 20 }
-                            })}
-                          </Box>
-                        </Tooltip>
-                      )}
+                      {ticket.aiClassification?.category &&
+                        typeof getCategoryIcon(ticket.aiClassification.category)?.type !== 'undefined' && (
+                          <Tooltip title={`Category: ${ticket.aiClassification.category}`}>
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              {React.cloneElement(
+                                getCategoryIcon(ticket.aiClassification.category),
+                                {
+                                  sx: { color: '#00a1ff', fontSize: 20 },
+                                }
+                              )}
+                            </Box>
+                          </Tooltip>
+                        )}
                     </Box>
                   </Box>
 

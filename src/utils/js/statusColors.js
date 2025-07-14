@@ -7,7 +7,7 @@ const statusColors = {
   Pending: { bg: '#EAE8FA', text: '#8965E5' },
   Done: { bg: '#DAF8F4', text: '#00b8a3' },
   Duplicated: { bg: '#FFE3C4', text: '#FF8A00' },
-  Total: { bg: 'transparent', text: '#0947D7' },
+  Total: { bg: '#f1f5ff', text: '#0947D7' },
 };
 
 // Optional: helper to get bg or text color safely

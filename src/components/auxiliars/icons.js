@@ -9,11 +9,21 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import FilterListOffIcon from '@mui/icons-material/FilterListOff';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import KeyboardDoubleArrowRightIcon from '@mui/icons-material/KeyboardDoubleArrowRight';
+import FlagIcon from '@mui/icons-material/Flag';
+import ReportProblemIcon from '@mui/icons-material/ReportProblem';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import DepartureBoardIcon from '@mui/icons-material/DepartureBoard';
+import NoAccountsIcon from '@mui/icons-material/NoAccounts';
+import HelpIcon from '@mui/icons-material/Help';
+import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
+import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import ApartmentIcon from '@mui/icons-material/Apartment';
 //import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import HomeIcon from '@mui/icons-material/Home';
 import BusinessIcon from '@mui/icons-material/Business';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import ElderlyIcon from '@mui/icons-material/Elderly';
 import SearchIcon from '@mui/icons-material/Search';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 
@@ -59,6 +69,16 @@ export const icons = {
     collapseLeft: KeyboardDoubleArrowLeftIcon,
     collapseRight: KeyboardDoubleArrowRightIcon,
     onSite: ApartmentIcon, 
+    priority: FlagIcon,
+    risk: ReportProblemIcon,
+    appointment: CalendarMonthIcon,
+    transport: DepartureBoardIcon,
+    desenrollment: NoAccountsIcon,
+    others: HelpIcon,
+    new_address: AddLocationAltIcon,
+    hospitalization: LocalHospitalIcon,
+    customer_service: SupportAgentIcon,
+    new_patient: ElderlyIcon,
     //assignToMe: GroupAddIcon,
     addCollaborator: PersonAddIcon,
     searchIcon: SearchIcon,
