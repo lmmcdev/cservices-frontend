@@ -26,13 +26,13 @@ import ChangeCenterModal from '../components/dialogs/changeCenterModal';
 import { useTickets } from '../context/ticketsContext.js';
 import FlagIcon from '@mui/icons-material/Flag';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
-import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
-import EventIcon from '@mui/icons-material/Event';
+import DepartureBoardIcon from '@mui/icons-material/DepartureBoard';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import PersonOffIcon from '@mui/icons-material/PersonOff';
+import NoAccountsIcon from '@mui/icons-material/NoAccounts';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import AltRouteIcon from '@mui/icons-material/AltRoute';
-import CategoryIcon from '@mui/icons-material/Category';
+import PsychologyAltIcon from '@mui/icons-material/PsychologyAlt';
 
 import {
   handleStatusChange,
@@ -60,6 +60,7 @@ export default function EditTicket() {
 
   //agarrando el ticket del contexto
   const ticket = tickets.find(t => t.id === ticketId);
+  console.log(ticket)
   const [ agentAssigned, setAgentAssigned ] = useState(ticket?.agent_assigned || '');
   const { state: agentsState } = useAgents();
   const agents = agentsState.agents;
@@ -138,14 +139,14 @@ export default function EditTicket() {
   const getCategoryIcon = (category) => {
     const cat = (category || '').toLowerCase();
     switch (cat) {
-      case 'transport': return <DirectionsCarIcon fontSize="small" />;
-      case 'appointment': return <EventIcon fontSize="small" />;
+      case 'transport': return <DepartureBoardIcon fontSize="small" />;
+      case 'appointment': return <CalendarMonthIcon fontSize="small" />;
       case 'new patient': return <PersonAddIcon fontSize="small" />;
-      case 'desenrollment': return <PersonOffIcon fontSize="small" />;
+      case 'desenrollment': return <NoAccountsIcon fontSize="small" />;
       case 'personal attention': return <SupportAgentIcon fontSize="small" />;
       case 'new direction': return <AltRouteIcon fontSize="small" />;
-      case 'others': return <CategoryIcon fontSize="small" />;
-      default: return <CategoryIcon fontSize="small" />; // <-- esto es importante
+      case 'others': return <PsychologyAltIcon fontSize="small" />;
+      default: return <PsychologyAltIcon fontSize="small" />; // <-- esto es importante
     }
   };
 
@@ -462,22 +463,32 @@ export default function EditTicket() {
                       </Typography>
                     </Box>
 
-                    {/* Iconos: Priority / Risk / Category */}
+                  {/* Iconos: Priority / Risk / Category */}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pr: 1 }}>
                       {/* PRIORITY */}
-                      <Tooltip title={`Priority: ${ticket.priority || 'N/A'}`}>
-                        <FlagIcon sx={{ color: getPriorityColor(ticket.priority), fontSize: 20 }} />
-                      </Tooltip>
+                      {ticket.aiClassification?.priority && (
+                        <Tooltip title={`Priority: ${ticket.aiClassification.priority}`}>
+                          <FlagIcon sx={{ color: getPriorityColor(ticket.aiClassification.priority), fontSize: 20 }} />
+                        </Tooltip>
+                      )}
 
                       {/* RISK */}
-                      <Tooltip title={`Risk: ${ticket.risk || 'N/A'}`}>
-                        <ReportProblemIcon sx={{ color: getRiskColor(ticket.risk), fontSize: 20 }} />
-                      </Tooltip>
+                      {ticket.aiClassification?.risk?.toLowerCase() !== 'none' && (
+                        <Tooltip title={`Risk: ${ticket.aiClassification.risk}`}>
+                          <ReportProblemIcon sx={{ color: getRiskColor(ticket.aiClassification.risk), fontSize: 20 }} />
+                        </Tooltip>
+                      )}
 
                       {/* CATEGORY */}
-                      <Tooltip title={`Category: ${ticket.category || 'N/A'}`}>
-                        {getCategoryIcon(ticket.category)}
-                      </Tooltip>
+                      {ticket.aiClassification?.category && (
+                        <Tooltip title={`Category: ${ticket.aiClassification.category}`}>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            {React.cloneElement(getCategoryIcon(ticket.aiClassification.category), {
+                              sx: { color: '#00a1ff', fontSize: 20 }
+                            })}
+                          </Box>
+                        </Tooltip>
+                      )}
                     </Box>
                   </Box>
 
