@@ -201,7 +201,7 @@ const filteredSortedAgents = useMemo(() => {
           })}
       </Grid>
 
-      <Grid container spacing={2} mb={2} ml={4}>
+      <Grid container spacing={2} mb={2} ml={2}>
         <Grid item xs={5}>
           <TopPerformerCard
             agents={filteredSortedAgents.map(agent => ({
