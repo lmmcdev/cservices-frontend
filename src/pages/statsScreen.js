@@ -29,6 +29,8 @@ import { DailyTopAgents } from '../components/topAgentsSection';
 import { DailyTicketCategoriesChart } from '../components/ticketsCategoriesChart.jsx';
 import { DailyTicketPriorityChart } from '../components/ticketsPriorityChart.jsx';
 
+import FloatingSettingsButton from '../components/components/floatingSettingsButton';
+
 export default function StatsScreen() {
   const state = useStatsState();
   const fetchStatistics = useFetchStatistics();
@@ -132,6 +134,7 @@ export default function StatsScreen() {
 
   return (
     <>
+    <FloatingSettingsButton/>
         <Button variant="contained" onClick={handleClick} sx={{ m: 2 }}>
           Historic
         </Button>
