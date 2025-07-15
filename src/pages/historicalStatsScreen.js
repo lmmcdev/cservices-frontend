@@ -34,6 +34,7 @@ import TopPerformerCard from '../components/topPerformerCard';
 import ActiveAgents from '../components/activeAgents.jsx';
 import CustomerSatisfaction from '../components/customerSatisfaction.jsx';
 import { HistoricalAverageResolutionTime } from '../components/averageResolutionTime';
+import { HistoricalTopPerformerCard } from '../components/topPerformerCard';
 
 
 const HistoricStatistics = () => {
@@ -203,13 +204,7 @@ const filteredSortedAgents = useMemo(() => {
 
       <Grid container spacing={2} mb={2} ml={2}>
         <Grid item xs={5}>
-          <TopPerformerCard
-            agents={filteredSortedAgents.map(agent => ({
-              ...agent,
-              cases: agent.callsAttended,
-              avgTime: '1h 12m'
-            }))}
-          />
+          <HistoricalTopPerformerCard />
         </Grid>
 
         <Grid item xs={3}>

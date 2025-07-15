@@ -1,68 +1,41 @@
-// src/components/TopPerformerCard.jsx
 import React, { useMemo } from 'react';
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent
-} from '@mui/material';
-import { emailToFullName } from '../utils/js/emailToFullName';
+import { Box, Typography, Card, CardContent } from '@mui/material';
 import confetti from 'canvas-confetti';
+import { useDailyStatsState } from '../context/dailyStatsContext';
+import { useHistoricalStats } from '../context/historicalStatsContext';
 
-function parseAvgTime(timeStr) {
-  if (!timeStr) return 9999;
-  const [hours, minutes] = timeStr.split(' ').map(part => parseInt(part));
-  return (isNaN(hours) ? 0 : hours) * 60 + (isNaN(minutes) ? 0 : minutes);
-}
+// ✅ Función para mostrar nombre legible
+const formatName = email => email?.split('@')[0] || 'Unknown';
 
-export default function TopPerformerCard({ agents = [] }) {
-  console.log(agents)
-  const now = new Date();
-  const firstDayPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const lastDayPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-  const prevMonthName = firstDayPrevMonth.toLocaleString('default', { month: 'long' });
-
+// ✅ Componente Base reutilizable
+function TopPerformerCardBase({ agentStats = [], title }) {
   const topAgent = useMemo(() => {
-    if (!Array.isArray(agents) || agents.length === 0) return null;
+    if (!agentStats || agentStats.length === 0) return null;
 
-    const scored = agents.map(agent => {
-      const prevMonthCases = Array.isArray(agent.cases)
-        ? agent.cases.filter(c => {
-            const d = new Date(c.date);
-            return d >= firstDayPrevMonth && d <= lastDayPrevMonth;
-          })
-        : [];
-
-      return {
-        ...agent,
-        prevMonthCaseCount: prevMonthCases.length
-      };
-    });
-
-    const sorted = scored.sort((a, b) => {
-      if (b.prevMonthCaseCount === a.prevMonthCaseCount) {
-        return parseAvgTime(a.avgTime) - parseAvgTime(b.avgTime);
+    const sorted = [...agentStats].sort((a, b) => {
+      if (b.resolvedCount === a.resolvedCount) {
+        return a.avgResolutionTimeMins - b.avgResolutionTimeMins;
       }
-      return b.prevMonthCaseCount - a.prevMonthCaseCount;
+      return b.resolvedCount - a.resolvedCount;
     });
 
     return sorted[0] || null;
-  }, [agents]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [agentStats]);
 
   const handleConfetti = () => {
     const trophyBox = document.getElementById('trophy-zone');
     if (!trophyBox) return;
 
     const rect = trophyBox.getBoundingClientRect();
-    const x = (rect.left + rect.width / 2) / window.innerWidth;
-    const y = (rect.top + rect.height / 2) / window.innerHeight;
-
     confetti({
       particleCount: 80,
       spread: 70,
       startVelocity: 32,
-      origin: { x, y },
-      zIndex: 9999
+      origin: {
+        x: (rect.left + rect.width / 2) / window.innerWidth,
+        y: (rect.top + rect.height / 2) / window.innerHeight,
+      },
+      zIndex: 9999,
     });
   };
 
@@ -80,21 +53,21 @@ export default function TopPerformerCard({ agents = [] }) {
         justifyContent: 'space-between',
         alignItems: 'center',
         height: 270,
-        width: '100%' // para que se ajuste al Grid
+        width: '100%',
       }}
     >
       <CardContent sx={{ flex: 1 }}>
         <Typography variant="h6" fontWeight="bold" sx={{ mb: 0.5 }}>
-          Congratulations {emailToFullName(topAgent.name)}! 🎉
+          Congratulations {formatName(topAgent.agentEmail)}! 🎉
         </Typography>
         <Typography variant="subtitle2" sx={{ mb: 2, fontSize: '1rem', color: '#666' }}>
-          Top Performer – {prevMonthName}
+          {title}
         </Typography>
         <Typography variant="h3" sx={{ color: '#00A1FF', fontWeight: 'bold', mb: 2 }}>
-          {(topAgent.prevMonthCaseCount || 0).toLocaleString()} Calls
+          {topAgent.resolvedCount} Calls
         </Typography>
         <Typography variant="body2" color="textSecondary" sx={{ fontSize: '1rem' }}>
-          Average time: {topAgent.avgTime || '—'}
+          Avg Time: {topAgent.avgResolutionTimeMins} mins
         </Typography>
       </CardContent>
       <Box
@@ -112,3 +85,23 @@ export default function TopPerformerCard({ agents = [] }) {
     </Card>
   );
 }
+
+// ✅ Variante para estadísticas diarias
+export function DailyTopPerformerCard() {
+  const dailyStats = useDailyStatsState();
+  const stats = dailyStats.daily_statistics || {};
+  const agentStats = stats.agentStats || [];
+
+  return <TopPerformerCardBase agentStats={agentStats} title="Top Performer – Today" />;
+}
+
+// ✅ Variante para estadísticas históricas
+export function HistoricalTopPerformerCard() {
+  const { stateStats } = useHistoricalStats();
+  const stats = stateStats.historic_daily_stats || {};
+  const agentStats = stats.agentStats || [];
+
+  return <TopPerformerCardBase agentStats={agentStats} title="Top Performer – Historical" />;
+}
+
+export default TopPerformerCardBase;
