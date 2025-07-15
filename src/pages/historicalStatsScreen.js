@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Box,
   Button,
@@ -19,6 +19,7 @@ import {
 import {
   useHistoricalDoneFetchStatistics,
 } from '../context/doneHistoricalTicketsContext';
+import { useDoneStatsState } from '../context/doneTicketsContext';
 
 import RightDrawer from '../components/rightDrawer';
 import { getStatusColor } from '../utils/js/statusColors';
@@ -29,12 +30,19 @@ import IdsTicketsCard from '../components/ticketsByIdsBoard';
 import { getTicketsByIds } from '../utils/apiStats';
 import { HistoricalTicketCategoriesChart } from '../components/ticketsCategoriesChart';
 import { HistoricalTicketPriorityChart } from '../components/ticketsPriorityChart';
+import TopPerformerCard from '../components/topPerformerCard';
+import ActiveAgents from '../components/activeAgents.jsx';
+import CustomerSatisfaction from '../components/customerSatisfaction.jsx';
+import { HistoricalAverageResolutionTime } from '../components/averageResolutionTime';
+
 
 const HistoricStatistics = () => {
   const { accounts, instance } = useMsal();
 
   const { state } = useHistoricalStats();
   const fetchAllHistoricalStats = useFetchAllHistoricalStatistics();
+  const doneState = useDoneStatsState();
+  const [minCalls] = useState(0);
 
   const fetchHistoricalDoneTickets = useHistoricalDoneFetchStatistics();
 
@@ -112,8 +120,20 @@ const HistoricStatistics = () => {
 
   const statistics = state.historical_statistics || {};
 
+  const doneStatistics = doneState.closedTickets_statistics || {};
   const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
 
+  const transformed = doneStatistics.map((item, index) => ({
+    id: index + 1,
+    name: item.agent_assigned,
+    callsAttended: item.resolvedCount,
+  }));
+
+const filteredSortedAgents = useMemo(() => {
+    return transformed
+      .filter(agent => agent.callsAttended >= minCalls)
+      .sort((a, b) => b.callsAttended - a.callsAttended);
+  }, [transformed, minCalls]);
    
   return (
     <>
@@ -182,6 +202,66 @@ const HistoricStatistics = () => {
       </Grid>
 
       <Grid container spacing={2} mb={2} ml={4}>
+        <Grid item xs={5}>
+          <TopPerformerCard
+            agents={filteredSortedAgents.map(agent => ({
+              ...agent,
+              cases: agent.callsAttended,
+              avgTime: '1h 12m'
+            }))}
+          />
+        </Grid>
+
+        <Grid item xs={3}>
+          <CustomerSatisfaction />
+        </Grid>
+
+        <Grid item xs={2}>
+          <HistoricalAverageResolutionTime />
+        </Grid>
+
+        <Grid item xs={2}>
+          <ActiveAgents />
+        </Grid>
+        <Grid item sx={{ flexGrow: 1 }}>
+          <Box sx={{ width: '100%' }}>
+            <Card
+              sx={{
+                borderRadius: 3,
+                height: 270,
+                width: '100%',
+                position: 'relative',
+                overflow: 'hidden',
+                backgroundColor: '#fff',
+                boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
+              }}
+            >
+              <CardContent
+                sx={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative',
+                  zIndex: 1,
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{ color: '#999', letterSpacing: 1, mb: 1 }}
+                >
+                  No Data Available
+                </Typography>
+              </CardContent>
+            </Card>
+          </Box>
+        </Grid>
+        </Grid>
+
+
+      <Grid container spacing={2} mb={2} ml={4}>
+
         <Grid size={4}>
           <HistoricalTopAgents />
         </Grid>

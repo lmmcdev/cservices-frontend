@@ -18,7 +18,6 @@ import { useNavigate } from 'react-router-dom';
 
 import TopPerformerCard from '../components/topPerformerCard';
 import { DailyCallsByHour } from '../components/callsByHourChart';
-import AverageResolutionTime from '../components/averageResolutionTime';
 import ActiveAgents from '../components/activeAgents.jsx';
 import CustomerSatisfaction from '../components/customerSatisfaction.jsx';
 import StatusTicketsCard from '../components/ticketsByStatusBoard.js';
@@ -28,6 +27,7 @@ import {DailyTicketRiskChart} from '../components/ticketsRiskChart.jsx';
 import { DailyTopAgents } from '../components/topAgentsSection';
 import { DailyTicketCategoriesChart } from '../components/ticketsCategoriesChart.jsx';
 import { DailyTicketPriorityChart } from '../components/ticketsPriorityChart.jsx';
+import { DailyAverageResolutionTime } from '../components/averageResolutionTime';
 
 export default function StatsScreen() {
   const state = useStatsState();
@@ -169,9 +169,7 @@ export default function StatsScreen() {
                   },
                   transition: 'transform 0.2s',
                   height: '100%',
-                  '&:hover': {
-                    transform: 'scale(1.03)',
-                  },
+                  
                 }}
               >
                 <CardContent>
@@ -213,7 +211,7 @@ export default function StatsScreen() {
         </Grid>
 
         <Grid item xs={2}>
-          <AverageResolutionTime />
+          <DailyAverageResolutionTime />
         </Grid>
 
         <Grid item xs={2}>

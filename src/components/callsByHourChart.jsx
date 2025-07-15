@@ -202,6 +202,5 @@ export function DailyCallsByHour() {
 export function HistoricalCallsByHour() {
   const { stateStats } = useHistoricalStats();
   const stats = stateStats.historic_daily_stats || {};
-  console.log('HistoricalCallsByHour stats:', stats);
   return <CallsByHourChart stats={stats} />;
 }
