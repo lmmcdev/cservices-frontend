@@ -11,6 +11,8 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  PieChart,
+  Pie,
   ResponsiveContainer,
   Legend,
   Cell,
@@ -19,16 +21,11 @@ import {
 import { useDailyStatsState } from '../context/dailyStatsContext';
 import { useHistoricalStats } from '../context/historicalStatsContext';
 
-const COLORS = [
-  '#00b8a3',
-  '#00a1ff',
-  '#ffb900',
-  '#ff6692',
-  '#6f42c1',
-  '#34c38f',
-  '#f46a6a',
-  '#556ee6',
-];
+const PRIORITY_COLORS = {
+  high: '#f46a6a',    // rojo
+  medium: '#ffb900',  // amarillo
+  low: '#00b8a3',     // verde
+};
 
 function TicketPriorityChartBase({ stats, onCategoryClick }) {
   const tickets = stats?.aiClassificationStats?.priority || {};
@@ -42,11 +39,11 @@ function TicketPriorityChartBase({ stats, onCategoryClick }) {
     0
   );
 
-  const dataPriority = ticketsFiltered.map(([name, obj], index) => ({
+  const dataPriority = ticketsFiltered.map(([name, obj]) => ({
     name,
     value: obj.count,
     percent: totalPriority > 0 ? (obj.count / totalPriority) * 100 : 0,
-    fill: COLORS[index % COLORS.length],
+    fill: PRIORITY_COLORS[name] || '#8884d8',
     ticketIds: obj.ticketIds,
   }));
 
@@ -70,26 +67,32 @@ function TicketPriorityChartBase({ stats, onCategoryClick }) {
         }}
       >
         <CardContent>
-          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+          <Typography variant="h5" fontWeight="bold" sx={{ mt: 2, mb: 3, ml: 2, color: '#000' }}>
             Ticket Priority Breakdown
           </Typography>
 
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart
-              layout="vertical"
-              data={dataPriority}
-              margin={{ top: 20, right: 30, left: 100, bottom: 20 }}
-            >
-              <XAxis type="number" />
-              <YAxis type="category" dataKey="name" />
-              <Tooltip formatter={(value) => [`${value} Tickets`]} />
-              <Legend />
-              <Bar dataKey="value" onClick={handlePriorityClick}>
+            <PieChart>
+              <Pie
+                data={dataPriority}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={130} // puedes ajustar el tamaño si quieres más grande o más chico
+                label={({ name, percent }) =>
+                  `${name}: ${(percent).toFixed(1)}%`
+                }
+                onClick={handlePriorityClick}
+              >
                 {dataPriority.map((entry, index) => (
                   <Cell key={`cell-priority-${index}`} fill={entry.fill} />
                 ))}
-              </Bar>
-            </BarChart>
+              </Pie>
+              <Tooltip
+                formatter={(value, name) => [`${value} Tickets`, name]}
+              />
+            </PieChart>
           </ResponsiveContainer>
         </CardContent>
       </Card>

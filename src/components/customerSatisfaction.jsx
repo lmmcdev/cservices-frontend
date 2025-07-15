@@ -43,12 +43,12 @@ export default function CustomerSatisfaction() {
   ];
 
   return (
-    <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4 }}>
+    <Box sx={{ maxWidth: 500, mx: 'auto'}}>
       <Card
         sx={{
           borderRadius: 3,
-          height: 280,
-          width: 320,
+          height: 270,
+          width: 420,
           position: 'relative',
           overflow: 'hidden',
           backgroundColor: '#fff',

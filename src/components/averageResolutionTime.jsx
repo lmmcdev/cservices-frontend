@@ -12,11 +12,11 @@ export default function AverageResolutionTime() {
 
   const averageTime = formatMinutesToHoursPretty(globalStats.avgResolutionTimeMins)
   return (
-    <Box>
+    <Box sx={{ width: 350 }}>
       <Card
         sx={{
           borderRadius: 3,
-          height: 240,
+          height: 270,
           position: 'relative',
           overflow: 'hidden',
           boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
