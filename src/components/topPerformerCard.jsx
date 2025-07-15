@@ -72,40 +72,40 @@ export default function TopPerformerCard({ agents = [] }) {
       sx={{
         backgroundColor: '#fff',
         borderRadius: 3,
-        p: 2,
+        p: 5,
         boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
-        maxWidth: 470,
-        mx: 'auto',
-        mt: 4,
+        maxWidth: 600,
         display: 'flex',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
+        height: 270,
+        width: '100%' // para que se ajuste al Grid
       }}
     >
       <CardContent sx={{ flex: 1 }}>
-        <Typography variant="subtitle1" fontWeight="bold">
+        <Typography variant="h6" fontWeight="bold" sx={{ mb: 0.5 }}>
           Congratulations {emailToFullName(topAgent.name)}! 🎉
         </Typography>
-        <Typography variant="body2" sx={{ mb: 2 }}>
+        <Typography variant="subtitle2" sx={{ mb: 2, fontSize: '1rem', color: '#666' }}>
           Top Performer – {prevMonthName}
         </Typography>
-        <Typography variant="h4" sx={{ color: '#00A1FF', fontWeight: 'bold' }}>
+        <Typography variant="h3" sx={{ color: '#00A1FF', fontWeight: 'bold', mb: 2 }}>
           {(topAgent.prevMonthCaseCount || 0).toLocaleString()} Calls
         </Typography>
-        <Typography variant="body2" color="textSecondary">
+        <Typography variant="body2" color="textSecondary" sx={{ fontSize: '1rem' }}>
           Average time: {topAgent.avgTime || '—'}
         </Typography>
       </CardContent>
       <Box
         id="trophy-zone"
-        sx={{ pr: 3, alignSelf: 'center', mt: 4, cursor: 'pointer' }}
+        sx={{ pr: 3, alignSelf: 'center', mt: 9, cursor: 'pointer' }}
         onClick={handleConfetti}
       >
         <Box
           component="img"
           src="https://res.cloudinary.com/dldi4fgyu/image/upload/v1750263284/trophy_lpzou9.png"
           alt="Trophy"
-          sx={{ width: 80, height: 'auto' }}
+          sx={{ width: 90, height: 'auto' }}
         />
       </Box>
     </Card>

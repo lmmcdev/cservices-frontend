@@ -49,6 +49,9 @@ export default function TopAgentsSection({ stats }) {
         p: 3,
         boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
         mx: 'auto',
+        height: '512px', 
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
@@ -69,9 +72,11 @@ export default function TopAgentsSection({ stats }) {
             borderSpacing: 0,
             '& th, & td': {
               borderBottom: '1px solid #e0e0e0',
+              py: 1.7, 
             },
             '& thead th': {
               borderBottom: '2px solid #e0e0e0',
+              py: 1.7,
             },
           }}
         >
@@ -138,7 +143,7 @@ export default function TopAgentsSection({ stats }) {
         </Table>
       </TableContainer>
 
-      <Box display="flex" justifyContent="center" mt={2} alignItems="center" gap={2}>
+      <Box display="flex" justifyContent="center" alignItems="center" gap={2} mt="auto">
         <ChevronLeft
           fontSize="medium"
           onClick={() => setPage((p) => Math.max(p - 1, 1))}

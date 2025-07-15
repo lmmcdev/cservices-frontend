@@ -73,7 +73,7 @@ export const icons = {
     risk: ReportProblemIcon,
     appointment: CalendarMonthIcon,
     transport: DepartureBoardIcon,
-    desenrollment: NoAccountsIcon,
+    disenrollment: NoAccountsIcon,
     others: HelpIcon,
     new_address: AddLocationAltIcon,
     hospitalization: LocalHospitalIcon,

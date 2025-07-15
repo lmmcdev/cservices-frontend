@@ -136,20 +136,26 @@ export default function StatsScreen() {
           Historic
         </Button>
      
-      <Grid container spacing={2} mb={4} ml={4}>
-        {entries.map(([status, count]) => {
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 2,
+          ml: 4,
+          mb: 4,
+          width: 'calc(100% - 32px)', // ajuste del margin izquierdo
+        }}
+      >
+        {[...entries, ['Total', statistics.total]].map(([status, count]) => {
           const bgColor = getStatusColor(status, 'bg');
           const textColor = getStatusColor(status, 'text');
 
           return (
-            <Grid
+            <Box
               key={status}
-              item
               sx={{
-                width: '15.8%',
-                
+                flex: 1, // hace que todos crezcan proporcionalmente
               }}
-              onClick={() => handleBoxClick(status)}
+              onClick={status === 'Total' ? undefined : () => handleBoxClick(status)}
             >
               <Card
                 sx={{
@@ -157,8 +163,12 @@ export default function StatsScreen() {
                   color: textColor,
                   borderLeft: `6px solid ${textColor}`,
                   boxShadow: 2,
-                  cursor: 'pointer',
+                  cursor: status === 'Total' ? 'default' : 'pointer',
+                  '&:hover': {
+                    transform: status === 'Total' ? 'none' : 'scale(1.03)',
+                  },
                   transition: 'transform 0.2s',
+                  height: '100%',
                   '&:hover': {
                     transform: 'scale(1.03)',
                   },
@@ -182,10 +192,71 @@ export default function StatsScreen() {
                   />
                 </CardContent>
               </Card>
-            </Grid>
+            </Box>
           );
         })}
+      </Box>
+
+      <Grid container spacing={2} mb={2} ml={4}>
+        <Grid item xs={5}>
+          <TopPerformerCard
+            agents={filteredSortedAgents.map(agent => ({
+              ...agent,
+              cases: agent.callsAttended,
+              avgTime: '1h 12m'
+            }))}
+          />
+        </Grid>
+
+        <Grid item xs={3}>
+          <CustomerSatisfaction />
+        </Grid>
+
+        <Grid item xs={2}>
+          <AverageResolutionTime />
+        </Grid>
+
+        <Grid item xs={2}>
+          <ActiveAgents />
+        </Grid>
+
+        <Grid item sx={{ flexGrow: 1 }}>
+          <Box sx={{ width: '100%' }}>
+            <Card
+              sx={{
+                borderRadius: 3,
+                height: 270,
+                width: '100%',
+                position: 'relative',
+                overflow: 'hidden',
+                backgroundColor: '#fff',
+                boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
+              }}
+            >
+              <CardContent
+                sx={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  position: 'relative',
+                  zIndex: 1,
+                }}
+              >
+                <Typography
+                  variant="body2"
+                  sx={{ color: '#999', letterSpacing: 1, mb: 1 }}
+                >
+                  No Data Available
+                </Typography>
+              </CardContent>
+            </Card>
+          </Box>
+        </Grid>
       </Grid>
+
+      
 
       <Grid container spacing={2} mb={2} ml={4}>
         <Grid size={4}>
@@ -206,11 +277,6 @@ export default function StatsScreen() {
 
         <Grid size={4}>
           <DailyTicketPriorityChart onCategoryClick={handleCategoryClick} />
-        </Grid>
-
-        <Grid size={2}>
-              <AverageResolutionTime />
-
         </Grid>
     
         <Box sx={{ flexGrow: 1, p: 1 }}>
@@ -236,49 +302,6 @@ export default function StatsScreen() {
               status={drawerStatus}
               tickets={drawerTickets}
           />
-      
-
-      
-
-       
-
-      <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap', mt: 4 }}>
-        {/* Columna izquierda: TopAgentsSection + CustomerSatisfaction + AvgTime */}
-        <Box>
-          
-
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Box sx={{ width: '320px' }}>
-              <CustomerSatisfaction />
-            </Box>
-            <Box sx={{ width: '320px' }}>
-              
-            </Box>
-            <Box sx={{ width: '250px' }}>
-            </Box>
-          </Box>
-        </Box>
-
-        {/* Columna derecha: Felicitaciones + Active Agents + Gráfico */}
-        <Box>
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Box sx={{ width: '470px' }}>
-              <TopPerformerCard
-                agents={filteredSortedAgents.map(agent => ({
-                  ...agent,
-                  cases: agent.callsAttended,
-                  avgTime: '1h 12m'
-                }))}
-              />
-            </Box>
-
-            <Box sx={{ width: '320px' }}>
-              <ActiveAgents />
-            </Box>
-          </Box>
-
-        </Box>
-      </Box>
     </Box>
     </Grid>
     </>

@@ -6,12 +6,12 @@ export default function ActiveAgents() {
   const activeCount = 6; // Puedes reemplazarlo con datos reales más adelante
 
   return (
-    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 4 }}>
+    <Box sx={{ maxWidth: 400, mx: 'auto'}}>
       <Card
         sx={{
           borderRadius: 3,
-          height: 240,
-          width: 250,
+          height: 270,
+          width: 350,
           position: 'relative',
           overflow: 'hidden',
           backgroundColor: '#fff',

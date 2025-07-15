@@ -131,7 +131,7 @@ export default function EditTicket() {
     switch ((risk || '').toLowerCase()) {
       case 'none': return '#4caf50';         // verde
       case 'legal': return '#ff9800';        // naranja
-      case 'desenrollment': return '#f44336'; // rojo
+      case 'disenrollment': return '#f44336'; // rojo
       default: return '#bdbdbd';             // gris
     }
   };
@@ -142,7 +142,7 @@ export default function EditTicket() {
       case 'transport': return <DepartureBoardIcon fontSize="small" />;
       case 'appointment': return <CalendarMonthIcon fontSize="small" />;
       case 'new patient': return <ElderlyIcon fontSize="small" />;
-      case 'desenrollment': return <NoAccountsIcon fontSize="small" />;
+      case 'disenrollment': return <NoAccountsIcon fontSize="small" />;
       case 'customer service': return <SupportAgentIcon fontSize="small" />;
       case 'new address': return <AddLocationAltIcon fontSize="small" />;
       case 'hospitalization': return <LocalHospitalIcon fontSize="small" />;

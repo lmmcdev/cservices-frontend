@@ -12,7 +12,7 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  Legend,
+  LabelList,
   Cell,
 } from 'recharts';
 
@@ -30,6 +30,38 @@ const COLORS = [
   '#556ee6',
 ];
 
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || !payload.length) return null;
+
+  const { value, payload: dataPoint } = payload[0];
+  const percent = dataPoint.percent ?? 0;
+  const fillColor = dataPoint.fill || '#00a1ff'; // fallback por si acaso
+
+  return (
+    <Box
+      sx={{
+        backgroundColor: '#fff',
+        border: '1px solid #ddd',
+        borderRadius: '6px',
+        padding: '10px 14px',
+        fontSize: 14,
+        color: '#000',
+      }}
+    >
+      <Typography fontWeight="bold" fontSize={15} mb={0.5} sx={{ color: fillColor }}>
+        {label}
+      </Typography>
+      <Typography fontSize={14}>
+        Tickets: {value}
+      </Typography>
+      <Typography fontSize={13} color="text.secondary">
+        {percent.toFixed(1)}%
+      </Typography>
+    </Box>
+  );
+};
+
+
 function TicketCategoriesChartBase({ stats, onCategoryClick }) {
   const categories = stats?.aiClassificationStats?.category || {};
 
@@ -38,13 +70,15 @@ function TicketCategoriesChartBase({ stats, onCategoryClick }) {
     0
   );
 
-  const dataCategories = Object.entries(categories).map(([name, obj], index) => ({
+  const dataCategories = Object.entries(categories)
+  .map(([name, obj], index) => ({
     name,
     value: obj.count,
     percent: totalCategories > 0 ? (obj.count / totalCategories) * 100 : 0,
     fill: COLORS[index % COLORS.length],
     ticketIds: obj.ticketIds,
-  }));
+  }))
+  .sort((a, b) => b.value - a.value); // Ordena de mayor a menor
 
   const handleCategoryClick = (data) => {
     if (data?.ticketIds && onCategoryClick) {
@@ -67,7 +101,7 @@ function TicketCategoriesChartBase({ stats, onCategoryClick }) {
         }}
       >
         <CardContent>
-          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+          <Typography variant="h5" fontWeight="bold" sx={{ mt: 2, mb: 3, ml: 2, color: '#000' }}>
             Ticket Categories Breakdown
           </Typography>
 
@@ -75,16 +109,21 @@ function TicketCategoriesChartBase({ stats, onCategoryClick }) {
             <BarChart
               layout="vertical"
               data={dataCategories}
-              margin={{ top: 20, right: 30, left: 100, bottom: 20 }}
+              margin={{ top: 20, right: 60, left: 65, bottom: 20 }}
+              barCategoryGap="12%"
             >
               <XAxis type="number" />
-              <YAxis type="category" dataKey="name" />
-              <Tooltip formatter={(value) => [`${value} Tickets`]} />
-              <Legend />
-              <Bar dataKey="value" onClick={handleCategoryClick}>
+              <YAxis type="category" dataKey="name" tick={{ fontSize: 15 }}/>
+              <Tooltip content={<CustomTooltip />} />
+              <Bar dataKey="value" onClick={handleCategoryClick} radius={[0, 7, 7, 0]}>
                 {dataCategories.map((entry, index) => (
                   <Cell key={`cell-cat-${index}`} fill={entry.fill} />
                 ))}
+                <LabelList
+                  dataKey="value"
+                  position="right"
+                  style={{ fill: '#333', fontSize: 14, fontWeight: 'bold' }}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>

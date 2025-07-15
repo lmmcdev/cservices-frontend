@@ -68,32 +68,31 @@ export default function TicketRiskChart({ stats, onCategoryClick }) {
         }}
       >
         <CardContent>
-          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+          <Typography variant="h5" fontWeight="bold" sx={{ mt: 2, mb: 3, ml: 2, color: '#000' }}>
             Ticket Risks Breakdown
           </Typography>
 
           <ResponsiveContainer width="100%" height={400}>
             <BarChart
-              layout="vertical"
               data={dataRisks}
-              margin={{ top: 20, right: 30, left: 100, bottom: 20 }}
+              margin={{ top: 20, right: 30, left: 30, bottom: 40 }}
             >
-              <XAxis type="number" />
-              <YAxis type="category" dataKey="name" />
+              <XAxis type="category" dataKey="name" tick={{ fontSize: 13 }} />
+              <YAxis type="number" />
               <Tooltip formatter={(value) => [`${value} Tickets`]} />
-              <Legend />
-              <Bar dataKey="value" onClick={handleRiskClick}>
+              <Bar dataKey="value" onClick={handleRiskClick} radius={[10, 10, 0, 0]}>
                 {dataRisks.map((entry, index) => (
                   <Cell key={`cell-risk-${index}`} fill={entry.fill} />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </CardContent>
-      </Card>
-    </Box>
-  );
-}
+
+                  </CardContent>
+                </Card>
+              </Box>
+            );
+          }
 
 // ✅ Daily wrapper
 export function DailyTicketRiskChart({ onCategoryClick }) {
