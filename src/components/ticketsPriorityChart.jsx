@@ -6,15 +6,10 @@ import {
   Typography,
 } from '@mui/material';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
   Tooltip,
   PieChart,
   Pie,
   ResponsiveContainer,
-  Legend,
   Cell,
 } from 'recharts';
 

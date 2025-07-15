@@ -12,7 +12,6 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  Legend,
   Cell,
 } from 'recharts';
 import { useDailyStatsState } from '../context/dailyStatsContext';
@@ -98,8 +97,6 @@ export default function TicketRiskChart({ stats, onCategoryClick }) {
 export function DailyTicketRiskChart({ onCategoryClick }) {
   const dailyStats = useDailyStatsState();
   const stats = dailyStats.daily_statistics || {};
-    console.log('TicketRiskChart stats:', stats);
-
   return <TicketRiskChart stats={stats} onCategoryClick={onCategoryClick} />;
 }
 
@@ -107,6 +104,5 @@ export function DailyTicketRiskChart({ onCategoryClick }) {
 export function HistoricalTicketRiskChart({ onCategoryClick }) {
   const { stateStats } = useHistoricalStats();
   const stats = stateStats.historic_daily_stats || {};
-  console.log('HistoricalTicketRiskChart stats:', stats);
   return <TicketRiskChart stats={stats} onCategoryClick={onCategoryClick} />;
 }

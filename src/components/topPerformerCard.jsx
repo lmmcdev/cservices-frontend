@@ -16,6 +16,7 @@ function parseAvgTime(timeStr) {
 }
 
 export default function TopPerformerCard({ agents = [] }) {
+  console.log(agents)
   const now = new Date();
   const firstDayPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const lastDayPrevMonth = new Date(now.getFullYear(), now.getMonth(), 0);

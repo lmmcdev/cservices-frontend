@@ -1,16 +1,14 @@
 import React from 'react';
 import { Card, CardContent, Box, Typography } from '@mui/material';
-import AccessTimeIcon from '@mui/icons-material/AccessTime'; // ⏱️
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useDailyStatsState } from '../context/dailyStatsContext';
+import { useHistoricalStats } from '../context/historicalStatsContext';
 import { formatMinutesToHoursPretty } from '../utils/js/minutosToHourMinutes';
 
+// ✅ Componente base reutilizable
+function AverageResolutionTimeCard({ avgMinutes }) {
+  const averageTime = formatMinutesToHoursPretty(avgMinutes || 0);
 
-export default function AverageResolutionTime() {
-  //const averageTime = '2h 14m';
-  const { daily_statistics } = useDailyStatsState();
-  const globalStats = daily_statistics?.globalStats || [];
-
-  const averageTime = formatMinutesToHoursPretty(globalStats.avgResolutionTimeMins)
   return (
     <Box sx={{ width: 350 }}>
       <Card
@@ -45,7 +43,6 @@ export default function AverageResolutionTime() {
             Average Resolution Time
           </Typography>
 
-          {/* Número envuelto para controlar hover */}
           <Box>
             <Typography
               variant="h4"
@@ -57,7 +54,6 @@ export default function AverageResolutionTime() {
           </Box>
         </CardContent>
 
-        {/* Ícono del reloj con clase para animación */}
         <AccessTimeIcon
           className="clock-icon"
           sx={{
@@ -76,3 +72,19 @@ export default function AverageResolutionTime() {
     </Box>
   );
 }
+
+// ✅ Wrapper para Daily Stats
+export function DailyAverageResolutionTime() {
+  const { daily_statistics } = useDailyStatsState();
+  const avgMinutes = daily_statistics?.globalStats?.avgResolutionTimeMins || 0;
+  return <AverageResolutionTimeCard avgMinutes={avgMinutes} />;
+}
+
+// ✅ Wrapper para Historical Stats
+export function HistoricalAverageResolutionTime() {
+  const { stateStats } = useHistoricalStats();
+  const avgMinutes = stateStats?.historic_globalStats?.avgResolutionTimeMins || 0;
+  return <AverageResolutionTimeCard avgMinutes={avgMinutes} />;
+}
+
+export default AverageResolutionTimeCard;
