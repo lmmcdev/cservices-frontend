@@ -9,6 +9,8 @@ import {
   Card,
   CardContent,
   Chip,
+  Stack,
+  InputAdornment
 } from '@mui/material';
 import { useMsal } from '@azure/msal-react';
 
@@ -35,7 +37,9 @@ import { HistoricalAverageResolutionTime } from '../components/averageResolution
 import { HistoricalTopPerformerCard } from '../components/topPerformerCard';
 import StatusTicketsCard from '../components/ticketsByStatusBoard.js';
 import { getTicketsByStatus, getTicketsByIds } from '../utils/apiStats';
-
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import SearchIcon from '@mui/icons-material/Search';
+import FloatingSettingsButton from '../components/components/floatingSettingsButton.jsx';
 
 
 const HistoricStatistics = () => {
@@ -138,24 +142,55 @@ const HistoricStatistics = () => {
    
   return (
     <>
-      <Typography variant="h5" mb={3}>
-        Estadísticas Históricas
-      </Typography>
-
-      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+      <FloatingSettingsButton />
+      <Box sx={{ p: 2 }}>
+      <Stack direction="row" spacing={2} alignItems="center">
         <TextField
-          label="Fecha"
           type="date"
+          label="Seleccionar fecha"
           value={date}
           onChange={(e) => setDate(e.target.value)}
           InputLabelProps={{ shrink: true }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <CalendarTodayIcon sx={{ color: '#00a1ff' }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            '& .MuiInputBase-root': {
+              borderRadius: '8px',
+              backgroundColor: '#fff',
+            },
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#00a1ff',
+            },
+            '&:hover .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#0080cc',
+            },
+          }}
         />
-        <Button variant="contained" onClick={handleFetch}>
+        <Button
+          variant="contained"
+          startIcon={<SearchIcon />}
+          onClick={handleFetch}
+          sx={{
+            backgroundColor: '#00a1ff',
+            textTransform: 'none',
+            borderRadius: '8px',
+            px: 3,
+            '&:hover': {
+              backgroundColor: '#0080cc',
+            },
+          }}
+        >
           Buscar
         </Button>
+        </Stack>
       </Box>
 
-      <Grid container spacing={2} mb={4} ml={4}>
+      <Grid container spacing={2} mb={4} ml={2}>
         {loading && <CircularProgress sx={{ my: 4 }} />}
 
         {!loading &&
@@ -255,7 +290,7 @@ const HistoricStatistics = () => {
         </Grid>
 
 
-      <Grid container spacing={2} mb={2} ml={4}>
+      <Grid container spacing={2} mb={2} ml={2}>
 
         <Grid size={4}>
           <HistoricalTopAgents />

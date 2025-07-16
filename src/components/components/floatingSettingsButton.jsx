@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Fab, Tooltip } from '@mui/material';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
-import FloatingSettingsPopover from '../components/floatingSettingsPopover';
+import FloatingSettingsPopover from './floatingSettingsPopover';
 
-export default function FloatingSettingsButton({ date, onDateChange }) {
+export default function FloatingSettingsButton() {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const handleToggle = (event) => {
@@ -16,7 +16,7 @@ export default function FloatingSettingsButton({ date, onDateChange }) {
 
   return (
     <>
-      <Tooltip title="Customize">
+      <Tooltip title="Menú de navegación">
         <Fab
           onClick={handleToggle}
           sx={{
@@ -39,8 +39,6 @@ export default function FloatingSettingsButton({ date, onDateChange }) {
       <FloatingSettingsPopover
         anchorEl={anchorEl}
         onClose={handleClose}
-        date={date}
-        onDateChange={onDateChange}
       />
     </>
   );

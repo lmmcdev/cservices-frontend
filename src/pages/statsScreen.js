@@ -14,7 +14,6 @@ import {
 } from '@mui/material';
 import { getStatusColor } from '../utils/js/statusColors';
 import RightDrawer from '../components/rightDrawer';
-import { useNavigate } from 'react-router-dom';
 
 import { DailyCallsByHour } from '../components/callsByHourChart';
 import ActiveAgents from '../components/activeAgents.jsx';
@@ -53,11 +52,7 @@ export default function StatsScreen() {
   const time = Date.now();
   const today = new Date(time);
   const selectedDate = today.toLocaleDateString();
-  const navigate = useNavigate();
-
-  const handleClick = () => {
-    navigate('/historical_statistics');
-  };
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -134,11 +129,7 @@ export default function StatsScreen() {
 
   return (
     <>
-    <FloatingSettingsButton/>
-        <Button variant="contained" onClick={handleClick} sx={{ m: 2 }}>
-          Historic
-        </Button>
-     
+    <FloatingSettingsButton/>     
       <Box
         sx={{
           display: 'flex',
