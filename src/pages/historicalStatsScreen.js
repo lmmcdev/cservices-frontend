@@ -27,14 +27,15 @@ import { HistoricalTopAgents } from '../components/topAgentsSection';
 import { HistoricalCallsByHour } from '../components/callsByHourChart';
 import { HistoricalTicketRiskChart } from '../components/ticketsRiskChart';
 import IdsTicketsCard from '../components/ticketsByIdsBoard';
-import { getTicketsByIds } from '../utils/apiStats';
 import { HistoricalTicketCategoriesChart } from '../components/ticketsCategoriesChart';
 import { HistoricalTicketPriorityChart } from '../components/ticketsPriorityChart';
-import TopPerformerCard from '../components/topPerformerCard';
 import ActiveAgents from '../components/activeAgents.jsx';
 import CustomerSatisfaction from '../components/customerSatisfaction.jsx';
 import { HistoricalAverageResolutionTime } from '../components/averageResolutionTime';
 import { HistoricalTopPerformerCard } from '../components/topPerformerCard';
+import StatusTicketsCard from '../components/ticketsByStatusBoard.js';
+import { getTicketsByStatus, getTicketsByIds } from '../utils/apiStats';
+
 
 
 const HistoricStatistics = () => {
@@ -50,10 +51,9 @@ const HistoricStatistics = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [date, setDate] = useState('');
   const [loading, setLoading] = useState(false);
-  const [, setSelectedStatus] = useState(null);
   const [accessTokenMSAL, setAccessTokenMSAL] = useState(null);
-    const [selectedTicketIds, setSelectedTicketIds] = useState([]);
-  
+  const [selectedTicketIds, setSelectedTicketIds] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState(null);
 
   const [drawerStatus, setDrawerStatus] = useState('');
   const [drawerTickets, setDrawerTickets] = useState([]);
@@ -279,13 +279,22 @@ const filteredSortedAgents = useMemo(() => {
       </Grid>
 
 
-<IdsTicketsCard
-              onOpenDrawer={handleOpenDrawer}
-              accessToken={accessTokenMSAL}
-              ids={selectedTicketIds}
-              getTicketsByIds={getTicketsByIds}
-              status={drawerStatus} // 👈 importante!
-          />
+      <StatusTicketsCard
+        onOpenDrawer={handleOpenDrawer}
+        status={selectedStatus}
+        accessToken={accessTokenMSAL}
+        getTicketsByStatus={getTicketsByStatus}
+        date={date}
+      />
+
+      <IdsTicketsCard
+        onOpenDrawer={handleOpenDrawer}
+        accessToken={accessTokenMSAL}
+        ids={selectedTicketIds}
+        getTicketsByIds={getTicketsByIds}
+        status={drawerStatus} // 👈 importante!
+      />
+      
       <RightDrawer
         open={drawerOpen}
         onClose={handleCloseDrawer}

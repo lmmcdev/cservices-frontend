@@ -10,7 +10,11 @@ const formatName = email => email?.split('@')[0] || 'Unknown';
 // ✅ Componente Base reutilizable
 function TopPerformerCardBase({ agentStats = [], title }) {
   const topAgent = useMemo(() => {
-    if (!agentStats || agentStats.length === 0) return null;
+    if (!agentStats || agentStats.length === 0) agentStats = [{
+        "agentEmail": "no agent detected",
+        "avgResolutionTimeMins": 0,
+        "resolvedCount": 0
+    }];
 
     const sorted = [...agentStats].sort((a, b) => {
       if (b.resolvedCount === a.resolvedCount) {
@@ -58,7 +62,7 @@ function TopPerformerCardBase({ agentStats = [], title }) {
     >
       <CardContent sx={{ flex: 1 }}>
         <Typography variant="h6" fontWeight="bold" sx={{ mb: 0.5 }}>
-          Congratulations {formatName(topAgent.agentEmail)}! 🎉
+          {formatName(topAgent.agentEmail)}! 🎉
         </Typography>
         <Typography variant="subtitle2" sx={{ mb: 2, fontSize: '1rem', color: '#666' }}>
           {title}
