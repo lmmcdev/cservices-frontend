@@ -1,7 +1,7 @@
 // src/pages/statsScreen.js
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useStatsState, useFetchStatistics } from '../context/statsContext';
-import { useDoneStatsState, useDoneFetchStatistics } from '../context/doneTicketsContext';
+import { useDoneFetchStatistics } from '../context/doneTicketsContext';
 import { useMsal } from '@azure/msal-react';
 import {
   Box,
@@ -10,11 +10,9 @@ import {
   Typography,
   Grid,
   Chip,
-  Button,
 } from '@mui/material';
 import { getStatusColor } from '../utils/js/statusColors';
 import RightDrawer from '../components/rightDrawer';
-import { useNavigate } from 'react-router-dom';
 
 import { DailyCallsByHour } from '../components/callsByHourChart';
 import ActiveAgents from '../components/activeAgents.jsx';
@@ -34,7 +32,7 @@ import FloatingSettingsButton from '../components/components/floatingSettingsBut
 export default function StatsScreen() {
   const state = useStatsState();
   const fetchStatistics = useFetchStatistics();
-  const doneState = useDoneStatsState();
+  //const doneState = useDoneStatsState();
   const fetchDoneStats = useDoneFetchStatistics();
 
   const { accounts, instance } = useMsal();
@@ -45,7 +43,7 @@ export default function StatsScreen() {
   const [drawerTickets, setDrawerTickets] = useState([]);
 
   const [selectedStatus, setSelectedStatus] = useState(null);
-  const [minCalls] = useState(0);
+  //const [minCalls] = useState(0);
   const [accessTokenMSAL, setAccessTokenMSAL] = useState(null);
   const [selectedTicketIds, setSelectedTicketIds] = useState([]);
 
@@ -53,11 +51,7 @@ export default function StatsScreen() {
   const time = Date.now();
   const today = new Date(time);
   const selectedDate = today.toLocaleDateString();
-  const navigate = useNavigate();
-
-  const handleClick = () => {
-    navigate('/historical_statistics');
-  };
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -118,27 +112,23 @@ export default function StatsScreen() {
 
   const statistics = state.statistics || {};
 
-  const doneStatistics = doneState.closedTickets_statistics || {};
+  //const doneStatistics = doneState.closedTickets_statistics || {};
   const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
-  const transformed = doneStatistics.map((item, index) => ({
+  /*const transformed = doneStatistics.map((item, index) => ({
     id: index + 1,
     name: item.agent_assigned,
     callsAttended: item.resolvedCount,
-  }));
+  }));*/
 
-  const filteredSortedAgents = useMemo(() => {
+  /*const filteredSortedAgents = useMemo(() => {
     return transformed
       .filter(agent => agent.callsAttended >= minCalls)
       .sort((a, b) => b.callsAttended - a.callsAttended);
-  }, [transformed, minCalls]);
+  }, [transformed, minCalls]);*/
 
   return (
     <>
-    <FloatingSettingsButton/>
-        <Button variant="contained" onClick={handleClick} sx={{ m: 2 }}>
-          Historic
-        </Button>
-     
+    <FloatingSettingsButton/>     
       <Box
         sx={{
           display: 'flex',

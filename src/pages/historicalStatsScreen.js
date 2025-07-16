@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Button,
@@ -9,6 +9,8 @@ import {
   Card,
   CardContent,
   Chip,
+  Stack,
+  InputAdornment
 } from '@mui/material';
 import { useMsal } from '@azure/msal-react';
 
@@ -19,7 +21,7 @@ import {
 import {
   useHistoricalDoneFetchStatistics,
 } from '../context/doneHistoricalTicketsContext';
-import { useDoneStatsState } from '../context/doneTicketsContext';
+//import { useDoneStatsState } from '../context/doneTicketsContext';
 
 import RightDrawer from '../components/rightDrawer';
 import { getStatusColor } from '../utils/js/statusColors';
@@ -27,14 +29,17 @@ import { HistoricalTopAgents } from '../components/topAgentsSection';
 import { HistoricalCallsByHour } from '../components/callsByHourChart';
 import { HistoricalTicketRiskChart } from '../components/ticketsRiskChart';
 import IdsTicketsCard from '../components/ticketsByIdsBoard';
-import { getTicketsByIds } from '../utils/apiStats';
 import { HistoricalTicketCategoriesChart } from '../components/ticketsCategoriesChart';
 import { HistoricalTicketPriorityChart } from '../components/ticketsPriorityChart';
-import TopPerformerCard from '../components/topPerformerCard';
 import ActiveAgents from '../components/activeAgents.jsx';
 import CustomerSatisfaction from '../components/customerSatisfaction.jsx';
 import { HistoricalAverageResolutionTime } from '../components/averageResolutionTime';
 import { HistoricalTopPerformerCard } from '../components/topPerformerCard';
+import StatusTicketsCard from '../components/ticketsByStatusBoard.js';
+import { getTicketsByStatus, getTicketsByIds } from '../utils/apiStats';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
+import SearchIcon from '@mui/icons-material/Search';
+import FloatingSettingsButton from '../components/components/floatingSettingsButton.jsx';
 
 
 const HistoricStatistics = () => {
@@ -42,18 +47,17 @@ const HistoricStatistics = () => {
 
   const { state } = useHistoricalStats();
   const fetchAllHistoricalStats = useFetchAllHistoricalStatistics();
-  const doneState = useDoneStatsState();
-  const [minCalls] = useState(0);
+  //const doneState = useDoneStatsState();
+  //const [minCalls] = useState(0);
 
   const fetchHistoricalDoneTickets = useHistoricalDoneFetchStatistics();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [date, setDate] = useState('');
   const [loading, setLoading] = useState(false);
-  const [, setSelectedStatus] = useState(null);
   const [accessTokenMSAL, setAccessTokenMSAL] = useState(null);
-    const [selectedTicketIds, setSelectedTicketIds] = useState([]);
-  
+  const [selectedTicketIds, setSelectedTicketIds] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState(null);
 
   const [drawerStatus, setDrawerStatus] = useState('');
   const [drawerTickets, setDrawerTickets] = useState([]);
@@ -119,43 +123,78 @@ const HistoricStatistics = () => {
 
   
 
+  const defaultStatuses = ['New', 'In Progress', 'Pending', 'Done', 'Emergency', 'Duplicated'];
+  //const doneStatistics = doneState.closedTickets_statistics || {};
   const statistics = state.historical_statistics || {};
+  const entries = defaultStatuses.map((status) => [
+    status,
+    statistics[status] || 0,
+  ]);
+  //const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
 
-  const doneStatistics = doneState.closedTickets_statistics || {};
-  const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
-
-  const transformed = doneStatistics.map((item, index) => ({
+  /*const transformed = doneStatistics.map((item, index) => ({
     id: index + 1,
     name: item.agent_assigned,
     callsAttended: item.resolvedCount,
-  }));
+  }));*/
 
-const filteredSortedAgents = useMemo(() => {
+/*const filteredSortedAgents = useMemo(() => {
     return transformed
       .filter(agent => agent.callsAttended >= minCalls)
       .sort((a, b) => b.callsAttended - a.callsAttended);
-  }, [transformed, minCalls]);
+  }, [transformed, minCalls]);*/
    
   return (
     <>
-      <Typography variant="h5" mb={3}>
-        Estadísticas Históricas
-      </Typography>
-
-      <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+      <FloatingSettingsButton />
+      <Box sx={{ p: 2 }}>
+      <Stack direction="row" spacing={2} alignItems="center">
         <TextField
-          label="Fecha"
           type="date"
+          label="Seleccionar fecha"
           value={date}
           onChange={(e) => setDate(e.target.value)}
           InputLabelProps={{ shrink: true }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <CalendarTodayIcon sx={{ color: '#00a1ff' }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            '& .MuiInputBase-root': {
+              borderRadius: '8px',
+              backgroundColor: '#fff',
+            },
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#00a1ff',
+            },
+            '&:hover .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#0080cc',
+            },
+          }}
         />
-        <Button variant="contained" onClick={handleFetch}>
-          Buscar
+        <Button
+          variant="contained"
+          startIcon={<SearchIcon />}
+          onClick={handleFetch}
+          sx={{
+            backgroundColor: '#00a1ff',
+            textTransform: 'none',
+            borderRadius: '8px',
+            px: 3,
+            '&:hover': {
+              backgroundColor: '#0080cc',
+            },
+          }}
+        >
+          Search
         </Button>
+        </Stack>
       </Box>
 
-      <Grid container spacing={2} mb={4} ml={4}>
+      <Grid container spacing={2} mb={4} ml={2}>
         {loading && <CircularProgress sx={{ my: 4 }} />}
 
         {!loading &&
@@ -203,11 +242,11 @@ const filteredSortedAgents = useMemo(() => {
       </Grid>
 
       <Grid container spacing={2} mb={2} ml={2}>
-        <Grid item xs={5}>
+        <Grid item xs={2}>
           <HistoricalTopPerformerCard />
         </Grid>
 
-        <Grid item xs={3}>
+        <Grid item xs={2}>
           <CustomerSatisfaction />
         </Grid>
 
@@ -218,44 +257,11 @@ const filteredSortedAgents = useMemo(() => {
         <Grid item xs={2}>
           <ActiveAgents />
         </Grid>
-        <Grid item sx={{ flexGrow: 1 }}>
-          <Box sx={{ width: '100%' }}>
-            <Card
-              sx={{
-                borderRadius: 3,
-                height: 270,
-                width: '100%',
-                position: 'relative',
-                overflow: 'hidden',
-                backgroundColor: '#fff',
-                boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
-              }}
-            >
-              <CardContent
-                sx={{
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  position: 'relative',
-                  zIndex: 1,
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  sx={{ color: '#999', letterSpacing: 1, mb: 1 }}
-                >
-                  No Data Available
-                </Typography>
-              </CardContent>
-            </Card>
-          </Box>
-        </Grid>
+        
         </Grid>
 
 
-      <Grid container spacing={2} mb={2} ml={4}>
+      <Grid container spacing={2} mb={2} ml={2}>
 
         <Grid size={4}>
           <HistoricalTopAgents />
@@ -279,13 +285,22 @@ const filteredSortedAgents = useMemo(() => {
       </Grid>
 
 
-<IdsTicketsCard
-              onOpenDrawer={handleOpenDrawer}
-              accessToken={accessTokenMSAL}
-              ids={selectedTicketIds}
-              getTicketsByIds={getTicketsByIds}
-              status={drawerStatus} // 👈 importante!
-          />
+      <StatusTicketsCard
+        onOpenDrawer={handleOpenDrawer}
+        status={selectedStatus}
+        accessToken={accessTokenMSAL}
+        getTicketsByStatus={getTicketsByStatus}
+        date={date}
+      />
+
+      <IdsTicketsCard
+        onOpenDrawer={handleOpenDrawer}
+        accessToken={accessTokenMSAL}
+        ids={selectedTicketIds}
+        getTicketsByIds={getTicketsByIds}
+        status={drawerStatus} // 👈 importante!
+      />
+
       <RightDrawer
         open={drawerOpen}
         onClose={handleCloseDrawer}

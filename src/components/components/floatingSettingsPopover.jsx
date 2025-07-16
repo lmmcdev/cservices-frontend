@@ -1,75 +1,73 @@
-import React, { useState } from 'react';
-import { Fab, Tooltip, Popover, Box, Typography, TextField } from '@mui/material';
-import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
+import React from 'react';
+import {
+  Popover,
+  Box,
+  Typography,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText
+} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { useAgents } from '../../context/agentsContext';
+import { useAuth } from '../../context/authContext';
+import { icons } from '../auxiliars/icons';
 
-export default function FloatingSettingsButton() {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [fakeDate, setFakeDate] = useState('');
-
-  const handleOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-    setFakeDate('');
-  };
-
+export default function FloatingSettingsPopover({ anchorEl, onClose }) {
   const open = Boolean(anchorEl);
+  const id = open ? 'floating-settings-popover' : undefined;
+
+  const navigate = useNavigate();
+  const { state: allAgents } = useAgents();
+  const { user } = useAuth();
+
+  const agents = allAgents.agents;
+  const supEmail = user?.username;
+  const currentAgent = agents.find(a => a.agent_email === supEmail);
+
+  // 👉 Mismos items del sidebar
+  const navItems = [
+    { icon: <icons.dashboard style={{ fontSize: 22 }} />, label: 'Today Statistics', path: '/statistics', roles: ['Supervisor'] },
+    {icon: <icons.dashboard style={{ fontSize: 22 }} />, label: 'Daily Statistics', path: '/historical_statistics', roles: ['Supervisor'] },
+    { icon: <icons.callLogs style={{ fontSize: 22 }} />, label: 'Call Logs', path: '/dashboard', roles: ['Agent', 'Customer Service', 'Switchboard', 'Supervisor'] },
+    { icon: <icons.team style={{ fontSize: 22 }} />, label: 'Team', path: '/agents', roles: ['Supervisor'] },
+    { icon: <icons.searchIcon style={{ fontSize: 22 }} />, label: 'Find', path: '/profile-search', roles: ['Supervisor'] },
+  ];
+
+  const filteredItems = navItems.filter(item =>
+    item.roles.includes(currentAgent?.agent_rol)
+  );
+
+  const handleNavigate = (path) => {
+    navigate(path);
+    onClose();
+  };
 
   return (
-    <>
-      <Tooltip title="Customize">
-        <Fab
-          onClick={handleOpen}
-          sx={{
-            position: 'fixed',
-            bottom: 30,
-            right: 30,
-            backgroundColor: '#00a1ff',
-            color: '#fff',
-            boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.2)',
-            zIndex: 2000,
-            '&:hover': {
-              backgroundColor: '#0080cc',
-            },
-          }}
-        >
-          <AppRegistrationIcon />
-        </Fab>
-      </Tooltip>
+    <Popover
+      id={id}
+      open={open}
+      anchorEl={anchorEl}
+      onClose={onClose}
+      anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+      transformOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      PaperProps={{ sx: { p: 2, borderRadius: 3, width: 250 } }}
+    >
+      <Box>
+        <Typography variant="h6" sx={{ mb: 2 }}>Menú rápido</Typography>
 
-      <Popover
-        open={open}
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-        transformOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        PaperProps={{
-          sx: {
-            p: 2,
-            width: 250,
-            borderRadius: 3,
-            mt: 1,
-          },
-        }}
-      >
-        <Typography variant="subtitle1" sx={{ mb: 1 }}>
-          Select Date
-        </Typography>
-        <TextField
-          type="date"
-          value={fakeDate}
-          onChange={(e) => setFakeDate(e.target.value)}
-          fullWidth
-        />
-      </Popover>
-    </>
+        <List>
+          {filteredItems.map(({ icon, label, path }) => (
+            <ListItem disablePadding key={label}>
+              <ListItemButton onClick={() => handleNavigate(path)}>
+                <ListItemIcon>{icon}</ListItemIcon>
+                <ListItemText primary={label} />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+    </Popover>
   );
 }
