@@ -16,7 +16,6 @@ import { getStatusColor } from '../utils/js/statusColors';
 import RightDrawer from '../components/rightDrawer';
 import { useNavigate } from 'react-router-dom';
 
-import TopPerformerCard from '../components/topPerformerCard';
 import { DailyCallsByHour } from '../components/callsByHourChart';
 import ActiveAgents from '../components/activeAgents.jsx';
 import CustomerSatisfaction from '../components/customerSatisfaction.jsx';
@@ -28,6 +27,7 @@ import { DailyTopAgents } from '../components/topAgentsSection';
 import { DailyTicketCategoriesChart } from '../components/ticketsCategoriesChart.jsx';
 import { DailyTicketPriorityChart } from '../components/ticketsPriorityChart.jsx';
 import { DailyAverageResolutionTime } from '../components/averageResolutionTime';
+import { DailyTopPerformerCard } from '../components/topPerformerCard';
 
 import FloatingSettingsButton from '../components/components/floatingSettingsButton';
 
@@ -200,13 +200,7 @@ export default function StatsScreen() {
 
       <Grid container spacing={2} mb={2} ml={4}>
         <Grid item xs={5}>
-          <TopPerformerCard
-            agents={filteredSortedAgents.map(agent => ({
-              ...agent,
-              cases: agent.callsAttended,
-              avgTime: '1h 12m'
-            }))}
-          />
+          <DailyTopPerformerCard />
         </Grid>
 
         <Grid item xs={3}>
