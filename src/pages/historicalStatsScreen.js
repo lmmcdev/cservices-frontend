@@ -238,11 +238,11 @@ const HistoricStatistics = () => {
       </Grid>
 
       <Grid container spacing={2} mb={2} ml={2}>
-        <Grid item xs={5}>
+        <Grid item xs={2}>
           <HistoricalTopPerformerCard />
         </Grid>
 
-        <Grid item xs={3}>
+        <Grid item xs={2}>
           <CustomerSatisfaction />
         </Grid>
 
@@ -253,40 +253,7 @@ const HistoricStatistics = () => {
         <Grid item xs={2}>
           <ActiveAgents />
         </Grid>
-        <Grid item sx={{ flexGrow: 1 }}>
-          <Box sx={{ width: '100%' }}>
-            <Card
-              sx={{
-                borderRadius: 3,
-                height: 270,
-                width: '100%',
-                position: 'relative',
-                overflow: 'hidden',
-                backgroundColor: '#fff',
-                boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
-              }}
-            >
-              <CardContent
-                sx={{
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  position: 'relative',
-                  zIndex: 1,
-                }}
-              >
-                <Typography
-                  variant="body2"
-                  sx={{ color: '#999', letterSpacing: 1, mb: 1 }}
-                >
-                  No Data Available
-                </Typography>
-              </CardContent>
-            </Card>
-          </Box>
-        </Grid>
+        
         </Grid>
 
 
