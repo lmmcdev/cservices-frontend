@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Button,
@@ -19,7 +19,7 @@ import {
 import {
   useHistoricalDoneFetchStatistics,
 } from '../context/doneHistoricalTicketsContext';
-import { useDoneStatsState } from '../context/doneTicketsContext';
+//import { useDoneStatsState } from '../context/doneTicketsContext';
 
 import RightDrawer from '../components/rightDrawer';
 import { getStatusColor } from '../utils/js/statusColors';
@@ -43,8 +43,8 @@ const HistoricStatistics = () => {
 
   const { state } = useHistoricalStats();
   const fetchAllHistoricalStats = useFetchAllHistoricalStatistics();
-  const doneState = useDoneStatsState();
-  const [minCalls] = useState(0);
+  //const doneState = useDoneStatsState();
+  //const [minCalls] = useState(0);
 
   const fetchHistoricalDoneTickets = useHistoricalDoneFetchStatistics();
 
@@ -121,20 +121,20 @@ const HistoricStatistics = () => {
 
   const statistics = state.historical_statistics || {};
 
-  const doneStatistics = doneState.closedTickets_statistics || {};
+  //const doneStatistics = doneState.closedTickets_statistics || {};
   const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
 
-  const transformed = doneStatistics.map((item, index) => ({
+  /*const transformed = doneStatistics.map((item, index) => ({
     id: index + 1,
     name: item.agent_assigned,
     callsAttended: item.resolvedCount,
-  }));
+  }));*/
 
-const filteredSortedAgents = useMemo(() => {
+/*const filteredSortedAgents = useMemo(() => {
     return transformed
       .filter(agent => agent.callsAttended >= minCalls)
       .sort((a, b) => b.callsAttended - a.callsAttended);
-  }, [transformed, minCalls]);
+  }, [transformed, minCalls]);*/
    
   return (
     <>
@@ -294,7 +294,7 @@ const filteredSortedAgents = useMemo(() => {
         getTicketsByIds={getTicketsByIds}
         status={drawerStatus} // 👈 importante!
       />
-      
+
       <RightDrawer
         open={drawerOpen}
         onClose={handleCloseDrawer}

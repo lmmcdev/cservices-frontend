@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Fab, Tooltip, Popover, Box, Typography, TextField } from '@mui/material';
+import { Fab, Tooltip, Popover, Typography, TextField } from '@mui/material';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 
 export default function FloatingSettingsButton() {

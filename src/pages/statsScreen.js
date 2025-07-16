@@ -1,7 +1,7 @@
 // src/pages/statsScreen.js
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useStatsState, useFetchStatistics } from '../context/statsContext';
-import { useDoneStatsState, useDoneFetchStatistics } from '../context/doneTicketsContext';
+import { useDoneFetchStatistics } from '../context/doneTicketsContext';
 import { useMsal } from '@azure/msal-react';
 import {
   Box,
@@ -34,7 +34,7 @@ import FloatingSettingsButton from '../components/components/floatingSettingsBut
 export default function StatsScreen() {
   const state = useStatsState();
   const fetchStatistics = useFetchStatistics();
-  const doneState = useDoneStatsState();
+  //const doneState = useDoneStatsState();
   const fetchDoneStats = useDoneFetchStatistics();
 
   const { accounts, instance } = useMsal();
@@ -45,7 +45,7 @@ export default function StatsScreen() {
   const [drawerTickets, setDrawerTickets] = useState([]);
 
   const [selectedStatus, setSelectedStatus] = useState(null);
-  const [minCalls] = useState(0);
+  //const [minCalls] = useState(0);
   const [accessTokenMSAL, setAccessTokenMSAL] = useState(null);
   const [selectedTicketIds, setSelectedTicketIds] = useState([]);
 
@@ -118,19 +118,19 @@ export default function StatsScreen() {
 
   const statistics = state.statistics || {};
 
-  const doneStatistics = doneState.closedTickets_statistics || {};
+  //const doneStatistics = doneState.closedTickets_statistics || {};
   const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
-  const transformed = doneStatistics.map((item, index) => ({
+  /*const transformed = doneStatistics.map((item, index) => ({
     id: index + 1,
     name: item.agent_assigned,
     callsAttended: item.resolvedCount,
-  }));
+  }));*/
 
-  const filteredSortedAgents = useMemo(() => {
+  /*const filteredSortedAgents = useMemo(() => {
     return transformed
       .filter(agent => agent.callsAttended >= minCalls)
       .sort((a, b) => b.callsAttended - a.callsAttended);
-  }, [transformed, minCalls]);
+  }, [transformed, minCalls]);*/
 
   return (
     <>
