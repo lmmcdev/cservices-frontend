@@ -231,7 +231,7 @@ export default function EditTicket() {
           bottom: 20,
           display: 'flex',
           flexDirection: 'column',
-          overflow: 'hidden',
+          overflow: 'auto',
           borderRadius: 4,
           p: 4,
           backgroundColor: '#fff',
