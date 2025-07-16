@@ -25,7 +25,6 @@ export default function RightDrawer({ open, onClose, status, tickets = [] }) {
     setSelectedTicket(null);
   };
 
-  const color = getStatusColor(status?.toLowerCase?.() || '');
 
   return (
     <Box
