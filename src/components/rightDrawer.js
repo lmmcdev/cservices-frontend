@@ -25,7 +25,7 @@ export default function RightDrawer({ open, onClose, status, tickets = [] }) {
     setSelectedTicket(null);
   };
 
-  //const color = getStatusColor(status?.toLowerCase?.() || '');
+  const color = getStatusColor(status?.toLowerCase?.() || '');
 
   return (
     <Box
@@ -64,7 +64,6 @@ export default function RightDrawer({ open, onClose, status, tickets = [] }) {
             {status} — {tickets.length} Ticket{tickets.length !== 1 ? 's' : ''}
           </Typography>
         </Box>
-
         <IconButton onClick={onClose}>
           <CloseIcon />
         </IconButton>

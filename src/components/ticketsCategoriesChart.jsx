@@ -52,7 +52,7 @@ const CustomTooltip = ({ active, payload, label }) => {
         {label}
       </Typography>
       <Typography fontSize={14}>
-        Tickets: {value}
+        Calls: {value}
       </Typography>
       <Typography fontSize={13} color="text.secondary">
         {percent.toFixed(1)}%
@@ -90,7 +90,16 @@ function TicketCategoriesChartBase({ stats, onCategoryClick }) {
   };
 
   return (
-    <Box>
+    <Box
+      sx={{
+        '& .recharts-tooltip-cursor': {
+          fill: 'transparent !important',
+        },
+        '& .recharts-bar-rectangle:hover': {
+          filter: 'brightness(1.1)',
+        },
+      }}
+    >
       <Card
         sx={{
           borderRadius: 3,

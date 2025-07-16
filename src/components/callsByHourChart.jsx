@@ -35,31 +35,34 @@ const animations = `
 const CustomTooltip = ({ active, payload, label, maxCalls, minCalls }) => {
   if (active && payload && payload.length) {
     const value = payload[0].value;
-    const isMax = value === maxCalls;
-    const isMin = value === minCalls;
+
+    // Verifica si es la primera ocurrencia del max o min
+    const currentIndex = payload[0].payload.index;
+    const isFirstMax = value === maxCalls && currentIndex === payload[0].payload.firstMaxIndex;
+    const isFirstMin = value === minCalls && currentIndex === payload[0].payload.firstMinIndex;
 
     return (
       <Box
         sx={{
-          background: isMax
+          background: isFirstMax
             ? 'linear-gradient(300deg, #ff3c00 20%, #ff9a00 100%)'
-            : isMin
+            : isFirstMin
             ? 'linear-gradient(300deg, #4a148c 20%, #7b1fa2 100%)'
             : '#fff',
-          color: isMax || isMin ? '#fff' : '#000',
+          color: isFirstMax || isFirstMin ? '#fff' : '#000',
           border: '1px solid #ccc',
           borderRadius: 2,
           padding: 2,
           minWidth: 120,
           position: 'relative',
-          boxShadow: isMax
+          boxShadow: isFirstMax
             ? '0 0 10px rgba(255, 60, 0, 0.6)'
-            : isMin
+            : isFirstMin
             ? '0 0 10px rgba(123, 31, 162, 0.4)'
             : 'none',
-          animation: isMax
+          animation: isFirstMax
             ? 'burn 0.5s infinite alternate'
-            : isMin
+            : isFirstMin
             ? 'zzz 2s infinite ease-in-out'
             : 'none',
         }}
@@ -67,7 +70,7 @@ const CustomTooltip = ({ active, payload, label, maxCalls, minCalls }) => {
         <Typography fontWeight="bold">{label}</Typography>
         <Typography fontSize={14}>Calls: {value}</Typography>
 
-        {isMax && (
+        {isFirstMax && (
           <Box
             sx={{
               position: 'absolute',
@@ -81,7 +84,7 @@ const CustomTooltip = ({ active, payload, label, maxCalls, minCalls }) => {
           </Box>
         )}
 
-        {isMin && (
+        {isFirstMin && (
           <Box
             sx={{
               position: 'absolute',
@@ -132,6 +135,17 @@ export default function CallsByHourChart({ stats }) {
   const maxCalls = callsArray.length ? Math.max(...callsArray) : 0;
   const minCalls = callsArray.length ? Math.min(...callsArray) : 0;
 
+  const firstMaxIndex = hourlyData.findIndex(d => d.calls === maxCalls);
+const firstMinIndex = hourlyData.findIndex(d => d.calls === minCalls);
+
+const hourlyDataWithIndexes = hourlyData.map((d, index) => ({
+  ...d,
+  index,
+  firstMaxIndex,
+  firstMinIndex,
+}));
+
+
   return (
     <>
       <style>{animations}</style>
@@ -147,7 +161,7 @@ export default function CallsByHourChart({ stats }) {
             </Typography>
             <ResponsiveContainer width="100%" height={400}>
               <AreaChart
-                data={hourlyData}
+                data={hourlyDataWithIndexes}
                 margin={{ top: 30, right: 60, left: 60, bottom: 10 }}
               >
                 <defs>

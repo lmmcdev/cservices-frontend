@@ -17,6 +17,7 @@
     "@mui/styled-engine-sc": "^7.1.0",
     "@mui/x-data-grid": "^8.4.0",
     "@mui/x-date-pickers": "^8.4.0",
+    "@react-spring/web": "^10.0.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",

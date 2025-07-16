@@ -16,6 +16,7 @@ import {
 } from 'recharts';
 import { useDailyStatsState } from '../context/dailyStatsContext';
 import { useHistoricalStats } from '../context/historicalStatsContext';
+import { LabelList } from 'recharts';
 
 const COLORS = [
   '#00b8a3',
@@ -56,8 +57,42 @@ export default function TicketRiskChart({ stats, onCategoryClick }) {
     }
   };
 
+  const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload || !payload.length) return null;
+
+  const { name, value } = payload[0].payload;
+
   return (
-    <Box>
+    <Box
+      sx={{
+        backgroundColor: '#fff',
+        border: '1px solid #ccc',
+        borderRadius: '8px',
+        padding: '8px 12px',
+        boxShadow: 3,
+      }}
+    >
+      <Typography variant="subtitle2" fontWeight="bold">
+        {name}
+      </Typography>
+      <Typography variant="body2" color="text.secondary">
+        Calls: {value}
+      </Typography>
+    </Box>
+  );
+};
+
+  return (
+    <Box
+      sx={{
+        '& .recharts-tooltip-cursor': {
+          fill: 'transparent !important',
+        },
+        '& .recharts-bar-rectangle:hover': {
+          filter: 'brightness(1.1)',
+        },
+      }}
+    >
       <Card
         sx={{
           borderRadius: 3,
@@ -74,12 +109,21 @@ export default function TicketRiskChart({ stats, onCategoryClick }) {
           <ResponsiveContainer width="100%" height={400}>
             <BarChart
               data={dataRisks}
-              margin={{ top: 20, right: 30, left: 30, bottom: 40 }}
+              margin={{ top: 40, right: 30, left: 30, bottom: 20 }}
             >
               <XAxis type="category" dataKey="name" tick={{ fontSize: 13 }} />
               <YAxis type="number" />
-              <Tooltip formatter={(value) => [`${value} Tickets`]} />
+              <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="value" onClick={handleRiskClick} radius={[10, 10, 0, 0]}>
+                <LabelList
+                  dataKey="value"
+                  position="top"
+                  style={{
+                    fill: '#333',
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                  }}
+                />
                 {dataRisks.map((entry, index) => (
                   <Cell key={`cell-risk-${index}`} fill={entry.fill} />
                 ))}

@@ -517,6 +517,9 @@ export default function EditTicket() {
                   <Typography sx={{ mb: 2.5 }}>
                     <strong>Call Reason:</strong><br /> {ticket.call_reason}
                   </Typography>
+                  <Typography sx={{ mb: 2.5 }}>
+                    <strong>Summary:</strong><br /> {ticket.summary}
+                  </Typography>
                   <Typography>
                     <strong>Creation Date:</strong><br /> {new Date(ticket.creation_date).toLocaleString()}
                   </Typography>
