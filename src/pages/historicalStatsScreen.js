@@ -123,10 +123,14 @@ const HistoricStatistics = () => {
 
   
 
-  const statistics = state.historical_statistics || {};
-
+  const defaultStatuses = ['New', 'In Progress', 'Pending', 'Done', 'Emergency', 'Duplicated'];
   //const doneStatistics = doneState.closedTickets_statistics || {};
-  const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
+  const statistics = state.historical_statistics || {};
+  const entries = defaultStatuses.map((status) => [
+    status,
+    statistics[status] || 0,
+  ]);
+  //const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
 
   /*const transformed = doneStatistics.map((item, index) => ({
     id: index + 1,
@@ -185,7 +189,7 @@ const HistoricStatistics = () => {
             },
           }}
         >
-          Buscar
+          Search
         </Button>
         </Stack>
       </Box>
