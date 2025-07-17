@@ -102,17 +102,17 @@ export default function TicketRiskChart({ stats, onCategoryClick }) {
         }}
       >
         <CardContent>
-          <Typography variant="h5" fontWeight="bold" sx={{ mt: 2, mb: 3, ml: 2, color: '#000' }}>
+          <Typography variant="p" fontWeight="bold" sx={{ mt: 2, mb: 3, ml: 2, color: '#000' }}>
             Ticket Risks Breakdown
           </Typography>
 
-          <ResponsiveContainer width="100%" height={400}>
+          <ResponsiveContainer width="100%" height={385}>
             <BarChart
               data={dataRisks}
-              margin={{ top: 40, right: 30, left: 30, bottom: 20 }}
+              margin={{ top: 20, right: 10, left: 0, bottom: 0 }}
             >
-              <XAxis type="category" dataKey="name" tick={{ fontSize: 13 }} />
-              <YAxis type="number" />
+              <XAxis type="category" dataKey="name" tick={{ fontSize: 11 }} />
+              <YAxis type="number" tick={{ fontSize: 11 }}/>
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="value" onClick={handleRiskClick} radius={[10, 10, 0, 0]}>
                 <LabelList

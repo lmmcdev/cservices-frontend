@@ -110,16 +110,16 @@ function TicketCategoriesChartBase({ stats, onCategoryClick }) {
         }}
       >
         <CardContent>
-          <Typography variant="h5" fontWeight="bold" sx={{ mt: 2, mb: 3, ml: 2, color: '#000' }}>
+          <Typography variant="p" fontWeight="bold" sx={{ mt: 2, mb: 3, ml: 2, color: '#000' }}>
             Ticket Categories Breakdown
           </Typography>
 
-          <ResponsiveContainer width="100%" height={400}>
+          <ResponsiveContainer width="100%" height={300}>
             <BarChart
               layout="vertical"
               data={dataCategories}
-              margin={{ top: 20, right: 60, left: 65, bottom: 20 }}
-              barCategoryGap="12%"
+              margin={{ top: 20, right: 30, left: 45, bottom: 20 }}
+              barCategoryGap="10%"
             >
               <XAxis type="number" />
               <YAxis type="category" dataKey="name" tick={{ fontSize: 15 }}/>
@@ -131,7 +131,7 @@ function TicketCategoriesChartBase({ stats, onCategoryClick }) {
                 <LabelList
                   dataKey="value"
                   position="right"
-                  style={{ fill: '#333', fontSize: 14, fontWeight: 'bold' }}
+                  style={{ fill: '#333', fontSize: 10, fontWeight: 'bold' }}
                 />
               </Bar>
             </BarChart>

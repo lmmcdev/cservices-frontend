@@ -1,4 +1,3 @@
-// src/components/CustomerSatisfaction.jsx
 import React from 'react';
 import {
   Box,
@@ -43,31 +42,26 @@ export default function CustomerSatisfaction() {
   ];
 
   return (
-    <Box sx={{ maxWidth: 500, mx: 'auto'}}>
+    <Box sx={{ maxWidth: 500, mx: 'auto' }}>
       <Card
         sx={{
-          borderRadius: 3,
-          height: 270,
-          width: 420,
+          borderRadius: 2,
+          width: 220,
+          height:120,
+          borderLeft: `6px solid ${getColor(score)}`,
           position: 'relative',
           overflow: 'hidden',
           backgroundColor: '#fff',
           boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
+          display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
         }}
       >
         <CardContent
-          sx={{
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            position: 'relative',
-            zIndex: 1,
-            padding: '16px !important',
-          }}
+          
         >
-          <Box sx={{ height: 180, width: '100%' }}>
+          <Box sx={{ height: 100, width: '100%', position: 'relative' }}>
             <ResponsiveContainer width="100%" height="100%">
               <RadialBarChart
                 cx="50%"
@@ -94,36 +88,38 @@ export default function CustomerSatisfaction() {
               </RadialBarChart>
             </ResponsiveContainer>
 
-            {/* Número + Emoji centrado dentro del semicírculo */}
+            {/* ✅ ICONO CENTRADO */}
             <Box
               sx={{
                 position: 'absolute',
-                top: '55%',
-                left: '50%',
+                top: '30%',
+                left: '95%',
                 transform: 'translate(-50%, -50%)',
                 display: 'flex',
-                flexDirection: 'row',
                 alignItems: 'center',
-                gap: 1,
+                justifyContent: 'center',
+                color: color,
               }}
             >
-              <Typography variant="h5" fontWeight="bold" sx={{ color }}>
-                {score}
-              </Typography>
-              <Box color={color}>{getEmoji(score)}</Box>
+              {getEmoji(score)}
             </Box>
           </Box>
+
+          {/* ✅ TEXTO PUNTAJE ABAJO */}
+          <Typography variant="h5" fontWeight="bold" sx={{ color, mt: 0 }}>
+            {score}
+          </Typography>
         </CardContent>
 
-        {/* Texto "Customer Satisfaction" */}
+        {/* ✅ TEXTO "Customer Satisfaction" */}
         <Typography
           variant="body2"
           sx={{
             color: '#999',
             letterSpacing: 1,
             position: 'absolute',
-            bottom: 50,
-            left: '50%',
+            bottom: 5,
+            left: '80%',
             transform: 'translateX(-50%)',
           }}
         >

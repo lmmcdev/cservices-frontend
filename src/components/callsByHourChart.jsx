@@ -159,7 +159,7 @@ const hourlyDataWithIndexes = hourlyData.map((d, index) => ({
             >
               Total Calls by Hour Interval
             </Typography>
-            <ResponsiveContainer width="100%" height={400}>
+            <ResponsiveContainer width="100%" height={340}>
               <AreaChart
                 data={hourlyDataWithIndexes}
                 margin={{ top: 30, right: 60, left: 60, bottom: 10 }}

@@ -8,9 +8,9 @@ import { formatMinutesToHoursPretty } from '../utils/js/minutosToHourMinutes';
 // ✅ Componente base reutilizable
 function AverageResolutionTimeCard({ avgMinutes }) {
   const averageTime = formatMinutesToHoursPretty(avgMinutes || 0);
-
+  console.log(avgMinutes)
   return (
-    <Box sx={{ width: 350 }}>
+    <Box >
       <Card
         sx={{
           borderRadius: 3,
@@ -83,7 +83,7 @@ export function DailyAverageResolutionTime() {
 // ✅ Wrapper para Historical Stats
 export function HistoricalAverageResolutionTime() {
   const { stateStats } = useHistoricalStats();
-  const avgMinutes = stateStats?.historic_globalStats?.avgResolutionTimeMins || 0;
+  const avgMinutes = stateStats?.historic_daily_stats?.globalStats?.avgResolutionTimeMins || 0;
   return <AverageResolutionTimeCard avgMinutes={avgMinutes} />;
 }
 

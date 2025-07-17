@@ -124,81 +124,85 @@ function TicketPriorityChartBase({ stats, onCategoryClick }) {
       }}
     >
       <Card
-        sx={{
-          borderRadius: 3,
-          overflow: 'hidden',
-          backgroundColor: '#fff',
-          boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
-        }}
-      >
-        <CardContent>
-          <Typography
-            variant="h5"
-            fontWeight="bold"
-            sx={{ mt: 2, mb: 3, ml: 2, color: '#000' }}
+  sx={{
+    borderRadius: 3,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+    boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
+  }}
+>
+  <CardContent>
+    <Typography
+      variant="p"
+      fontWeight="bold"
+      sx={{ mt: 2, mb: 1, ml: 2, color: '#000' }}
+    >
+      Ticket Priority Breakdown
+    </Typography>
+
+    {/* ✅ Contenedor con tamaño fijo */}
+    <Box sx={{ height: 300, mx: 'auto' }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={dataPriority}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            outerRadius={100}
+            activeIndex={activeIndex}
+            activeShape={<AnimatedActiveShape />}
+            onClick={handlePriorityClick}
+            onMouseEnter={(_, index) => setActiveIndex(index)}
+            onMouseLeave={() => setActiveIndex(null)}
           >
-            Ticket Priority Breakdown
-          </Typography>
+            {dataPriority.map((entry, index) => (
+              <Cell
+                key={`cell-priority-${index}`}
+                fill={entry.fill}
+                style={{ cursor: 'pointer' }}
+              />
+            ))}
+          </Pie>
+          <Tooltip content={<CustomTooltip />} />
+        </PieChart>
+      </ResponsiveContainer>
+    </Box>
 
-          <ResponsiveContainer width="100%" height={347}>
-            <PieChart>
-              <Pie
-                data={dataPriority}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="45%"
-                outerRadius={120}
-                activeIndex={activeIndex}
-                activeShape={<AnimatedActiveShape />}
-                onClick={handlePriorityClick}
-                onMouseEnter={(_, index) => setActiveIndex(index)}
-                onMouseLeave={() => setActiveIndex(null)}
-              >
-                {dataPriority.map((entry, index) => (
-                  <Cell
-                    key={`cell-priority-${index}`}
-                    fill={entry.fill}
-                    style={{ cursor: 'pointer' }}
-                  />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        flexWrap: 'wrap',
+        gap: 3,
+        mb: 4,
+      }}
+    >
+      {['high', 'medium', 'low'].map((priorityKey) => {
+        const entry = dataPriority.find((item) => item.name === priorityKey);
+        if (!entry) return null;
 
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-              gap: 3,
-              mb: 4,
-            }}
-          >
-            {['high', 'medium', 'low'].map((priorityKey) => {
-              const entry = dataPriority.find((item) => item.name === priorityKey);
-              if (!entry) return null;
-
-              return (
-                <Box key={entry.name} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Box
-                    sx={{
-                      width: 12,
-                      height: 12,
-                      borderRadius: '50%',
-                      backgroundColor: entry.fill,
-                    }}
-                  />
-                  <Typography fontSize={14} fontWeight="bold" color="#333">
-                    {`${entry.name.charAt(0).toUpperCase() + entry.name.slice(1)} (${entry.percent.toFixed(1)}%)`}
-                  </Typography>
-                </Box>
-              );
-            })}
+        return (
+          <Box key={entry.name} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                backgroundColor: entry.fill,
+              }}
+            />
+            <Typography fontSize={10} fontWeight="bold" color="#333">
+              {`${entry.name.charAt(0).toUpperCase() + entry.name.slice(1)} (${entry.percent.toFixed(1)}%)`}
+            </Typography>
           </Box>
-        </CardContent>
-      </Card>
+        );
+      })}
+    </Box>
+  </CardContent>
+</Card>
+
     </Box>
   );
 }

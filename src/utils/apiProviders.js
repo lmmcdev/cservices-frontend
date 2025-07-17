@@ -12,15 +12,15 @@ export const getProviders = async ({params}, accessToken) => {
 
     try {
         const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        // Authorization: `Bearer ${accessToken}`, si usas autenticación
-        },
-        body: JSON.stringify({
-            limit: params.limit,
-            continuationToken: tokenCosmos,
-        }),
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          // Authorization: `Bearer ${accessToken}`, si usas autenticación
+          },
+          body: JSON.stringify({
+              limit: params.limit,
+              continuationToken: tokenCosmos,
+          }),
         });
         const data = await response.json();
         if (!response.ok) {

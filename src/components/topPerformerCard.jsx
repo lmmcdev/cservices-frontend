@@ -54,7 +54,7 @@ function TopPerformerCardBase({ agentStats = [], title }) {
         borderRadius: 3,
         p: 5,
         boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
-        maxWidth: 600,
+        maxWidth: 300,
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -66,10 +66,10 @@ function TopPerformerCardBase({ agentStats = [], title }) {
         <Typography variant="h6" fontWeight="bold" sx={{ mb: 0.5 }}>
           {formatName(topAgent.agentEmail)}! 🎉
         </Typography>
-        <Typography variant="subtitle2" sx={{ mb: 2, fontSize: '1rem', color: '#666' }}>
+        <Typography variant="p" sx={{ mb: 2, fontSize: '1rem', color: '#666' }}>
           {title}
         </Typography>
-        <Typography variant="h3" sx={{ color: '#00A1FF', fontWeight: 'bold', mb: 2 }}>
+        <Typography variant="body2" sx={{ color: '#00A1FF', fontWeight: 'bold', mb: 2 }}>
           {topAgent.resolvedCount} Calls
         </Typography>
         <Typography variant="body2" color="textSecondary" sx={{ fontSize: '1rem' }}>
@@ -78,14 +78,14 @@ function TopPerformerCardBase({ agentStats = [], title }) {
       </CardContent>
       <Box
         id="trophy-zone"
-        sx={{ pr: 3, alignSelf: 'center', mt: 9, cursor: 'pointer' }}
+        sx={{ pr: 1, alignSelf: 'center', mt: 5, cursor: 'pointer' }}
         onClick={handleConfetti}
       >
         <Box
           component="img"
           src="https://res.cloudinary.com/dldi4fgyu/image/upload/v1750263284/trophy_lpzou9.png"
           alt="Trophy"
-          sx={{ width: 90, height: 'auto' }}
+          sx={{ width: 60, height: 'auto' }}
         />
       </Box>
     </Card>

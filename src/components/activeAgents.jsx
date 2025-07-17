@@ -10,8 +10,8 @@ export default function ActiveAgents() {
       <Card
         sx={{
           borderRadius: 3,
-          height: 270,
-          width: 350,
+          height: 120,
+          width: 220,
           position: 'relative',
           overflow: 'hidden',
           backgroundColor: '#fff',
