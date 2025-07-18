@@ -44,12 +44,14 @@ export default function TopAgentsSection({ stats }) {
   return (
     <Box
       sx={{
+        width: '100%',
         backgroundColor: '#fff',
         borderRadius: 3,
         p: 3,
         boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
         mx: 'auto',
-        height: '512px', 
+        height: '100%',
+        minHeight: 360,
         display: 'flex',
         flexDirection: 'column',
       }}

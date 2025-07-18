@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useSpring, animated } from '@react-spring/web';
-
 import {
   Box,
   Card,
@@ -8,48 +7,43 @@ import {
   Typography,
 } from '@mui/material';
 import {
-  Tooltip,
   PieChart,
   Pie,
   ResponsiveContainer,
   Cell,
   Sector,
+  Tooltip as RechartsTooltip,
 } from 'recharts';
-
 import { useDailyStatsState } from '../context/dailyStatsContext';
 import { useHistoricalStats } from '../context/historicalStatsContext';
 
 const PRIORITY_COLORS = {
-  high: '#f46a6a',    // rojo
-  medium: '#ffb900',  // amarillo
-  low: '#00b8a3',     // verde
+  high: '#f46a6a',
+  medium: '#ffb900',
+  low: '#00b8a3',
 };
 
-// ✅ Componente funcional para animar el slice
 function AnimatedActiveShape(props) {
   const {
-    cx, cy, midAngle, innerRadius = 0, outerRadius,
+    cx, cy, midAngle, outerRadius,
     startAngle, endAngle, fill,
   } = props;
-
   const RADIAN = Math.PI / 180;
   const sin = Math.sin(-RADIAN * midAngle);
   const cos = Math.cos(-RADIAN * midAngle);
   const dx = cos * 15;
   const dy = sin * 15;
-
   const spring = useSpring({
     to: { transform: `translate(${dx}px, ${dy}px)` },
-    from: { transform: `translate(0px, 0px)` },
+    from: { transform: 'translate(0px, 0px)' },
     config: { tension: 100, friction: 16 },
   });
-
   return (
     <animated.g style={spring}>
       <Sector
         cx={cx}
         cy={cy}
-        innerRadius={innerRadius}
+        innerRadius={0}
         outerRadius={outerRadius}
         startAngle={startAngle}
         endAngle={endAngle}
@@ -59,50 +53,38 @@ function AnimatedActiveShape(props) {
   );
 }
 
-function TicketPriorityChartBase({ stats, onCategoryClick }) {
+export default function TicketPriorityChartBase({ stats, onCategoryClick }) {
   const [activeIndex, setActiveIndex] = useState(null);
-
   const tickets = stats?.aiClassificationStats?.priority || {};
-
-  const ticketsFiltered = Object.entries(tickets).filter(
-    ([priority]) => priority.toLowerCase() !== 'normal'
+  const filtered = Object.entries(tickets).filter(
+    ([k]) => k.toLowerCase() !== 'normal'
   );
-
-  const totalPriority = ticketsFiltered.reduce(
-    (acc, [_, obj]) => acc + obj.count,
-    0
-  );
-
-  const dataPriority = ticketsFiltered.map(([name, obj]) => ({
+  const total = filtered.reduce((sum, [, obj]) => sum + obj.count, 0);
+  const data = filtered.map(([name, obj], idx) => ({
     name,
     value: obj.count,
-    percent: totalPriority > 0 ? (obj.count / totalPriority) * 100 : 0,
+    percent: total ? (obj.count / total) * 100 : 0,
     fill: PRIORITY_COLORS[name] || '#8884d8',
     ticketIds: obj.ticketIds,
   }));
 
-  const handlePriorityClick = (data) => {
-    if (data?.ticketIds && onCategoryClick) {
-      onCategoryClick({
-        category: data.name,
-        ticketIds: data.ticketIds,
-      });
+  const handleClick = (entry) => {
+    if (entry?.ticketIds && onCategoryClick) {
+      onCategoryClick({ category: entry.name, ticketIds: entry.ticketIds });
     }
   };
 
   const CustomTooltip = ({ active, payload }) => {
-    if (!active || !payload || !payload.length) return null;
-
+    if (!active || !payload?.length) return null;
     const { name, value } = payload[0].payload;
-
     return (
       <Box
         sx={{
-          backgroundColor: '#fff',
+          bgcolor: '#fff',
           border: '1px solid #ccc',
-          borderRadius: '8px',
-          padding: '8px 12px',
-          boxShadow: 3,
+          borderRadius: 1,
+          p: 1,
+          boxShadow: 1,
         }}
       >
         <Typography variant="subtitle2" fontWeight="bold">
@@ -116,104 +98,99 @@ function TicketPriorityChartBase({ stats, onCategoryClick }) {
   };
 
   return (
-    <Box
-      sx={{
-        '& path:focus, & g:focus, & g > path:focus': {
-          outline: 'none !important',
-        },
-      }}
-    >
+    <Box sx={{ width: '100%', height: '100%' }}>
       <Card
-  sx={{
-    borderRadius: 3,
-    overflow: 'hidden',
-    backgroundColor: '#fff',
-    boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
-  }}
->
-  <CardContent>
-    <Typography
-      variant="p"
-      fontWeight="bold"
-      sx={{ mt: 2, mb: 1, ml: 2, color: '#000' }}
-    >
-      Ticket Priority Breakdown
-    </Typography>
-
-    {/* ✅ Contenedor con tamaño fijo */}
-    <Box sx={{ height: 300, mx: 'auto' }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={dataPriority}
-            dataKey="value"
-            nameKey="name"
-            cx="50%"
-            cy="50%"
-            outerRadius={100}
-            activeIndex={activeIndex}
-            activeShape={<AnimatedActiveShape />}
-            onClick={handlePriorityClick}
-            onMouseEnter={(_, index) => setActiveIndex(index)}
-            onMouseLeave={() => setActiveIndex(null)}
-          >
-            {dataPriority.map((entry, index) => (
-              <Cell
-                key={`cell-priority-${index}`}
-                fill={entry.fill}
-                style={{ cursor: 'pointer' }}
-              />
-            ))}
-          </Pie>
-          <Tooltip content={<CustomTooltip />} />
-        </PieChart>
-      </ResponsiveContainer>
-    </Box>
-
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        flexWrap: 'wrap',
-        gap: 3,
-        mb: 4,
-      }}
-    >
-      {['high', 'medium', 'low'].map((priorityKey) => {
-        const entry = dataPriority.find((item) => item.name === priorityKey);
-        if (!entry) return null;
-
-        return (
-          <Box key={entry.name} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box
-              sx={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                backgroundColor: entry.fill,
-              }}
-            />
-            <Typography fontSize={10} fontWeight="bold" color="#333">
-              {`${entry.name.charAt(0).toUpperCase() + entry.name.slice(1)} (${entry.percent.toFixed(1)}%)`}
-            </Typography>
+        sx={{
+          width: '100%',
+          height: '100%',
+          borderRadius: 2,
+          bgcolor: '#fff',
+          boxShadow: '0px 8px 24px rgba(239,241,246,1)',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <CardContent
+          sx={{
+            p: 2,
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+            Ticket Priority Breakdown
+          </Typography>
+          <Box sx={{ flex: 1, position: 'relative', width: '100%' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={data}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={0}        // full pie
+                  outerRadius="100%"
+                  onClick={handleClick}
+                  onMouseEnter={(_, i) => setActiveIndex(i)}
+                  onMouseLeave={() => setActiveIndex(null)}
+                  activeIndex={activeIndex}
+                  activeShape={<AnimatedActiveShape />}
+                >
+                  {data.map((entry, idx) => (
+                    <Cell key={`cell-${idx}`} fill={entry.fill} />
+                  ))}
+                </Pie>
+                <RechartsTooltip content={<CustomTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
           </Box>
-        );
-      })}
-    </Box>
-  </CardContent>
-</Card>
-
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              justifyContent: 'center',
+              gap: 2,
+              mt: 1,
+            }}
+          >
+            {data.map((entry) => (
+              <Box
+                key={entry.name}
+                sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+              >
+                <Box
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    bgcolor: entry.fill,
+                  }}
+                />
+                <Typography
+                  variant="body2"
+                  fontWeight="bold"
+                  sx={{ fontSize: { xs: '0.6rem', sm: '0.75rem', md: '0.9rem' } }}
+                >
+                  {`${entry.name.charAt(0).toUpperCase() + entry.name.slice(1)} (${entry.percent.toFixed(1)}%)`}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        </CardContent>
+      </Card>
     </Box>
   );
 }
 
-// ✅ DAILY WRAPPER
+// Daily wrapper
 export function DailyTicketPriorityChart({ onCategoryClick }) {
   const { daily_statistics } = useDailyStatsState();
-  return <TicketPriorityChartBase stats={daily_statistics} onCategoryClick={onCategoryClick} />;
+  return <TicketPriorityChartBase stats={daily_statistics || {}} onCategoryClick={onCategoryClick} />;
 }
 
-// ✅ HISTORICAL WRAPPER
+// Historical wrapper
 export function HistoricalTicketPriorityChart({ onCategoryClick }) {
   const { stateStats } = useHistoricalStats();
   const stats = stateStats.historic_daily_stats || {};
