@@ -1,5 +1,10 @@
 import React from 'react';
-import { Box, Card, CardContent, Typography } from '@mui/material';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+} from '@mui/material';
 import {
   BarChart,
   Bar,
@@ -10,6 +15,7 @@ import {
   LabelList,
   Cell,
 } from 'recharts';
+
 import { useDailyStatsState } from '../context/dailyStatsContext';
 import { useHistoricalStats } from '../context/historicalStatsContext';
 
@@ -25,25 +31,29 @@ const COLORS = [
 ];
 
 const CustomTooltip = ({ active, payload, label }) => {
-  if (!active || !payload?.length) return null;
+  if (!active || !payload || !payload.length) return null;
+
   const { value, payload: dataPoint } = payload[0];
   const percent = dataPoint.percent ?? 0;
-  const fillColor = dataPoint.fill || '#00a1ff';
+  const fillColor = dataPoint.fill || '#00a1ff'; // fallback por si acaso
 
   return (
     <Box
       sx={{
-        bgcolor: '#fff',
+        backgroundColor: '#fff',
         border: '1px solid #ddd',
-        borderRadius: 1,
-        p: 1,
+        borderRadius: '6px',
+        padding: '10px 14px',
         fontSize: 14,
+        color: '#000',
       }}
     >
       <Typography fontWeight="bold" fontSize={15} mb={0.5} sx={{ color: fillColor }}>
         {label}
       </Typography>
-      <Typography fontSize={14}>Calls: {value}</Typography>
+      <Typography fontSize={14}>
+        Calls: {value}
+      </Typography>
       <Typography fontSize={13} color="text.secondary">
         {percent.toFixed(1)}%
       </Typography>
@@ -51,106 +61,96 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
+
 function TicketCategoriesChartBase({ stats, onCategoryClick }) {
   const categories = stats?.aiClassificationStats?.category || {};
-  const total = Object.values(categories).reduce((sum, c) => sum + c.count, 0);
-  const data = Object.entries(categories)
-    .map(([name, obj], idx) => ({
-      name,
-      value: obj.count,
-      percent: total ? (obj.count / total) * 100 : 0,
-      fill: COLORS[idx % COLORS.length],
-      ticketIds: obj.ticketIds,
-    }))
-    .sort((a, b) => b.value - a.value);
 
-  const handleClick = (data) => {
+  const totalCategories = Object.values(categories).reduce(
+    (acc, cat) => acc + cat.count,
+    0
+  );
+
+  const dataCategories = Object.entries(categories)
+  .map(([name, obj], index) => ({
+    name,
+    value: obj.count,
+    percent: totalCategories > 0 ? (obj.count / totalCategories) * 100 : 0,
+    fill: COLORS[index % COLORS.length],
+    ticketIds: obj.ticketIds,
+  }))
+  .sort((a, b) => b.value - a.value); // Ordena de mayor a menor
+
+  const handleCategoryClick = (data) => {
     if (data?.ticketIds && onCategoryClick) {
-      onCategoryClick({ category: data.name, ticketIds: data.ticketIds });
+      onCategoryClick({
+        category: data.name,
+        ticketIds: data.ticketIds,
+      });
     }
   };
 
   return (
-    <Box sx={{ width: '100%', height: '100%' }}>
+    <Box
+      sx={{
+        '& .recharts-tooltip-cursor': {
+          fill: 'transparent !important',
+        },
+        '& .recharts-bar-rectangle:hover': {
+          filter: 'brightness(1.1)',
+        },
+      }}
+    >
       <Card
         sx={{
-          width: '100%',
-          height: '100%',
-          borderRadius: 2,
-          bgcolor: '#fff',
-          boxShadow: '0px 8px 24px rgba(239,241,246,1)',
-          display: 'flex',
-          flexDirection: 'column',
+          borderRadius: 3,
+          mb: 4,
+          overflow: 'hidden',
+          backgroundColor: '#fff',
+          boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
         }}
       >
-        <CardContent sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
+        <CardContent>
+          <Typography variant="p" fontWeight="bold" sx={{ mt: 2, mb: 3, ml: 2, color: '#000' }}>
             Ticket Categories Breakdown
           </Typography>
-          <Box sx={{ flex: 1, width: '100%' }}>
-            <ResponsiveContainer width="100%" aspect={2}>
-              <BarChart
-                layout="vertical"
-                data={data}
-                margin={{ top: 10, right: 20, left: 20, bottom: 10 }}
-                barCategoryGap="20%"
-              >
-                {/* Eje X con etiquetas numéricas */}
-                <XAxis
-                  type="number"
-                  axisLine={{ stroke: '#ccc' }}
-                  tickLine={false}
-                  tick={{ fontSize: 12, fill: '#666' }}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="name"
-                  width={80}
-                  tick={{ fontSize: 12 }}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Bar
+
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
+              layout="vertical"
+              data={dataCategories}
+              margin={{ top: 20, right: 30, left: 45, bottom: 20 }}
+              barCategoryGap="10%"
+            >
+              <XAxis type="number" />
+              <YAxis type="category" dataKey="name" tick={{ fontSize: 15 }}/>
+              <Tooltip content={<CustomTooltip />} />
+              <Bar dataKey="value" onClick={handleCategoryClick} radius={[0, 7, 7, 0]}>
+                {dataCategories.map((entry, index) => (
+                  <Cell key={`cell-cat-${index}`} fill={entry.fill} />
+                ))}
+                <LabelList
                   dataKey="value"
-                  onClick={handleClick}
-                  radius={[0, 8, 8, 0]}
-                >
-                  {data.map((entry, i) => (
-                    <Cell key={`cell-${i}`} fill={entry.fill} />
-                  ))}
-                  <LabelList
-                    dataKey="value"
-                    position="right"
-                    style={{ fill: '#333', fontSize: 12, fontWeight: 'bold' }}
-                  />
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </Box>
+                  position="right"
+                  style={{ fill: '#333', fontSize: 10, fontWeight: 'bold' }}
+                />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
         </CardContent>
       </Card>
     </Box>
   );
 }
 
+// ✅ Wrapper para DAILY
 export function DailyTicketCategoriesChart({ onCategoryClick }) {
   const { daily_statistics } = useDailyStatsState();
-  return (
-    <TicketCategoriesChartBase
-      stats={daily_statistics || {}}
-      onCategoryClick={onCategoryClick}
-    />
-  );
+  return <TicketCategoriesChartBase stats={daily_statistics} onCategoryClick={onCategoryClick} />;
 }
 
+// ✅ Wrapper para HISTORICAL
 export function HistoricalTicketCategoriesChart({ onCategoryClick }) {
   const { stateStats } = useHistoricalStats();
   const stats = stateStats.historic_daily_stats || {};
-  return (
-    <TicketCategoriesChartBase
-      stats={stats}
-      onCategoryClick={onCategoryClick}
-    />
-  );
+  return <TicketCategoriesChartBase stats={stats} onCategoryClick={onCategoryClick} />;
 }
-
-export default TicketCategoriesChartBase;
