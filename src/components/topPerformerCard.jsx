@@ -1,32 +1,30 @@
 import React, { useMemo } from 'react';
-import { Box, Typography, Card, CardContent } from '@mui/material';
+import { Box, Typography, Card, CardContent, Grid} from '@mui/material';
 import confetti from 'canvas-confetti';
 import { useDailyStatsState } from '../context/dailyStatsContext';
 import { useHistoricalStats } from '../context/historicalStatsContext';
 
-// ✅ Función para mostrar nombre legible
 const formatName = email => email?.split('@')[0] || 'Unknown';
 
-// ✅ Componente Base reutilizable
 function TopPerformerCardBase({ agentStats = [], title }) {
   const topAgent = useMemo(() => {
-  const statsArray = (agentStats && agentStats.length > 0)
-    ? agentStats
-    : [{
-        agentEmail: "no agent detected",
-        avgResolutionTimeMins: 0,
-        resolvedCount: 0
-      }];
+    const statsArray = agentStats?.length
+      ? agentStats
+      : [{
+          agentEmail: 'no agent detected',
+          avgResolutionTimeMins: 0,
+          resolvedCount: 0,
+        }];
 
-  const sorted = [...statsArray].sort((a, b) => {
-    if (b.resolvedCount === a.resolvedCount) {
-      return a.avgResolutionTimeMins - b.avgResolutionTimeMins;
-    }
-    return b.resolvedCount - a.resolvedCount;
-  });
+    const sorted = [...statsArray].sort((a, b) => {
+      if (b.resolvedCount === a.resolvedCount) {
+        return a.avgResolutionTimeMins - b.avgResolutionTimeMins;
+      }
+      return b.resolvedCount - a.resolvedCount;
+    });
 
-  return sorted[0] || null;
-}, [agentStats]);
+    return sorted[0] || null;
+  }, [agentStats]);
 
   const handleConfetti = () => {
     const trophyBox = document.getElementById('trophy-zone');
@@ -47,26 +45,41 @@ function TopPerformerCardBase({ agentStats = [], title }) {
 
   if (!topAgent) return null;
 
-  return (
+return (
+  <Box
+    sx={{
+      width: '100%',
+      height: '100%',
+      minHeight: {
+        xs: '200px', // <600px
+        sm: '250px', // ≥600px
+        md: '300px', // ≥900px
+        lg: '350px', // ≥1200px
+        xl: '400px', // ≥1536px
+      },
+    }}
+  >
     <Card
       sx={{
-        backgroundColor: '#fff',
-        borderRadius: 3,
-        p: 5,
-        boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
-        maxWidth: 300,
+        width: '100%',
+        height: '100%',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        height: 270,
-        width: '100%',
+        p: 3,
+        borderRadius: 3,
+        boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
       }}
     >
-      <CardContent sx={{ flex: 1 }}>
+      {/* Texto */}
+      <Box sx={{ flex: 1, minWidth: 0 }}>
         <Typography variant="h6" fontWeight="bold" sx={{ mb: 0.5 }}>
-          {formatName(topAgent.agentEmail)}! 🎉
+          {topAgent.agentEmail.includes('@')
+            ? topAgent.agentEmail.split('@')[0]
+            : topAgent.agentEmail}
+          ! 🎉
         </Typography>
-        <Typography variant="p" sx={{ mb: 2, fontSize: '1rem', color: '#666' }}>
+        <Typography variant="body2" sx={{ mb: 2, fontSize: '1rem', color: '#666' }}>
           {title}
         </Typography>
         <Typography variant="body2" sx={{ color: '#00A1FF', fontWeight: 'bold', mb: 2 }}>
@@ -75,10 +88,18 @@ function TopPerformerCardBase({ agentStats = [], title }) {
         <Typography variant="body2" color="textSecondary" sx={{ fontSize: '1rem' }}>
           Avg Time: {topAgent.avgResolutionTimeMins} mins
         </Typography>
-      </CardContent>
+      </Box>
+
+      {/* Trofeo */}
       <Box
         id="trophy-zone"
-        sx={{ pr: 1, alignSelf: 'center', mt: 5, cursor: 'pointer' }}
+        sx={{
+          pl: 2,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+        }}
         onClick={handleConfetti}
       >
         <Box
@@ -89,10 +110,12 @@ function TopPerformerCardBase({ agentStats = [], title }) {
         />
       </Box>
     </Card>
-  );
+  </Box>
+);
+
 }
 
-// ✅ Variante para estadísticas diarias
+
 export function DailyTopPerformerCard() {
   const dailyStats = useDailyStatsState();
   const stats = dailyStats.daily_statistics || {};
@@ -101,7 +124,6 @@ export function DailyTopPerformerCard() {
   return <TopPerformerCardBase agentStats={agentStats} title="Top Performer – Today" />;
 }
 
-// ✅ Variante para estadísticas históricas
 export function HistoricalTopPerformerCard() {
   const { stateStats } = useHistoricalStats();
   const stats = stateStats.historic_daily_stats || {};
