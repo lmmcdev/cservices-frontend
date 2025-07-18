@@ -1,28 +1,30 @@
 import React from 'react';
-import { Box, Card, CardContent, Typography } from '@mui/material';
-import GroupIcon from '@mui/icons-material/Group';
+import { Card, CardContent, Box, Typography } from '@mui/material';
+import GroupIcon from '@mui/icons-material/Group'; // 👥
 
 export default function ActiveAgents() {
-  const activeCount = 6; // Reemplaza con datos reales si los tienes
+  const activeCount = 6; // Puedes reemplazarlo con datos reales más adelante
 
   return (
-    <Box sx={{ width: '100%', height: '100%' }}>
+    <Box sx={{ maxWidth: 400, mx: 'auto'}}>
       <Card
         sx={{
-          width: '100%',
-          height: '100%',
           borderRadius: 3,
+          height: 120,
+          width: 220,
           position: 'relative',
           overflow: 'hidden',
           backgroundColor: '#fff',
           boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
-          display: 'flex',
-          flexDirection: 'column',
+          '&:hover .group-icon': {
+            transform: 'translate(-50%, -50%) scale(1.1)',
+            transition: 'transform 0.5s ease-in-out',
+          },
         }}
       >
         <CardContent
           sx={{
-            flex: 1,
+            height: '100%',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -33,29 +35,32 @@ export default function ActiveAgents() {
         >
           <Typography
             variant="body2"
-            sx={{ color: '#999', letterSpacing: 1, mb: 0.5 }}
+            sx={{ color: '#999', letterSpacing: 1, mb: 1 }}
           >
             Active Agents
           </Typography>
+
           <Typography
             variant="h4"
             fontWeight="bold"
-            sx={{ color: '#00a1ff', lineHeight: 1 }}
+            sx={{ color: '#00a1ff' }}
           >
             {activeCount}
           </Typography>
         </CardContent>
 
         <GroupIcon
+          className="group-icon"
           sx={{
             position: 'absolute',
-            fontSize: '8rem',
+            fontSize: 180,
             color: '#e0f7ff',
             opacity: 0.4,
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             zIndex: 0,
+            transition: 'transform 0.5s ease-in-out',
           }}
         />
       </Card>

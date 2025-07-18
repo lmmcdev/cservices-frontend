@@ -103,21 +103,6 @@ const CustomTooltip = ({ active, payload, label, maxCalls, minCalls }) => {
   return null;
 };
 
-
-// ✅ Wrapper Daily
-export function DailyCallsByHour() {
-  const dailyStats = useDailyStatsState();
-  const stats = dailyStats.daily_statistics || {};
-  return <CallsByHourChart stats={stats} />;
-}
-
-// ✅ Wrapper Historical
-export function HistoricalCallsByHour() {
-  const { stateStats } = useHistoricalStats();
-  const stats = stateStats.historic_daily_stats || {};
-  return <CallsByHourChart stats={stats} />;
-}
-
 // Componente genérico reutilizable
 export default function CallsByHourChart({ stats }) {
   const workHours = Array.from({ length: 12 }, (_, i) => i + 6); // [6,7,...,17]
@@ -151,39 +136,22 @@ export default function CallsByHourChart({ stats }) {
   const minCalls = callsArray.length ? Math.min(...callsArray) : 0;
 
   const firstMaxIndex = hourlyData.findIndex(d => d.calls === maxCalls);
-  const firstMinIndex = hourlyData.findIndex(d => d.calls === minCalls);
+const firstMinIndex = hourlyData.findIndex(d => d.calls === minCalls);
 
-  const hourlyDataWithIndexes = hourlyData.map((d, index) => ({
-    ...d,
-    index,
-    firstMaxIndex,
-    firstMinIndex,
-  }));
+const hourlyDataWithIndexes = hourlyData.map((d, index) => ({
+  ...d,
+  index,
+  firstMaxIndex,
+  firstMinIndex,
+}));
 
-    return (
+
+  return (
     <>
       <style>{animations}</style>
-      <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', flex: 1 }}>
-        <Card
-          sx={{
-            borderRadius: 3,
-            boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
-            width: '100%',
-            height: '100%',
-            minHeight: 360,
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <CardContent
-            sx={{
-              width: '100%',
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              minHeight: 0, // 🔹 Aquí garantizamos un mínimo razonable
-            }}
-          >
+      <Box>
+        <Card sx={{ borderRadius: 3, boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)' }}>
+          <CardContent>
             <Typography
               variant="h5"
               fontWeight="bold"
@@ -191,58 +159,62 @@ export default function CallsByHourChart({ stats }) {
             >
               Total Calls by Hour Interval
             </Typography>
-
-            <Box
-              sx={{
-                width: '100%',
-                flex: 1,
-                minHeight: 0, // 👈 Permite que se encoja por debajo del contenido
-                overflow: 'hidden', // 👈 Evita que la gráfica sobresalga
-              }}
-            >
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={hourlyDataWithIndexes}
-                  margin={{ top: 30, right: 60, left: 60, bottom: 10 }}
+            <ResponsiveContainer width="100%" height={340}>
+              <AreaChart
+                data={hourlyDataWithIndexes}
+                margin={{ top: 30, right: 60, left: 60, bottom: 10 }}
+              >
+                <defs>
+                  <linearGradient id="colorCalls" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#00a1ff" stopOpacity={0.5} />
+                    <stop offset="100%" stopColor="#00a1ff" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  dataKey="hour"
+                  interval={0}
+                  angle={-35}
+                  textAnchor="end"
+                  height={80}
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip
+                  content={<CustomTooltip maxCalls={maxCalls} minCalls={minCalls} />}
+                  cursor={{ strokeDasharray: '4 5', strokeWidth: 1 }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="calls"
+                  stroke="#00a1ff"
+                  fill="url(#colorCalls)"
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
                 >
-                  <defs>
-                    <linearGradient id="colorCalls" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#00a1ff" stopOpacity={0.5} />
-                      <stop offset="100%" stopColor="#00a1ff" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis
-                    dataKey="hour"
-                    interval={0}
-                    angle={-35}
-                    textAnchor="end"
-                    height={80}
-                    tick={{ fontSize: 12 }}
-                  />
-                  <Tooltip
-                    content={<CustomTooltip maxCalls={maxCalls} minCalls={minCalls} />}
-                    cursor={{ strokeDasharray: '4 5', strokeWidth: 1 }}
-                  />
-                  <Area
-                    type="monotone"
+                  <LabelList
                     dataKey="calls"
-                    stroke="#00a1ff"
-                    fill="url(#colorCalls)"
-                    strokeWidth={2}
-                    dot={{ r: 3 }}
-                  >
-                    <LabelList
-                      dataKey="calls"
-                      position="top"
-                      style={{ fontSize: 16, fontWeight: 'bold', fill: '#333' }}
-                    />
-                  </Area>
-                </AreaChart>
-              </ResponsiveContainer>
-            </Box>
+                    position="top"
+                    style={{ fontSize: 16, fontWeight: 'bold', fill: '#333' }}
+                  />
+                </Area>
+              </AreaChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       </Box>
     </>
   );
+}
+
+// ✅ Wrapper Daily
+export function DailyCallsByHour() {
+  const dailyStats = useDailyStatsState();
+  const stats = dailyStats.daily_statistics || {};
+  return <CallsByHourChart stats={stats} />;
+}
+
+// ✅ Wrapper Historical
+export function HistoricalCallsByHour() {
+  const { stateStats } = useHistoricalStats();
+  const stats = stateStats.historic_daily_stats || {};
+  return <CallsByHourChart stats={stats} />;
 }
