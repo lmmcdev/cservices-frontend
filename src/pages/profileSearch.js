@@ -26,6 +26,8 @@ import ProviderEditForm from './editProvider';
 import { handleUpdateProvider } from '../utils/js/providerActions';
 import { useLoading } from '../providers/loadingProvider';
 import AlertSnackbar from '../components/auxiliars/alertSnackbar';
+//import PatientList from '../components/patientList';
+import SearchPatientDeep from '../components/components/patientsDeepSeacrh';
 //import { useMemo } from 'react';
 
 const mockData = [];
@@ -57,6 +59,7 @@ export default function ProfileSearch() {
   const isSmall = useMediaQuery('(max-width:900px)');
   const [selectedView, setSelectedView] = useState('profile'); 
   const [selectedProvider, setSelectedProvider] = useState(null);
+  //const [selectedPatient, setSelectedPatient] = useState(null);
   const { setLoading } = useLoading();
 
   const [errorOpen, setErrorOpen] = useState(false);
@@ -125,18 +128,37 @@ export default function ProfileSearch() {
         <Box sx={{ width: 220, p: 2, borderRight: '1px solid #f0f0f0' }}>
 
           <List>
-            
-
-            
+            {/**Menu Fijo Providers */}          
             <ListItemButton
-            onClick={() => setSelectedView('providers')}
-            sx={{ borderRadius: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 1.2 }}
-          >
-            <ListItemIcon sx={{ minWidth: 'auto', mr: 0 }}>
-              <LocalHospitalIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText primary="Providers" />
-          </ListItemButton>
+              onClick={() => setSelectedView('providers')}
+              sx={{ borderRadius: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 1.2 }}
+            >
+              <ListItemIcon sx={{ minWidth: 'auto', mr: 0 }}>
+                <LocalHospitalIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Providers" />
+            </ListItemButton>
+
+            {/**Menu Fijo Patients  
+            <ListItemButton
+              onClick={() => setSelectedView('patients')}
+              sx={{ borderRadius: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 1.2 }}
+            >
+              <ListItemIcon sx={{ minWidth: 'auto', mr: 0 }}>
+                <LocalHospitalIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Patients" />
+            </ListItemButton>*/}  
+
+            <ListItemButton
+              onClick={() => setSelectedView('patients-search')}
+              sx={{ borderRadius: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 1.2 }}
+            >
+              <ListItemIcon sx={{ minWidth: 'auto', mr: 0 }}>
+                <LocalHospitalIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Patients Search" />
+            </ListItemButton>
           </List>
 
 
@@ -255,6 +277,15 @@ export default function ProfileSearch() {
           {selectedView === 'providers' && (
             <ProviderList  onSelect={setSelectedProvider} />
           )}
+
+          {/**
+          {selectedView === 'patients' && (
+            <PatientList  onSelect={setSelectedPatient} />
+          )}
+          */}
+          {selectedView === 'patients-search' && (
+            <SearchPatientDeep />
+          )}
         </Box>
 
         <Divider
@@ -291,6 +322,17 @@ export default function ProfileSearch() {
               </Typography>
             )
           )}
+
+          {/**
+          {selectedView === 'patients-search' && (
+            selectedProvider ? (
+              <SearchPatientDeep />
+            ) : (
+              <Typography color="#5B5F7B">
+                Select a provider from the left panel.
+              </Typography>
+            )
+          )} */}
         </Box>
       </CardContent>
     </Card>
