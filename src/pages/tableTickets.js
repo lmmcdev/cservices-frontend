@@ -241,12 +241,12 @@ export default function TableTickets() {
                       <TableCell>
                         <Box display="flex" gap={1} alignItems="center">
                           {row.aiClassification?.priority && (
-                            <Tooltip title={`Priority: ${row.aiClassification.priority}`}>
-                              <icons.priority sx={{ fontSize: 18, color: getPriorityColor(row.aiClassification.priority) }} />
+                            <Tooltip title={`Priority: ${row.aiClassification?.priority}`}>
+                              <icons.priority sx={{ fontSize: 18, color: getPriorityColor(row.aiClassification?.priority) }} />
                             </Tooltip>
                           )}
                           {row.aiClassification?.risk?.toLowerCase() !== 'none' && (
-                            <Tooltip title={`Risk: ${row.aiClassification.risk}`}>
+                            <Tooltip title={`Risk: ${row.aiClassification?.risk}`}>
                               <icons.risk sx={{ fontSize: 18, color: '#f57c00' }} />
                             </Tooltip>
                           )}
