@@ -66,3 +66,41 @@ export const searchPatients = async (searchData, page = 1, size = 50, accessToke
 };
 
 
+//statistics
+export const getTicketsByPatientId = async ({ patientId, limit = 10, continuationToken = null }, accessToken = null) => {
+  if (!patientId) return { success: false, message: 'patientId is required' };
+
+  const url = `https://cservicesapi.azurewebsites.net/api/cosmoGetByPatientId`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
+      body: JSON.stringify({
+        patientId,
+        limit,
+        continuationToken, // se envía si existe
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Error fetching tickets');
+    }
+
+    // Retorno esperado: items y token para la paginación
+    return {
+      success: true,
+      message: {
+        items: data.message.items || [],
+        continuationToken: data.continuationToken || null,
+      },
+    };
+  } catch (err) {
+    return { success: false, message: err.message || 'Something went wrong' };
+  }
+};
