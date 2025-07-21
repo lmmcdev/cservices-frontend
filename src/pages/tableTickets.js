@@ -1,37 +1,47 @@
+// src/pages/tableTickets.jsx
+
 import React, { useEffect, useState } from 'react';
-//import { fetchTableData } from '../utils/api';
 import { useLoading } from '../providers/loadingProvider.jsx';
 import { useAuth } from '../context/authContext.js';
 import { useTickets } from '../context/ticketsContext.js';
 import {
-  Box, Chip, Card, CardContent,
-  Paper, Table, TableBody, TableCell, TableContainer,
-  TableHead, TableRow, TablePagination, IconButton, Tooltip
+  Box,
+  Chip,
+  Card,
+  CardContent,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TablePagination,
+  IconButton,
+  Tooltip
 } from '@mui/material';
 import AssignAgentModal from '../components/dialogs/assignAgentDialog';
 import { icons } from '../components/auxiliars/icons.js';
 import { useNavigate } from 'react-router-dom';
 import { useFilters } from '../context/filterContext.js';
-import { emailToFullName } from '../utils/js/emailToFullName.js'
+import { emailToFullName } from '../utils/js/emailToFullName.js';
 import StatusFilterBoxes from '../components/statusFilterBoxes';
 import { SortAscending, SortDescending } from 'phosphor-react';
 import { getStatusColor } from '../utils/js/statusColors.js';
 import SuspenseFallback from '../components/auxiliars/suspenseFallback.js';
 
 export default function TableTickets() {
-
   const getPriorityColor = (priority) => {
-  switch ((priority || '').toLowerCase()) {
-    case 'high': return '#d32f2f';     // rojo
-    case 'medium': return '#fbc02d';   // amarillo
-    case 'low': return '#388e3c';      // verde
-    default: return '#bdbdbd';         // gris
-  }
-};
+    switch ((priority || '').toLowerCase()) {
+      case 'high': return '#d32f2f';
+      case 'medium': return '#fbc02d';
+      case 'low': return '#388e3c';
+      default: return '#bdbdbd';
+    }
+  };
 
   const { filters } = useFilters();
   const { state, dispatch } = useTickets();
-  //const [state, dispatch] = useReducer(ticketReducer, initialState);
   const { setLoading } = useLoading();
   const { user } = useAuth();
   const [selectedStatus, setSelectedStatus] = useState('Total');
@@ -49,23 +59,19 @@ export default function TableTickets() {
     console.log("Asignar", agentEmail, "al ticket", ticketId);
   };
 
-  const { tickets, } = state;
-  const validTickets = Array.isArray(tickets) ? tickets : [];
-     //filtros de la tabla
-    const filteredRows = validTickets.filter((row) => {
-      const matchStatus = selectedStatus === 'Total' || row.status === selectedStatus;
-      const matchAgent =
-        filters.assignedAgents.length === 0 || filters.assignedAgents.includes(row.agent_assigned);
-      const matchCaller =
-        filters.callerIds.length === 0 || filters.callerIds.includes(row.caller_id);
-      const matchDate =
-        !filters.date || row.creation_date?.startsWith(filters.date); // suponiendo formato 'YYYY-MM-DD...'
-      const matchDepartment = 
-        filters.assignedDepartment.length === 0 || filters.assignedDepartment.includes(row.assigned_department);
-
-      return matchStatus && matchAgent && matchCaller && matchDate && matchDepartment;
-    });
-
+  const validTickets = Array.isArray(state.tickets) ? state.tickets : [];
+  const filteredRows = validTickets.filter((row) => {
+    const matchStatus = selectedStatus === 'Total' || row.status === selectedStatus;
+    const matchAgent =
+      filters.assignedAgents.length === 0 || filters.assignedAgents.includes(row.agent_assigned);
+    const matchCaller =
+      filters.callerIds.length === 0 || filters.callerIds.includes(row.caller_id);
+    const matchDate =
+      !filters.date || row.creation_date?.startsWith(filters.date);
+    const matchDepartment =
+      filters.assignedDepartment.length === 0 || filters.assignedDepartment.includes(row.assigned_department);
+    return matchStatus && matchAgent && matchCaller && matchDate && matchDepartment;
+  });
 
   const sortedRows = [...filteredRows].sort((a, b) => {
     const dateA = new Date(a.creation_date);
@@ -87,15 +93,13 @@ export default function TableTickets() {
     setPage(0);
   };
 
-  //conteo de los tickets
   const ticketsCountByStatus = validTickets.reduce((acc, ticket) => {
     const status = ticket.status || 'Unknown';
     acc[status] = (acc[status] || 0) + 1;
     return acc;
-  }, {}) || {};
+  }, {});
   ticketsCountByStatus.Total = filteredRows.length;
 
-  //ancho fijo para las columnas
   const columnWidths = {
     status: 110,
     callerId: 120,
@@ -103,25 +107,22 @@ export default function TableTickets() {
     dob: 120,
     phone: 130,
     createdAt: 160,
-    edit: 40,
-    assign: 80,
     assignedTo: 160
   };
 
-    //para formatear la parte visual del phone
-    const formatPhone = (value) => {
-      const digits = value.replace(/\D/g, '').slice(-10); // extrae últimos 10 dígitos
-      const parts = [];
-      if (digits.length > 0) parts.push('(' + digits.slice(0, 3));
-      if (digits.length >= 4) parts[0] += ') ';
-      if (digits.length >= 4) parts.push(digits.slice(3, 6));
-      if (digits.length >= 7) parts.push('-' + digits.slice(6, 10));
-      return '+1 ' + parts.join('');
-    };
+  const formatPhone = (value) => {
+    const digits = value.replace(/\D/g, '').slice(-10);
+    const parts = [];
+    if (digits.length > 0) parts.push('(' + digits.slice(0, 3));
+    if (digits.length >= 4) parts[0] += ') ';
+    if (digits.length >= 4) parts.push(digits.slice(3, 6));
+    if (digits.length >= 7) parts.push('-' + digits.slice(6, 10));
+    return '+1 ' + parts.join('');
+  };
 
-     if (!Array.isArray(state.tickets) || state.tickets.length === 0) {
-        return <SuspenseFallback />;
-      }
+  if (!Array.isArray(state.tickets) || state.tickets.length === 0) {
+    return <SuspenseFallback />;
+  }
 
   return (
     <>
@@ -140,8 +141,8 @@ export default function TableTickets() {
         }}
       >
         <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {/* FILTROS */}
-          <Box sx={{ flexShrink: 0, mt: 4 }}>
+          {/* FILTROS alineados con la tabla y con margen inferior extra */}
+          <Box sx={{ flexShrink: 0, px: 4, pt: 4, pb: 2 }}>
             <StatusFilterBoxes
               selectedStatus={selectedStatus}
               setSelectedStatus={setSelectedStatus}
@@ -169,7 +170,7 @@ export default function TableTickets() {
               <Table stickyHeader sx={{ tableLayout: 'fixed' }}>
                 <TableHead>
                   <TableRow>
-                    <TableCell sx={{ width: columnWidths.status, minWidth: columnWidths.status, fontWeight: 'bold', pl: 3 }}>
+                    <TableCell sx={{ width: columnWidths.status, minWidth: columnWidths.status, fontWeight: 'bold' }}>
                       Status
                     </TableCell>
                     <TableCell sx={{ width: 100, fontWeight: 'bold' }}>
@@ -199,7 +200,7 @@ export default function TableTickets() {
                       onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
                     >
                       <Box display="flex" alignItems="center">
-                        Created At{' '}
+                        Created At&nbsp;
                         {sortDirection === 'asc' ? (
                           <SortAscending size={20} weight="bold" style={{ marginLeft: 8 }} />
                         ) : (
@@ -217,7 +218,7 @@ export default function TableTickets() {
                 </TableHead>
                 <TableBody>
                   {paginatedRows.map((row, idx) => (
-                    <TableRow key={row.id && row.id !== '' ? row.id : `fallback-${idx}`} sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>
+                    <TableRow key={row.id || idx} sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>
                       <TableCell>
                         <Chip
                           label={row.status}
@@ -231,51 +232,32 @@ export default function TableTickets() {
                             '& .MuiChip-label': {
                               display: 'flex',
                               alignItems: 'center',
-                              paddingY: '4px',
-                              paddingX: '15px',
-                              lineHeight: 1.5,
+                              py: '4px',
+                              px: '15px',
                             },
                           }}
                         />
                       </TableCell>
                       <TableCell>
                         <Box display="flex" gap={1} alignItems="center">
-                          {/* PRIORITY */}
                           {row.aiClassification?.priority && (
                             <Tooltip title={`Priority: ${row.aiClassification.priority}`}>
-                              <icons.priority
-                                sx={{
-                                  fontSize: 18,
-                                  color: getPriorityColor(row.aiClassification.priority),
-                                }}
-                              />
+                              <icons.priority sx={{ fontSize: 18, color: getPriorityColor(row.aiClassification.priority) }} />
                             </Tooltip>
                           )}
-
-
-                          {/* RISK */}
-                          {row.aiClassification?.risk &&
-                            row.aiClassification.risk.toLowerCase() !== 'none' && (
-                              <Tooltip title={`Risk: ${row.aiClassification.risk}`}>
-                                <icons.risk sx={{ fontSize: 18, color: '#f57c00' }} />
-                              </Tooltip>
-                            )}
-
-
-                          {/* CATEGORY */}
+                          {row.aiClassification?.risk?.toLowerCase() !== 'none' && (
+                            <Tooltip title={`Risk: ${row.aiClassification.risk}`}>
+                              <icons.risk sx={{ fontSize: 18, color: '#f57c00' }} />
+                            </Tooltip>
+                          )}
                           {(() => {
-                            const rawCategory = row.aiClassification?.category;
-                            const normalizedCategory = rawCategory?.toLowerCase().replace(/\s+/g, '_') || 'others';
-                            const CategoryIcon = icons[normalizedCategory] || icons.others;
-
-                            return (
-                              CategoryIcon && (
-                                <Tooltip title={`Category: ${rawCategory || 'Others'}`}>
-                                  {React.createElement(CategoryIcon, {
-                                    sx: { fontSize: 18, color: '#00a1ff' },
-                                  })}
-                                </Tooltip>
-                              )
+                            const raw = row.aiClassification?.category;
+                            const norm = raw?.toLowerCase().replace(/\s+/g, '_') || 'others';
+                            const CatIcon = icons[norm] || icons.others;
+                            return CatIcon && (
+                              <Tooltip title={`Category: ${raw || 'Others'}`}>
+                                {React.createElement(CatIcon, { sx: { fontSize: 18, color: '#00a1ff' } })}
+                              </Tooltip>
                             );
                           })()}
                         </Box>
@@ -288,48 +270,45 @@ export default function TableTickets() {
                       <TableCell>{emailToFullName(row.agent_assigned)}</TableCell>
                       <TableCell>
                         <Box display="flex" justifyContent="center" gap={1}>
-                          {row.agent_assigned !== '' && (
-                            <Tooltip title="Edit" placement="bottom">
+                          {row.agent_assigned ? (
+                            <Tooltip title="Edit">
                               <Box
                                 sx={{
                                   backgroundColor: '#DFF3FF',
                                   color: '#00A1FF',
                                   borderRadius: '50%',
-                                  padding: 1,
+                                  p: 1,
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
                                   width: 32,
                                   height: 32,
-                                  fontSize: 18,
-                                  cursor: 'pointer',
-                                  transition: 'background-color 0.3s, color 0.3s',
+                                  transition: 'background-color 0.3s',
                                   '&:hover': {
                                     backgroundColor: '#00A1FF',
-                                    color: '#FFFFFF',
+                                    color: '#fff',
                                   },
                                 }}
                                 onClick={() => navigate(`/tickets/edit/${row.id}`)}
                               >
-                                <icons.edit style={{ fontSize: 16, color: 'inherit' }} />
+                                <icons.edit sx={{ fontSize: 16 }} />
                               </Box>
                             </Tooltip>
-                          )}
-                          {row.agent_assigned === '' && (
-                            <Tooltip title="Assign to me" placement="bottom">
+                          ) : (
+                            <Tooltip title="Assign to me">
                               <IconButton
                                 onClick={() => setSelectedTicket(row)}
                                 sx={{
                                   backgroundColor: '#daf8f4',
                                   color: '#00b8a3',
                                   borderRadius: '50%',
-                                  padding: 1,
+                                  p: 1,
                                   width: 32,
                                   height: 32,
-                                  transition: 'background-color 0.3s, color 0.3s',
+                                  transition: 'background-color 0.3s',
                                   '&:hover': {
                                     backgroundColor: '#00b8a3',
-                                    color: '#ffffff',
+                                    color: '#fff',
                                   },
                                 }}
                               >
@@ -347,7 +326,7 @@ export default function TableTickets() {
           </Box>
 
           {/* Paginador */}
-          <Box sx={{ flexShrink: 0, px: 2, py: 1, backgroundColor: '#fff' }}>
+          <Box sx={{ flexShrink: 0, px: 4, py: 1, backgroundColor: '#fff' }}>
             <TablePagination
               component="div"
               count={filteredRows.length}
@@ -363,7 +342,7 @@ export default function TableTickets() {
 
       {selectedTicket && user?.username && (
         <AssignAgentModal
-          open={!!selectedTicket}
+          open
           onClose={() => setSelectedTicket(null)}
           ticket={selectedTicket}
           agentEmail={user.username}
