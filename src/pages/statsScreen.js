@@ -111,6 +111,7 @@ export default function StatsScreen() {
 
   return (
     <>
+    <FloatingSettingsButton />
       <Box
         sx={{
           width: '100%',
