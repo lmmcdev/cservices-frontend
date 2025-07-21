@@ -7,8 +7,17 @@ import {
   Card,
   CardContent,
   Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton,
+  List,
+  ListItem,
+  Tooltip
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { searchPatients } from '../../utils/apiPatients';
+import { getTicketsByPatientId } from '../../utils/apiPatients';
 
 const PAGE_SIZE = 30;
 
@@ -18,9 +27,16 @@ const SearchPatientDeep = ({ queryPlaceholder = 'Search patients deeply...' }) =
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(false);
+  const [continuationToken, setContinuationToken] = useState(null);
   const observerRef = useRef(null);
 
-  // Fetch Function
+  // State para diálogo
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [tickets, setTickets] = useState([]);
+  const [ticketsLoading, setTicketsLoading] = useState(false);
+
+  // Fetch Patients
   const fetchPatients = useCallback(async (searchTerm, pageNumber) => {
     if (!searchTerm || searchTerm.length < 2) return;
 
@@ -43,7 +59,7 @@ const SearchPatientDeep = ({ queryPlaceholder = 'Search patients deeply...' }) =
     }
   }, []);
 
-  // On input change
+  // Input Change
   const handleInputChange = (e) => {
     const value = e.target.value;
     setInputValue(value);
@@ -52,7 +68,7 @@ const SearchPatientDeep = ({ queryPlaceholder = 'Search patients deeply...' }) =
     if (value.length >= 2) fetchPatients(value, 1);
   };
 
-  // Infinite Scroll observer
+  // Infinite Scroll
   const lastElementRef = useCallback(
     (node) => {
       if (loading) return;
@@ -70,6 +86,44 @@ const SearchPatientDeep = ({ queryPlaceholder = 'Search patients deeply...' }) =
     },
     [loading, hasMore, inputValue, page, fetchPatients]
   );
+
+  // Open dialog and fetch tickets
+  const handlePatientClick = async (patient) => {
+    setSelectedPatient(patient);
+    setDialogOpen(true);
+    setTickets([]);
+    setTicketsLoading(true);
+    //console.log(patient)
+    try {
+      const res = await getTicketsByPatientId({
+        patientId: patient.id,
+        limit: 10,
+        continuationToken: continuationToken,
+      });
+
+      
+
+        const { items, continuationToken: nextToken } = res.message;
+        setContinuationToken(nextToken || null);
+        setTickets((prev) => {
+            const ids = new Set(prev.map((item) => item.id));
+            const newItems = items.filter((item) => !ids.has(item.id));
+            return [...prev, ...newItems];
+        })
+        setHasMore(!!nextToken);
+
+    } catch (err) {
+      console.error('Error fetching tickets:', err);
+    } finally {
+      setTicketsLoading(false);
+    }
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+    setSelectedPatient(null);
+    setTickets([]);
+  };
 
   return (
     <Box sx={{ p: 0 }}>
@@ -89,7 +143,8 @@ const SearchPatientDeep = ({ queryPlaceholder = 'Search patients deeply...' }) =
             <Card
               key={patient.id || index}
               ref={isLast ? lastElementRef : null}
-              sx={{ mb: 2 }}
+              sx={{ mb: 2, cursor: 'pointer', '&:hover': { backgroundColor: '#f9f9f9' } }}
+              onClick={() => handlePatientClick(patient)}
             >
               <CardContent>
                 <Typography variant="h6" fontWeight="bold">
@@ -123,6 +178,81 @@ const SearchPatientDeep = ({ queryPlaceholder = 'Search patients deeply...' }) =
           </Typography>
         )}
       </Box>
+
+      {/* ✅ Dialog para mostrar tickets */}
+      <Dialog
+        open={dialogOpen}
+        onClose={handleCloseDialog}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          Tickets for {selectedPatient?.Name || 'Patient'}
+          <IconButton onClick={handleCloseDialog}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers sx={{ maxHeight: '60vh' }}>
+          {ticketsLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+            </Box>
+          ) : tickets.length === 0 ? (
+            <Typography>No tickets found for this patient.</Typography>
+          ) : (
+            <List>
+              {tickets.map((ticket) => (
+                 <ListItem
+                    key={ticket.id}
+                    divider
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'flex-start',
+                        gap: 2,
+                    }}
+                    >
+                    {/* Columna Izquierda */}
+                    <Box sx={{ flex: 2, maxWidth: '60%' }}>
+                        <Tooltip title={ticket.call_reason || 'No Reason'}>
+                        <Typography
+                            variant="body1"
+                            fontWeight="bold"
+                            noWrap
+                            sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
+                        >
+                            {ticket.call_reason || 'No Reason'}
+                        </Typography>
+                        </Tooltip>
+
+                        <Typography variant="caption" color="text.secondary">
+                        Status: {ticket.status} | Created: {ticket.creation_date}
+                        </Typography>
+                    </Box>
+
+                    {/* Columna Derecha */}
+                    <Box sx={{ flex: 1, maxWidth: '35%', textAlign: 'right' }}>
+                        <Tooltip title={ticket.agent_assigned || 'No Assigned Agent'}>
+                        <Typography
+                            variant="body1"
+                            noWrap
+                            sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
+                        >
+                            {ticket.agent_assigned || 'No Assigned Agent'}
+                        </Typography>
+                        </Tooltip>
+
+                        <Typography variant="caption" color="text.secondary" noWrap>
+                        Caller ID: {ticket.caller_id} - {ticket.assigned_department}
+                        </Typography>
+                    </Box>
+                    </ListItem>
+
+              ))}
+            </List>
+          )}
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };
