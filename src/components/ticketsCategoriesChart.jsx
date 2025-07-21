@@ -1,3 +1,5 @@
+// src/components/ticketsCategoriesChart.jsx
+
 import React from 'react';
 import { Box, Card, CardContent, Typography } from '@mui/material';
 import {
@@ -71,7 +73,19 @@ function TicketCategoriesChartBase({ stats, onCategoryClick }) {
   };
 
   return (
-    <Box sx={{ width: '100%', height: '100%' }}>
+    <Box
+      sx={{
+        width: '100%',
+        height: '100%',
+        // quita fondo gris en hover y aclara el color original
+        '& .recharts-tooltip-cursor': {
+          fill: 'transparent !important',
+        },
+        '& .recharts-bar-rectangle:hover': {
+          filter: 'brightness(1.2)',
+        },
+      }}
+    >
       <Card
         sx={{
           width: '100%',
@@ -83,11 +97,11 @@ function TicketCategoriesChartBase({ stats, onCategoryClick }) {
           flexDirection: 'column',
         }}
       >
-        <CardContent sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, }}>
+        <CardContent sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
             Ticket Categories Breakdown
           </Typography>
-          <Box sx={{ flex: 1, width: '100%', minHeight: 0, }}>
+          <Box sx={{ flex: 1, width: '100%', minHeight: 0 }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 layout="vertical"
@@ -95,7 +109,6 @@ function TicketCategoriesChartBase({ stats, onCategoryClick }) {
                 margin={{ top: 10, right: 20, left: 20, bottom: 10 }}
                 barCategoryGap="20%"
               >
-                {/* Eje X con etiquetas numéricas */}
                 <XAxis
                   type="number"
                   axisLine={{ stroke: '#ccc' }}
@@ -113,9 +126,14 @@ function TicketCategoriesChartBase({ stats, onCategoryClick }) {
                   dataKey="value"
                   onClick={handleClick}
                   radius={[0, 8, 8, 0]}
+                  cursor="pointer"
                 >
                   {data.map((entry, i) => (
-                    <Cell key={`cell-${i}`} fill={entry.fill} />
+                    <Cell
+                      key={`cell-${i}`}
+                      fill={entry.fill}
+                      fillOpacity={1}
+                    />
                   ))}
                   <LabelList
                     dataKey="value"

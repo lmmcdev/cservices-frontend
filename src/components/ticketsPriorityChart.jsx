@@ -98,7 +98,16 @@ export default function TicketPriorityChartBase({ stats, onCategoryClick }) {
   };
 
   return (
-    <Box sx={{ width: '100%', height: '100%' }}>
+    <Box
+      sx={{
+        width: '100%',
+        height: '100%',
+        // quita el outline/focus negro tras click
+        '& path:focus, & g:focus, & g > path:focus': {
+          outline: 'none !important',
+        },
+      }}
+    >
       <Card
         sx={{
           width: '100%',
@@ -130,7 +139,7 @@ export default function TicketPriorityChartBase({ stats, onCategoryClick }) {
                   nameKey="name"
                   cx="50%"
                   cy="50%"
-                  innerRadius={0}        // full pie
+                  innerRadius={0}
                   outerRadius="100%"
                   onClick={handleClick}
                   onMouseEnter={(_, i) => setActiveIndex(i)}
@@ -142,6 +151,7 @@ export default function TicketPriorityChartBase({ stats, onCategoryClick }) {
                     <Cell key={`cell-${idx}`} fill={entry.fill} />
                   ))}
                 </Pie>
+                {/* Elimina cualquier tooltip oscuro por defecto */}
                 <RechartsTooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>

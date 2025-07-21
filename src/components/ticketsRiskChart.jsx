@@ -26,7 +26,7 @@ const COLORS = [
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
-  const { value, payload: dataPoint } = payload[0];
+  const { value } = payload[0].payload;
   return (
     <Box
       sx={{
@@ -66,7 +66,19 @@ export default function TicketRiskChart({ stats, onCategoryClick }) {
   };
 
   return (
-    <Box sx={{ width: '100%', height: '100%' }}>
+    <Box
+      sx={{
+        width: '100%',
+        height: '100%',
+        // Eliminar barra gris de hover y aclarar el color original en hover
+        '& .recharts-tooltip-cursor': {
+          fill: 'transparent !important',
+        },
+        '& .recharts-bar-rectangle:hover': {
+          filter: 'brightness(1.2)',
+        },
+      }}
+    >
       <Card
         sx={{
           width: '100%',
@@ -78,11 +90,11 @@ export default function TicketRiskChart({ stats, onCategoryClick }) {
           flexDirection: 'column',
         }}
       >
-        <CardContent sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, }}>
+        <CardContent sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
           <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
             Ticket Risks Breakdown
           </Typography>
-          <Box sx={{ flex: 1, width: '100%', minHeight: 0, }}>
+          <Box sx={{ flex: 1, width: '100%', minHeight: 0 }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={dataRisks}
@@ -95,6 +107,7 @@ export default function TicketRiskChart({ stats, onCategoryClick }) {
                   dataKey="value"
                   onClick={handleRiskClick}
                   radius={[10, 10, 0, 0]}
+                  cursor="pointer"
                 >
                   {dataRisks.map((entry, idx) => (
                     <Cell key={`cell-${idx}`} fill={entry.fill} />
