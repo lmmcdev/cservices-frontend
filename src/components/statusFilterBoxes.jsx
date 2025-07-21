@@ -1,3 +1,5 @@
+// src/components/statusFilterBoxes.jsx
+
 import React from 'react';
 import { Grid, Card, CardContent, Typography, Chip } from '@mui/material';
 import { getStatusColor } from '../utils/js/statusColors';
@@ -12,15 +14,14 @@ const statuses = [
   'Total',
 ];
 
-const StatusFilterBoxes = ({ selectedStatus, setSelectedStatus, ticketsCountByStatus }) => {
+export default function StatusFilterBoxes({ selectedStatus, setSelectedStatus, ticketsCountByStatus }) {
   return (
     <Grid
       container
-      columnSpacing={2} 
-      rowSpacing={0} 
+      columnSpacing={2}
+      rowSpacing={0}
       sx={{
         width: '100%',
-        //display: 'flex',
         flexWrap: 'nowrap',
       }}
     >
@@ -43,12 +44,13 @@ const StatusFilterBoxes = ({ selectedStatus, setSelectedStatus, ticketsCountBySt
             <Card
               sx={{
                 width: '100%',
+                // Alturas reducidas y responsive
                 height: {
-                  xs: 120,
-                  sm: 140,
-                  md: 160,
-                  lg: 180,
-                  xl: 200,
+                  xs: 70,   // 70px en móvil
+                  sm: 90,   // 90px en >=600px
+                  md: 110,  // 110px en >=900px
+                  lg: 130,  // 130px en >=1200px
+                  xl: 150,  // 150px en >=1536px
                 },
                 backgroundColor: bgColor,
                 color: textColor,
@@ -65,9 +67,11 @@ const StatusFilterBoxes = ({ selectedStatus, setSelectedStatus, ticketsCountBySt
               }}
             >
               <CardContent sx={{ p: 0 }}>
+                {/* count mantiene su tamaño h4 original */}
                 <Typography variant="h4" fontWeight="bold" lineHeight={1}>
                   {count}
                 </Typography>
+                {/* label mantiene su tamaño original */}
                 <Chip
                   label={status}
                   size="small"
@@ -84,6 +88,4 @@ const StatusFilterBoxes = ({ selectedStatus, setSelectedStatus, ticketsCountBySt
       })}
     </Grid>
   );
-};
-
-export default StatusFilterBoxes;
+}
