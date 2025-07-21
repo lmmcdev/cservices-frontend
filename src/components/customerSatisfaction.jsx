@@ -9,11 +9,12 @@ import {
   FaSmile,
   FaGrinStars,
 } from 'react-icons/fa';
+import StarIcon from '@mui/icons-material/Star';
 
 const segments = [
   { Icon: FaAngry,     color: '#d32f2f', label: 'Terrible' },
   { Icon: FaFrown,     color: '#ff8a00', label: 'Bad'      },
-  { Icon: FaMeh,       color: '#ffeb3b', label: 'Okay'     },
+  { Icon: FaMeh,       color: '#fbc02d', label: 'Okay'     },
   { Icon: FaSmile,     color: '#8bc34a', label: 'Good'     },
   { Icon: FaGrinStars, color: '#4caf50', label: 'Great'    },
 ];
@@ -25,7 +26,7 @@ export default function CustomerSatisfaction() {
     Math.floor((score / 100) * segments.length)
   );
 
-  // Responsive icon size based on window width
+  // Tamaño de icono responsive
   const getIconSize = () => {
     const w = window.innerWidth;
     if (w < 600) return 24;
@@ -41,13 +42,20 @@ export default function CustomerSatisfaction() {
           p: 2,
           display: 'flex',
           flexDirection: 'column',
+          justifyContent: 'center',      // centra todo verticalmente
           height: '100%',
           borderRadius: 2,
           boxShadow: '0px 8px 24px rgba(239,241,246,1)',
         }}
       >
         {/* Caritas filled del color correspondiente */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            mb: { xs: 2, sm: 3 },        // más separación debajo de los emojis
+          }}
+        >
           {segments.map(({ Icon, color }, i) => (
             <Box
               key={i}
@@ -63,7 +71,7 @@ export default function CustomerSatisfaction() {
           ))}
         </Box>
 
-        {/* Barra segmentada + estrella + etiqueta */}
+        {/* Barra segmentada + ícono Star + etiqueta */}
         <Box
           sx={{
             position: 'relative',
@@ -74,33 +82,33 @@ export default function CustomerSatisfaction() {
             mb: 4,
           }}
         >
+          {/* segmentos de la barra */}
           {segments.map(({ color }, i) => (
             <Box key={i} sx={{ flex: 1, bgcolor: color }} />
           ))}
 
-          {/* Estrella marcando la puntuación */}
+          {/* Ícono Star con relleno amarillo y borde negro */}
           <Box
             sx={{
               position: 'absolute',
-              top: -14,
+              top: '50%',
               left: `${score}%`,
-              transform: 'translateX(-50%)',
+              transform: 'translate(-50%, -50%)',
               zIndex: 1,
             }}
           >
-            <Typography
-              component="span"
+            <StarIcon
               sx={{
-                fontSize: { xs: 20, sm: 24, md: 28 },
-                lineHeight: 1,
-                color: segments[idx].color,
+                fontSize: { xs: 24, sm: 32, md: 40 },
+                fill: '#FFD700',      // interior amarillo
+                stroke: '#000000',    // contorno negro
+                strokeWidth: 1,
+                strokeLinejoin: 'round',
               }}
-            >
-              ⭐
-            </Typography>
+            />
           </Box>
 
-          {/* Etiqueta debajo de la barra */}
+          {/* Etiqueta justo debajo de la barra */}
           <Typography
             sx={{
               position: 'absolute',
