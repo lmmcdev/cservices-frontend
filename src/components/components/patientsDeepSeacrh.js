@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   Box,
   TextField,
@@ -16,8 +16,8 @@ import {
   Tooltip
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { searchPatients } from '../../utils/apiPatients';
-import { getTicketsByPatientId } from '../../utils/apiPatients';
+import { searchPatients, getTicketsByPatientId } from '../../utils/apiPatients';
+import MDVitaLocationSelect from './mdvitaCenterSelect';
 
 const PAGE_SIZE = 30;
 
@@ -30,45 +30,51 @@ const SearchPatientDeep = ({ queryPlaceholder = 'Search patients deeply...' }) =
   const [continuationToken, setContinuationToken] = useState(null);
   const observerRef = useRef(null);
 
-  // State para diálogo
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [tickets, setTickets] = useState([]);
   const [ticketsLoading, setTicketsLoading] = useState(false);
+  const [selectedMDVitaLocation, setSelectedMDVitaLocation] = useState('');
 
-  // Fetch Patients
-  const fetchPatients = useCallback(async (searchTerm, pageNumber) => {
-    if (!searchTerm || searchTerm.length < 2) return;
+  // ✅ Fetch Patients
+  const fetchPatients = useCallback(
+    async (searchTerm, pageNumber) => {
+      if (!searchTerm || searchTerm.length < 2) return;
 
-    setLoading(true);
-    try {
-      const res = await searchPatients(searchTerm, pageNumber, PAGE_SIZE);
-      const data = res?.message?.value || [];
+      setLoading(true);
+      try {
+        const res = await searchPatients(searchTerm, pageNumber, PAGE_SIZE, selectedMDVitaLocation);
+        const data = res?.message?.value || [];
 
-      if (pageNumber === 1) {
-        setResults(data);
-      } else {
-        setResults((prev) => [...prev, ...data]);
+        if (pageNumber === 1) {
+          setResults(data);
+        } else {
+          setResults((prev) => [...prev, ...data]);
+        }
+
+        setHasMore(data.length === PAGE_SIZE);
+      } catch (err) {
+        console.error('Error in deep search:', err);
+      } finally {
+        setLoading(false);
       }
+    },
+    [selectedMDVitaLocation]
+  );
 
-      setHasMore(data.length === PAGE_SIZE);
-    } catch (err) {
-      console.error('Error in deep search:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // ✅ Efecto para disparar búsqueda cada vez que cambia inputValue o location
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (inputValue.length >= 2) {
+        setPage(1);
+        setResults([]);
+        fetchPatients(inputValue, 1);
+      }
+    }, 400); // debounce 400ms
 
-  // Input Change
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setInputValue(value);
-    setPage(1);
-    setResults([]);
-    if (value.length >= 2) fetchPatients(value, 1);
-  };
+    return () => clearTimeout(handler);
+  }, [inputValue, selectedMDVitaLocation, fetchPatients]);
 
-  // Infinite Scroll
   const lastElementRef = useCallback(
     (node) => {
       if (loading) return;
@@ -87,31 +93,26 @@ const SearchPatientDeep = ({ queryPlaceholder = 'Search patients deeply...' }) =
     [loading, hasMore, inputValue, page, fetchPatients]
   );
 
-  // Open dialog and fetch tickets
   const handlePatientClick = async (patient) => {
     setSelectedPatient(patient);
     setDialogOpen(true);
     setTickets([]);
     setTicketsLoading(true);
-    //console.log(patient)
     try {
       const res = await getTicketsByPatientId({
         patientId: patient.id,
         limit: 10,
-        continuationToken: continuationToken,
+        continuationToken: continuationToken
       });
 
-      
-
-        const { items, continuationToken: nextToken } = res.message;
-        setContinuationToken(nextToken || null);
-        setTickets((prev) => {
-            const ids = new Set(prev.map((item) => item.id));
-            const newItems = items.filter((item) => !ids.has(item.id));
-            return [...prev, ...newItems];
-        })
-        setHasMore(!!nextToken);
-
+      const { items, continuationToken: nextToken } = res.message;
+      setContinuationToken(nextToken || null);
+      setTickets((prev) => {
+        const ids = new Set(prev.map((item) => item.id));
+        const newItems = items.filter((item) => !ids.has(item.id));
+        return [...prev, ...newItems];
+      });
+      setHasMore(!!nextToken);
     } catch (err) {
       console.error('Error fetching tickets:', err);
     } finally {
@@ -127,15 +128,28 @@ const SearchPatientDeep = ({ queryPlaceholder = 'Search patients deeply...' }) =
 
   return (
     <Box sx={{ p: 0 }}>
-      <TextField
-        fullWidth
-        label="Deep Patient Search"
-        placeholder={queryPlaceholder}
-        variant="outlined"
-        value={inputValue}
-        onChange={handleInputChange}
-      />
+      {/* ✅ Selector de ubicación */}
+      <Box sx={{ mt: 2 }}>
+        <MDVitaLocationSelect
+          value={selectedMDVitaLocation}
+          onChange={(val) => setSelectedMDVitaLocation(val)}
+          label="Location"
+        />
+      </Box>
 
+      {/* ✅ Buscador */}
+      <Box sx={{ mt: 2 }}>
+        <TextField
+          fullWidth
+          label="Deep Patient Search"
+          placeholder={queryPlaceholder}
+          variant="outlined"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+        />
+      </Box>
+
+      {/* ✅ Resultados */}
       <Box sx={{ mt: 2, maxHeight: '55vh', overflowY: 'auto' }}>
         {results.map((patient, index) => {
           const isLast = index === results.length - 1;
@@ -150,16 +164,16 @@ const SearchPatientDeep = ({ queryPlaceholder = 'Search patients deeply...' }) =
                 <Typography variant="h6" fontWeight="bold">
                   {patient.Name || 'No name'}
                 </Typography>
-                <Typography variant="body2">
-                  DOB: {patient.DOB || 'N/A'}
-                </Typography>
+                <Typography variant="body2">DOB: {patient.DOB || 'N/A'}</Typography>
                 <Typography variant="caption" color="text.secondary">
                   Email: {patient.Email || 'N/A'}
                 </Typography>
                 <Divider sx={{ mt: 1 }} />
+                <Typography variant="body2" color="text.secondary">
+                  Location: {patient.Location_Name || 'N/A'} -|- PCP: {patient.PCP || 'N/A'}
+                </Typography>
                 <Typography variant="caption">
-                  Language: {patient.Language || 'N/A'} | Gender:{' '}
-                  {patient.Gender || 'N/A'}
+                  Language: {patient.Language || 'N/A'} | Gender: {patient.Gender || 'N/A'}
                 </Typography>
               </CardContent>
             </Card>
@@ -173,19 +187,12 @@ const SearchPatientDeep = ({ queryPlaceholder = 'Search patients deeply...' }) =
         )}
 
         {!loading && results.length === 0 && inputValue.length >= 2 && (
-          <Typography sx={{ textAlign: 'center', mt: 2 }}>
-            No results found.
-          </Typography>
+          <Typography sx={{ textAlign: 'center', mt: 2 }}>No results found.</Typography>
         )}
       </Box>
 
-      {/* ✅ Dialog para mostrar tickets */}
-      <Dialog
-        open={dialogOpen}
-        onClose={handleCloseDialog}
-        fullWidth
-        maxWidth="md"
-      >
+      {/* ✅ Dialog Tickets */}
+      <Dialog open={dialogOpen} onClose={handleCloseDialog} fullWidth maxWidth="md">
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           Tickets for {selectedPatient?.Name || 'Patient'}
           <IconButton onClick={handleCloseDialog}>
@@ -202,52 +209,41 @@ const SearchPatientDeep = ({ queryPlaceholder = 'Search patients deeply...' }) =
           ) : (
             <List>
               {tickets.map((ticket) => (
-                 <ListItem
-                    key={ticket.id}
-                    divider
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'flex-start',
-                        gap: 2,
-                    }}
-                    >
-                    {/* Columna Izquierda */}
-                    <Box sx={{ flex: 2, maxWidth: '60%' }}>
-                        <Tooltip title={ticket.call_reason || 'No Reason'}>
-                        <Typography
-                            variant="body1"
-                            fontWeight="bold"
-                            noWrap
-                            sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
-                        >
-                            {ticket.call_reason || 'No Reason'}
-                        </Typography>
-                        </Tooltip>
-
-                        <Typography variant="caption" color="text.secondary">
-                        Status: {ticket.status} | Created: {ticket.creation_date}
-                        </Typography>
-                    </Box>
-
-                    {/* Columna Derecha */}
-                    <Box sx={{ flex: 1, maxWidth: '35%', textAlign: 'right' }}>
-                        <Tooltip title={ticket.agent_assigned || 'No Assigned Agent'}>
-                        <Typography
-                            variant="body1"
-                            noWrap
-                            sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
-                        >
-                            {ticket.agent_assigned || 'No Assigned Agent'}
-                        </Typography>
-                        </Tooltip>
-
-                        <Typography variant="caption" color="text.secondary" noWrap>
-                        Caller ID: {ticket.caller_id} - {ticket.assigned_department}
-                        </Typography>
-                    </Box>
-                    </ListItem>
-
+                <ListItem
+                  key={ticket.id}
+                  divider
+                  sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 2 }}
+                >
+                  <Box sx={{ flex: 2, maxWidth: '60%' }}>
+                    <Tooltip title={ticket.call_reason || 'No Reason'}>
+                      <Typography
+                        variant="body1"
+                        fontWeight="bold"
+                        noWrap
+                        sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
+                      >
+                        {ticket.call_reason || 'No Reason'}
+                      </Typography>
+                    </Tooltip>
+                    <Typography variant="caption" color="text.secondary">
+                      Status: {ticket.status} | Created: {ticket.creation_date}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ flex: 1, maxWidth: '35%', textAlign: 'right' }}>
+                    <Tooltip title={ticket.agent_assigned || 'No Assigned Agent'}>
+                      <Typography
+                        variant="body1"
+                        noWrap
+                        sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}
+                      >
+                        {ticket.agent_assigned || 'No Assigned Agent'}
+                      </Typography>
+                    </Tooltip>
+                    <Typography variant="caption" color="text.secondary" noWrap>
+                      Caller ID: {ticket.caller_id} - {ticket.assigned_department}
+                    </Typography>
+                  </Box>
+                </ListItem>
               ))}
             </List>
           )}
