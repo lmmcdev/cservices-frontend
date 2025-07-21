@@ -1,3 +1,5 @@
+// src/components/ticketsCategoriesChart.jsx
+
 import React from 'react';
 import {
   Box,
@@ -90,16 +92,7 @@ function TicketCategoriesChartBase({ stats, onCategoryClick }) {
   };
 
   return (
-    <Box
-      sx={{
-        '& .recharts-tooltip-cursor': {
-          fill: 'transparent !important',
-        },
-        '& .recharts-bar-rectangle:hover': {
-          filter: 'brightness(1.1)',
-        },
-      }}
-    >
+    <Box sx={{ width: '100%', height: '100%' }}>
       <Card
         sx={{
           borderRadius: 3,
@@ -109,33 +102,49 @@ function TicketCategoriesChartBase({ stats, onCategoryClick }) {
           boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
         }}
       >
-        <CardContent>
-          <Typography variant="p" fontWeight="bold" sx={{ mt: 2, mb: 3, ml: 2, color: '#000' }}>
+        <CardContent sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
             Ticket Categories Breakdown
           </Typography>
-
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart
-              layout="vertical"
-              data={dataCategories}
-              margin={{ top: 20, right: 30, left: 45, bottom: 20 }}
-              barCategoryGap="10%"
-            >
-              <XAxis type="number" />
-              <YAxis type="category" dataKey="name" tick={{ fontSize: 15 }}/>
-              <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="value" onClick={handleCategoryClick} radius={[0, 7, 7, 0]}>
-                {dataCategories.map((entry, index) => (
-                  <Cell key={`cell-cat-${index}`} fill={entry.fill} />
-                ))}
-                <LabelList
-                  dataKey="value"
-                  position="right"
-                  style={{ fill: '#333', fontSize: 10, fontWeight: 'bold' }}
+          <Box sx={{ flex: 1, width: '100%' }}>
+            <ResponsiveContainer width="100%" aspect={2}>
+              <BarChart
+                layout="vertical"
+                data={data}
+                margin={{ top: 10, right: 20, left: 20, bottom: 10 }}
+                barCategoryGap="20%"
+              >
+                {/* Eje X con etiquetas numéricas */}
+                <XAxis
+                  type="number"
+                  axisLine={{ stroke: '#ccc' }}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: '#666' }}
                 />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  width={80}
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar
+                  dataKey="value"
+                  onClick={handleClick}
+                  radius={[0, 8, 8, 0]}
+                >
+                  {data.map((entry, i) => (
+                    <Cell key={`cell-${i}`} fill={entry.fill} />
+                  ))}
+                  <LabelList
+                    dataKey="value"
+                    position="right"
+                    style={{ fill: '#333', fontSize: 12, fontWeight: 'bold' }}
+                  />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </Box>
         </CardContent>
       </Card>
     </Box>

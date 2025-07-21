@@ -4,7 +4,6 @@ import {
   Button,
   Grid,
   TextField,
-  CircularProgress,
   Stack,
   InputAdornment
 } from '@mui/material';
@@ -38,7 +37,7 @@ const HistoricStatistics = () => {
   const fetchHistoricalDoneTickets = useHistoricalDoneFetchStatistics();
 
   const [date, setDate] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [accessTokenMSAL, setAccessTokenMSAL] = useState(null);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -99,7 +98,6 @@ const HistoricStatistics = () => {
   return (
     <>
       <FloatingSettingsButton />
-
       {/* 🔍 Selector de fecha */}
       <Box sx={{ p: 2 }}>
         <Stack direction="row" spacing={2} alignItems="center">
@@ -142,93 +140,183 @@ const HistoricStatistics = () => {
         </Stack>
       </Box>
 
-      {/* ✅ Status Cards ahora usan StatusFilterBoxes */}
-      <Grid container spacing={2}>
-        <Grid item xs={5}>
-          {loading ? (
-            <CircularProgress sx={{ my: 4, ml: 4 }} />
-          ) : (
-            <StatusFilterBoxes
-              selectedStatus={selectedStatus}
-              setSelectedStatus={handleBoxClick}
-              ticketsCountByStatus={statistics}
-            />
-          )}
-        </Grid>
 
-        <Grid item xs={2}>
-          <CustomerSatisfaction />
-        </Grid>
-        
-        <Grid item xs={2}>
-          <ActiveAgents />
-        </Grid>
-      </Grid>
+      <Box
+        sx={{
+          width: '100%',
+          maxWidth: '100%',
+          height: 'calc(100vh - 64px)',
+          overflowX: 'hidden',
+          px: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+        }}
+      >
 
-      <Grid container spacing={2} mb={2} ml={2}>
-        {/* Columna izquierda */}
-        <Grid size={8}>
-          <Box sx={{ width: '100%', height: '100%' }}>
-            <HistoricalCallsByHour />
-          </Box>
-        </Grid>
+      {/* ✅ StatusFilterBoxes dentro del mismo Box */}
+      <Box sx={{ width: '100%' }}>
+        <StatusFilterBoxes
+          selectedStatus={selectedStatus}
+          setSelectedStatus={handleBoxClick}
+          ticketsCountByStatus={statistics}
+        />
+      </Box>
 
-        {/* Columna derecha */}
-        <Grid size={4}>
-          <Grid container spacing={2}>
-            {/* RiskChart */}
-            <Grid size={6}>
-              <Box sx={{ width: '100%', height: '100%' }}>
-                <HistoricalTicketRiskChart onCategoryClick={handleCategoryClick} />
-              </Box>
-            </Grid>
+      <Grid
+        container
+        spacing={2}
+        sx={{
+          mt: 0,
+          flexWrap: 'nowrap',
+          width: '100%',
+          minHeight: 300,
+        }}
+      >
+          {/* Top Performer + Customer Satisfaction - 4/12 */}
+          <Grid
+            item
+            xs={12}
+            md={5}
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,       // 16px entre ambas tarjetas
+              minWidth: 0,
+              flexGrow: 0,  // respeta md={5}
+            }}
+          >
+            <Box sx={{ flex: 1, minHeight: 0 }}>
+              <HistoricalTopPerformerCard />
+            </Box>
+            <Box sx={{ flex: 1, minHeight: 0 }}>
+              <CustomerSatisfaction />
+            </Box>
 
-            {/* PriorityChart */}
-            <Grid size={6}>
-              <Box sx={{ width: '100%', height: '100%' }}>
-                <HistoricalTicketPriorityChart onCategoryClick={handleCategoryClick} />
-              </Box>
-            </Grid>
+          </Grid>
 
-            {/* CategoriesChart - toda la fila 
-            <Grid size={12}>
-              <Box sx={{ width: '100%', height: '100%' }}>
-                <HistoricalTicketCategoriesChart onCategoryClick={handleCategoryClick} />
-              </Box>
-            </Grid>*/}
+          {/* Average Resolution & Active Agents – 2/12 */}
+          <Grid
+            item
+            xs={12}
+            md={2}
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              minWidth: 0,
+              flexGrow: 0,
+            }}
+          >
+            <Box sx={{ flex: 1, minHeight: 0 }}>
+              <HistoricalAverageResolutionTime />
+            </Box>
+            <Box sx={{ flex: 1, minHeight: 0 }}>
+              <ActiveAgents />
+            </Box>
+          </Grid>
+
+          {/* Ticket Categories Breakdown – 3/12 */}
+          <Grid
+            item
+            xs={12}
+            md={3}
+            sx={{
+              flex: 1.5,
+              display: 'flex',
+              flexDirection: 'column',
+              minWidth: 0,
+            }}
+          >
+            <Box sx={{ width: '100%', height: '100%', flex: 1 }}>
+              <HistoricalTicketCategoriesChart onCategoryClick={handleCategoryClick} />
+            </Box>
+          </Grid>
+
+          {/* Ticket Risk Breakdown – 2/12 */}
+          <Grid
+            item
+            xs={12}
+            md={2}
+            sx={{
+              flex: 1.5,
+              display: 'flex',
+              flexDirection: 'column',
+              minWidth: 0,
+            }}
+            >
+            <Box sx={{ width: '100%', height: '100%', flex: 1 }}>
+              <HistoricalTicketRiskChart onCategoryClick={handleCategoryClick} />
+            </Box>
+          </Grid>
+
+          {/* Ticket Priority Breakdown – 1/12 */}
+          <Grid
+            item
+            xs={12}
+            md={1}
+            sx={{
+              flex: 1.5,
+              display: 'flex',
+              flexDirection: 'column',
+              minWidth: 0,
+            }}
+            >
+            <Box sx={{ width: '100%', height: '100%', flex: 1 }}>
+              <HistoricalTicketPriorityChart onCategoryClick={handleCategoryClick} />
+            </Box>
           </Grid>
         </Grid>
 
-        <Grid size={8}>
-          <Box sx={{ width: '100%', height: '100%' }}>
-            <HistoricalTicketCategoriesChart onCategoryClick={handleCategoryClick} />
-          </Box>
-        </Grid>
-      </Grid>
 
-      
-      <Grid container spacing={2} mb={2} ml={2}>
-        <Grid size={4}>
-          <HistoricalTopAgents />
-        </Grid>
-        <Grid size={4}>
-          <Grid container spacing={2}>
-            <Grid size={6}>
-              <Box sx={{ width: '100%', height: '100%' }}>
-                <HistoricalTopPerformerCard />
-              </Box>
-            </Grid>
-
-            <Grid size={6}>
-              <Box sx={{ width: '100%', height: '100%' }}>
-                 <HistoricalAverageResolutionTime />
-              </Box>
-            </Grid>
+        {/* 🟨 Fila 2: 2 columnas grandes */}
+        <Grid
+          container
+          spacing={2}
+          sx={{
+            width: '100%',
+            margin: 0,
+            padding: 0,
+            flexWrap: 'nowrap',
+            flex: 1,
+            minHeight: 0,
+          }}
+        >
+          <Grid
+            item
+            xs={12}
+            md={5}
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              minHeight: 300,
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <Box sx={{ width: '100%', height: '100%' }}>
+              <HistoricalTopAgents />
+            </Box>
           </Grid>
-          
-        </Grid>
-      </Grid>
 
+          <Grid
+            item
+            xs={12}
+            md={7}
+            sx={{
+              flex: 2,
+              minWidth: 0,
+              minHeight: 300,
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <Box sx={{ width: '100%', height: '100%' }}>
+              <HistoricalCallsByHour />
+            </Box>
+          </Grid>
+        </Grid>
+      </Box>
 
       {/**By status */}
       <RightDrawer

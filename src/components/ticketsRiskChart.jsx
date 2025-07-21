@@ -57,11 +57,9 @@ export default function TicketRiskChart({ stats, onCategoryClick }) {
     }
   };
 
-  const CustomTooltip = ({ active, payload, label }) => {
-  if (!active || !payload || !payload.length) return null;
-
-  const { name, value } = payload[0].payload;
-
+const CustomTooltip = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  const { value, payload: dataPoint } = payload[0];
   return (
     <Box
       sx={{
@@ -83,16 +81,7 @@ export default function TicketRiskChart({ stats, onCategoryClick }) {
 };
 
   return (
-    <Box
-      sx={{
-        '& .recharts-tooltip-cursor': {
-          fill: 'transparent !important',
-        },
-        '& .recharts-bar-rectangle:hover': {
-          filter: 'brightness(1.1)',
-        },
-      }}
-    >
+    <Box sx={{ width: '100%', height: '100%' }}>
       <Card
         sx={{
           borderRadius: 3,
@@ -101,41 +90,41 @@ export default function TicketRiskChart({ stats, onCategoryClick }) {
           boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
         }}
       >
-        <CardContent>
-          <Typography variant="p" fontWeight="bold" sx={{ mt: 2, mb: 3, ml: 2, color: '#000' }}>
+        <CardContent sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
+          <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
             Ticket Risks Breakdown
           </Typography>
-
-          <ResponsiveContainer width="100%" height={385}>
-            <BarChart
-              data={dataRisks}
-              margin={{ top: 20, right: 10, left: 0, bottom: 0 }}
-            >
-              <XAxis type="category" dataKey="name" tick={{ fontSize: 11 }} />
-              <YAxis type="number" tick={{ fontSize: 11 }}/>
-              <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="value" onClick={handleRiskClick} radius={[10, 10, 0, 0]}>
-                <LabelList
+          <Box sx={{ flex: 1, width: '100%' }}>
+            <ResponsiveContainer width="100%" aspect={2}>
+              <BarChart
+                data={dataRisks}
+                margin={{ top: 20, right: 10, left: 0, bottom: 0 }}
+              >
+                <XAxis type="category" dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis type="number" tick={{ fontSize: 12 }} />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar
                   dataKey="value"
-                  position="top"
-                  style={{
-                    fill: '#333',
-                    fontSize: 15,
-                    fontWeight: 'bold',
-                  }}
-                />
-                {dataRisks.map((entry, index) => (
-                  <Cell key={`cell-risk-${index}`} fill={entry.fill} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-
-                  </CardContent>
-                </Card>
-              </Box>
-            );
-          }
+                  onClick={handleRiskClick}
+                  radius={[10, 10, 0, 0]}
+                >
+                  {dataRisks.map((entry, idx) => (
+                    <Cell key={`cell-${idx}`} fill={entry.fill} />
+                  ))}
+                  <LabelList
+                    dataKey="value"
+                    position="top"
+                    style={{ fill: '#333', fontSize: 12, fontWeight: 'bold' }}
+                  />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
+  );
+}
 
 // ✅ Daily wrapper
 export function DailyTicketRiskChart({ onCategoryClick }) {

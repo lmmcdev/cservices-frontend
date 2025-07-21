@@ -111,77 +111,182 @@ export default function StatsScreen() {
 
   return (
     <>
-      <FloatingSettingsButton />
+    <FloatingSettingsButton />
+      <Box
+        sx={{
+          width: '100%',
+          maxWidth: '100%',
+          height: 'calc(100vh - 64px)',
+          overflowX: 'hidden',
+          px: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+        }}
+      >
 
-      {/* ✅ StatusFilterBoxes */}
-      <Grid container spacing={2}>
-        <Grid item xs={5}>
-          <StatusFilterBoxes
-            selectedStatus={selectedStatus}
-            setSelectedStatus={handleBoxClick}
-            ticketsCountByStatus={{ ...Object.fromEntries(entries), Total: statistics.total }}
-          />
-        </Grid>
-      
-        <Grid item xs={2}>
-          <CustomerSatisfaction />
-        </Grid>
+      {/* ✅ StatusFilterBoxes dentro del mismo Box */}
+      <Box sx={{ width: '100%' }}>
+        <StatusFilterBoxes
+          selectedStatus={selectedStatus}
+          setSelectedStatus={handleBoxClick}
+          ticketsCountByStatus={{ ...Object.fromEntries(entries), Total: statistics.total }}
+        />
+      </Box>
 
-        <Grid item xs={2}>
-          <ActiveAgents />
-        </Grid>
-      </Grid>
-
-      {/* ✅ Charts */}
-      <Grid container spacing={2} mb={2} ml={2}>
-        <Grid size={8}>
-          <Box sx={{ width: '100%', height: '100%' }}>
-            <DailyCallsByHour />
+        
+      <Grid
+        container
+        spacing={2}
+        sx={{
+          mt: 0,
+          flexWrap: 'nowrap',
+          width: '100%',
+          minHeight: 300,
+        }}
+      >
+        {/* Top Performer + Customer Satisfaction - 4/12 */}
+        <Grid
+          item
+          xs={12}
+          md={5}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,       // 16px entre ambas tarjetas
+            minWidth: 0,
+            flexGrow: 0,  // respeta md={5}
+          }}
+        >
+          <Box sx={{ flex: 1, minHeight: 0 }}>
+            <DailyTopPerformerCard />
+          </Box>
+          <Box sx={{ flex: 1, minHeight: 0 }}>
+            <CustomerSatisfaction />
           </Box>
         </Grid>
 
-        <Grid size={4}>
-          <Grid container spacing={2}>
-            <Grid size={6}>
-              <Box sx={{ width: '100%', height: '100%' }}>
-                <DailyTicketRiskChart onCategoryClick={handleCategoryClick} />
-              </Box>
-            </Grid>
-            <Grid size={6}>
-              <Box sx={{ width: '100%', height: '100%' }}>
-                <DailyTicketPriorityChart onCategoryClick={handleCategoryClick} />
-              </Box>
-            </Grid>
-          </Grid>
+        {/* Average Resolution & Active Agents – 2/12 */}
+        <Grid
+          item
+          xs={12}
+          md={2}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            minWidth: 0,
+            flexGrow: 0,
+          }}
+        >
+          <Box sx={{ flex: 1, minHeight: 0 }}>
+            <DailyAverageResolutionTime />
+          </Box>
+          <Box sx={{ flex: 1, minHeight: 0 }}>
+            <ActiveAgents />
+          </Box>
         </Grid>
 
-        <Grid size={8}>
-          <Box sx={{ width: '100%', height: '100%' }}>
+        {/* Ticket Categories Breakdown – 3/12 */}
+        <Grid
+          item
+          xs={12}
+          md={3}
+          sx={{
+            flex: 1.5,
+            display: 'flex',
+            flexDirection: 'column',
+            minWidth: 0,
+          }}
+        >
+          <Box sx={{ width: '100%', height: '100%', flex: 1 }}>
             <DailyTicketCategoriesChart onCategoryClick={handleCategoryClick} />
           </Box>
         </Grid>
+
+        {/* Ticket Risk Breakdown – 2/12 */}
+        <Grid
+          item
+          xs={12}
+          md={2}
+          sx={{
+            flex: 1.5,
+            display: 'flex',
+            flexDirection: 'column',
+            minWidth: 0,
+          }}
+        >
+          <Box sx={{ width: '100%', height: '100%', flex: 1 }}>
+            <DailyTicketRiskChart onCategoryClick={handleCategoryClick} />
+          </Box>
+        </Grid>
+
+        {/* Ticket Priority Breakdown – 1/12 */}
+        <Grid
+          item
+          xs={12}
+          md={1}
+          sx={{
+            flex: 1.5,
+            display: 'flex',
+            flexDirection: 'column',
+            minWidth: 0,
+          }}
+        >
+          <Box sx={{ width: '100%', height: '100%', flex: 1 }}>
+            <DailyTicketPriorityChart onCategoryClick={handleCategoryClick} />
+          </Box>
+        </Grid>
       </Grid>
 
-      {/* ✅ Sección inferior */}
-      <Grid container spacing={2} mb={2} ml={2}>
-        <Grid size={4}>
-          <DailyTopAgents />
-        </Grid>
-        <Grid size={4}>
-          <Grid container spacing={2}>
-            <Grid size={6}>
-              <Box sx={{ width: '100%', height: '100%' }}>
-                <DailyTopPerformerCard />
-              </Box>
-            </Grid>
-            <Grid size={6}>
-              <Box sx={{ width: '100%', height: '100%' }}>
-                <DailyAverageResolutionTime />
-              </Box>
-            </Grid>
+        {/* 🟨 Fila 2: 2 columnas grandes */}
+        <Grid
+          container
+          spacing={2}
+          sx={{
+            width: '100%',
+            margin: 0,
+            padding: 0,
+            flexWrap: 'nowrap',
+            flex: 1,
+            minHeight: 0,
+          }}
+        >
+          <Grid
+            item
+            xs={12}
+            md={5}
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              minHeight: 300,
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <Box sx={{ width: '100%', height: '100%' }}>
+              <DailyTopAgents />
+            </Box>
+          </Grid>
+
+          <Grid
+            item
+            xs={12}
+            md={7}
+            sx={{
+              flex: 2,
+              minWidth: 0,
+              minHeight: 300,
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <Box sx={{ width: '100%', height: '100%' }}>
+              <DailyCallsByHour />
+            </Box>
           </Grid>
         </Grid>
-      </Grid>
+      </Box>
 
       {/* ✅ Drawer Único */}
       <RightDrawer

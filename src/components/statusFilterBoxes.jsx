@@ -6,7 +6,16 @@ const StatusFilterBoxes = ({ selectedStatus, setSelectedStatus, ticketsCountBySt
   const statuses = ['New', 'Emergency', 'In Progress', 'Pending', 'Done', 'Duplicated', 'Total'];
 
   return (
-    <Grid container spacing={2} mb={6} ml={2}>
+    <Grid
+      container
+      spacing={2}
+      sx={{
+        width: '100%',
+        display: 'flex',
+        flexWrap: 'nowrap',
+        px: 2,
+      }}
+    >
       {statuses.map((status) => {
         const bgColor = getStatusColor(status, 'bg');
         const textColor = getStatusColor(status, 'text');
@@ -23,7 +32,6 @@ const StatusFilterBoxes = ({ selectedStatus, setSelectedStatus, ticketsCountBySt
                 backgroundColor: bgColor,
                 color: textColor,
                 borderLeft: `6px solid ${textColor}`,
-                boxShadow: 2,
                 cursor: 'pointer',
                 height: 120, // 🔑 alto fijo
                 width: 165,
