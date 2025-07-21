@@ -286,6 +286,20 @@ export default function StatsScreen() {
           </Grid>
         </Grid>
       </Box>
+
+      {/* ✅ Drawer Único */}
+      <RightDrawer
+        key={`${drawerStatus}-${selectedTicketIds.join(',')}`}
+        open={drawerOpen}
+        onClose={handleCloseDrawer}
+        status={drawerStatus}
+        fetchFn={fetchFn}
+        fetchParams={{
+          status: selectedStatus,
+          date: selectedDate,
+          ids: selectedTicketIds,
+        }}
+      />
     </>
   );
 }
