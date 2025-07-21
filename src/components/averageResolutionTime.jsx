@@ -1,3 +1,5 @@
+// src/components/averageResolutionTime.jsx
+
 import React from 'react';
 import { Card, CardContent, Box, Typography } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -5,16 +7,17 @@ import { useDailyStatsState } from '../context/dailyStatsContext';
 import { useHistoricalStats } from '../context/historicalStatsContext';
 import { formatMinutesToHoursPretty } from '../utils/js/minutosToHourMinutes';
 
-// ✅ Componente base reutilizable
+// componente base
 function AverageResolutionTimeCard({ avgMinutes }) {
   const averageTime = formatMinutesToHoursPretty(avgMinutes || 0);
-  console.log(avgMinutes)
+
   return (
-    <Box >
+    <Box sx={{ width: '100%', height: '100%' }}>
       <Card
         sx={{
           borderRadius: 3,
-          height: 270,
+          width: '100%',
+          height: '100%',
           position: 'relative',
           overflow: 'hidden',
           boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
@@ -34,6 +37,7 @@ function AverageResolutionTimeCard({ avgMinutes }) {
             justifyContent: 'center',
             position: 'relative',
             zIndex: 1,
+            p: 2,
           }}
         >
           <Typography
@@ -43,29 +47,26 @@ function AverageResolutionTimeCard({ avgMinutes }) {
             Average Resolution Time
           </Typography>
 
-          <Box>
-            <Typography
-              variant="h4"
-              fontWeight="bold"
-              sx={{ color: '#00a1ff' }}
-            >
-              {averageTime}
-            </Typography>
-          </Box>
+          <Typography
+            variant="h4"
+            fontWeight="bold"
+            sx={{ color: '#00a1ff' }}
+          >
+            {averageTime}
+          </Typography>
         </CardContent>
 
         <AccessTimeIcon
           className="clock-icon"
           sx={{
             position: 'absolute',
-            fontSize: 180,
+            fontSize: '8rem',
             color: '#e0f7ff',
             opacity: 0.4,
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
             zIndex: 0,
-            transition: 'transform 0.8s ease-in-out',
           }}
         />
       </Card>
@@ -73,18 +74,17 @@ function AverageResolutionTimeCard({ avgMinutes }) {
   );
 }
 
-// ✅ Wrapper para Daily Stats
+// wrappers
 export function DailyAverageResolutionTime() {
   const { daily_statistics } = useDailyStatsState();
-  const avgMinutes = daily_statistics?.globalStats?.avgResolutionTimeMins || 0;
-  return <AverageResolutionTimeCard avgMinutes={avgMinutes} />;
+  const avg = daily_statistics?.globalStats?.avgResolutionTimeMins || 0;
+  return <AverageResolutionTimeCard avgMinutes={avg} />;
 }
 
-// ✅ Wrapper para Historical Stats
 export function HistoricalAverageResolutionTime() {
   const { stateStats } = useHistoricalStats();
-  const avgMinutes = stateStats?.historic_daily_stats?.globalStats?.avgResolutionTimeMins || 0;
-  return <AverageResolutionTimeCard avgMinutes={avgMinutes} />;
+  const avg = stateStats?.historic_daily_stats?.globalStats?.avgResolutionTimeMins || 0;
+  return <AverageResolutionTimeCard avgMinutes={avg} />;
 }
 
 export default AverageResolutionTimeCard;
