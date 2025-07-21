@@ -16,12 +16,12 @@ const StatusFilterBoxes = ({ selectedStatus, setSelectedStatus, ticketsCountBySt
   return (
     <Grid
       container
-      spacing={2}
+      columnSpacing={2} 
+      rowSpacing={0} 
       sx={{
         width: '100%',
-        display: 'flex',
+        //display: 'flex',
         flexWrap: 'nowrap',
-        px: 2,
       }}
     >
       {statuses.map((status) => {
@@ -53,7 +53,6 @@ const StatusFilterBoxes = ({ selectedStatus, setSelectedStatus, ticketsCountBySt
                 backgroundColor: bgColor,
                 color: textColor,
                 borderLeft: `6px solid ${textColor}`,
-                boxShadow: 2,
                 cursor: 'pointer',
                 display: 'flex',
                 flexDirection: 'column',

@@ -78,12 +78,12 @@ export default function TicketRiskChart({ stats, onCategoryClick }) {
           flexDirection: 'column',
         }}
       >
-        <CardContent sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <CardContent sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column', minHeight: 0, }}>
           <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
             Ticket Risks Breakdown
           </Typography>
-          <Box sx={{ flex: 1, width: '100%' }}>
-            <ResponsiveContainer width="100%" aspect={2}>
+          <Box sx={{ flex: 1, width: '100%', minHeight: 0, }}>
+            <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={dataRisks}
                 margin={{ top: 20, right: 10, left: 0, bottom: 0 }}

@@ -74,7 +74,6 @@ function AppContent() {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: '#f8fafd', minHeight: '100vh' }}>
-      <Box sx={{ mt: { xs: 8, sm: 12 } }} />
       <Suspense fallback={<SuspenseFallback />}>
         <Routes>
           <Route path="/" element={<PrivateRoute />}>

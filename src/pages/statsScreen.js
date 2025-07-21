@@ -125,7 +125,7 @@ export default function StatsScreen() {
       >
 
       {/* ✅ StatusFilterBoxes dentro del mismo Box */}
-      <Box sx={{ width: '100%', px: 2 }}>
+      <Box sx={{ width: '100%' }}>
         <StatusFilterBoxes
           selectedStatus={selectedStatus}
           setSelectedStatus={handleBoxClick}
@@ -138,42 +138,29 @@ export default function StatsScreen() {
         container
         spacing={2}
         sx={{
-          mt: 2,
+          mt: 0,
           flexWrap: 'nowrap',
           width: '100%',
           minHeight: 300,
         }}
       >
-        {/* Top Performer – 7/12 */}
+        {/* Top Performer + Customer Satisfaction - 4/12 */}
         <Grid
           item
           xs={12}
-          md={7}
+          md={5}
           sx={{
-            flex: 1,
             display: 'flex',
             flexDirection: 'column',
+            gap: 2,       // 16px entre ambas tarjetas
             minWidth: 0,
+            flexGrow: 0,  // respeta md={5}
           }}
         >
-          <Box sx={{ width: '100%', height: '100%', flex: 1 }}>
+          <Box sx={{ flex: 1, minHeight: 0 }}>
             <DailyTopPerformerCard />
           </Box>
-        </Grid>
-
-        {/* Customer Satisfaction – 3/12 */}
-        <Grid
-          item
-          xs={12}
-          md={3}
-          sx={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            minWidth: 0,
-          }}
-        >
-          <Box sx={{ width: '100%', height: '100%', flex: 1 }}>
+          <Box sx={{ flex: 1, minHeight: 0 }}>
             <CustomerSatisfaction />
           </Box>
         </Grid>
@@ -184,16 +171,17 @@ export default function StatsScreen() {
           xs={12}
           md={2}
           sx={{
-            flex: 1,
             display: 'flex',
             flexDirection: 'column',
+            gap: 2,
             minWidth: 0,
+            flexGrow: 0,
           }}
         >
-          <Box sx={{ width: '100%', height: '50%', flex: 1 }}>
+          <Box sx={{ flex: 1, minHeight: 0 }}>
             <DailyAverageResolutionTime />
           </Box>
-          <Box sx={{ width: '100%', height: '50%', flex: 1, mt: 2 }}>
+          <Box sx={{ flex: 1, minHeight: 0 }}>
             <ActiveAgents />
           </Box>
         </Grid>
@@ -232,11 +220,11 @@ export default function StatsScreen() {
           </Box>
         </Grid>
 
-        {/* Ticket Priority Breakdown – 2/12 */}
+        {/* Ticket Priority Breakdown – 1/12 */}
         <Grid
           item
           xs={12}
-          md={2}
+          md={1}
           sx={{
             flex: 1.5,
             display: 'flex',
