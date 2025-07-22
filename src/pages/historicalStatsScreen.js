@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -29,6 +29,8 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import SearchIcon from '@mui/icons-material/Search';
 import FloatingSettingsButton from '../components/components/floatingSettingsButton.jsx';
 import StatusFilterBoxes from '../components/statusFilterBoxes'; // ✅ importa tu componente reutilizable
+import FloatingDateSelector from '../components/auxiliars/floatingDateSelector.jsx';
+import { useLocation } from 'react-router-dom';
 
 const HistoricStatistics = () => {
   const { accounts, instance } = useMsal();
@@ -44,6 +46,16 @@ const HistoricStatistics = () => {
   const [drawerStatus, setDrawerStatus] = useState('');
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [selectedTicketIds, setSelectedTicketIds] = useState([]);
+
+  const location = useLocation();
+  const [showDateSelector, setShowDateSelector] = useState(false);
+
+useEffect(() => {
+  if (location.state?.openDateSelector) {
+    setShowDateSelector(true);
+  }
+}, [location.state]);
+
 
   const handleFetch = async () => {
     if (!date) return;
@@ -99,47 +111,14 @@ const HistoricStatistics = () => {
     <>
       <FloatingSettingsButton />
       {/* 🔍 Selector de fecha */}
-      <Box sx={{ p: 2 }}>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <TextField
-            type="date"
-            label="Seleccionar fecha"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <CalendarTodayIcon sx={{ color: '#00a1ff' }} />
-                </InputAdornment>
-              ),
-            }}
-            sx={{
-              '& .MuiInputBase-root': {
-                borderRadius: '8px',
-                backgroundColor: '#fff',
-              },
-            }}
-          />
-          <Button
-            variant="contained"
-            startIcon={<SearchIcon />}
-            onClick={handleFetch}
-            sx={{
-              backgroundColor: '#00a1ff',
-              textTransform: 'none',
-              borderRadius: '8px',
-              px: 3,
-              '&:hover': {
-                backgroundColor: '#0080cc',
-              },
-            }}
-          >
-            Search
-          </Button>
-        </Stack>
-      </Box>
-
+      {showDateSelector && (
+        <FloatingDateSelector
+          date={date}
+          setDate={setDate}
+          onSearch={handleFetch}
+          onClose={() => setShowDateSelector(false)}
+        />
+      )}
 
       <Box
         sx={{
