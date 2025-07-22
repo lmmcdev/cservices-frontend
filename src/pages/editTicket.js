@@ -24,17 +24,8 @@ import { useAgents } from '../context/agentsContext';
 import { useAuth } from '../context/authContext';
 import ChangeCenterModal from '../components/dialogs/changeCenterModal';
 import { useTickets } from '../context/ticketsContext.js';
-import FlagIcon from '@mui/icons-material/Flag';
-import ReportProblemIcon from '@mui/icons-material/ReportProblem';
-import DepartureBoardIcon from '@mui/icons-material/DepartureBoard';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import ElderlyIcon from '@mui/icons-material/Elderly';
-import NoAccountsIcon from '@mui/icons-material/NoAccounts';
-import SupportAgentIcon from '@mui/icons-material/SupportAgent';
-import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
-import HelpIcon from '@mui/icons-material/Help';
-import LocalHospitalIcon from '@mui/icons-material/LocalHospital'; 
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
+import { TicketIndicators } from '../components/ticketIndicators';
 
 
 import {
@@ -124,38 +115,6 @@ export default function EditTicket() {
     }
   }, [ticket]);
   
-  const getPriorityColor = (priority) => {
-    switch ((priority || '').toLowerCase()) {
-      case 'high': return '#d32f2f';     // rojo
-      case 'medium': return '#fbc02d';   // amarillo
-      case 'low': return '#388e3c';      // verde
-      default: return '#bdbdbd';         // gris
-    }
-  };
-
-  const getRiskColor = (risk) => {
-    switch ((risk || '').toLowerCase()) {
-      case 'none': return '#4caf50';         // verde
-      case 'legal': return '#ff9800';        // naranja
-      case 'disenrollment': return '#f44336'; // rojo
-      default: return '#bdbdbd';             // gris
-    }
-  };
-
-  const getCategoryIcon = (category) => {
-    const cat = (category || '').toLowerCase();
-    switch (cat) {
-      case 'transport': return <DepartureBoardIcon fontSize="small" />;
-      case 'appointment': return <CalendarMonthIcon fontSize="small" />;
-      case 'new patient': return <ElderlyIcon fontSize="small" />;
-      case 'disenrollment': return <NoAccountsIcon fontSize="small" />;
-      case 'customer service': return <SupportAgentIcon fontSize="small" />;
-      case 'new address': return <AddLocationAltIcon fontSize="small" />;
-      case 'hospitalization': return <LocalHospitalIcon fontSize="small" />;
-      case 'others': return <HelpIcon fontSize="small" />;
-      default: return <HelpIcon fontSize="small" />; // <-- esto es importante
-    }
-  };
 
   //introducir un modal aqui
   if (!ticket) return <Typography>Ticket not found</Typography>;
@@ -567,48 +526,8 @@ const handleUnlinkTicket = async (ticket) => {
                       </Typography>
                     </Box>
 
-                  {/* Iconos: Priority / Risk / Category */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, pr: 1 }}>
-                      {/* PRIORITY */}
-                      {ticket.aiClassification?.priority && (
-                        <Tooltip title={`Priority: ${ticket.aiClassification.priority}`}>
-                          <FlagIcon
-                            sx={{
-                              color: getPriorityColor(ticket.aiClassification.priority),
-                              fontSize: 20,
-                            }}
-                          />
-                        </Tooltip>
-                      )}
-
-                      {/* RISK */}
-                      {ticket.aiClassification?.risk &&
-                        ticket.aiClassification.risk.toLowerCase() !== 'none' && (
-                          <Tooltip title={`Risk: ${ticket.aiClassification.risk}`}>
-                            <ReportProblemIcon
-                              sx={{
-                                color: getRiskColor(ticket.aiClassification.risk),
-                                fontSize: 20,
-                              }}
-                            />
-                          </Tooltip>
-                        )}
-
-                      {/* CATEGORY */}
-                      {ticket.aiClassification?.category &&
-                        typeof getCategoryIcon(ticket.aiClassification.category)?.type !== 'undefined' && (
-                          <Tooltip title={`Category: ${ticket.aiClassification.category}`}>
-                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                              {React.cloneElement(
-                                getCategoryIcon(ticket.aiClassification.category),
-                                {
-                                  sx: { color: '#00a1ff', fontSize: 20 },
-                                }
-                              )}
-                            </Box>
-                          </Tooltip>
-                        )}
-                    </Box>
+                    {/* Iconos: Priority / Risk / Category */}
+                    <TicketIndicators ai_data={ticket.aiClassification} showTooltip iconsOnly />
                   </Box>
 
                   <Typography sx={{ mb: 2.5 }}>

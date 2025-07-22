@@ -29,17 +29,9 @@ import StatusFilterBoxes from '../components/statusFilterBoxes';
 import { SortAscending, SortDescending } from 'phosphor-react';
 import { getStatusColor } from '../utils/js/statusColors.js';
 import SuspenseFallback from '../components/auxiliars/suspenseFallback.js';
+import { TicketIndicators } from '../components/ticketIndicators';
 
 export default function TableTickets() {
-  const getPriorityColor = (priority) => {
-    switch ((priority || '').toLowerCase()) {
-      case 'high': return '#d32f2f';
-      case 'medium': return '#fbc02d';
-      case 'low': return '#388e3c';
-      default: return '#bdbdbd';
-    }
-  };
-
   const { filters } = useFilters();
   const { state, dispatch } = useTickets();
   const { setLoading } = useLoading();
@@ -239,28 +231,7 @@ export default function TableTickets() {
                         />
                       </TableCell>
                       <TableCell>
-                        <Box display="flex" gap={1} alignItems="center">
-                          {row.aiClassification?.priority && (
-                            <Tooltip title={`Priority: ${row.aiClassification?.priority}`}>
-                              <icons.priority sx={{ fontSize: 18, color: getPriorityColor(row.aiClassification?.priority) }} />
-                            </Tooltip>
-                          )}
-                          {row.aiClassification?.risk?.toLowerCase() !== 'none' && (
-                            <Tooltip title={`Risk: ${row.aiClassification?.risk}`}>
-                              <icons.risk sx={{ fontSize: 18, color: '#f57c00' }} />
-                            </Tooltip>
-                          )}
-                          {(() => {
-                            const raw = row.aiClassification?.category;
-                            const norm = raw?.toLowerCase().replace(/\s+/g, '_') || 'others';
-                            const CatIcon = icons[norm] || icons.others;
-                            return CatIcon && (
-                              <Tooltip title={`Category: ${raw || 'Others'}`}>
-                                {React.createElement(CatIcon, { sx: { fontSize: 18, color: '#00a1ff' } })}
-                              </Tooltip>
-                            );
-                          })()}
-                        </Box>
+                        <TicketIndicators ai_data={row.aiClassification} showTooltip iconsOnly />
                       </TableCell>
                       <TableCell>{row.caller_id}</TableCell>
                       <TableCell>{row.patient_name}</TableCell>

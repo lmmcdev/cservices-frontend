@@ -10,6 +10,8 @@ import {
   Box,
   Grid, Card
 } from '@mui/material';
+import ActionButtons from '../auxiliars/actionButtons';
+import { TicketIndicators } from '../ticketIndicators';
 
 export default function TicketQuickViewDialog({ open, onClose, ticket }) {
   if (!ticket) return null;
@@ -71,13 +73,13 @@ export default function TicketQuickViewDialog({ open, onClose, ticket }) {
 
                 <Grid item xs={12}>
                   <Card variant="outlined" sx={{ p: 2, border: 'none' }}>
-                    <Typography variant="body2">
-                      <strong>Ticket AI Classification</strong><br /> 
-                        <p>Priority: {ai_data.priority}</p>
-                        <p>Risk: {ai_data.risk}</p>
-                        <p>Category: {ai_data.category}</p>
-                      
+                    <Typography 
+                      variant="body2" 
+                      sx={{ fontWeight: 'bold', mb: 1 }}
+                    >
+                      Ticket AI Classification
                     </Typography>
+                    <TicketIndicators ai_data={ticket.aiClassification} columnLayout />
                   </Card>
                 </Grid>
               </>
@@ -85,11 +87,9 @@ export default function TicketQuickViewDialog({ open, onClose, ticket }) {
           </Grid>
         </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} variant="contained">
-          Close
-        </Button>
-      </DialogActions>
+      <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end', px: 0, pb: 0 }}>
+        <ActionButtons onCancel={onClose} cancelLabel="Close" />
+      </Box>
     </Dialog>
   );
 }
