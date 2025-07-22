@@ -1,7 +1,7 @@
 // src/components/customerSatisfaction.jsx
 
 import React from 'react';
-import { Box, Card, Typography } from '@mui/material';
+import { Box, Card, Typography, Tooltip } from '@mui/material';
 import {
   FaAngry,
   FaFrown,
@@ -12,15 +12,15 @@ import {
 import StarIcon from '@mui/icons-material/Star';
 
 const segments = [
-  { Icon: FaAngry,     color: '#d32f2f', label: 'Terrible' },
-  { Icon: FaFrown,     color: '#ff8a00', label: 'Bad'      },
-  { Icon: FaMeh,       color: '#fbc02d', label: 'Okay'     },
+  { Icon: FaAngry,     color: '#d32f2f', label: 'Very Low' },
+  { Icon: FaFrown,     color: '#ff8a00', label: 'Low'      },
+  { Icon: FaMeh,       color: '#fbc02d', label: 'Fair'     },
   { Icon: FaSmile,     color: '#8bc34a', label: 'Good'     },
-  { Icon: FaGrinStars, color: '#4caf50', label: 'Great'    },
+  { Icon: FaGrinStars, color: '#4caf50', label: 'Very Good'    },
 ];
 
 export default function CustomerSatisfaction() {
-  const score = 86;
+  const score = 89;
   const idx = Math.min(
     segments.length - 1,
     Math.floor((score / 100) * segments.length)
@@ -42,7 +42,7 @@ export default function CustomerSatisfaction() {
           p: 2,
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center',      // centra todo verticalmente
+          justifyContent: 'center',
           height: '100%',
           borderRadius: 2,
           boxShadow: '0px 8px 24px rgba(239,241,246,1)',
@@ -53,7 +53,7 @@ export default function CustomerSatisfaction() {
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
-            mb: { xs: 2, sm: 3 },        // más separación debajo de los emojis
+            mb: { xs: 2, sm: 3 },
           }}
         >
           {segments.map(({ Icon, color }, i) => (
@@ -87,26 +87,29 @@ export default function CustomerSatisfaction() {
             <Box key={i} sx={{ flex: 1, bgcolor: color }} />
           ))}
 
-          {/* Ícono Star con relleno amarillo y borde negro */}
-          <Box
-            sx={{
-              position: 'absolute',
-              top: '50%',
-              left: `${score}%`,
-              transform: 'translate(-50%, -50%)',
-              zIndex: 1,
-            }}
-          >
-            <StarIcon
+          {/* Ícono Star con tooltip al hacer hover */}
+          <Tooltip title={`Customer satisfaction: ${score}%`} arrow>
+            <Box
               sx={{
-                fontSize: { xs: 24, sm: 32, md: 40 },
-                fill: '#FFD700',      // interior amarillo
-                stroke: '#000000',    // contorno negro
-                strokeWidth: 1,
-                strokeLinejoin: 'round',
+                position: 'absolute',
+                top: '50%',
+                left: `${score}%`,
+                transform: 'translate(-50%, -50%)',
+                zIndex: 1,
+                cursor: 'pointer',
               }}
-            />
-          </Box>
+            >
+              <StarIcon
+                sx={{
+                  fontSize: { xs: 24, sm: 32, md: 40 },
+                  fill: '#FFD700',
+                  stroke: '#000000',
+                  strokeWidth: 1,
+                  strokeLinejoin: 'round',
+                }}
+              />
+            </Box>
+          </Tooltip>
 
           {/* Etiqueta justo debajo de la barra */}
           <Typography

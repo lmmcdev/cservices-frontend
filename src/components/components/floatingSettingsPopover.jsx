@@ -39,8 +39,8 @@ export default function FloatingSettingsPopover({ anchorEl, onClose }) {
     item.roles.includes(currentAgent?.agent_rol)
   );
 
-  const handleNavigate = (path) => {
-    navigate(path);
+  const handleNavigate = (path, label) => {
+    navigate(path, { state: { openDateSelector: label === 'Daily Statistics' } });
     onClose();
   };
 
@@ -60,7 +60,7 @@ export default function FloatingSettingsPopover({ anchorEl, onClose }) {
         <List>
           {filteredItems.map(({ icon, label, path }) => (
             <ListItem disablePadding key={label}>
-              <ListItemButton onClick={() => handleNavigate(path)}>
+              <ListItemButton onClick={() => handleNavigate(path, label)}>
                 <ListItemIcon>{icon}</ListItemIcon>
                 <ListItemText primary={label} />
               </ListItemButton>
