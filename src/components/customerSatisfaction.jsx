@@ -12,15 +12,15 @@ import {
 import StarIcon from '@mui/icons-material/Star';
 
 const segments = [
-  { Icon: FaAngry,     color: '#d32f2f', label: 'Terrible' },
-  { Icon: FaFrown,     color: '#ff8a00', label: 'Bad'      },
-  { Icon: FaMeh,       color: '#fbc02d', label: 'Okay'     },
+  { Icon: FaAngry,     color: '#d32f2f', label: 'Very Low' },
+  { Icon: FaFrown,     color: '#ff8a00', label: 'Low'      },
+  { Icon: FaMeh,       color: '#fbc02d', label: 'Fair'     },
   { Icon: FaSmile,     color: '#8bc34a', label: 'Good'     },
-  { Icon: FaGrinStars, color: '#4caf50', label: 'Great'    },
+  { Icon: FaGrinStars, color: '#4caf50', label: 'Very Good'    },
 ];
 
 export default function CustomerSatisfaction() {
-  const score = 86;
+  const score = 89;
   const idx = Math.min(
     segments.length - 1,
     Math.floor((score / 100) * segments.length)
