@@ -13,6 +13,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAgents } from '../../context/agentsContext';
 import { useAuth } from '../../context/authContext';
 import { icons } from '../auxiliars/icons';
+import TodayIcon from '@mui/icons-material/Today';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 export default function FloatingSettingsPopover({ anchorEl, onClose }) {
   const open = Boolean(anchorEl);
@@ -28,11 +30,8 @@ export default function FloatingSettingsPopover({ anchorEl, onClose }) {
 
   // 👉 Mismos items del sidebar
   const navItems = [
-    { icon: <icons.dashboard style={{ fontSize: 22 }} />, label: 'Today Statistics', path: '/statistics', roles: ['Supervisor'] },
-    {icon: <icons.dashboard style={{ fontSize: 22 }} />, label: 'Daily Statistics', path: '/historical_statistics', roles: ['Supervisor'] },
-    { icon: <icons.callLogs style={{ fontSize: 22 }} />, label: 'Call Logs', path: '/dashboard', roles: ['Agent', 'Customer Service', 'Switchboard', 'Supervisor'] },
-    { icon: <icons.team style={{ fontSize: 22 }} />, label: 'Team', path: '/agents', roles: ['Supervisor'] },
-    { icon: <icons.searchIcon style={{ fontSize: 22 }} />, label: 'Find', path: '/profile-search', roles: ['Supervisor'] },
+    { icon: <TodayIcon sx={{ fontSize: 22 }} />, label: 'Today Statistics', path: '/statistics', roles: ['Supervisor'] },
+    { icon: <CalendarMonthIcon sx={{ fontSize: 22 }} />, label: 'Daily Statistics', path: '/historical_statistics', roles: ['Supervisor'] },
   ];
 
   const filteredItems = navItems.filter(item =>
@@ -52,17 +51,62 @@ export default function FloatingSettingsPopover({ anchorEl, onClose }) {
       onClose={onClose}
       anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
       transformOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      PaperProps={{ sx: { p: 2, borderRadius: 3, width: 250 } }}
+      PaperProps={{
+        sx: {
+          p: 2,
+          borderRadius: 4,
+          width: 260,
+          backgroundColor: '#ffffff',
+          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.1)',
+        }
+      }}
     >
       <Box>
-        <Typography variant="h6" sx={{ mb: 2 }}>Menú rápido</Typography>
+        <Typography variant="h6" sx={{ ml: 2, mb: 1, mt: 0.5, fontWeight: 600, color: '#5B5F7B' }}>
+          Quick Menu
+        </Typography>
 
         <List>
           {filteredItems.map(({ icon, label, path }) => (
             <ListItem disablePadding key={label}>
-              <ListItemButton onClick={() => handleNavigate(path, label)}>
-                <ListItemIcon>{icon}</ListItemIcon>
-                <ListItemText primary={label} />
+              <ListItemButton
+                onClick={() => handleNavigate(path, label)}
+                sx={{
+                  borderRadius: 2,
+                  mb: 0.5,
+                  px: 1.5,
+                  py: 1,
+                  gap: 1.5,
+                  backgroundColor: 'transparent',
+                  '&:hover': {
+                    backgroundColor: '#dff3ff',
+                    '& .MuiListItemIcon-root': {
+                      color: '#00a1ff',
+                    },
+                    '& .MuiTypography-root': {
+                      color: '#00a1ff',
+                    },
+                  },
+                }}
+              >
+                <ListItemIcon
+                  sx={{
+                    minWidth: 'auto',
+                    color: '#5B5F7B',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  {icon}
+                </ListItemIcon>
+              <ListItemText
+                primary={label}
+                primaryTypographyProps={{
+                  fontSize: 15,
+                  fontWeight: 'bold',
+                  color: '#5B5F7B', // 👈 color gris por defecto
+                }}
+              />
               </ListItemButton>
             </ListItem>
           ))}
