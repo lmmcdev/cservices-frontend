@@ -407,3 +407,41 @@ export const createNewTicket = async (dispatch, setLoading, formData) => {
     setLoading(false);
   }
 };
+
+
+//relate ticket
+export const relateTicketsByPhone = async (dispatch, setLoading, ticket_id, agent_email = null, action = 'relatePast', phone = null, patient_id = null) => {
+  setLoading(true);
+  try {
+    const response = await fetch('https://cservicesapi.azurewebsites.net/api/updateTicketsByPhone', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action,
+        ticket_id,
+        phone,
+        patient_id,
+        agent_email
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Error linking tickets');
+    }
+
+   return {
+      success: true,
+      message: data.message || `Action ${action} completed successfully.`,
+      updated_ticket_ids: data.updated_ticket_ids || []
+    };
+
+  } catch (err) {
+    const message = err.message || 'Something went wrong';
+    dispatch({ type: 'SET_TICKET_ERROR', payload: message });
+    return { success: false, message };
+  } finally {
+    setLoading(false);
+  }
+};

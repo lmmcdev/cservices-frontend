@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  Box, Typography, Paper, Grid, Card, CardContent, TextField, IconButton
+  Box, Typography, Paper, Grid, Card, CardContent, TextField, IconButton, Button
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -34,6 +34,8 @@ import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
 import HelpIcon from '@mui/icons-material/Help';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital'; 
+import InsertLinkIcon from '@mui/icons-material/InsertLink';
+
 
 import {
   handleStatusChange,
@@ -45,7 +47,8 @@ import {
   updateCallbackNumberHandler,
   updateCollaboratorsHandler,
   updateAssigneeHandler,
-  handleCenterHandler
+  handleCenterHandler,
+  relateTicketHandler
 } from '../utils/js/ticketActions.js';
 
 import { getStatusColor } from '../utils/js/statusColors.js';
@@ -67,6 +70,9 @@ export default function EditTicket() {
   const { user } = useAuth();
   const agentEmail = user.username;
   
+  
+  const patient_snapshot = ticket.linked_patient_snapshot;
+  console.log(JSON.stringify(patient_snapshot, null, 2));
   //statuses
   const [status, setStatus] = useState(ticket?.status || '');
   const [notes, setNotes] = useState(ticket?.notes || []);
@@ -216,6 +222,35 @@ export default function EditTicket() {
     setEditField(null);
   };
 
+  const handleRelateCurrentTicket = async (ticket) => {
+    const ticketId = ticket.id;
+    const ticketPhone = null;
+    const patientId= null;
+    await relateTicketHandler({dispatch,setLoading,ticketId,agentEmail,action: 'relateCurrent', ticketPhone, patientId, setSuccessMessage,setErrorMessage,setSuccessOpen,setErrorOpen,});
+  };
+
+const handleRelateAllPastTickets = async (ticket) => {
+  const ticketId = null;
+  const ticketPhone = ticket.phone;
+  const patientId= null;
+  await relateTicketHandler({dispatch,setLoading,ticketId,agentEmail,action: 'relatePast',ticketPhone, patientId, setSuccessMessage,setErrorMessage,setSuccessOpen,setErrorOpen,});
+};
+
+const handleRelateFutureTickets = async (ticket) => {
+  const ticketId = null;
+  const ticketPhone = ticket.phone;
+  const patientId= null;
+  await relateTicketHandler({dispatch, setLoading, ticketId, agentEmail, action: 'relateFuture', ticketPhone, patientId, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen });
+};
+
+const handleUnlinkTicket = async (ticket) => {
+  const ticketId = ticket.id;
+  const patientId = null;
+  const ticketPhone = null;
+  await relateTicketHandler({ dispatch, setLoading, ticketId, agentEmail, action: 'unlink', ticketPhone, patientId, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
+};
+
+
 
 
   if (!ticket) return <Typography>Ticket not found</Typography>;
@@ -336,102 +371,170 @@ export default function EditTicket() {
                       </IconButton>
                     </Tooltip>
                   </Box>
+
+                  {/* --- Nueva lógica --- */}
+                  {ticket.linked_patient_snapshot && ticket.linked_patient_snapshot.Name ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <InsertLinkIcon color="success" />
+                      <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
+                        {ticket.linked_patient_snapshot.Name}
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <>
+                      <Typography sx={{ mb: 1 }}>
+                        <strong>Patient:</strong><br />
+                        <Box mt={1}>
+                          {editField === 'name' ? (
+                            <Box display="flex" alignItems="center" gap={1}>
+                              <TextField
+                                value={patientName}
+                                onChange={(e) => setPatientName(e.target.value)}
+                                size="small"
+                                fullWidth
+                              />
+                              <IconButton
+                                onClick={async () => {
+                                  await updatePatientNameUI(patientName);
+                                  setEditField(null);
+                                }}
+                              >
+                                <SaveIcon />
+                              </IconButton>
+                              <IconButton onClick={() => setEditField(null)}><i className="fa fa-close" /></IconButton>
+                            </Box>
+                          ) : (
+                            <Box display="flex" alignItems="center" justifyContent="space-between">
+                              <Typography>{patientName}</Typography>
+                              <IconButton onClick={() => setEditField('name')}><EditIcon fontSize="small" /></IconButton>
+                            </Box>
+                          )}
+                        </Box>
+                      </Typography>
+                    </>
+                  )}
+
                   <Typography sx={{ mb: 1 }}>
-                    <strong>Patient:</strong><br /> 
-                    <Box mt={1}>
-                    {editField === 'name' ? (
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <TextField
-                          value={patientName}
-                          onChange={(e) => setPatientName(e.target.value)}
-                          size="small"
-                          fullWidth
-                        />
-                        <IconButton
-                          onClick={async () => {
-                            await updatePatientNameUI(patientName);
-                            setEditField(null);
-                          }}
-                        >
-                          <SaveIcon />
-                        </IconButton>
-                        <IconButton onClick={() => setEditField(null)}><i className="fa fa-close" /></IconButton>
-                      </Box>
-                    ) : (
-                      <Box display="flex" alignItems="center" justifyContent="space-between">
-                        <Typography>{patientName}</Typography>
-                        <IconButton onClick={() => setEditField('name')}><EditIcon fontSize="small" /></IconButton>
-                      </Box>
-                    )}
-                  </Box>
-                  </Typography>
-                  <Typography sx={{ mb: 1 }}>
-                    <strong>Patient DOB:</strong><br /> 
+                    <strong>Patient DOB:</strong><br />
+                    {ticket.linked_patient_snapshot && ticket.linked_patient_snapshot.DOB ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                      <InsertLinkIcon color="success" />
+                      <Typography variant="subtitle" sx={{ color: '#2e7d32' }}>
+                        {ticket.linked_patient_snapshot.DOB}
+                      </Typography>
+                    </Box>
+                  ) : (
                     <Box>
-                    {editField === 'dob' ? (
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <TextField
-                          type="date"
-                          value={patientDob}
-                          onChange={(e) => setPatientDob(e.target.value)}
-                          size="small"
-                          fullWidth
-                          InputLabelProps={{
-                            shrink: true,
-                          }}
-                        />
-                        <IconButton
-                          onClick={async () => {
-                            await updatePatientDobUI(patientDob);
-                            setEditField(null);
-                          }}
-                        >
-                          <SaveIcon />
-                        </IconButton>
-                        <IconButton onClick={() => setEditField(null)}><i className="fa fa-close" /></IconButton>
-                      </Box>
-                    ) : (
-                      <Box display="flex" alignItems="center" justifyContent="space-between">
-                        <Typography>{patientDob}</Typography>
-                        <IconButton onClick={() => setEditField('dob')}><EditIcon fontSize="small" /></IconButton>
-                      </Box>
-                    )}
-                  </Box>
+                      {editField === 'dob' ? (
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <TextField
+                            type="date"
+                            value={patientDob}
+                            onChange={(e) => setPatientDob(e.target.value)}
+                            size="small"
+                            fullWidth
+                            InputLabelProps={{
+                              shrink: true,
+                            }}
+                          />
+                          <IconButton
+                            onClick={async () => {
+                              await updatePatientDobUI(patientDob);
+                              setEditField(null);
+                            }}
+                          >
+                            <SaveIcon />
+                          </IconButton>
+                          <IconButton onClick={() => setEditField(null)}><i className="fa fa-close" /></IconButton>
+                        </Box>
+                      ) : (
+                        <Box display="flex" alignItems="center" justifyContent="space-between">
+                          <Typography>{patientDob}</Typography>
+                          <IconButton onClick={() => setEditField('dob')}><EditIcon fontSize="small" /></IconButton>
+                        </Box>
+                      )}
+                    </Box>
+                  )}
                   </Typography>
+
                   <Typography sx={{ mb: 2.5 }}>
                     <strong>Phone:</strong><br /> {ticket.phone}
                   </Typography>
+
                   <Typography>
                     <strong>Callback Number:</strong><br />
                     <Box>
-                    {editField === 'phone' ? (
-                      <Box display="flex" alignItems="center" gap={1}>
-                        <TextField
-                          value={callbakNumber}
-                          onChange={(e) => setCallbackNumber(e.target.value)}
-                          size="small"
-                          fullWidth
-                        />
-                        <IconButton
-                          onClick={async () => {
-                            await updatecallbakNumberUI(callbakNumber);
-                            setEditField(null);
-                          }}
-                        >
-                          <SaveIcon />
-                        </IconButton>
-                        <IconButton onClick={() => setEditField(null)}><i className="fa fa-close" /></IconButton>
-                      </Box>
-                    ) : (
-                      <Box display="flex" alignItems="center" justifyContent="space-between">
-                        <Typography>{callbakNumber}</Typography>
-                        <IconButton onClick={() => setEditField('phone')}><EditIcon fontSize="small" /></IconButton>
-                      </Box>
-                    )}
-                  </Box>
+                      {editField === 'phone' ? (
+                        <Box display="flex" alignItems="center" gap={1}>
+                          <TextField
+                            value={callbakNumber}
+                            onChange={(e) => setCallbackNumber(e.target.value)}
+                            size="small"
+                            fullWidth
+                          />
+                          <IconButton
+                            onClick={async () => {
+                              await updatecallbakNumberUI(callbakNumber);
+                              setEditField(null);
+                            }}
+                          >
+                            <SaveIcon />
+                          </IconButton>
+                          <IconButton onClick={() => setEditField(null)}><i className="fa fa-close" /></IconButton>
+                        </Box>
+                      ) : (
+                        <Box display="flex" alignItems="center" justifyContent="space-between">
+                          <Typography>{callbakNumber}</Typography>
+                          <IconButton onClick={() => setEditField('phone')}><EditIcon fontSize="small" /></IconButton>
+                        </Box>
+                      )}
+                    </Box>
                   </Typography>
+
+                  {/* Resto de acciones de relación */}
+                  <Box sx={{ mt: 3 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Link with Patient</Typography>
+
+                    <Box display="flex" flexDirection="column" gap={1}>
+                      <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => handleRelateCurrentTicket(ticket)}
+                      >
+                        Relate this ticket
+                      </Button>
+
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={handleRelateAllPastTickets}
+                      >
+                        Relate all past tickets (by phone)
+                      </Button>
+
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        color="secondary"
+                        onClick={handleRelateFutureTickets}
+                      >
+                        Auto-relate future tickets (by phone)
+                      </Button>
+
+                      <Button
+                        variant="text"
+                        size="small"
+                        color="error"
+                        onClick={handleUnlinkTicket}
+                      >
+                        Unlink this ticket
+                      </Button>
+                    </Box>
+                  </Box>
+
                 </CardContent>
               </Card>
+
 
               <TicketNotes
                 notes={notes}
