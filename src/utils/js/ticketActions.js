@@ -8,7 +8,8 @@ import {
   updatePatientDOB,
   updateCallbackNumber,
   assignAgent,
-  updateCenter
+  updateCenter,
+  relateTicketsByPhone
 } from '../apiTickets';
 
 export async function handleStatusChange({ dispatch, setLoading, ticketId, agentEmail, newStatus, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen }) {
@@ -168,3 +169,16 @@ export async function updateAssigneeHandler({ dispatch, setLoading, ticketId, ag
     }
   //setEditField(null);
 }
+
+export const relateTicketHandler = async ({dispatch, setLoading, ticketId, agentEmail, action, ticketPhone, patientId, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen}) => {
+  console.log(ticketId, agentEmail)
+  const result = await relateTicketsByPhone(dispatch, setLoading, ticketId, agentEmail, action, ticketPhone, patientId, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen)
+  
+  if (result.success) {
+        setSuccessMessage(result.message);
+        setSuccessOpen(true);
+    } else {
+        setErrorMessage(result.message);
+        setErrorOpen(true);
+    }
+};
