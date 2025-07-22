@@ -1,6 +1,6 @@
 // components/floatingDateSelector.jsx
 import React from 'react';
-import { Box, TextField, Button, Stack, InputAdornment, Paper } from '@mui/material';
+import { TextField, Button, Stack, InputAdornment, Paper } from '@mui/material';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import SearchIcon from '@mui/icons-material/Search';
 

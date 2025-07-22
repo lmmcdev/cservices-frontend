@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Button,
   Grid,
-  TextField,
-  Stack,
-  InputAdornment
 } from '@mui/material';
 import { useMsal } from '@azure/msal-react';
 import {
@@ -25,8 +21,6 @@ import CustomerSatisfaction from '../components/customerSatisfaction.jsx';
 import { HistoricalAverageResolutionTime } from '../components/averageResolutionTime';
 import { HistoricalTopPerformerCard } from '../components/topPerformerCard';
 import { getTicketsByStatus, getTicketsByIds } from '../utils/apiStats';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import SearchIcon from '@mui/icons-material/Search';
 import FloatingSettingsButton from '../components/components/floatingSettingsButton.jsx';
 import StatusFilterBoxes from '../components/statusFilterBoxes'; // ✅ importa tu componente reutilizable
 import FloatingDateSelector from '../components/auxiliars/floatingDateSelector.jsx';
