@@ -26,6 +26,8 @@ import ChangeCenterModal from '../components/dialogs/changeCenterModal';
 import { useTickets } from '../context/ticketsContext.js';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import { TicketIndicators } from '../components/ticketIndicators';
+import TicketLinkOptions from '../components/ticketLinkOptions';
+import LinkIcon from '@mui/icons-material/Link';
 
 
 import {
@@ -123,6 +125,11 @@ export default function EditTicket() {
     const handleStatusChangeUI = async (newStatus) => {
       handleStatusChange({ dispatch, setLoading, ticketId, agentEmail, newStatus, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen });
     };
+
+    const handleOpenMenu = () => {
+  console.log('Clicked link options');
+};
+
     ///////////////////////////////////////////////////////////////////////
     const handleAddNote = async () => {
       await handleAddNoteHandler({dispatch, setLoading, ticketId, agentEmail, noteContent, setNotes, setNoteContent, setOpenNoteDialog, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
@@ -316,19 +323,29 @@ const handleUnlinkTicket = async (ticket) => {
                           backgroundColor: getStatusColor(status, 'text') || '#00a1ff',
                         }}
                       />
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: 'bold', color: getStatusColor(status, 'text') || '#00a1ff' }}
-                      >
-                        Patient Information
-                      </Typography>
+                      <Grid container alignItems="center" justifyContent="space-between">
+                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: getStatusColor(ticket?.status) }}>
+                          Patient Information
+                        </Typography>
+                        <TicketLinkOptions />
+                      </Grid>
                     </Box>
 
-                    <Tooltip title="View Profile">
-                      <IconButton onClick={() => setOpenPatientDialog(true)} size="small" sx={{ color: '#00a1ff' }}>
-                        <i className="fa fa-id-card" />
-                      </IconButton>
-                    </Tooltip>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Tooltip title="View Profile">
+                        <IconButton onClick={() => setOpenPatientDialog(true)} size="small" sx={{ color: '#00a1ff' }}>
+                          <i className="fa fa-id-card" />
+                        </IconButton>
+                      </Tooltip>
+
+                      <TicketLinkOptions
+                        ticket={ticket}
+                        onRelateCurrentTicket={handleRelateCurrentTicket}
+                        onRelateAllPastTickets={handleRelateAllPastTickets}
+                        onRelateFutureTickets={handleRelateFutureTickets}
+                        onUnlinkTicket={handleUnlinkTicket}
+                      />
+                    </Box>
                   </Box>
 
                   {/* --- Nueva lógica --- */}
@@ -449,51 +466,8 @@ const handleUnlinkTicket = async (ticket) => {
                       )}
                     </Box>
                   </Typography>
-
-                  {/* Resto de acciones de relación */}
-                  <Box sx={{ mt: 3 }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Link with Patient</Typography>
-
-                    <Box display="flex" flexDirection="column" gap={1}>
-                      <Button
-                        variant="contained"
-                        size="small"
-                        onClick={() => handleRelateCurrentTicket(ticket)}
-                      >
-                        Relate this ticket
-                      </Button>
-
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={handleRelateAllPastTickets}
-                      >
-                        Relate all past tickets (by phone)
-                      </Button>
-
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        color="secondary"
-                        onClick={handleRelateFutureTickets}
-                      >
-                        Auto-relate future tickets (by phone)
-                      </Button>
-
-                      <Button
-                        variant="text"
-                        size="small"
-                        color="error"
-                        onClick={handleUnlinkTicket}
-                      >
-                        Unlink this ticket
-                      </Button>
-                    </Box>
-                  </Box>
-
                 </CardContent>
               </Card>
-
 
               <TicketNotes
                 notes={notes}
