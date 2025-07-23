@@ -28,6 +28,7 @@ import { useLoading } from '../providers/loadingProvider';
 import AlertSnackbar from '../components/auxiliars/alertSnackbar';
 //import PatientList from '../components/patientList';
 import SearchPatientDeep from '../components/components/patientsDeepSeacrh';
+import SearchTicketDeep from '../components/components/tickets/ticketsDeepSeacrh';
 //import { useMemo } from 'react';
 
 const mockData = [];
@@ -159,6 +160,16 @@ export default function ProfileSearch() {
               </ListItemIcon>
               <ListItemText primary="Patients Search" />
             </ListItemButton>
+
+            <ListItemButton
+              onClick={() => setSelectedView('tickets-search')}
+              sx={{ borderRadius: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 1.2 }}
+            >
+              <ListItemIcon sx={{ minWidth: 'auto', mr: 0 }}>
+                <LocalHospitalIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Tickets Search" />
+            </ListItemButton>
           </List>
 
 
@@ -285,6 +296,10 @@ export default function ProfileSearch() {
           */}
           {selectedView === 'patients-search' && (
             <SearchPatientDeep />
+          )}
+
+          {selectedView === 'tickets-search' && (
+            <SearchTicketDeep />
           )}
         </Box>
 
