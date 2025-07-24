@@ -9,7 +9,7 @@ import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 
 import ProfilePic from '../components/components/profilePic';
-import DepartmentSelect from '../components/components/departmentSelect';
+import DepartmentSelect from '../components/auxiliars/departmentSelect';
 import RolSelect from '../components/components/rolSelect';
 import AlertSnackbar from '../components/auxiliars/alertSnackbar';
 

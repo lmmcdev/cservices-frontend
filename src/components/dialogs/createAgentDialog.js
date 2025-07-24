@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
-import DepartmentSelect from '../components/departmentSelect';
+import DepartmentSelect from '../auxiliars/departmentSelect';
 import { useGraphEmailCheck } from '../../utils/useGraphEmailCheck';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import RolSelect from '../components/rolSelect';

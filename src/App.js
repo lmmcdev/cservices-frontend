@@ -42,7 +42,7 @@ const UnknownAgentNotice = lazy(() => import('./pages/unknownAgentNotice'));
 const StatsScreen = lazy(() => import('./pages/statsScreen'));
 //const HistoricalStats = lazy(() => import ('./pages/historicalStatsScreen'));
 const ProfileSearch = lazy(() => import('./pages/profileSearch'));
-const SearchPatientDeep = lazy(() => import('./components/components/patientsDeepSeacrh'));
+const SearchPatientDeep = lazy(() => import('./components/components/patients/patientsDeepSeacrh'));
 const SearchTicketDeep = lazy(() => import('./components/components/tickets/ticketsDeepSeacrh'))
 
 
