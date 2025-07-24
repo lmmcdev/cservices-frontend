@@ -69,6 +69,8 @@ export default function EditTicket() {
   const [notes, setNotes] = useState(ticket?.notes || []);
   const [collaborators, setCollaborators] = useState(ticket?.collaborators || []);
   const [patientName, setPatientName] = useState(ticket?.patient_name || '');
+  const [linked_patient_snapshot, setLinkedPatientSnapshot] = useState(ticket?.linked_patient_snapshot || {});
+
   
  const formatDateForInput = (dateStr = '01-01-1901') => {
   const date = new Date(dateStr);
@@ -109,9 +111,11 @@ export default function EditTicket() {
 
   useEffect(() => {
     if (ticket) {
+      console.log(ticket)
       setAgentAssigned(ticket.agent_assigned || '');
       setCollaborators(ticket.collaborators);
       setStatus(ticket.status || '');
+      setLinkedPatientSnapshot(ticket.linked_patient_snapshot || null);
     }
   }, [ticket]);
   
@@ -343,14 +347,15 @@ const handleUnlinkTicket = async (ticket) => {
                   </Box>
 
                   {/* --- Nueva lógica --- */}
-                  {ticket.linked_patient_snapshot && ticket.linked_patient_snapshot.Name ? (
+                  {linked_patient_snapshot?.Name ? (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                       <InsertLinkIcon color="success" />
                       <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
-                        {ticket.linked_patient_snapshot.Name}
+                        {linked_patient_snapshot.Name}
                       </Typography>
                     </Box>
                   ) : (
+                    // fallback al paciente editable
                     <>
                       <Typography sx={{ mb: 1 }}>
                         <strong>Patient:</strong><br />
@@ -384,13 +389,14 @@ const handleUnlinkTicket = async (ticket) => {
                     </>
                   )}
 
+
                   <Typography sx={{ mb: 1 }}>
                     <strong>Patient DOB:</strong><br />
-                    {ticket.linked_patient_snapshot && ticket.linked_patient_snapshot.DOB ? (
+                    {linked_patient_snapshot && linked_patient_snapshot.DOB ? (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                       <InsertLinkIcon color="success" />
                       <Typography variant="subtitle" sx={{ color: '#2e7d32' }}>
-                        {ticket.linked_patient_snapshot.DOB}
+                        {linked_patient_snapshot.DOB}
                       </Typography>
                     </Box>
                   ) : (
