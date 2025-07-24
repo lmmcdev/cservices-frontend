@@ -447,7 +447,7 @@ export const relateTicketsByPhone = async (dispatch, setLoading, ticket_id, agen
 };
 
 
-export const searchTickets = async (searchData, page = 1, size = 50, location, accessToken) => {
+export const searchTickets = async ({ query, page, size, filter }, accessToken) => {
   //if (accessToken === null) return { success: false, message: 'No access token provided' };
     let url = `https://cservicesapi.azurewebsites.net/api/searchTickets`;
     try {
@@ -458,11 +458,11 @@ export const searchTickets = async (searchData, page = 1, size = 50, location, a
         // Authorization: `Bearer ${accessToken}`, si usas autenticación
         },
         body: JSON.stringify({
-            query: searchData,
-            location: location,
-            page,
-            size
-        }),
+      query,
+      page,
+      size,
+      ...(filter ? { filter } : {})
+    }),
         });
         const data = await response.json();
 

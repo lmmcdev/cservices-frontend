@@ -1,8 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import {
-  Box,
-  TextField,
-} from '@mui/material';
+import { Box, TextField } from '@mui/material';
 import { searchTickets } from '../../../utils/apiTickets';
 import CallerIDAutoComplete from '../../auxiliars/callerIDAutocomplete';
 import SearchTicketResults from './searchTicketsResults';
@@ -19,28 +16,37 @@ const SearchTicketDeep = ({ queryPlaceholder = 'Search tickets deeply...' }) => 
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(false);
-  const [selectedMDVitaLocation, setSelectedMDVitaLocation] = useState('');
+  const [selectedLocations, setSelectedLocations] = useState([]); // ✅ array de locaciones
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
 
+  // ✅ Construir el filtro compatible con Azure Cognitive Search
   const buildFilter = () => {
     const parts = [];
+
     if (startDate) {
       parts.push(`createdAt ge ${dayjs(startDate).startOf('day').toISOString()}`);
     }
     if (endDate) {
       parts.push(`createdAt le ${dayjs(endDate).endOf('day').toISOString()}`);
     }
-    if (selectedMDVitaLocation) {
-      parts.push(`assigned_department eq '${selectedMDVitaLocation}'`);
+
+    // ✅ Si hay varias locaciones, usar OR entre ellas
+    if (selectedLocations.length > 0) {
+      const locationFilter = selectedLocations
+        .map(loc => `assigned_department eq '${loc}'`)
+        .join(' or ');
+      parts.push(`${locationFilter}`);
     }
+
     return parts.length ? parts.join(' and ') : null;
   };
 
+  // ✅ Función para traer resultados
   const fetchTickets = useCallback(
     async (pageNumber) => {
       const filter = buildFilter();
-      const query = inputValue.trim() ? inputValue : "*";
+      const query = inputValue.trim() ? inputValue : '*';
 
       setLoading(true);
       try {
@@ -67,9 +73,10 @@ const SearchTicketDeep = ({ queryPlaceholder = 'Search tickets deeply...' }) => 
         setLoading(false);
       }
     },
-    [inputValue, startDate, endDate, selectedMDVitaLocation]
+    [inputValue, startDate, endDate, selectedLocations]
   );
 
+  // ✅ Disparar búsqueda en cambios
   useEffect(() => {
     const handler = setTimeout(() => {
       setPage(1);
@@ -78,12 +85,13 @@ const SearchTicketDeep = ({ queryPlaceholder = 'Search tickets deeply...' }) => 
     }, 400);
 
     return () => clearTimeout(handler);
-  }, [inputValue, startDate, endDate, selectedMDVitaLocation, fetchTickets]);
+  }, [inputValue, startDate, endDate, selectedLocations, fetchTickets]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ mt: 2 }}>
-        <CallerIDAutoComplete onSelect={setSelectedMDVitaLocation} />
+        {/* ✅ Ahora capturamos múltiples locaciones */}
+        <CallerIDAutoComplete onChange={setSelectedLocations} />
       </Box>
 
       <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
