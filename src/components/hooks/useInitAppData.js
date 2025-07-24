@@ -19,10 +19,10 @@ export const useInitAppData = () => {
     const load = async () => {
       setLoading(true);
       try {
-        const agents = await fetchAgentData();
+        const agents = await fetchAgentData(user?.username);
         const tickets = await fetchTableData(user?.username);
-        //console.log(tickets)
-        agentDispatch({ type: 'SET_AGENTS', payload: agents.message });
+        console.log(agents.message)
+        agentDispatch({ type: 'SET_AGENTS', payload: agents.message.agents });
         ticketDispatch({ type: 'SET_TICKETS', payload: tickets.message });
       } 
       catch(err) {

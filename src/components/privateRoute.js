@@ -7,10 +7,10 @@ import { useAgents } from '../context/agentsContext';
 const PrivateRoute = () => {
   const { authLoaded, user } = useAuth();
   const { state } = useAgents();
-
+  const allAgents = state.agents || [];
   if (!authLoaded) return null;
 
-  const knownAgent = state.agents.find(a => a.agent_email === user?.username);
+  const knownAgent = allAgents.find(a => a.agent_email === user?.username);
 
   if (!user || !knownAgent) return <Navigate to="/auth-error" replace />;
 

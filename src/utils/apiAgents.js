@@ -1,13 +1,15 @@
 
 //fetch table agents
-export const fetchAgentData = async () => {
-  
-    const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetAgents`);
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || 'Error fetching agents data');
-    }
-    return data;
+export const fetchAgentData = async (agentAssigned) => {
+  {/** Fetch the list of agents from the API
+    we need to add filters so we can search through them
+    never get all agents, only agents in context */}
+  const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetAgents?agentAssigned=${encodeURIComponent(agentAssigned)}`);
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Error fetching agents data');
+  }
+  return data;
 };
 
 
