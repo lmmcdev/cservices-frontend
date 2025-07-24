@@ -4,8 +4,6 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
-  Button,
   Typography,
   Box,
   Grid, Card
@@ -16,7 +14,7 @@ import { TicketIndicators } from '../ticketIndicators';
 export default function TicketQuickViewDialog({ open, onClose, ticket }) {
   if (!ticket) return null;
 
-  const ai_data = ticket?.aiClassification;
+  //const ai_data = ticket?.aiClassification;
   console.log(ticket)
   return (
     <Dialog

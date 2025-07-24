@@ -88,6 +88,7 @@ const SearchTicketDeep = ({ queryPlaceholder = 'Search tickets deeply...' }) => 
         setLoading(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [inputValue, startDate, endDate, selectedLocations, selectedAgents]
   );
 

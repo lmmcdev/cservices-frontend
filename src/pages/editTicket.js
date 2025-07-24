@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  Box, Typography, Paper, Grid, Card, CardContent, TextField, IconButton, Button
+  Box, Typography, Paper, Grid, Card, CardContent, TextField, IconButton
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -27,7 +27,6 @@ import { useTickets } from '../context/ticketsContext.js';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import { TicketIndicators } from '../components/ticketIndicators';
 import TicketLinkOptions from '../components/ticketLinkOptions';
-import LinkIcon from '@mui/icons-material/Link';
 
 
 import {
@@ -64,7 +63,7 @@ export default function EditTicket() {
   const agentEmail = user.username;
   
   
-  const patient_snapshot = ticket.linked_patient_snapshot;
+  //const patient_snapshot = ticket.linked_patient_snapshot;
   //statuses
   const [status, setStatus] = useState(ticket?.status || '');
   const [notes, setNotes] = useState(ticket?.notes || []);
@@ -125,11 +124,7 @@ export default function EditTicket() {
       handleStatusChange({ dispatch, setLoading, ticketId, agentEmail, newStatus, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen });
     };
 
-    const handleOpenMenu = () => {
-  console.log('Clicked link options');
-};
-
-    ///////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////
     const handleAddNote = async () => {
       await handleAddNoteHandler({dispatch, setLoading, ticketId, agentEmail, noteContent, setNotes, setNoteContent, setOpenNoteDialog, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
     };

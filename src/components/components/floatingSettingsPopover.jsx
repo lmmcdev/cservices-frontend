@@ -12,7 +12,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useAgents } from '../../context/agentsContext';
 import { useAuth } from '../../context/authContext';
-import { icons } from '../auxiliars/icons';
 import TodayIcon from '@mui/icons-material/Today';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
