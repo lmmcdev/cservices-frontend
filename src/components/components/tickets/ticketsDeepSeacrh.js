@@ -1,7 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Box, TextField } from '@mui/material';
 import { searchTickets } from '../../../utils/apiTickets';
+import { useAgents } from '../../../context/agentsContext';
 import CallerIDAutoComplete from '../../auxiliars/callerIDAutocomplete';
+import CollaboratorAutoComplete from '../../auxiliars/collaboratorAutocomplete';
 import SearchTicketResults from './searchTicketsResults';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -17,8 +19,13 @@ const SearchTicketDeep = ({ queryPlaceholder = 'Search tickets deeply...' }) => 
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [selectedLocations, setSelectedLocations] = useState([]); // ✅ array de locaciones
+  const [selectedAgents, setSelectedAgents] = useState([]); // ✅ array de agentes
+
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const { state } = useAgents();
+  const agents = state.agents;
+  
 
   // ✅ Construir el filtro compatible con Azure Cognitive Search
   const buildFilter = () => {
@@ -29,6 +36,12 @@ const SearchTicketDeep = ({ queryPlaceholder = 'Search tickets deeply...' }) => 
     }
     if (endDate) {
       parts.push(`createdAt le ${dayjs(endDate).endOf('day').toISOString()}`);
+    }
+    if (selectedAgents.length > 0) {
+      const agentFilter = selectedAgents
+        .map(agent => `agent_assigned eq '${agent}'`)
+        .join(' or ');
+      parts.push(`${agentFilter}`);
     }
 
     // ✅ Si hay varias locaciones, usar OR entre ellas
@@ -41,6 +54,8 @@ const SearchTicketDeep = ({ queryPlaceholder = 'Search tickets deeply...' }) => 
 
     return parts.length ? parts.join(' and ') : null;
   };
+
+
 
   // ✅ Función para traer resultados
   const fetchTickets = useCallback(
@@ -73,7 +88,7 @@ const SearchTicketDeep = ({ queryPlaceholder = 'Search tickets deeply...' }) => 
         setLoading(false);
       }
     },
-    [inputValue, startDate, endDate, selectedLocations]
+    [inputValue, startDate, endDate, selectedLocations, selectedAgents]
   );
 
   // ✅ Disparar búsqueda en cambios
@@ -85,14 +100,20 @@ const SearchTicketDeep = ({ queryPlaceholder = 'Search tickets deeply...' }) => 
     }, 400);
 
     return () => clearTimeout(handler);
-  }, [inputValue, startDate, endDate, selectedLocations, fetchTickets]);
+  }, [inputValue, startDate, endDate, selectedLocations, selectedAgents,fetchTickets]);
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box sx={{ mt: 2 }}>
-        {/* ✅ Ahora capturamos múltiples locaciones */}
         <CallerIDAutoComplete onChange={setSelectedLocations} />
       </Box>
+
+      <CollaboratorAutoComplete
+          agents={agents}
+          selectedEmails={selectedAgents}
+          onChange={setSelectedAgents}
+          label="Assigned to"
+      />
 
       <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
         <DatePicker
