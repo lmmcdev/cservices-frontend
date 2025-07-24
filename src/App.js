@@ -43,6 +43,7 @@ const StatsScreen = lazy(() => import('./pages/statsScreen'));
 //const HistoricalStats = lazy(() => import ('./pages/historicalStatsScreen'));
 const ProfileSearch = lazy(() => import('./pages/profileSearch'));
 const SearchPatientDeep = lazy(() => import('./components/components/patientsDeepSeacrh'));
+const SearchTicketDeep = lazy(() => import('./components/components/tickets/ticketsDeepSeacrh'))
 
 
 function AppContent() {
@@ -85,6 +86,7 @@ function AppContent() {
               <Route path="agent/edit/:id" element={<EditAgent />} />
               <Route path="profile-search" element={<ProfileSearch />} />
               <Route path="patient-search" element={<SearchPatientDeep />} />
+              <Route path="ticket-search" element={<SearchTicketDeep />} />
             </Route>
           
 

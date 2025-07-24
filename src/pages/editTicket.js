@@ -65,7 +65,6 @@ export default function EditTicket() {
   
   
   const patient_snapshot = ticket.linked_patient_snapshot;
-  console.log(JSON.stringify(patient_snapshot, null, 2));
   //statuses
   const [status, setStatus] = useState(ticket?.status || '');
   const [notes, setNotes] = useState(ticket?.notes || []);
