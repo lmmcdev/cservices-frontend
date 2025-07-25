@@ -1,8 +1,14 @@
 import React from 'react';
-import { FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  OutlinedInput
+} from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const MDVitaLocationSelect = ({ label = 'Select Location', value, onChange }) => {
+const MDVitaLocationSelect = ({ label = 'Location', value, onChange }) => {
   const centers = [
     {
       group: 'LMMC',
@@ -18,8 +24,8 @@ const MDVitaLocationSelect = ({ label = 'Select Location', value, onChange }) =>
         'PEMBROKE PINES',
         'TAMARAC',
         'HOLLYWOOD',
-        'WEST PALM BEACH'
-      ]
+        'WEST PALM BEACH',
+      ],
     },
     {
       group: 'PWMC',
@@ -27,22 +33,13 @@ const MDVitaLocationSelect = ({ label = 'Select Location', value, onChange }) =>
         'N MIAMI BEACH - 2ND FLOOR',
         'CUTLER RIDGE',
         'CUTLER BAY',
-        'MARLINS PARK'
-      ]
-    }
+        'MARLINS PARK',
+      ],
+    },
   ];
 
-  const commonStyles = {
-    fontSize: 16,
-    '& .MuiSelect-select': {
-      display: 'flex',
-      alignItems: 'center'
-    }
-  };
-
-  // ✅ Generamos lista plana para evitar Fragment
   const menuItems = [
-    <MenuItem key="all" value="">
+    <MenuItem key="placeholder" value="">
       <em>All Locations</em>
     </MenuItem>,
     ...centers.flatMap((center) => [
@@ -54,32 +51,63 @@ const MDVitaLocationSelect = ({ label = 'Select Location', value, onChange }) =>
         {center.group}
       </MenuItem>,
       ...center.values.map((loc) => {
-        const fullValue = `${center.group} - ${loc}`;
+        const full = `${center.group} - ${loc}`;
         return (
-          <MenuItem key={fullValue} value={fullValue} sx={{ fontSize: 16 }}>
-            {fullValue}
+          <MenuItem key={full} value={full} sx={{ fontSize: 16 }}>
+            {full}
           </MenuItem>
         );
-      })
-    ])
+      }),
+    ]),
   ];
 
   return (
-    <FormControl fullWidth variant="outlined" size="small">
-      <InputLabel
-        id="center-select-label"
-        sx={{ fontSize: 16, color: 'text.secondary' }}
-      >
-        {label}
-      </InputLabel>
+    <FormControl
+      fullWidth
+      variant="outlined"
+      sx={{
+        '& .MuiInputLabel-root': {
+          '&:hover:not(.Mui-focused)': {
+            color: '#999999',
+          },
+          '&.Mui-focused': {
+            color: '#00A1FF',
+          },
+        },
+        '& .MuiOutlinedInput-root': {
+          '&:hover:not(.Mui-focused) .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#999999',
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#00A1FF',
+          },
+        },
+      }}
+    >
+      <InputLabel id="location-label">{label}</InputLabel>
       <Select
-        labelId="center-select-label"
-        id="center-select"
+        labelId="location-label"
+        id="location-select"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         label={label}
-        sx={commonStyles}
         IconComponent={ExpandMoreIcon}
+        input={
+          <OutlinedInput
+            label={label}
+            sx={{
+              height: '56px',
+              '& .MuiOutlinedInput-notchedOutline': { top: 0 },
+            }}
+          />
+        }
+        sx={{
+          '& .MuiSelect-select': {
+            padding: '16.5px 14px',
+            display: 'flex',
+            alignItems: 'center',
+          },
+        }}
       >
         {menuItems}
       </Select>

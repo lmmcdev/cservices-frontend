@@ -30,7 +30,6 @@ import AlertSnackbar from '../components/auxiliars/alertSnackbar';
 import SearchPatientDeep from '../components/components/patients/patientsDeepSeacrh';
 import SearchTicketDeep from '../components/components/tickets/ticketsDeepSeacrh';
 //import { useMemo } from 'react';
-import SearchPatientUI from '../components/searchPatientUI';
 
 const mockData = [];
 
@@ -298,7 +297,6 @@ export default function ProfileSearch() {
           */}
           {selectedView === 'patients-search' && (
             <>
-              <SearchPatientUI />
               <SearchPatientDeep />
             </>
           )}
