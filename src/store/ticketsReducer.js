@@ -62,9 +62,10 @@ export const ticketReducer = (state, action) => {
       return {
         ...state,
         tickets: state.tickets.map(ticket =>
-          ticket.id === action.payload.id ? { ...ticket, ...action.payload } : ticket
+          ticket.id === action.payload.id ? action.payload : ticket
         )
       };
+
 
     //agents
     case 'SET_AGENTS':

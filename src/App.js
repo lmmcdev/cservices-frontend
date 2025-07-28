@@ -92,7 +92,7 @@ function AppContent() {
 
           <Route element={<LayoutWithSidebarOnly />}>
             <Route path='/statistics' element={<StatsScreen />} />
-            <Route path='/historical_statistics' element={<HistoricalStatsProvider><DoneTicketsProvider><DoneHistoricalTicketsProvider><HistoricStatistics /></DoneHistoricalTicketsProvider></DoneTicketsProvider></HistoricalStatsProvider>} />
+            <Route path='/historical_statistics' element={<LoadingProvider><HistoricalStatsProvider><DoneTicketsProvider><DoneHistoricalTicketsProvider><HistoricStatistics /></DoneHistoricalTicketsProvider></DoneTicketsProvider></HistoricalStatsProvider></LoadingProvider>} />
           </Route>
 
           <Route element={<MinimalCenteredLayout />}>
