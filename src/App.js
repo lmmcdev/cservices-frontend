@@ -28,6 +28,7 @@ import LayoutWithSidebarOnly from './layouts/sideBarLayout';
 import PrivateRoute from './components/privateRoute';
 import NotFound404 from './pages/404';
 import { useInitAppData } from './components/hooks/useInitAppData';
+import { registerForPushNotifications } from './utils/js/registerPush';
 
 import './App.css';
 
@@ -56,6 +57,14 @@ function AppContent() {
     assignedAgents: [],
     callerIds: [],
   });
+
+  //notifications push
+  useEffect(() => {
+  if ('serviceWorker' in navigator && 'PushManager' in window) {
+    registerForPushNotifications();
+  }
+}, []);
+
 
   useEffect(() => {
     if (user?.username) setAgentEmail(user.username);
