@@ -97,4 +97,7 @@ export const icons = {
     supervisorView: FaUsersV4,
 };
 
-
+export const flags = {
+  us: '/flags/us.svg',
+  es: '/flags/es.svg',
+};

@@ -27,6 +27,7 @@ import { useTickets } from '../context/ticketsContext.js';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import { TicketIndicators } from '../components/ticketIndicators';
 import TicketLinkOptions from '../components/ticketLinkOptions';
+import RelateTicketModal from '../components/dialogs/relateTicketModal.jsx';
 
 
 import {
@@ -96,6 +97,7 @@ export default function EditTicket() {
   const [openReassignAgentModal, setOpenReassignAgentModal] = useState(false);
   const [openChangeDepartmentModal, setOpenChangeDepartmentModal] = useState(false);
   const [openCenterModal, setOpenCenterModal] = useState(false);
+  const [openRelateModal, setOpenRelateModal] = useState(false);
 
   const [openPatientDialog, setOpenPatientDialog] = useState(false);
   useWorkTimer( {ticketData:ticket, agentEmail, status, enabled:true} );
@@ -182,11 +184,8 @@ export default function EditTicket() {
     setEditField(null);
   };
 
-  const handleRelateCurrentTicket = async (ticket) => {
-    const ticketId = ticket.id;
-    const ticketPhone = null;
-    const patientId= null;
-    await relateTicketHandler({dispatch,setLoading,ticketId,agentEmail,action: 'relateCurrent', ticketPhone, patientId, setSuccessMessage,setErrorMessage,setSuccessOpen,setErrorOpen,});
+  const handleRelateCurrentTicket = () => {
+    setOpenRelateModal(true);
   };
 
 const handleRelateAllPastTickets = async (ticket) => {
@@ -209,9 +208,6 @@ const handleUnlinkTicket = async (ticket) => {
   const ticketPhone = null;
   await relateTicketHandler({ dispatch, setLoading, ticketId, agentEmail, action: 'unlink', ticketPhone, patientId, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
 };
-
-
-
 
   if (!ticket) return <Typography>Ticket not found</Typography>;
 
@@ -614,6 +610,17 @@ const handleUnlinkTicket = async (ticket) => {
           await handleCenterHandlerUI(selectedCenter, ticket);
         }}
       />
+
+      <RelateTicketModal
+  open={openRelateModal}
+  onClose={() => setOpenRelateModal(false)}
+  onSelect={(selectedItem) => {
+    console.log('Selected from modal:', selectedItem);
+    setOpenRelateModal(false);
+    // Aquí podrías llamar a relateTicketHandler si quieres procesar el resultado
+  }}
+/>
+
 
       <PatientProfileDialog
         open={openPatientDialog}
