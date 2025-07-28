@@ -194,8 +194,9 @@ export default function ProfileSearch() {
         {/* Left panel */}
         <Box
           sx={{
-            width: isSmall ? '100%' : '30%',
-            pt:10, pl:2,
+            width: isSmall ? '100%' : '35%', 
+            pt: 2,
+            pl: 2,
             overflowY: 'auto'
           }}
         >
@@ -295,7 +296,9 @@ export default function ProfileSearch() {
           )}
           */}
           {selectedView === 'patients-search' && (
-            <SearchPatientDeep />
+            <>
+              <SearchPatientDeep />
+            </>
           )}
 
           {selectedView === 'tickets-search' && (

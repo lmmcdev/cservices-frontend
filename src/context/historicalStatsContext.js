@@ -2,14 +2,16 @@ import React, { createContext, useReducer, useContext } from 'react';
 import { ticketReducer, initialState } from '../store/ticketsReducer';
 import { dailyStatsReducer, initialDailyStatsState } from '../store/statsReducer';
 import { getStats, getDailyStats } from '../utils/apiStats';
+import { useLoading } from '../providers/loadingProvider';
 
 const HistoricalStatsContext = createContext();
 
 export const HistoricalStatsProvider = ({ children }) => {
   const [state, dispatch] = useReducer(ticketReducer, initialState);
   const [stateStats, dispatchStats ] = useReducer(dailyStatsReducer, initialDailyStatsState);
+  const { loading, setLoading } = useLoading();
 
-  // 🗂️ Obtiene los datos agregados (mensual o por rango)
+  // 🗂️ Obtiene los estados
   const fetchHistoricalStatistics = async (accessToken, date) => {
     try {
       const res = await getStats(accessToken, date);
@@ -25,6 +27,7 @@ export const HistoricalStatsProvider = ({ children }) => {
 
   // 📅 Obtiene los datos diarios
   const fetchDailyStatistics = async (accessToken, date) => {
+
     try {
       const res = await getDailyStats(date);
       if (res.success) {
@@ -39,10 +42,12 @@ export const HistoricalStatsProvider = ({ children }) => {
 
   // 🚀 NUEVA: Ejecuta ambas juntas
   const fetchAllHistoricalStats = async (accessToken, date) => {
+    setLoading(true);
     await Promise.all([
       fetchHistoricalStatistics(accessToken, date),
       fetchDailyStatistics(accessToken, date)
     ]);
+    setLoading(false);
   };
 
   return (
