@@ -90,7 +90,7 @@ const SearchPatientResults = ({
 }) => {
   return (
     <>
-      <Box sx={{ mt: 2, maxHeight: '55vh', overflowY: 'auto' }}>
+      <Box sx={{ mt: 3, pt: 1, px: 3, maxHeight: '55vh', overflowY: 'auto' }}>
         {results.map((patient, index) => {
           const isLast = index === results.length - 1;
           const langCode = getLanguageCode(patient.Language);
@@ -106,11 +106,19 @@ const SearchPatientResults = ({
                 px: 2,
                 py: 2,
                 mb: 2,
-                borderRadius: 3,
-                boxShadow: 1,
+                borderRadius: '20px',
+                border: '1px solid #e0e0e0',
+                backgroundColor: '#f9fbfd',
+                boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.05)',
                 alignItems: 'center',
-                '&:hover': { backgroundColor: '#f8fcff' },
-                cursor: 'pointer'
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+                '&:hover': {
+                  backgroundColor: '#eaf6ff',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                  transform: 'translateY(-2px)',
+                  borderColor: '#00a1ff',
+                },
               }}
               onClick={() => onPatientClick(patient)}
             >
