@@ -10,6 +10,7 @@ import { TicketsProvider } from './context/ticketsContext';
 import { SignalRProvider, useSignalR } from './context/signalRContext';
 import { FiltersProvider } from './context/filterContext';
 import { AuthProvider, useAuth } from './context/authContext';
+import { useAgents } from './context/agentsContext';
 import { NotificationProvider, useNotification } from './context/notificationsContext';
 import { ProfilePhotoProvider } from './context/profilePhotoContext';
 import MsalProviderWrapper from './providers/msalProvider';
@@ -57,13 +58,14 @@ function AppContent() {
     assignedAgents: [],
     callerIds: [],
   });
-
+  const { state, } = useAgents();
+  const agent = state.agents.find(a => a.agent_email === agentEmail );
   //notifications push
   useEffect(() => {
   if ('serviceWorker' in navigator && 'PushManager' in window) {
-    registerForPushNotifications();
+    registerForPushNotifications(agent);
   }
-}, []);
+}, [agent]);
 
 
   useEffect(() => {

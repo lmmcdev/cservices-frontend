@@ -1,21 +1,21 @@
 self.addEventListener('push', function(event) {
+  console.log(event)
   const data = event.data.json();
-  const title = 'System Notification';
+  const title = data.title || 'System Notification';
   const options = {
-    body: data.body,
-    icon: '/logo192.png',
+    body: data.body || 'Important Message.',
+    icon: data.icon || '/logo192.png',
     badge: '/badge-icon.png',
-    image: data.image, // URL a imagen grande
-    vibrate: [100, 50, 100],
-    tag: data.tag || 'general',
+    image: data.image || '/noti-banner.png', // puede que Firefox la ignore
+    tag: 'ticket-notification',
     renotify: true,
-    requireInteraction: false,
+    requireInteraction: true, // ⚠️ No funciona en Firefox
     actions: [
-      {action: 'open', title: 'Abrir App', icon: '/open-icon.png'},
-      {action: 'dismiss', title: 'Cerrar', icon: '/close-icon.png'}
+      {action: 'open', title: 'View Details', icon: '/open-icon.png'},
+      {action: 'dismiss', title: 'Ignore', icon: '/close-icon.png'}
     ],
     data: {
-      url: data.url,  // Puedes usarlo para abrir una página específica al click
+      url: data.url || '/',
       customInfo: data.customInfo,
     }
   };
