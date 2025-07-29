@@ -1,7 +1,9 @@
 self.addEventListener('push', function(event) {
-  console.log(event)
+  //console.log(event)
   const data = event.data.json();
+  console.log(data)
   const title = data.title || 'System Notification';
+  // Puedes personalizar el cuerpo y otros detalles de la notificación
   const options = {
     body: data.body || 'Important Message.',
     icon: data.icon || '/logo192.png',

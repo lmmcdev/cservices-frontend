@@ -26,8 +26,8 @@ export default function usePaginatedTickets(fetchFn, baseParams = {}) {
       const { items = [], continuationToken: nextToken } = res.message || {};
 
       setTickets(prev => {
-        const ids = new Set(prev.map(t => t.tickets));
-        const newItems = items.filter(item => !ids.has(item.tickets));
+        const ids = new Set(prev.map(t => t.id));
+        const newItems = items.filter(item => !ids.has(item.id));
         return [...prev, ...newItems];
       });
 
