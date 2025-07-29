@@ -11,7 +11,19 @@ const RelateTicketModal = ({ open, onClose, onSelect }) => {
   const [tab, setTab] = useState(0);
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="md">
+    <Dialog
+        open={open}
+        onClose={onClose}
+        fullWidth
+        maxWidth="md"
+        scroll="paper"
+        sx={{
+            '& .MuiPaper-root': {
+            maxHeight: '80vh',  // evita que crezca a pantalla completa si no hay contenido
+            height: 'auto',
+            },
+        }}
+        >
       {/* Encabezado con título + botón de cierre */}
       <Box
         sx={{
@@ -94,7 +106,13 @@ const RelateTicketModal = ({ open, onClose, onSelect }) => {
         </IconButton>
       </Box>
 
-      <DialogContent sx={{ px: 4, pt: 3 }}>
+      <DialogContent
+        sx={{
+            px: 4,
+            pt: 3,
+            overflow: 'visible', // permite que crezca naturalmente
+        }}
+        >
         {tab === 0 && <SearchPatientDeepContainer onSelect={onSelect} />}
         {tab === 1 && <ProviderListContainer onSelect={onSelect} />}
       </DialogContent>
