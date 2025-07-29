@@ -4,11 +4,12 @@ self.addEventListener('push', function(event) {
   console.log(data)
   const title = data.title || 'System Notification';
   // Puedes personalizar el cuerpo y otros detalles de la notificación
+  const details = data;
   const options = {
-    body: data.body || 'Important Message.',
-    icon: data.icon || '/logo192.png',
+    body: details.message || 'Important Message.',
+    icon: details.icon || '/logo192.png',
     badge: '/badge-icon.png',
-    image: data.image || '/noti-banner.png', // puede que Firefox la ignore
+    image: details.image || '/noti-banner.png', // puede que Firefox la ignore
     tag: 'ticket-notification',
     renotify: true,
     requireInteraction: true, // ⚠️ No funciona en Firefox
