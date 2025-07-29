@@ -3,11 +3,9 @@ import { Avatar } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import HearingIcon from '@mui/icons-material/Hearing';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import CoronavirusIcon from '@mui/icons-material/Coronavirus';
 import FaceIcon from '@mui/icons-material/Face';
-import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import WcIcon from '@mui/icons-material/Wc';
 import MedicalServicesIcon from '@mui/icons-material/MedicalServices'; // para diente
 import HealingIcon from '@mui/icons-material/Healing';

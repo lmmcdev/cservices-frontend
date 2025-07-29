@@ -8,8 +8,6 @@ import {
 } from '@mui/material';
 import SpecialtyAvatar from '../../specialtyAvatar';
 
-const typeAvatars = { provider: '👨‍⚕️' };
-const avatarColors = { provider: '#eae8fa', default: '#f1f5ff' };
 
 const ProviderListUI = ({
   providers,
