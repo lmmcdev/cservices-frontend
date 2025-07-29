@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, IconButton,
-  Tabs, Tab, Box
+  Tabs, Tab
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ProviderListContainer from '../components/providers/providerList';

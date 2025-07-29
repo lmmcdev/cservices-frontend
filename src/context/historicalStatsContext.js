@@ -9,7 +9,7 @@ const HistoricalStatsContext = createContext();
 export const HistoricalStatsProvider = ({ children }) => {
   const [state, dispatch] = useReducer(ticketReducer, initialState);
   const [stateStats, dispatchStats ] = useReducer(dailyStatsReducer, initialDailyStatsState);
-  const { loading, setLoading } = useLoading();
+  const { setLoading } = useLoading();
 
   // 🗂️ Obtiene los estados
   const fetchHistoricalStatistics = async (accessToken, date) => {

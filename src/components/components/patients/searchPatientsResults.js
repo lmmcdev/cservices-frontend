@@ -1,13 +1,13 @@
 import React from 'react';
 import {
-  Box, Card, CardContent, Typography, CircularProgress,
-  Dialog, DialogTitle, DialogContent, IconButton, List, ListItem, Tooltip, Avatar
+  Box, Card, Typography, CircularProgress,
+  Dialog, DialogTitle, DialogContent, IconButton, List, ListItem, Tooltip
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { flags } from '../../auxiliars/icons';
-import FemaleIcon from '@mui/icons-material/Female';
-import MaleIcon from '@mui/icons-material/Male';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+//import FemaleIcon from '@mui/icons-material/Female';
+//import MaleIcon from '@mui/icons-material/Male';
+//import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import CakeIcon from '@mui/icons-material/Cake';
 
 const getLanguageCode = (languageString) => {
@@ -21,7 +21,7 @@ const getLanguageCode = (languageString) => {
   return null;
 };
 
-const getGenderIcon = (genderString) => {
+/*const getGenderIcon = (genderString) => {
   if (!genderString) return <HelpOutlineIcon sx={{ fontSize: 18, ml: 0.5 }} />;
   const gender = genderString.toLowerCase().trim();
   if (gender === 'female' || gender === 'f') {
@@ -43,7 +43,7 @@ const calculateAge = (dob) => {
     age--;
   }
   return age;
-};
+};*/
 
 const isBirthdayToday = (dob) => {
   if (!dob) return false;
@@ -94,8 +94,8 @@ const SearchPatientResults = ({
         {results.map((patient, index) => {
           const isLast = index === results.length - 1;
           const langCode = getLanguageCode(patient.Language);
-          const genderIcon = getGenderIcon(patient.Gender);
-          const age = calculateAge(patient.DOB);
+          //const genderIcon = getGenderIcon(patient.Gender);
+          //const age = calculateAge(patient.DOB);
 
           return (
             <Card
