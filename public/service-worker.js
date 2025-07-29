@@ -10,7 +10,6 @@ self.addEventListener('push', function(event) {
     icon: details.icon || '/logo192.png',
     badge: '/badge-icon.png',
     image: details.image || '/noti-banner.png', // puede que Firefox la ignore
-    tag: 'ticket-notification',
     renotify: true,
     requireInteraction: true, // ⚠️ No funciona en Firefox
     actions: [
