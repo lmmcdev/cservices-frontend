@@ -161,6 +161,9 @@ const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply
             fullWidth
             value={searchValues.firstName}
             onChange={(e) => setSearchValues({ ...searchValues, firstName: e.target.value })}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSearch();
+            }}
             sx={{
               '& .MuiOutlinedInput-root': {
                 '&:hover:not(.Mui-focused) fieldset': {
@@ -176,9 +179,11 @@ const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply
             label="Last Name"
             variant="outlined"
             fullWidth
-            //InputLabelProps={{ shrink: true }}
             value={searchValues.lastName}
             onChange={(e) => setSearchValues({ ...searchValues, lastName: e.target.value })}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleSearch();
+            }}
             sx={{
               '& .MuiOutlinedInput-root': {
                 '&:hover:not(.Mui-focused) fieldset': {
@@ -226,6 +231,9 @@ const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply
                     fullWidth
                     value={searchValues.dob}
                     onChange={(e) => setSearchValues({ ...searchValues, dob: e.target.value })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSearch();
+                    }}
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         '&:hover:not(.Mui-focused) fieldset': {
@@ -253,6 +261,9 @@ const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply
                   fullWidth
                   value={searchValues.phone}
                   onChange={(e) => setSearchValues({ ...searchValues, phone: e.target.value })}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSearch();
+                  }}
                   sx={{
                     '& .MuiOutlinedInput-root': {
                       '&:hover:not(.Mui-focused) fieldset': {

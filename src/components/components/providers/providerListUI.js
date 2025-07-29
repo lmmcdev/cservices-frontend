@@ -2,14 +2,11 @@ import React from 'react';
 import {
   Box,
   Typography,
-  List,
-  ListItemButton,
-  Avatar,
-  ListItemText,
-  IconButton,
-  Divider
+  Card,
+  CircularProgress,
+  Chip
 } from '@mui/material';
-import { Icon } from '@iconify/react';
+import SpecialtyAvatar from '../../specialtyAvatar';
 
 const typeAvatars = { provider: '👨‍⚕️' };
 const avatarColors = { provider: '#eae8fa', default: '#f1f5ff' };
@@ -18,81 +15,114 @@ const ProviderListUI = ({
   providers,
   lastProviderRef,
   onSelect,
-  onToggleFavorite,
   hasMore,
-  loading
+  loading,
+  searchTerm
 }) => {
   return (
-    <Box sx={{ p: 4, maxWidth: '600px', mx: 'auto', height: '500px', overflowY: 'auto' }}>
-      <List spacing={2}>
-        {providers.map((provider, index) => {
-          const isLastItem = index === providers.length - 1;
-          return (
-            <ListItemButton
-              key={provider.id}
-              ref={isLastItem ? lastProviderRef : null}
-              onClick={() => onSelect(provider)}
-              sx={{
-                borderRadius: 2,
-                mb: 1,
-                position: 'relative',
-                '&:hover .profile-name': { color: '#00a1ff' }
-              }}
-            >
-              <Avatar
-                sx={{
-                  mr: 2,
-                  width: 48,
-                  height: 48,
-                  fontSize: 24,
-                  bgcolor: avatarColors[provider.type] || avatarColors.default,
-                  color: '#5B5F7B'
-                }}
+    <Box
+      sx={{
+        mt: 3,
+        pt: 1,
+        px: 3,
+        maxHeight: '70vh',
+        overflowY: 'auto',
+      }}
+    >
+      {providers.map((provider, index) => {
+        const isLastItem = index === providers.length - 1;
+        return (
+          <Card
+            key={provider.id}
+            ref={isLastItem ? lastProviderRef : null}
+            sx={{
+              display: 'flex',
+              px: 2,
+              py: 2,
+              mb: 2,
+              borderRadius: '20px',
+              border: '1px solid #e0e0e0',
+              backgroundColor: '#f9fbfd',
+              boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.05)',
+              alignItems: 'center',
+              transition: 'all 0.3s ease',
+              cursor: 'pointer',
+              '&:hover': {
+                backgroundColor: '#eaf6ff',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                transform: 'translateY(-2px)',
+                borderColor: '#00a1ff',
+              },
+            }}
+            onClick={() => onSelect(provider)}
+          >
+            {/* Avatar */}
+            <Box sx={{ mr: 2 }}>
+              <SpecialtyAvatar taxonomy={provider['Taxonomy_Description']} />
+            </Box>
+
+            {/* Info */}
+            <Box sx={{ flex: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Typography variant="subtitle1" fontWeight="bold" color="#333">
+                  {provider["First_Name"] || "N/A"} {provider["Last_Name"] || "N/A"}
+                </Typography>
+                {provider.InHouse === 'TRUE' && (
+                  <Chip
+                    label="In House"
+                    size="small"
+                    sx={{
+                      height: 18,
+                      fontSize: '0.65rem',
+                      fontWeight: 500,
+                      padding: '0 2px',
+                      bgcolor: '#00A1FF',
+                      color: 'white',
+                      borderRadius: '999px',
+                      ml: 0.7,
+                    }}
+                  />
+                )}
+              </Box>
+
+              <Typography
+                variant="body2"
+                sx={{ color: '#6c757d', fontWeight: 500, fontSize: '0.75rem', letterSpacing: 0.3 }}
               >
-                {typeAvatars[provider.type] || '👤'}
-              </Avatar>
+                {provider["Provider_Name"] || "N/A"}
+              </Typography>
 
-              <ListItemText
-                primary={
-                  <Typography className="profile-name" sx={{ fontWeight: 'bold', color: '#1A1A1A' }}>
-                    {provider["First_Name"] || "N/A"} {provider["Last_Name"] || "N/A"}
-                  </Typography>
-                }
-                secondary={
-                  <>
-                    <Typography variant="body2" sx={{ color: '#5B5F7B' }}>
-                      {provider["Provider_Name"]} <Divider />
-                      {provider["Office_Address"]}
-                    </Typography>
-                  </>
-                }
-              />
-
-              <IconButton
-                size="small"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleFavorite(provider.id);
-                }}
-                sx={{
-                  position: 'absolute',
-                  right: 8,
-                  color: provider.starred ? '#ffb900' : '#5B5F7B'
-                }}
+              {/* Taxonomy Description */}
+              <Typography
+                variant="body2"
+                sx={{ color: '#5B5F7B', fontWeight: 400, fontSize: '0.7rem', fontStyle: 'italic' }}
               >
-                <Icon
-                  icon={provider.starred ? "solar:star-bold" : "solar:star-outline"}
-                  style={{ fontSize: '18px' }}
-                />
-              </IconButton>
-            </ListItemButton>
-          );
-        })}
-      </List>
+                {provider["Taxonomy_Description"] || "No specialty"}
+              </Typography>
 
-      {!hasMore && !loading && providers.length === 0 && (
+              <Typography
+                variant="body2"
+                sx={{ color: '#6c757d', fontWeight: 400, fontSize: '0.75rem', letterSpacing: 0.3 }}
+              >
+                {provider["Office_Address"] || "N/A"}
+              </Typography>
+            </Box>
+
+          </Card>
+        );
+      })}
+
+      {/* Loading Spinner */}
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 2 }}>
+          <CircularProgress size={24} />
+        </Box>
+      )}
+
+      {/* No results */}
+      {!loading && providers.length === 0 && searchTerm?.length >= 2 && (
         <Typography variant="body2" color="textSecondary" align="center" sx={{ mt: 4 }}>
-          No hay más datos
+          No providers found.
         </Typography>
       )}
     </Box>
