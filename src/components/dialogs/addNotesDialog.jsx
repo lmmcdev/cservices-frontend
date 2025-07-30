@@ -5,12 +5,13 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
   TextField
 } from '@mui/material';
 import ActionButtons from '../auxiliars/actionButtons';
 
 export default function AddNoteDialog({ open, onClose, onSubmit, value, onChange }) {
+  const isEmpty = !value || !String(value).trim();
+
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle sx={{ color: '#FFB900', px: 4, pt: 3 }}>
@@ -31,23 +32,20 @@ export default function AddNoteDialog({ open, onClose, onSubmit, value, onChange
           margin="dense"
           sx={{
             '& .MuiOutlinedInput-root': {
-              '&.Mui-focused fieldset': {
-                borderColor: '#00A1FF',
-              },
+              '&.Mui-focused fieldset': { borderColor: '#00A1FF' },
             },
-            '&:hover .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#aaa', 
-            },
+            '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#aaa' },
           }}
         />
       </DialogContent>
 
-      <DialogActions>
-        <ActionButtons
-          onCancel={onClose}
-          onConfirm={onSubmit}
-        />
-      </DialogActions>
+      {/* Usamos directamente ActionButtons (sin DialogActions) para que mantenga tu estilo */}
+      <ActionButtons
+        onCancel={onClose}
+        onConfirm={onSubmit}
+        confirmLabel="Add"
+        confirmDisabled={isEmpty}
+      />
     </Dialog>
   );
 }

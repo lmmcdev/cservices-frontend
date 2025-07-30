@@ -1,7 +1,14 @@
+// src/components/auxiliars/actionButtons.jsx
 import React from 'react';
 import { Button, Box } from '@mui/material';
 
-export default function ActionButtons({ onCancel, onConfirm, cancelLabel = 'Cancel' }) {
+export default function ActionButtons({
+  onCancel,
+  onConfirm,
+  cancelLabel = 'Cancel',
+  confirmLabel = 'Confirm',     // 👈 nuevo
+  confirmDisabled = false,      // 👈 opcional útil
+}) {
   return (
     <Box display="flex" gap={2} justifyContent="center" sx={{ px: 3, pb: 3 }}>
       {onCancel && (
@@ -27,6 +34,7 @@ export default function ActionButtons({ onCancel, onConfirm, cancelLabel = 'Canc
       {onConfirm && (
         <Button
           onClick={onConfirm}
+          disabled={confirmDisabled}
           sx={{
             width: '100px',
             height: '44px',
@@ -40,9 +48,14 @@ export default function ActionButtons({ onCancel, onConfirm, cancelLabel = 'Canc
               backgroundColor: '#00A1FF',
               color: '#FFFFFF',
             },
+            '&.Mui-disabled': {
+              opacity: 0.6,
+              borderColor: '#8ccff3',
+              color: '#8ccff3',
+            },
           }}
         >
-          Confirm
+          {confirmLabel}
         </Button>
       )}
     </Box>
