@@ -43,12 +43,40 @@ const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply
 
   const [activeFilters, setActiveFilters] = useState([]);
 
+  const buildSearchParams = (values) => {
+    const queryParts = [];
+    const filterParts = [];
+
+    if (values.firstName || values.lastName) {
+      queryParts.push(`${values.firstName ?? ''} ${values.lastName ?? ''}`.trim());
+    }
+
+    if (values.phone) {
+      queryParts.push(values.phone);
+    }
+
+    if (values.dob) {
+      filterParts.push(`dob eq '${values.dob}'`);
+    }
+
+    if (values.location) {
+      filterParts.push(`Location_Name eq '${values.location}'`);
+    }
+
+    return {
+      query: queryParts.join(' OR '),
+      filter: filterParts.join(' and ')
+    };
+  };
+
   const fetchPatients = useCallback(
-    async (searchTerm, pageNumber) => {
-      if (!searchTerm || searchTerm.length < 2) return;
+    async (searchValues, pageNumber) => {
+      const { query, filter } = buildSearchParams(searchValues);
+      if (!query || query.length < 2) return;
+
       setLoading(true);
       try {
-        const res = await searchPatients(searchTerm, pageNumber, PAGE_SIZE, selectedMDVitaLocation);
+        const res = await searchPatients(query, filter, pageNumber, PAGE_SIZE);
         const data = res?.message?.value || [];
 
         if (pageNumber === 1) {
@@ -64,7 +92,7 @@ const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply
         setLoading(false);
       }
     },
-    [selectedMDVitaLocation]
+    []
   );
 
   const lastElementRef = useCallback(
@@ -76,13 +104,13 @@ const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply
         if (entries[0].isIntersecting && hasMore) {
           const nextPage = page + 1;
           setPage(nextPage);
-          fetchPatients(inputValue, nextPage);
+          fetchPatients(searchValues, nextPage);
         }
       });
 
       if (node) observerRef.current.observe(node);
     },
-    [loading, hasMore, inputValue, page, fetchPatients]
+    [loading, hasMore, searchValues, page, fetchPatients]
   );
 
   const handlePatientClick = async (patient) => {
@@ -119,13 +147,10 @@ const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply
   };
 
   const handleSearch = () => {
-    const fullName = `${searchValues.firstName} ${searchValues.lastName}`.trim();
-    if (fullName.length < 2) return;
-
-    setInputValue(fullName);
+    setInputValue(`${searchValues.firstName} ${searchValues.lastName}`.trim());
     setPage(1);
     setResults([]);
-    fetchPatients(fullName, 1);
+    fetchPatients(searchValues, 1);
   };
 
   const toggleFilter = (value) => {
@@ -144,7 +169,6 @@ const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply
 
   return (
     <Box sx={{ p: 0 }}>
-      {/* Header */}
       <Box sx={{ px: 3, pt: 2 }}>
         <Typography variant="h5" fontWeight="bold" mb={1}>
           Search for patients
@@ -153,9 +177,8 @@ const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply
           Start with first and last name. Use the buttons below to search by date of birth, phone, or location if necessary.
         </Typography>
 
-        {/* Name fields and search button */}
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: hasFilters ? 2.2 : 2.2 }}>
-           <TextField
+          <TextField
             label="First Name"
             variant="outlined"
             fullWidth
@@ -163,16 +186,6 @@ const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply
             onChange={(e) => setSearchValues({ ...searchValues, firstName: e.target.value })}
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleSearch();
-            }}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                '&:hover:not(.Mui-focused) fieldset': {
-                  borderColor: '#999999',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: '#00A1FF',  
-                }
-              }
             }}
           />
           <TextField
@@ -183,16 +196,6 @@ const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply
             onChange={(e) => setSearchValues({ ...searchValues, lastName: e.target.value })}
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleSearch();
-            }}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                '&:hover:not(.Mui-focused) fieldset': {
-                  borderColor: '#999999',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: '#00A1FF',  
-                }
-              }
             }}
           />
           <Button
@@ -218,78 +221,32 @@ const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply
           </Button>
         </Box>
 
-        {/* Extra fields */}
         {hasFilters && (
-          <>
-            {(activeFilters.includes('dob') || activeFilters.includes('phone')) && (
-              <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: 2, flexWrap: 'wrap' }}>
-                {activeFilters.includes('dob') && (
-                  <TextField
-                    type="date"
-                    label="Date of Birth"
-                    InputLabelProps={{ shrink: true }}
-                    fullWidth
-                    value={searchValues.dob}
-                    onChange={(e) => setSearchValues({ ...searchValues, dob: e.target.value })}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleSearch();
-                    }}
-                    sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '&:hover:not(.Mui-focused) fieldset': {
-                          borderColor: '#999999',
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: '#00A1FF',
-                        },
-                      },
-                      '& .MuiInputLabel-root': {
-                        '&:hover:not(.Mui-focused)': {
-                          color: '#999999',
-                        },
-                        '&.Mui-focused': {
-                          color: '#00A1FF',
-                        },
-                      },
-                    }}
-                  />
-                )}
-                {activeFilters.includes('phone') && (
-                <TextField
-                  label="Phone Number"
-                  variant="outlined"
-                  fullWidth
-                  value={searchValues.phone}
-                  onChange={(e) => setSearchValues({ ...searchValues, phone: e.target.value })}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleSearch();
-                  }}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '&:hover:not(.Mui-focused) fieldset': {
-                        borderColor: '#999999',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#00A1FF',
-                      },
-                    },
-                    '& .MuiInputLabel-root': {
-                      '&:hover:not(.Mui-focused)': {
-                        color: '#999999',
-                      },
-                      '&.Mui-focused': {
-                        color: '#00A1FF',
-                      },
-                    },
-                  }}
-                />
-                )}
-              </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+            {activeFilters.includes('dob') && (
+              <TextField
+                type="date"
+                label="Date of Birth"
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+                value={searchValues.dob}
+                onChange={(e) => setSearchValues({ ...searchValues, dob: e.target.value })}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              />
             )}
-          </>
+            {activeFilters.includes('phone') && (
+              <TextField
+                label="Phone Number"
+                variant="outlined"
+                fullWidth
+                value={searchValues.phone}
+                onChange={(e) => setSearchValues({ ...searchValues, phone: e.target.value })}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              />
+            )}
+          </Box>
         )}
 
-        {/* Location select */}
         {activeFilters.includes('location') && (
           <Box sx={{ mt: 2 }}>
             <MDVitaLocationSelect
@@ -303,7 +260,6 @@ const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply
           </Box>
         )}
 
-        {/* Chips */}
         <Box sx={{ display: 'flex', gap: 1.5, mt: 2 }}>
           {searchOptions.map((option) => {
             const isActive = activeFilters.includes(option.value);
@@ -342,7 +298,6 @@ const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply
         </Box>
       </Box>
 
-      {/* Results */}
       <SearchPatientResults
         results={results}
         loading={loading}
