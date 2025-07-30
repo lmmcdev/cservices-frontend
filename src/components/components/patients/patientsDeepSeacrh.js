@@ -17,7 +17,7 @@ import SearchPatientResults from './searchPatientsResults';
 
 const PAGE_SIZE = 50;
 
-const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply...' }) => {
+const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
   const [inputValue, setInputValue] = useState('');
   const [results, setResults] = useState([]);
   const [page, setPage] = useState(1);
@@ -42,6 +42,8 @@ const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply
   });
 
   const [activeFilters, setActiveFilters] = useState([]);
+
+  
 
   const buildSearchParams = (values) => {
     const queryParts = [];
@@ -304,10 +306,10 @@ const SearchPatientDeepContainer = ({ queryPlaceholder = 'Search patients deeply
         inputValue={inputValue}
         lastElementRef={lastElementRef}
         dialogOpen={dialogOpen}
-        selectedPatient={selectedPatient}
+        selectedPatient={selectedPatientFunc}
         tickets={tickets}
         ticketsLoading={ticketsLoading}
-        onPatientClick={handlePatientClick}
+        onPatientClick={onSelect}
         onCloseDialog={handleCloseDialog}
       />
     </Box>

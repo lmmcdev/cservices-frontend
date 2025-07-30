@@ -45,6 +45,7 @@ export function SignalRProvider({ children }) {
 
       //evento ticket actualizado
       connection.on('ticketUpdated', (ticket) => {
+          console.log('Ticket updated:', ticket);
           dispatch({ type: 'UPD_TICKET', payload: ticket });
           onTicketUpdated?.(ticket);
       });

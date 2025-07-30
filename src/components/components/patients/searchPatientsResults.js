@@ -45,6 +45,8 @@ const calculateAge = (dob) => {
   return age;
 };*/
 
+
+
 const isBirthdayToday = (dob) => {
   if (!dob) return false;
   const birthDate = new Date(dob);
@@ -88,6 +90,7 @@ const SearchPatientResults = ({
   onPatientClick,
   onCloseDialog
 }) => {
+  
   return (
     <>
       <Box sx={{ mt: 3, pt: 1, px: 3, maxHeight: '55vh', overflowY: 'auto' }}>
