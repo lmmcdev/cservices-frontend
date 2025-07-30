@@ -36,7 +36,7 @@ export const getPatients = async ({params}, accessToken) => {
 };
 
 
-export const searchPatients = async (searchData, page = 1, size = 50, location, accessToken) => {
+export const searchPatients = async (query, filter, page = 1, size = 50, accessToken) => {
   //if (accessToken === null) return { success: false, message: 'No access token provided' };
     let url = `https://cservicesapi.azurewebsites.net/api/searchPatients`;
     try {
@@ -47,10 +47,10 @@ export const searchPatients = async (searchData, page = 1, size = 50, location, 
         // Authorization: `Bearer ${accessToken}`, si usas autenticación
         },
         body: JSON.stringify({
-            query: searchData,
-            location: location,
+            query,
+            filter,
             page,
-            size
+            size,
         }),
         });
         const data = await response.json();
