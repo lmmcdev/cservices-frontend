@@ -1,15 +1,27 @@
 import React, { useState } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, IconButton,
-  Tabs, Tab, Box
+  Tabs, Tab, Box, Button, DialogActions
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ProviderListContainer from '../components/providers/providerList';
 import SearchPatientDeepContainer from '../components/patients/patientsDeepSeacrh';
 
-const RelateTicketModal = ({ open, onClose, onSelect }) => {
+const RelateTicketModal = ({ open, onClose, onSelect, relateTicketAction, handleAllActions }) => {
   const [tab, setTab] = useState(0);
+ const [selectedPatient, setSelectedPatient] = useState(null);
+ const handleConfirm = () => {
+    if (selectedPatient) {
+      onSelect(selectedPatient);
+      setSelectedPatient(null);
+    }
+  };
 
+  const handleClose = () => {
+    setSelectedPatient(null);
+    onClose();
+  };
+  
   return (
     <Dialog
         open={open}
@@ -49,7 +61,7 @@ const RelateTicketModal = ({ open, onClose, onSelect }) => {
               fontSize: '1.25rem',
             }}
           >
-            Relate This Ticket
+            Relate This Ticket {relateTicketAction === 'relate_patient' ? 'Paciente' : 'Entidad'}
           </DialogTitle>
 
           <Tabs
@@ -113,9 +125,19 @@ const RelateTicketModal = ({ open, onClose, onSelect }) => {
             overflow: 'visible', // permite que crezca naturalmente
         }}
         >
-        {tab === 0 && <SearchPatientDeepContainer onSelect={onSelect} />}
+        {tab === 0 && <SearchPatientDeepContainer onSelect={onSelect} selectedPatientFunc={selectedPatient} />}
         {tab === 1 && <ProviderListContainer onSelect={onSelect} />}
       </DialogContent>
+
+      <DialogActions>
+        <Button onClick={handleClose}>Cerrar</Button>
+        <Button
+          onClick={handleConfirm}
+          variant="contained"
+        >
+          Relacionar
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 };

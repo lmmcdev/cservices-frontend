@@ -49,16 +49,48 @@ export const ticketReducer = (state, action) => {
         error: null,
       };
 
-    case 'ADD_TICKET':
+    /*case 'ADD_TICKET':
       const exists = state.tickets.some(t => t.id === action.payload.id);
       if (exists) return state; // No duplicar
 
       return {
         ...state,
         tickets: [action.payload, ...state.tickets],
+      };*/
+
+
+    /*case 'UPD_TICKET':
+    case 'LIVE_UPDATE_TICKET': {
+      console.log('Actualizando ticket ID:', action.payload.id);
+      console.log('Payload completo:', action.payload);
+
+      return {
+        ...state,
+        tickets: state.tickets.map(ticket => {
+          if (ticket.id !== action.payload.id) return ticket;
+
+          // Creamos una copia limpia del payload
+          const updatedTicket = {
+            ...ticket,
+            ...action.payload
+          };
+
+          // Si el campo no viene en el payload, lo eliminamos del estado
+          if (!Object.prototype.hasOwnProperty.call(action.payload, 'linked_patient_snapshot')) {
+            delete updatedTicket.linked_patient_snapshot;
+          }
+
+          return updatedTicket;
+        })
       };
+    }
+*/
+
+
 
     case 'UPD_TICKET':
+      console.log('Actualizando ticket ID:', action.payload.id);
+      console.log('Payload completo:', action.payload);
       return {
         ...state,
         tickets: state.tickets.map(ticket =>

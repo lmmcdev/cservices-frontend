@@ -28,6 +28,7 @@ import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import { TicketIndicators } from '../components/ticketIndicators';
 import TicketLinkOptions from '../components/ticketLinkOptions';
 import RelateTicketModal from '../components/dialogs/relateTicketModal.jsx';
+import ConfirmDialog from '../components/dialogs/confirmDialog';
 
 
 import {
@@ -70,7 +71,7 @@ export default function EditTicket() {
   const [notes, setNotes] = useState(ticket?.notes || []);
   const [collaborators, setCollaborators] = useState(ticket?.collaborators || []);
   const [patientName, setPatientName] = useState(ticket?.patient_name || '');
-  const [linked_patient_snapshot, setLinkedPatientSnapshot] = useState(ticket?.linked_patient_snapshot || {});
+  const [linked_patient_snapshot, setLinkedPatientSnapshot] = useState(ticket?.linked_patient_snapshot || '');
 
   
  const formatDateForInput = (dateStr = '01-01-1901') => {
@@ -100,20 +101,29 @@ export default function EditTicket() {
   const [openChangeDepartmentModal, setOpenChangeDepartmentModal] = useState(false);
   const [openCenterModal, setOpenCenterModal] = useState(false);
   const [openRelateModal, setOpenRelateModal] = useState(false);
+  const [relateTicketAction, setRelateTicketAction] = useState('relateCurrent');
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [pendingPatient, setPendingPatient] = useState(null);
+  //const [memoSnapshot, setMemoSnapshot] = useState(null);
 
   const [openPatientDialog, setOpenPatientDialog] = useState(false);
   useWorkTimer( {ticketData:ticket, agentEmail, status, enabled:true} );
 
-   
+  console.log(JSON.stringify(ticket.linked_patient_snapshot))
   useEffect(() => {
     if (ticket?.notes) {
       setNotes(ticket.notes);
     }
   }, [ticket]);
 
+  /*useEffect(() => {
+  if (ticket?.linked_patient_snapshot) {
+    setMemoSnapshot(ticket.linked_patient_snapshot);
+  }
+}, [ticket?.linked_patient_snapshot]);*/
+
   useEffect(() => {
     if (ticket) {
-      console.log(ticket)
       setAgentAssigned(ticket.agent_assigned || '');
       setCollaborators(ticket.collaborators);
       setStatus(ticket.status || '');
@@ -188,21 +198,51 @@ export default function EditTicket() {
     setEditField(null);
   };
 
-  const handleRelateCurrentTicket = () => {
+  const handleModalTicket = (ticketAction = 'relateCurrent') => {
+    setRelateTicketAction(ticketAction);
     setOpenRelateModal(true);
   };
 
-const handleRelateAllPastTickets = async (ticket) => {
-  const ticketId = null;
+  const showActions = (patient) => {
+    setPendingPatient(patient);
+    setOpenConfirmDialog(true);
+  };
+
+  const handleRelateAllActions = () => {
+    // Limpiar después de ejecutar
+    //setOpenConfirmDialog(true);
+    if (relateTicketAction === 'relateCurrent') {
+      handleRelateCurrentTicket(ticket, pendingPatient);
+      //setOpenConfirmDialog(false);
+    } else if (relateTicketAction === 'relateAllPast') {
+      handleRelateAllPastTickets(ticket, pendingPatient);
+      //setOpenConfirmDialog(false);
+    } else if (relateTicketAction === 'relateFuture') {
+      handleRelateFutureTickets(ticket, pendingPatient);
+      //setOpenConfirmDialog(false);
+    }
+
+    setOpenConfirmDialog(true);
+  };
+
+  const handleRelateCurrentTicket = async (ticket,patient) => {
+    const ticketId = ticket.id;
+    const ticketPhone = ticket.phone;
+    const patientId = patient.id;
+    await relateTicketHandler({dispatch, setLoading, ticketId, agentEmail, action: 'relateCurrent', ticketPhone, patientId, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen });
+  };
+
+const handleRelateAllPastTickets = async (ticket, patient) => {
+  const ticketId = ticket.id;
   const ticketPhone = ticket.phone;
-  const patientId= null;
+  const patientId= patient.id;
   await relateTicketHandler({dispatch,setLoading,ticketId,agentEmail,action: 'relatePast',ticketPhone, patientId, setSuccessMessage,setErrorMessage,setSuccessOpen,setErrorOpen,});
 };
 
-const handleRelateFutureTickets = async (ticket) => {
-  const ticketId = null;
+const handleRelateFutureTickets = async (ticket, patient) => {
+  const ticketId = ticket.id;
   const ticketPhone = ticket.phone;
-  const patientId= null;
+  const patientId= patient.id;
   await relateTicketHandler({dispatch, setLoading, ticketId, agentEmail, action: 'relateFuture', ticketPhone, patientId, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen });
 };
 
@@ -334,10 +374,14 @@ const handleUnlinkTicket = async (ticket) => {
 
                       <TicketLinkOptions
                         ticket={ticket}
-                        onRelateCurrentTicket={handleRelateCurrentTicket}
-                        onRelateAllPastTickets={handleRelateAllPastTickets}
-                        onRelateFutureTickets={handleRelateFutureTickets}
+                        onRelateCurrentTicket={() => handleModalTicket('relateCurrent')}
+                        onRelateAllPastTickets={() => handleModalTicket('relateAllPast')}
+                        onRelateFutureTickets={() => handleModalTicket('relateFuture')}
                         onUnlinkTicket={handleUnlinkTicket}
+                        handleAllActions={handleRelateAllActions}
+                        //onRelateAllPastTickets={handleRelateAllPastTickets}
+                        //onRelateFutureTickets={handleRelateFutureTickets}
+                        //onUnlinkTicket={handleUnlinkTicket}
                       />
                     </Box>
                   </Box>
@@ -388,7 +432,7 @@ const handleUnlinkTicket = async (ticket) => {
 
                   <Typography sx={{ mb: 1 }}>
                     <strong>Patient DOB:</strong><br />
-                    {linked_patient_snapshot && linked_patient_snapshot.DOB ? (
+                    {linked_patient_snapshot?.DOB ? (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                       <InsertLinkIcon color="success" />
                       <Typography variant="subtitle" sx={{ color: '#2e7d32' }}>
@@ -618,15 +662,39 @@ const handleUnlinkTicket = async (ticket) => {
       />
 
       <RelateTicketModal
-  open={openRelateModal}
-  onClose={() => setOpenRelateModal(false)}
-  onSelect={(selectedItem) => {
-    console.log('Selected from modal:', selectedItem);
-    setOpenRelateModal(false);
-    // Aquí podrías llamar a relateTicketHandler si quieres procesar el resultado
-  }}
-/>
+        open={openRelateModal}
+        onClose={() => setOpenRelateModal(false)}
+        relateTicketAction={relateTicketAction}
+        onSelect={showActions}
+        /*onSelect={async (selectedItem) => {
+          console.log('Relate action:', relateTicketAction);
+          console.log('Selected patient/provider:', selectedItem);
 
+          await relateTicketHandler({
+            dispatch,
+            setLoading,
+            ticketId,
+            agentEmail,
+            action: relateTicketAction,
+            patientId: selectedItem?.id,
+            ticketPhone: ticket?.phone,
+            setSuccessMessage,
+            setErrorMessage,
+            setSuccessOpen,
+            setErrorOpen
+          });
+
+          setOpenRelateModal(false);
+        }}*/
+      />
+
+      <ConfirmDialog
+        open={openConfirmDialog}
+        title="Confirmar acción"
+        content="¿Estás seguro de que deseas realizar esta acción?"
+        onCancel={() => setOpenConfirmDialog(false)}
+        onConfirm={handleRelateAllActions}
+      />
 
       <PatientProfileDialog
         open={openPatientDialog}
@@ -652,3 +720,5 @@ const handleUnlinkTicket = async (ticket) => {
     </>
   );
 }
+
+
