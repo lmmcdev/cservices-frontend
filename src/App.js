@@ -22,6 +22,7 @@ import { SidebarProvider } from './context/sidebarContext';
 import { DoneTicketsProvider } from './context/doneTicketsContext';
 import { DoneHistoricalTicketsProvider } from './context/doneHistoricalTicketsContext';
 import { DailyStatsProvider } from './context/dailyStatsContext';
+import { SettingsProvider } from './context/settingsContext';
 
 import MainLayout from './layouts/mainLayout';
 import MinimalCenteredLayout from './layouts/minimalCenterLayout';
@@ -124,29 +125,29 @@ function App() {
       <AgentsProvider>
         <AuthProvider>
           <LoadingProvider>
-              
-            <StatsProvider>
-              <DoneTicketsProvider>
-              <TicketsProvider>
-                <DailyStatsProvider>
-                <SignalRProvider>
-                  <NotificationProvider>
-                    <FiltersProvider>
-                      <ProfilePhotoProvider>
-                        <SidebarProvider>
-                          <BrowserRouter>
-                            <AppContent />
-                          </BrowserRouter>
-                        </SidebarProvider>
-                      </ProfilePhotoProvider>
-                    </FiltersProvider>
-                  </NotificationProvider>
-                </SignalRProvider>
-                </DailyStatsProvider>
-              </TicketsProvider>
-              </DoneTicketsProvider>
-            </StatsProvider>
-            
+            <SettingsProvider>    
+              <StatsProvider>
+                <DoneTicketsProvider>
+                <TicketsProvider>
+                  <DailyStatsProvider>
+                  <SignalRProvider>
+                    <NotificationProvider>
+                      <FiltersProvider>
+                        <ProfilePhotoProvider>
+                          <SidebarProvider>
+                            <BrowserRouter>
+                              <AppContent />
+                            </BrowserRouter>
+                          </SidebarProvider>
+                        </ProfilePhotoProvider>
+                      </FiltersProvider>
+                    </NotificationProvider>
+                  </SignalRProvider>
+                  </DailyStatsProvider>
+                </TicketsProvider>
+                </DoneTicketsProvider>
+              </StatsProvider>
+            </SettingsProvider>
           </LoadingProvider>
         </AuthProvider>
       </AgentsProvider>
