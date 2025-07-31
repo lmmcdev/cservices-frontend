@@ -1,36 +1,48 @@
-// components/CollaboratorAutoComplete.tsx
 import React, { useState } from 'react';
+import { Box } from '@mui/material';
 import AutocompleteFilter from './autoCompleteFilter';
+
+const defaultLocations = [
+  'Wellmax Cutler Ridge',
+  'LMMC Homestead',
+  'Pasteur Hialeah Center',
+  'LMMC Hialeah West',
+  'Wellmax Marlings',
+  'OTC',
+  'Pharmacy',
+  'Referrals'
+];
 
 export default function CallerIDAutoComplete({
   onChange,
-  label = 'Caller ID',
+  label = 'Location',
+  options = defaultLocations
 }) {
-  const clinics = [
-    'Wellmax Cutler Ridge',
-    'LMMC Homestead',
-    'Pasteur Hialeah Center',
-    'LMMC Hialeah West',
-    'Wellmax Marlings',
-    'OTC',
-    'Pharmacy',
-    'Referrals',
-    'Referrals'
-  ];
-
-  const [selectedClinics, setSelectedClinics] = useState([]);
+  const [selected, setSelected] = useState([]);
 
   const handleChange = (newValue) => {
-    setSelectedClinics(newValue);
-    if (onChange) onChange(newValue); // propagar al padre si lo usa
+    setSelected(newValue);
+    if (onChange) onChange(newValue);
   };
 
   return (
-    <AutocompleteFilter
-      label={label}
-      options={clinics}
-      value={selectedClinics}
-      onChange={handleChange}
-    />
+    <Box
+      sx={{
+        '& .MuiInputLabel-root': { fontSize: 14 },
+        '& .MuiInputBase-root': { height: 40 },
+        '& .MuiOutlinedInput-root': { height: 40 },
+        '& .MuiOutlinedInput-input': { padding: '8px 14px', fontSize: 14 },
+        '& .MuiAutocomplete-inputRoot': { padding: '0 !important' },
+        '& .MuiAutocomplete-input': { fontSize: 14 },
+        '& .MuiAutocomplete-endAdornment': { right: 8 }
+      }}
+    >
+      <AutocompleteFilter
+        label={label}
+        options={options}
+        value={selected}
+        onChange={handleChange}
+      />
+    </Box>
   );
 }
