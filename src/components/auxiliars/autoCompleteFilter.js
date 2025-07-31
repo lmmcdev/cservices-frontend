@@ -3,22 +3,6 @@ import React from 'react';
 import { Autocomplete, TextField, Box } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const commonStyles = {
-  fontSize: 12,
-  height: 36,
-  color: 'text.secondary',
-  '& .MuiOutlinedInput-notchedOutline': {
-    borderColor: '#ccc',
-  },
-  '&:hover .MuiOutlinedInput-notchedOutline': {
-    borderColor: '#aaa',
-  },
-  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-    borderColor: '#00a1ff',
-  },
-};
-
-
 export default function AutocompleteFilter({
   label,
   options,
@@ -42,7 +26,7 @@ export default function AutocompleteFilter({
       onChange={(e, newValue) => onChange(newValue)}
       disableCloseOnSelect
       getOptionLabel={getOptionLabel}
-      sx={{ width, ...commonStyles }}
+      sx={{ width }}
       popupIcon={<ExpandMoreIcon sx={{ fontSize: 20, color: 'text.secondary' }} />}
       renderTags={(value, getTagProps) => (
         <Box
@@ -51,7 +35,8 @@ export default function AutocompleteFilter({
             overflowX: 'auto',
             gap: 0.5,
             maxWidth: '100%',
-            paddingY: 0.5,
+            ml: 1,
+            py: 0.5,
             whiteSpace: 'nowrap',
           }}
         >
@@ -62,7 +47,7 @@ export default function AutocompleteFilter({
               {...getTagProps({ index })}
               sx={{
                 background: '#e0e0e0',
-                fontSize: 11,
+                fontSize: 12,
                 borderRadius: 1,
                 px: 1,
                 py: 0.25,
@@ -78,24 +63,34 @@ export default function AutocompleteFilter({
         </Box>
       )}
       renderInput={(params) => (
-        <TextField
-          {...params}
-          label={label}
-          placeholder={placeholder}
-          variant="outlined"
-          InputLabelProps={{
-            sx: { color: 'text.secondary', fontSize: 12 },
-          }}
-          InputProps={{
-            ...params.InputProps,
-            sx: {
-              ...commonStyles,
-              alignItems: 'center',
+      <TextField
+        {...params}
+        label={label}
+        placeholder={placeholder}
+        variant="outlined"
+        size="small"
+        InputLabelProps={{
+          sx: {
+            fontSize: 14,
+            transform: 'translate(14px, 8px) scale(1.2)', // posición del placeholder
+            '&.MuiInputLabel-shrink': {
+              transform: 'translate(14px, -9px) scale(0.75)', // posición cuando está flotando
             },
-          }}
-        />
-      )}
+          },
+        }}
+        InputProps={{
+          ...params.InputProps,
+          sx: {
+            height: 40,
+            alignItems: 'center',
+            fontSize: 14,
+            '& .MuiOutlinedInput-input': {
+              padding: '8px 14px',
+            },
+          },
+        }}
+      />
+    )}
     />
-
   );
 }

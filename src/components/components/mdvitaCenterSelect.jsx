@@ -34,14 +34,14 @@ const MDVitaLocationSelect = ({ label = 'Location', value, onChange }) => {
         'MARLINS PARK',
         'MIAMI GARDENS',
         'N MIAMI BEACH - 2ND FLOOR',
-        'WEST PALM BEACH',        
+        'WEST PALM BEACH',
         'WESTCHESTER',
       ],
     },
   ];
 
   const menuItems = [
-    <MenuItem key="placeholder" value="">
+    <MenuItem key="__any__" value="">
       <em>All Locations</em>
     </MenuItem>,
     ...centers.flatMap((center) => [
@@ -55,7 +55,7 @@ const MDVitaLocationSelect = ({ label = 'Location', value, onChange }) => {
       ...center.values.map((loc) => {
         const full = `${center.group} - ${loc}`;
         return (
-          <MenuItem key={full} value={full} sx={{ fontSize: 16 }}>
+          <MenuItem key={full} value={full} sx={{ fontSize: 14 }}>
             {full}
           </MenuItem>
         );
@@ -67,15 +67,8 @@ const MDVitaLocationSelect = ({ label = 'Location', value, onChange }) => {
     <FormControl
       fullWidth
       variant="outlined"
+      size="small"
       sx={{
-        '& .MuiInputLabel-root': {
-          '&:hover:not(.Mui-focused)': {
-            color: '#999999',
-          },
-          '&.Mui-focused': {
-            color: '#00A1FF',
-          },
-        },
         '& .MuiOutlinedInput-root': {
           '&:hover:not(.Mui-focused) .MuiOutlinedInput-notchedOutline': {
             borderColor: '#999999',
@@ -86,7 +79,20 @@ const MDVitaLocationSelect = ({ label = 'Location', value, onChange }) => {
         },
       }}
     >
-      <InputLabel id="location-label">{label}</InputLabel>
+      <InputLabel
+        id="location-label"
+        sx={{
+          fontSize: 14,
+          // 👇 mismo trato que AutocompleteFilter
+          transform: 'translate(14px, 7px) scale(1.2)',         // placeholder position
+          '&.MuiInputLabel-shrink': {
+            transform: 'translate(14px, -9px) scale(0.85)',     // floating position
+          },
+        }}
+      >
+        {label}
+      </InputLabel>
+
       <Select
         labelId="location-label"
         id="location-select"
@@ -97,17 +103,19 @@ const MDVitaLocationSelect = ({ label = 'Location', value, onChange }) => {
         input={
           <OutlinedInput
             label={label}
+            size="small"
             sx={{
-              height: '56px',
-              '& .MuiOutlinedInput-notchedOutline': { top: 0 },
+              height: 40, // same height as Keyword
             }}
           />
         }
         sx={{
           '& .MuiSelect-select': {
-            padding: '16.5px 14px',
+            padding: '8px 14px',
+            fontSize: 14,
             display: 'flex',
             alignItems: 'center',
+            minHeight: 'unset',
           },
         }}
       >
