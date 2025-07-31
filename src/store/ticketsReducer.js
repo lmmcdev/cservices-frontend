@@ -59,44 +59,44 @@ export const ticketReducer = (state, action) => {
       };*/
 
 
+   case 'UPD_TICKET': {
+    const { id } = action.payload;
+    let changed = false;
+
+    //console.log('ticket del backend:', action.payload);
+    const nextTickets = state.tickets.map(t => {
+      if (t.id !== id) return t;
+
+      const merged = { ...t, ...action.payload };
+
+      // Si NO vino en el payload, lo eliminamos manualmente
+      if (!('linked_patient_snapshot' in action.payload)) {
+        delete merged.linked_patient_snapshot;
+      }
+
+      //console.log('ticket actualizado:', merged);
+      if (shallowEqual(t, merged)) return t;
+      changed = true;
+      return merged;
+    });
+
+    if (!changed) return state;
+    return { ...state, tickets: nextTickets };
+  }
+
+
+
+
+
     /*case 'UPD_TICKET':
-    case 'LIVE_UPDATE_TICKET': {
-      console.log('Actualizando ticket ID:', action.payload.id);
-      console.log('Payload completo:', action.payload);
-
-      return {
-        ...state,
-        tickets: state.tickets.map(ticket => {
-          if (ticket.id !== action.payload.id) return ticket;
-
-          // Creamos una copia limpia del payload
-          const updatedTicket = {
-            ...ticket,
-            ...action.payload
-          };
-
-          // Si el campo no viene en el payload, lo eliminamos del estado
-          if (!Object.prototype.hasOwnProperty.call(action.payload, 'linked_patient_snapshot')) {
-            delete updatedTicket.linked_patient_snapshot;
-          }
-
-          return updatedTicket;
-        })
-      };
-    }
-*/
-
-
-
-    case 'UPD_TICKET':
-      console.log('Actualizando ticket ID:', action.payload.id);
-      console.log('Payload completo:', action.payload);
+      //console.log('Actualizando ticket ID:', action.payload.id);
+      //console.log('Payload completo:', action.payload);
       return {
         ...state,
         tickets: state.tickets.map(ticket =>
           ticket.id === action.payload.id ? action.payload : ticket
         )
-      };
+      };*/
 
 
     //agents
@@ -253,3 +253,29 @@ export const ticketReducer = (state, action) => {
       return state;
   }
 };
+
+
+
+function shallowEqual(objA, objB) {
+  if (objA === objB) return true;
+
+  if (
+    typeof objA !== 'object' || objA === null ||
+    typeof objB !== 'object' || objB === null
+  ) {
+    return false;
+  }
+
+  const keysA = Object.keys(objA);
+  const keysB = Object.keys(objB);
+
+  if (keysA.length !== keysB.length) return false;
+
+  for (let key of keysA) {
+    if (!objB.hasOwnProperty(key) || objA[key] !== objB[key]) {
+      return false;
+    }
+  }
+
+  return true;
+}

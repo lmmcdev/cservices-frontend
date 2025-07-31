@@ -109,7 +109,7 @@ export default function EditTicket() {
   const [openPatientDialog, setOpenPatientDialog] = useState(false);
   useWorkTimer( {ticketData:ticket, agentEmail, status, enabled:true} );
 
-  console.log(JSON.stringify(ticket.linked_patient_snapshot))
+  //console.log(JSON.stringify(ticket.linked_patient_snapshot))
   useEffect(() => {
     if (ticket?.notes) {
       setNotes(ticket.notes);
@@ -208,21 +208,24 @@ export default function EditTicket() {
     setOpenConfirmDialog(true);
   };
 
-  const handleRelateAllActions = () => {
-    // Limpiar después de ejecutar
-    //setOpenConfirmDialog(true);
-    if (relateTicketAction === 'relateCurrent') {
-      handleRelateCurrentTicket(ticket, pendingPatient);
-      //setOpenConfirmDialog(false);
-    } else if (relateTicketAction === 'relateAllPast') {
-      handleRelateAllPastTickets(ticket, pendingPatient);
-      //setOpenConfirmDialog(false);
-    } else if (relateTicketAction === 'relateFuture') {
-      handleRelateFutureTickets(ticket, pendingPatient);
-      //setOpenConfirmDialog(false);
-    }
+  const handleRelateAllActions = async () => {
+  // cerrar el diálogo YA
+  setOpenConfirmDialog(false);
 
-    setOpenConfirmDialog(true);
+    try {
+      if (relateTicketAction === 'relateCurrent') {
+        await handleRelateCurrentTicket(ticket, pendingPatient);
+      } else if (relateTicketAction === 'relateAllPast') {
+        await handleRelateAllPastTickets(ticket, pendingPatient);
+      } else if (relateTicketAction === 'relateFuture') {
+        await handleRelateFutureTickets(ticket, pendingPatient);
+      }
+      // cerrar modal de selección si lo tuviste abierto
+      setOpenRelateModal(false);
+    } catch (e) {
+      // si querés, reabrí el confirm solo si falla
+      setOpenConfirmDialog(true);
+    }
   };
 
   const handleRelateCurrentTicket = async (ticket,patient) => {
@@ -253,9 +256,11 @@ const handleUnlinkTicket = async (ticket) => {
   await relateTicketHandler({ dispatch, setLoading, ticketId, agentEmail, action: 'unlink', ticketPhone, patientId, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
 };
 
+
+
   if (!ticket) return <Typography>Ticket not found</Typography>;
 
-  return (
+return (
     <>
       <Paper
         sx={{
@@ -387,11 +392,11 @@ const handleUnlinkTicket = async (ticket) => {
                   </Box>
 
                   {/* --- Nueva lógica --- */}
-                  {linked_patient_snapshot?.Name ? (
+                  {ticket.linked_patient_snapshot?.Name ? (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                       <InsertLinkIcon color="success" />
                       <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
-                        {linked_patient_snapshot.Name}
+                        {ticket.linked_patient_snapshot.Name}
                       </Typography>
                     </Box>
                   ) : (
