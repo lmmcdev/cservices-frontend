@@ -11,7 +11,7 @@ import CakeIcon from '@mui/icons-material/Cake';
 import RingVolumeIcon from '@mui/icons-material/RingVolume';
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 
-import { searchPatients, getTicketsByPatientId } from '../../../utils/apiPatients';
+import { searchPatients, } from '../../../utils/apiPatients';
 import MDVitaLocationSelect from '../mdvitaCenterSelect';
 import SearchPatientResults from './searchPatientsResults';
 
@@ -23,12 +23,12 @@ const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(false);
-  const [continuationToken, setContinuationToken] = useState(null);
+  //const [continuationToken, setContinuationToken] = useState(null);
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [, setSelectedPatient] = useState(null);
   const [tickets, setTickets] = useState([]);
-  const [ticketsLoading, setTicketsLoading] = useState(false);
+  const [ticketsLoading, ] = useState(false);
   const [selectedMDVitaLocation, setSelectedMDVitaLocation] = useState('');
 
   const observerRef = useRef(null);
@@ -115,32 +115,7 @@ const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
     [loading, hasMore, searchValues, page, fetchPatients]
   );
 
-  const handlePatientClick = async (patient) => {
-    setSelectedPatient(patient);
-    setDialogOpen(true);
-    setTickets([]);
-    setTicketsLoading(true);
-    try {
-      const res = await getTicketsByPatientId({
-        patientId: patient.id,
-        limit: 10,
-        continuationToken
-      });
 
-      const { items, continuationToken: nextToken } = res.message;
-      setContinuationToken(nextToken || null);
-      setTickets((prev) => {
-        const ids = new Set(prev.map((item) => item.id));
-        const newItems = items.filter((item) => !ids.has(item.id));
-        return [...prev, ...newItems];
-      });
-      setHasMore(!!nextToken);
-    } catch (err) {
-      console.error('Error fetching tickets:', err);
-    } finally {
-      setTicketsLoading(false);
-    }
-  };
 
   const handleCloseDialog = () => {
     setDialogOpen(false);
