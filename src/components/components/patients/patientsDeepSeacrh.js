@@ -5,7 +5,6 @@ import RingVolumeIcon from '@mui/icons-material/RingVolume';
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 
 import { searchPatients, } from '../../../utils/apiPatients';
-import { searchPatients, } from '../../../utils/apiPatients';
 import MDVitaLocationSelect from '../mdvitaCenterSelect';
 import SearchPatientResults from './searchPatientsResults';
 import SearchButton from '../../auxiliars/searchButton';
