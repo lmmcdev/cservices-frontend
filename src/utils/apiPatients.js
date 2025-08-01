@@ -68,7 +68,8 @@ export const searchPatients = async (query, filter, page = 1, size = 50, accessT
 
 
 //statistics
-export const getTicketsByPatientId = async ({ patientId, limit = 10, continuationToken = null }, accessToken = null) => {
+export const getTicketsByPatientId = async (patientId, limit = 10, continuationToken = null, accessToken = null) => {
+ 
   if (!patientId) return { success: false, message: 'patientId is required' };
 
   const url = `https://cservicesapi.azurewebsites.net/api/cosmoGetByPatientId`;
@@ -94,12 +95,9 @@ export const getTicketsByPatientId = async ({ patientId, limit = 10, continuatio
     }
 
     // Retorno esperado: items y token para la paginación
+    const items = data.message?.items || [];
     return {
-      success: true,
-      message: {
-        items: data.message.items || [],
-        continuationToken: data.continuationToken || null,
-      },
+      success: true, message: data,
     };
   } catch (err) {
     return { success: false, message: err.message || 'Something went wrong' };

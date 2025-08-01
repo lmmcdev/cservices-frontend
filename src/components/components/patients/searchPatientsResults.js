@@ -21,31 +21,6 @@ const getLanguageCode = (languageString) => {
   return null;
 };
 
-/*const getGenderIcon = (genderString) => {
-  if (!genderString) return <HelpOutlineIcon sx={{ fontSize: 18, ml: 0.5 }} />;
-  const gender = genderString.toLowerCase().trim();
-  if (gender === 'female' || gender === 'f') {
-    return <FemaleIcon sx={{ color: '#e91e63', fontSize: 18, ml: 0.5 }} />;
-  }
-  if (gender === 'male' || gender === 'm') {
-    return <MaleIcon sx={{ color: '#2196f3', fontSize: 18, ml: 0.5 }} />;
-  }
-  return <HelpOutlineIcon sx={{ fontSize: 18, ml: 0.5 }} />;
-};
-
-const calculateAge = (dob) => {
-  if (!dob) return null;
-  const birthDate = new Date(dob);
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const m = today.getMonth() - birthDate.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-    age--;
-  }
-  return age;
-};*/
-
-
 
 const isBirthdayToday = (dob) => {
   if (!dob) return false;

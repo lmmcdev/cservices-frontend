@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import SearchPatientDeepContainer from './patientsDeepSeacrh';
 
-const PatientSearchContainer = () => {
+const PatientSearchContainer = ({onSelectFunc}) => {
  const [selectedPatient, setSelectedPatient] = useState(null);
 
   const onSelect = (patient) => {
@@ -16,7 +16,7 @@ const PatientSearchContainer = () => {
     <div>
       
       <SearchPatientDeepContainer
-        onSelect={onSelect} selectedPatientFunc={selectedPatient}
+        onSelect={onSelectFunc} selectedPatientFunc={selectedPatient}
       />
       
     </div>
