@@ -55,7 +55,7 @@ export default function ProfileSearch() {
   const isSmall = useMediaQuery('(max-width:900px)');
   const [selectedView, setSelectedView] = useState('profile'); 
   const [selectedProvider, setSelectedProvider] = useState(null);
-  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [, setSelectedPatient] = useState(null);
   const { setLoading } = useLoading();
   const [patientTickets, setPatientTickets] = useState([]);
 
@@ -97,7 +97,6 @@ export default function ProfileSearch() {
   };
 
   const setSelectedPatientFunc = async (patient) => {
-    console.log('Selected patient:', patient);
     const tickets = await handleGetTicketsByPatient({
       setLoading,
       dataPatient: patient,

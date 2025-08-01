@@ -95,7 +95,6 @@ export const getTicketsByPatientId = async (patientId, limit = 10, continuationT
     }
 
     // Retorno esperado: items y token para la paginación
-    const items = data.message?.items || [];
     return {
       success: true, message: data,
     };
