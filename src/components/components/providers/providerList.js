@@ -4,9 +4,12 @@ import {
   Typography,
   TextField,
   CircularProgress,
-  Button
 } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+// ❌ ya no hace falta SearchIcon ni Button
+// import SearchIcon from '@mui/icons-material/Search';
+// import { Button } from '@mui/material';
+import SearchButton from '../../auxiliars/searchButton'; // 👈 tu botón reusable
+
 import { getProviders } from '../../../utils/apiProviders';
 import ProviderListUI from './providerListUI';
 
@@ -81,41 +84,19 @@ const ProviderListContainer = ({ onSelect }) => {
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleManualSearch();
             }}
+            size="small"
             sx={{
+              '& .MuiInputBase-root': { height: 40 },
+              '& .MuiOutlinedInput-input': { padding: '8px 14px' },
               '& .MuiOutlinedInput-root': {
-                '&:hover:not(.Mui-focused) fieldset': {
-                  borderColor: '#999999',
-                },
-                '&.Mui-focused fieldset': {
-                  borderColor: '#00A1FF',
-                }
-              }
+                '&:hover:not(.Mui-focused) fieldset': { borderColor: '#999999' },
+                '&.Mui-focused fieldset': { borderColor: '#00A1FF' },
+              },
             }}
           />
 
-          <Button
-            onClick={handleManualSearch}
-            startIcon={<SearchIcon sx={{ mr: '-5px' }} />}
-            disabled={loading}
-            sx={{
-              width: '150px',
-              height: '40px',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              color: '#00A1FF',
-              backgroundColor: '#DFF3FF',
-              border: '2px solid #00A1FF',
-              textTransform: 'none',
-              borderRadius: '8px',
-              mt: '0px',
-              '&:hover': {
-                backgroundColor: '#00A1FF',
-                color: '#FFFFFF',
-              },
-            }}
-          >
-            Search
-          </Button>
+          {/* 👇 Botón unificado (mismo ancho/alto estilo que en tickets/patients) */}
+          <SearchButton onClick={handleManualSearch} disabled={loading} />
         </Box>
       </Box>
 

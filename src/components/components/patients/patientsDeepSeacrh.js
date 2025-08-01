@@ -1,21 +1,21 @@
 import React, { useState, useRef, useCallback } from 'react';
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  Chip
-} from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { Box, Typography, TextField, Chip } from '@mui/material';
 import CakeIcon from '@mui/icons-material/Cake';
 import RingVolumeIcon from '@mui/icons-material/RingVolume';
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 
 import { searchPatients, } from '../../../utils/apiPatients';
+import { searchPatients, } from '../../../utils/apiPatients';
 import MDVitaLocationSelect from '../mdvitaCenterSelect';
 import SearchPatientResults from './searchPatientsResults';
+import SearchButton from '../../auxiliars/searchButton';
 
 const PAGE_SIZE = 50;
+
+const controlFieldSx = {
+  '& .MuiInputBase-root': { height: 40 },
+  '& .MuiOutlinedInput-input': { padding: '8px 14px' }
+};
 
 const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
   const [inputValue, setInputValue] = useState('');
@@ -23,7 +23,6 @@ const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(false);
-  //const [continuationToken, setContinuationToken] = useState(null);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [, setSelectedPatient] = useState(null);
@@ -42,8 +41,6 @@ const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
   });
 
   const [activeFilters, setActiveFilters] = useState([]);
-
-  
 
   const buildSearchParams = (values) => {
     const queryParts = [];
@@ -115,8 +112,6 @@ const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
     [loading, hasMore, searchValues, page, fetchPatients]
   );
 
-
-
   const handleCloseDialog = () => {
     setDialogOpen(false);
     setSelectedPatient(null);
@@ -159,6 +154,8 @@ const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
             label="First Name"
             variant="outlined"
             fullWidth
+            size="small"
+            sx={controlFieldSx}
             value={searchValues.firstName}
             onChange={(e) => setSearchValues({ ...searchValues, firstName: e.target.value })}
             onKeyDown={(e) => {
@@ -169,33 +166,15 @@ const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
             label="Last Name"
             variant="outlined"
             fullWidth
+            size="small"
+            sx={controlFieldSx}
             value={searchValues.lastName}
             onChange={(e) => setSearchValues({ ...searchValues, lastName: e.target.value })}
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleSearch();
             }}
           />
-          <Button
-            onClick={handleSearch}
-            startIcon={<SearchIcon sx={{ mr: '-5px' }} />}
-            sx={{
-              width: '250px',
-              height: '40px',
-              fontSize: '16px',
-              fontWeight: 'bold',
-              color: '#00A1FF',
-              backgroundColor: '#DFF3FF',
-              border: '2px solid #00A1FF',
-              textTransform: 'none',
-              borderRadius: '8px',
-              '&:hover': {
-                backgroundColor: '#00A1FF',
-                color: '#FFFFFF',
-              },
-            }}
-          >
-            Search
-          </Button>
+          <SearchButton onClick={handleSearch} disabled={loading} />
         </Box>
 
         {hasFilters && (
@@ -206,34 +185,47 @@ const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
                 label="Date of Birth"
                 InputLabelProps={{ shrink: true }}
                 fullWidth
+                size="small"
+                sx={controlFieldSx}
                 value={searchValues.dob}
                 onChange={(e) => setSearchValues({ ...searchValues, dob: e.target.value })}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
             )}
+
             {activeFilters.includes('phone') && (
               <TextField
                 label="Phone Number"
                 variant="outlined"
                 fullWidth
+                size="small"
+                sx={controlFieldSx}
                 value={searchValues.phone}
                 onChange={(e) => setSearchValues({ ...searchValues, phone: e.target.value })}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
             )}
-          </Box>
-        )}
 
-        {activeFilters.includes('location') && (
-          <Box sx={{ mt: 2 }}>
-            <MDVitaLocationSelect
-              value={selectedMDVitaLocation}
-              onChange={(val) => {
-                setSelectedMDVitaLocation(val);
-                setSearchValues((prev) => ({ ...prev, location: val }));
-              }}
-              label="Location"
-            />
+            {activeFilters.includes('location') && (
+              <Box
+                sx={{
+                  flex: 1,
+                  minWidth: 240,           // o quítalo si lo quieres 100% flexible
+                  '& .MuiInputBase-root': { height: 40 },
+                  '& .MuiOutlinedInput-input': { padding: '8px 14px' },
+                  '& .MuiInputLabel-root': { fontSize: 14 },
+                }}
+              >
+                <MDVitaLocationSelect
+                  label="Location"
+                  value={selectedMDVitaLocation}
+                  onChange={(val) => {
+                    setSelectedMDVitaLocation(val);
+                    setSearchValues((prev) => ({ ...prev, location: val }));
+                  }}
+                />
+              </Box>
+            )}
           </Box>
         )}
 

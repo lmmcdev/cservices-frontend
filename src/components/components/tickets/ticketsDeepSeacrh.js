@@ -1,156 +1,306 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Box, TextField } from '@mui/material';
+import { Box, Typography, TextField, Chip, MenuItem } from '@mui/material';
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import GroupIcon from '@mui/icons-material/Group';
+import FmdGoodIcon from '@mui/icons-material/FmdGood';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
+
 import { searchTickets } from '../../../utils/apiTickets';
 import { useAgents } from '../../../context/agentsContext';
 import CallerIDAutoComplete from '../../auxiliars/callerIDAutocomplete';
 import CollaboratorAutoComplete from '../../auxiliars/collaboratorAutocomplete';
 import SearchTicketResults from './searchTicketsResults';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs from 'dayjs';
+import SearchButton from '../../auxiliars/searchButton';
 
 const PAGE_SIZE = 50;
 
-const SearchTicketDeep = ({ queryPlaceholder = 'Search tickets deeply...' }) => {
+const defaultStatusOptions = [
+  { label: 'Any', value: '' },
+  { label: 'New', value: 'New' },
+  { label: 'Emergency', value: 'Emergency' },
+  { label: 'In Progress', value: 'In Progress' },
+  { label: 'Pending', value: 'Pending' },
+  { label: 'Done', value: 'Done' },
+  { label: 'Duplicated', value: 'Duplicated' }
+];
+
+const defaultLocationOptions = [
+  'Bird Road',
+  'East Hialeah',
+  'Hollywood',
+  'Homestead',
+  'Miami 27th Ave',
+  'Pembroke Pines',
+  'Plantation',
+  'Tamarac',
+  'West Hialeah',
+  'West Kendall',
+  'Cutler Ridge',
+  'Hialeah',
+  'Hiatus',
+  'Marlins Park',
+  'Miami Gardens',
+  'North Miami Beach',
+  'West Palm Beach',
+  'Westchester',
+  'OTC',
+  'Pharmacy',
+  'Referrals'
+];
+
+const controlTextFieldSx = {
+  '& .MuiInputBase-root': { height: 40 },
+  '& .MuiOutlinedInput-input': { padding: '8px 14px' }
+};
+
+const SearchTicketDeep = ({
+  queryPlaceholder = '',
+  statusOptions = defaultStatusOptions,
+  locationOptions = defaultLocationOptions
+}) => {
   const [inputValue, setInputValue] = useState('');
   const [results, setResults] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(false);
-  const [selectedLocations, setSelectedLocations] = useState([]); // ✅ array de locaciones
-  const [selectedAgents, setSelectedAgents] = useState([]); // ✅ array de agentes
 
+  const [activeFilters, setActiveFilters] = useState([]);
+  const [selectedLocations, setSelectedLocations] = useState([]);
+  const [selectedAgents, setSelectedAgents] = useState([]);
+  const [statusValue, setStatusValue] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+
   const { state } = useAgents();
   const agents = state.agents;
-  
 
-  // ✅ Construir el filtro compatible con Azure Cognitive Search
-  const buildFilter = () => {
+  const buildFilter = useCallback(() => {
     const parts = [];
-
-    if (startDate) {
-      parts.push(`createdAt ge ${dayjs(startDate).startOf('day').toISOString()}`);
-    }
-    if (endDate) {
-      parts.push(`createdAt le ${dayjs(endDate).endOf('day').toISOString()}`);
-    }
+    if (startDate) parts.push(`createdAt ge ${dayjs(startDate).startOf('day').toISOString()}`);
+    if (endDate) parts.push(`createdAt le ${dayjs(endDate).endOf('day').toISOString()}`);
     if (selectedAgents.length > 0) {
-      const agentFilter = selectedAgents
-        .map(agent => `agent_assigned eq '${agent}'`)
-        .join(' or ');
-      parts.push(`${agentFilter}`);
+      const agentFilter = selectedAgents.map(a => `agent_assigned eq '${a}'`).join(' or ');
+      parts.push(agentFilter);
     }
-
-    // ✅ Si hay varias locaciones, usar OR entre ellas
     if (selectedLocations.length > 0) {
-      const locationFilter = selectedLocations
-        .map(loc => `assigned_department eq '${loc}'`)
-        .join(' or ');
-      parts.push(`${locationFilter}`);
+      const locationFilter = selectedLocations.map(loc => `assigned_department eq '${loc}'`).join(' or ');
+      parts.push(locationFilter);
     }
-
+    if (statusValue) parts.push(`status eq '${statusValue}'`);
     return parts.length ? parts.join(' and ') : null;
-  };
+  }, [startDate, endDate, selectedAgents, selectedLocations, statusValue]);
 
-
-
-  // ✅ Función para traer resultados
   const fetchTickets = useCallback(
     async (pageNumber) => {
       const filter = buildFilter();
       const query = inputValue.trim() ? inputValue : '*';
-
       setLoading(true);
       try {
-        const body = {
-          query,
-          page: pageNumber,
-          size: PAGE_SIZE,
-          ...(filter ? { filter } : {})
-        };
-
+        const body = { query, page: pageNumber, size: PAGE_SIZE, ...(filter ? { filter } : {}) };
         const res = await searchTickets(body);
         const data = res?.message?.value || [];
-
-        if (pageNumber === 1) {
-          setResults(data);
-        } else {
-          setResults((prev) => [...prev, ...data]);
-        }
-
+        if (pageNumber === 1) setResults(data);
+        else setResults(prev => [...prev, ...data]);
         setHasMore(data.length === PAGE_SIZE);
-      } catch (err) {
-        console.error('Error in deep search:', err);
+      } catch (e) {
+        console.error('Error in deep search:', e);
       } finally {
         setLoading(false);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [inputValue, startDate, endDate, selectedLocations, selectedAgents]
+    [inputValue, buildFilter]
   );
 
-  // ✅ Disparar búsqueda en cambios
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setPage(1);
-      setResults([]);
-      fetchTickets(1);
-    }, 400);
+  const handleSearch = useCallback(() => {
+    setPage(1);
+    setResults([]);
+    fetchTickets(1);
+  }, [fetchTickets]);
 
-    return () => clearTimeout(handler);
-  }, [inputValue, startDate, endDate, selectedLocations, selectedAgents,fetchTickets]);
+  useEffect(() => {
+    if (page === 1) return;
+    fetchTickets(page);
+  }, [page, fetchTickets]);
+
+  const toggleFilter = (value) => {
+    setActiveFilters((prev) => (prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]));
+  };
+
+  const hasFilters = activeFilters.length > 0;
+
+  const searchOptions = [
+    { label: 'Date Range', value: 'date', icon: <DateRangeIcon /> },
+    { label: 'Assigned To', value: 'agent', icon: <GroupIcon /> },
+    { label: 'Location', value: 'location', icon: <FmdGoodIcon /> },
+    { label: 'Status', value: 'status', icon: <AssignmentTurnedInIcon /> }
+  ];
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box sx={{ mt: 2 }}>
-        <CallerIDAutoComplete onChange={setSelectedLocations} />
-      </Box>
+      <Box sx={{ p: 0 }}>
+        <Box sx={{ px: 3, pt: 2 }}>
+          <Typography variant="h5" fontWeight="bold" mb={1}>
+            Search for tickets
+          </Typography>
+          <Typography variant="body1" color="#5B5F7B" mb={3}>
+            Start with a keyword. Use the buttons below to filter by date range, assigned agent, location, or status.
+          </Typography>
 
-      <CollaboratorAutoComplete
-          agents={agents}
-          selectedEmails={selectedAgents}
-          onChange={setSelectedAgents}
-          label="Assigned to"
-      />
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: hasFilters ? 2.2 : 2.2 }}>
+            <TextField
+              label="Keyword"
+              variant="outlined"
+              fullWidth
+              size="small"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSearch();
+              }}
+              placeholder={queryPlaceholder}
+              sx={controlTextFieldSx}
+            />
+            <SearchButton onClick={handleSearch} disabled={loading} />
+          </Box>
 
-      <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
-        <DatePicker
-          label="Start Date"
-          value={startDate}
-          onChange={(newDate) => setStartDate(newDate)}
+          {hasFilters && (
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+              {activeFilters.includes('date') && (
+                <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
+                  <DatePicker
+                    label="Start Date"
+                    value={startDate}
+                    onChange={(v) => setStartDate(v)}
+                    slotProps={{ textField: { fullWidth: true, size: 'small', sx: controlTextFieldSx } }}
+                  />
+                  <DatePicker
+                    label="End Date"
+                    value={endDate}
+                    onChange={(v) => setEndDate(v)}
+                    slotProps={{ textField: { fullWidth: true, size: 'small', sx: controlTextFieldSx } }}
+                  />
+                </Box>
+              )}
+
+              {(activeFilters.includes('location') || activeFilters.includes('agent')) && (
+                <Box sx={{ display: 'flex', gap: 2, width: '100%', flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
+                  {activeFilters.includes('location') && (
+                    <Box
+                      sx={{
+                        flex: 1,
+                        '& .MuiAutocomplete-root': { width: '100% !important' }
+                      }}
+                    >
+                      <CallerIDAutoComplete
+                        label="Location"
+                        options={locationOptions}
+                        onChange={setSelectedLocations}
+                        size="small"
+                      />
+                    </Box>
+                  )}
+                  {activeFilters.includes('agent') && (
+                    <Box
+                      sx={{
+                        flex: 1,
+                        '& .MuiAutocomplete-root': { width: '100% !important' }
+                      }}
+                    >
+                      <CollaboratorAutoComplete
+                        agents={agents}
+                        selectedEmails={selectedAgents}
+                        onChange={setSelectedAgents}
+                        label="Assigned to"
+                        size="small"
+                      />
+                    </Box>
+                  )}
+                </Box>
+              )}
+
+              {activeFilters.includes('status') && (
+                <TextField
+                  label="Status"
+                  value={statusValue}
+                  onChange={(e) => setStatusValue(e.target.value)}
+                  select
+                  fullWidth
+                  size="small"
+                  sx={controlTextFieldSx}
+                  SelectProps={{
+                    renderValue: (v) =>
+                      v === ''
+                        ? <span style={{ fontStyle: 'italic', color: 'rgba(0,0,0,0.6)' }}>Any</span>
+                        : (statusOptions.find(o => o.value === v)?.label || v)
+                  }}
+                >
+                  {statusOptions.map((opt) => (
+                    <MenuItem
+                      key={opt.label}
+                      value={opt.value}
+                      sx={opt.value === '' ? { fontStyle: 'italic', color: 'text.secondary' } : undefined}
+                    >
+                      {opt.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+            </Box>
+          )}
+
+          <Box sx={{ display: 'flex', gap: 1.5, mt: 2 }}>
+            {searchOptions.map((option) => {
+              const isActive = activeFilters.includes(option.value);
+              return (
+                <Chip
+                  key={option.value}
+                  onClick={() => toggleFilter(option.value)}
+                  label={
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                      {React.cloneElement(option.icon, {
+                        sx: { fontSize: 18, color: isActive ? '#00A1FF' : '#666' },
+                      })}
+                      <span style={{ position: 'relative', top: '1px' }}>{option.label}</span>
+                    </Box>
+                  }
+                  sx={{
+                    borderRadius: '999px',
+                    border: `1px solid ${isActive ? '#00A1FF' : '#d6d6d6'}`,
+                    fontWeight: 500,
+                    backgroundColor: isActive ? '#DFF3FF' : '#fff',
+                    color: isActive ? '#00A1FF' : '#333',
+                    px: 1,
+                    py: 0.5,
+                    '&:hover': {
+                      backgroundColor: '#DFF3FF',
+                      borderColor: '#00A1FF',
+                      color: '#00A1FF',
+                      '& svg': {
+                        color: '#00A1FF',
+                      },
+                    },
+                  }}
+                />
+              );
+            })}
+          </Box>
+        </Box>
+
+        <SearchTicketResults
+          results={results}
+          loading={loading}
+          inputValue={inputValue}
+          hasMore={hasMore}
+          loadMore={() => {
+            const nextPage = page + 1;
+            setPage(nextPage);
+          }}
         />
-        <DatePicker
-          label="End Date"
-          value={endDate}
-          onChange={(newDate) => setEndDate(newDate)}
-        />
       </Box>
-
-      <Box sx={{ mt: 2 }}>
-        <TextField
-          fullWidth
-          label="Deep Tickets Search"
-          placeholder={queryPlaceholder}
-          variant="outlined"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-        />
-      </Box>
-
-      <SearchTicketResults
-        results={results}
-        loading={loading}
-        inputValue={inputValue}
-        hasMore={hasMore}
-        loadMore={() => {
-          const nextPage = page + 1;
-          setPage(nextPage);
-          fetchTickets(nextPage);
-        }}
-      />
     </LocalizationProvider>
   );
 };

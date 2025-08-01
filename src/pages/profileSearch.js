@@ -15,21 +15,14 @@ import {
   IconButton
 } from '@mui/material';
 import { Icon } from '@iconify/react';
-//import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
-//import ApartmentIcon from '@mui/icons-material/Apartment';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
-//import LocalPharmacyIcon from '@mui/icons-material/LocalPharmacy';
-//import SecurityIcon from '@mui/icons-material/Security';
-//import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 import ProviderList from '../components/components/providers/providerList';
 import ProviderEditForm from './editProvider';
 import { handleUpdateProvider } from '../utils/js/providerActions';
 import { useLoading } from '../providers/loadingProvider';
 import AlertSnackbar from '../components/auxiliars/alertSnackbar';
-//import PatientList from '../components/patientList';
-import SearchPatientDeep from '../components/components/patients/patientsDeepSeacrh';
 import SearchTicketDeep from '../components/components/tickets/ticketsDeepSeacrh';
-//import { useMemo } from 'react';
+import PatientSearchContainer from '../components/components/patients/patientSearchContainer';
 
 const mockData = [];
 
@@ -297,7 +290,7 @@ export default function ProfileSearch() {
           */}
           {selectedView === 'patients-search' && (
             <>
-              <SearchPatientDeep />
+              <PatientSearchContainer />
             </>
           )}
 

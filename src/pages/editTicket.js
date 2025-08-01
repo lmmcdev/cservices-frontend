@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Box, Typography, Paper, Grid, Card, CardContent, TextField, IconButton
@@ -29,6 +29,7 @@ import { TicketIndicators } from '../components/ticketIndicators';
 import TicketLinkOptions from '../components/ticketLinkOptions';
 import RelateTicketModal from '../components/dialogs/relateTicketModal.jsx';
 import ConfirmDialog from '../components/dialogs/confirmDialog';
+//import { useTicketById } from '../components/hooks/useTicketById.js';
 
 
 import {
@@ -54,10 +55,15 @@ export default function EditTicket() {
   const { setLoading } = useLoading();
   const navigate = useNavigate();
   const { ticketId } = useParams();
+  //const [localTicket, setLocalTicket] = useState(null);
+  //const ticket = useTicketById(ticketId);
   
 
-  //agarrando el ticket del contexto
-  const ticket = tickets.find(t => t.id === ticketId);
+  //memoizar el ticket para evitar re-renderizados innecesarios
+  const ticket = useMemo(() => {
+    return tickets.find(t => t.id === ticketId);
+  }, [tickets, ticketId]);
+
   const [ agentAssigned, setAgentAssigned ] = useState(ticket?.agent_assigned || '');
   const { state: agentsState } = useAgents();
   const agents = agentsState.agents;
@@ -109,18 +115,13 @@ export default function EditTicket() {
   const [openPatientDialog, setOpenPatientDialog] = useState(false);
   useWorkTimer( {ticketData:ticket, agentEmail, status, enabled:true} );
 
-  console.log(JSON.stringify(ticket.linked_patient_snapshot))
+  //console.log(JSON.stringify(ticket.linked_patient_snapshot))
   useEffect(() => {
     if (ticket?.notes) {
       setNotes(ticket.notes);
     }
   }, [ticket]);
 
-  /*useEffect(() => {
-  if (ticket?.linked_patient_snapshot) {
-    setMemoSnapshot(ticket.linked_patient_snapshot);
-  }
-}, [ticket?.linked_patient_snapshot]);*/
 
   useEffect(() => {
     if (ticket) {
@@ -132,8 +133,6 @@ export default function EditTicket() {
   }, [ticket]);
   
 
-  //introducir un modal aqui
-  if (!ticket) return <Typography>Ticket not found</Typography>;
 
     //handling functions
     const handleStatusChangeUI = async (newStatus) => {
@@ -141,58 +140,58 @@ export default function EditTicket() {
     };
 
         ///////////////////////////////////////////////////////////////////////
-    const handleAddNote = async () => {
+    const handleAddNote = useCallback(async () => {
       await handleAddNoteHandler({dispatch, setLoading, ticketId, agentEmail, noteContent, setNotes, setNoteContent, setOpenNoteDialog, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
-    };
+    }, [dispatch, setLoading, ticketId, agentEmail, noteContent, setNotes, setNoteContent, setOpenNoteDialog, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
     ////////////////////////////////////////////////////////////////////////////
-    const handleAddCollaboratorClick = async (newCollaborator) => {
+    const handleAddCollaboratorClick = useCallback(async (newCollaborator) => {
       setAgentDialogOpen(true);
-    };
+    }, []);
 
-  const handleRemoveCollaborator = async (emailToRemove) => {
+  const handleRemoveCollaborator = useCallback(async (emailToRemove) => {
     await handleRemoveCollaboratorHandler({dispatch, setLoading, ticketId, agentEmail, collaborators, emailToRemove, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
     setEditField(null);
-  };
+  }, [dispatch, setLoading, ticketId, agentEmail, collaborators, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
 
   //////////////////////////////////////////////////////////////////////////////
-  const handleChangeDepartment = async (newDept) => {
+  const handleChangeDepartment = useCallback(async (newDept) => {
     await handleChangeDepartmentHandler({dispatch, setLoading, ticketId, agentEmail, newDept, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
     setEditField(null);
-  };
+  }, [dispatch, setLoading, ticketId, agentEmail, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
 
   /////////////////////Update Patient Fields///////////////////////////////////////////////////////
   ///////////patient name///////////////////////
-  const updatePatientNameUI = async (newName) => {
+  const updatePatientNameUI = useCallback(async (newName) => {
     await updatePatientNameHandler({dispatch, setLoading, ticketId, agentEmail, newName, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
     setEditField(null);
-  };
+  }, [dispatch, setLoading, ticketId, agentEmail, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
 
   ////////////patient dob///////////////////////
-  const updatePatientDobUI = async (newDob) => {
+  const updatePatientDobUI = useCallback(async (newDob) => {
     await updatePatientDobHandler({dispatch, setLoading, ticketId, agentEmail, newDob, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
     setEditField(null);
-  };
+  }, [dispatch, setLoading, ticketId, agentEmail, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
 
 
   ///////////patient phone////////////////////////////////
-  const updatecallbakNumberUI = async (newPhone) => {
+  const updateCallbackNumberUI = useCallback(async (newPhone) => {
     await updateCallbackNumberHandler({dispatch, setLoading, ticketId, agentEmail, newPhone, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
     setEditField(null);
-  };
+  }, [dispatch, setLoading, ticketId, agentEmail, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
 
   ///////////add ticket collaborator////////////////////////////////
-  const addCollaboratorUI = async (selectedAgents) => {
+  const addCollaboratorUI = useCallback(async (selectedAgents) => {
     await updateCollaboratorsHandler({dispatch, setLoading, ticketId, agentEmail, collaborators, selectedAgents, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
     setEditField(null);
-  };
+  }, [dispatch, setLoading, ticketId, agentEmail, collaborators, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
 
   ///////////add ticket collaborator////////////////////////////////
-  const ticketAssigneeUI = async (selectedAgent) => {
+  const ticketAssigneeUI = useCallback(async (selectedAgent) => {
     await updateAssigneeHandler({dispatch, setLoading, ticketId, agentEmail, selectedAgent, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
     setEditField(null);
-  };
+  }, [dispatch, setLoading, ticketId, agentEmail, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
 
-  ///////////add ticket collaborator////////////////////////////////
+  //////////////////////////////////////////////////////////////////////
   const handleCenterHandlerUI = async (selectedCenter, ticket) => {
     await handleCenterHandler({dispatch, setLoading, ticketId, ticket, agentEmail, selectedCenter, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
     setEditField(null);
@@ -208,21 +207,24 @@ export default function EditTicket() {
     setOpenConfirmDialog(true);
   };
 
-  const handleRelateAllActions = () => {
-    // Limpiar después de ejecutar
-    //setOpenConfirmDialog(true);
-    if (relateTicketAction === 'relateCurrent') {
-      handleRelateCurrentTicket(ticket, pendingPatient);
-      //setOpenConfirmDialog(false);
-    } else if (relateTicketAction === 'relateAllPast') {
-      handleRelateAllPastTickets(ticket, pendingPatient);
-      //setOpenConfirmDialog(false);
-    } else if (relateTicketAction === 'relateFuture') {
-      handleRelateFutureTickets(ticket, pendingPatient);
-      //setOpenConfirmDialog(false);
-    }
+  const handleRelateAllActions = async () => {
+  // cerrar el diálogo YA
+  setOpenConfirmDialog(false);
 
-    setOpenConfirmDialog(true);
+    try {
+      if (relateTicketAction === 'relateCurrent') {
+        await handleRelateCurrentTicket(ticket, pendingPatient);
+      } else if (relateTicketAction === 'relateAllPast') {
+        await handleRelateAllPastTickets(ticket, pendingPatient);
+      } else if (relateTicketAction === 'relateFuture') {
+        await handleRelateFutureTickets(ticket, pendingPatient);
+      }
+      // cerrar modal de selección si lo tuviste abierto
+      setOpenRelateModal(false);
+    } catch (e) {
+      // si querés, reabrí el confirm solo si falla
+      setOpenConfirmDialog(true);
+    }
   };
 
   const handleRelateCurrentTicket = async (ticket,patient) => {
@@ -253,9 +255,17 @@ const handleUnlinkTicket = async (ticket) => {
   await relateTicketHandler({ dispatch, setLoading, ticketId, agentEmail, action: 'unlink', ticketPhone, patientId, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
 };
 
+const closeEditTicket = () => {
+  // dispatch({ type: 'UPD_TICKET', payload: ticket });
+
+  navigate('/dashboard');
+}
+
+
+
   if (!ticket) return <Typography>Ticket not found</Typography>;
 
-  return (
+return (
     <>
       <Paper
         sx={{
@@ -320,7 +330,7 @@ const handleUnlinkTicket = async (ticket) => {
                 {/* Volver a tableTickets */}
                 <Tooltip title="Close">
                   <IconButton
-                    onClick={() => navigate('/dashboard')}
+                    onClick={closeEditTicket}
                     sx={{
                       '&:hover': {
                         color: '#B0200C',
@@ -387,11 +397,11 @@ const handleUnlinkTicket = async (ticket) => {
                   </Box>
 
                   {/* --- Nueva lógica --- */}
-                  {linked_patient_snapshot?.Name ? (
+                  {ticket.linked_patient_snapshot?.Name ? (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                       <InsertLinkIcon color="success" />
                       <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
-                        {linked_patient_snapshot.Name}
+                        {ticket.linked_patient_snapshot.Name}
                       </Typography>
                     </Box>
                   ) : (
@@ -490,7 +500,7 @@ const handleUnlinkTicket = async (ticket) => {
                           />
                           <IconButton
                             onClick={async () => {
-                              await updatecallbakNumberUI(callbakNumber);
+                              await updateCallbackNumberUI(callbakNumber);
                               setEditField(null);
                             }}
                           >
