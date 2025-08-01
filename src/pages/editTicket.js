@@ -29,7 +29,7 @@ import { TicketIndicators } from '../components/ticketIndicators';
 import TicketLinkOptions from '../components/ticketLinkOptions';
 import RelateTicketModal from '../components/dialogs/relateTicketModal.jsx';
 import ConfirmDialog from '../components/dialogs/confirmDialog';
-import { useTicketById } from '../components/hooks/useTicketById.js';
+//import { useTicketById } from '../components/hooks/useTicketById.js';
 
 
 import {
@@ -55,7 +55,7 @@ export default function EditTicket() {
   const { setLoading } = useLoading();
   const navigate = useNavigate();
   const { ticketId } = useParams();
-  const [localTicket, setLocalTicket] = useState(null);
+  //const [localTicket, setLocalTicket] = useState(null);
   //const ticket = useTicketById(ticketId);
   
 

@@ -49,5 +49,6 @@ export function useWorkTimer({ ticketData, agentEmail, status, enabled }) {
       sendWorkTime();
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ticketData?.id]); // ← Solo cambia si cambia de ticket
 }
