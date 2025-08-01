@@ -56,11 +56,13 @@ export function SignalRProvider({ children }) {
 
       //evento ticket actualizado
       connection.on('ticketUpdated', (ticket) => {
-        if (ticket.agent_assigned === user?.username || ticket.assigned_department === department) {
+
+        //if (ticket.agent_assigned === user?.username || ticket.assigned_department === department) {
+          
           console.log('own ticket actualizado:', ticket);
           dispatch({ type: 'UPD_TICKET', payload: ticket });
           onTicketUpdated?.(ticket);
-        }
+        //}
       });
 
       //evento ticket actualizado por canal (no funcional)

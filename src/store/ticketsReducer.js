@@ -60,29 +60,30 @@ export const ticketReducer = (state, action) => {
 
 
    case 'UPD_TICKET': {
-    const { id } = action.payload;
-    let changed = false;
 
-    //console.log('ticket del backend:', action.payload);
-    const nextTickets = state.tickets.map(t => {
-      if (t.id !== id) return t;
+      const { id } = action.payload;
+      let changed = false;
 
-      const merged = { ...t, ...action.payload };
+      //console.log('ticket del backend:', action.payload);
+      const nextTickets = state.tickets.map(t => {
+        if (t.id !== id) return t;
 
-      // Si NO vino en el payload, lo eliminamos manualmente
-      if (!('linked_patient_snapshot' in action.payload)) {
-        delete merged.linked_patient_snapshot;
-      }
+        const merged = { ...t, ...action.payload };
 
-      //console.log('ticket actualizado:', merged);
-      if (shallowEqual(t, merged)) return t;
-      changed = true;
-      return merged;
-    });
+        // Si NO vino en el payload, lo eliminamos manualmente
+        if (!('linked_patient_snapshot' in action.payload)) {
+          delete merged.linked_patient_snapshot;
+        }
 
-    if (!changed) return state;
-    return { ...state, tickets: nextTickets };
-  }
+        //console.log('ticket actualizado:', merged);
+        if (shallowEqual(t, merged)) return t;
+        changed = true;
+        return merged;
+      });
+
+      if (!changed) return state;
+      return { ...state, tickets: nextTickets };
+    }
 
 
 
