@@ -10,7 +10,7 @@ import * as Yup from 'yup';
 
 import ProfilePic from '../components/components/profilePic';
 import DepartmentSelect from '../components/auxiliars/departmentSelect';
-import RolSelect from '../components/components/rolSelect';
+import RolSelect from '../components/components/fields/rolSelect';
 import AlertSnackbar from '../components/auxiliars/alertSnackbar';
 
 import { useLoading } from '../providers/loadingProvider';
