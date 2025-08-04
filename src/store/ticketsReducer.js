@@ -14,33 +14,7 @@ export const initialState = {
 export const ticketReducer = (state, action) => {
   switch (action.type) {
 
-    case 'SET_STATS':
-      return {
-        ...state,
-        statistics: action.payload,
-        error: null,
-      };
-
-    case 'SET_HISTORICAL_STATS':
-      return {
-        ...state,
-        historical_statistics: action.payload,
-        error: null,
-      };
-
-    case 'SET_CLOSED_TICKETS':
-      return {
-        ...state,
-        closedTickets_statistics: action.payload,
-        error: null,
-      };
-
-  case 'SET_HISTORICAL_CLOSED_TICKETS':
-      return {
-        ...state,
-        closedHistoricalTickets_statistics: action.payload,
-        error: null,
-      };
+    
 
     case 'SET_TICKETS':
       return {
@@ -49,17 +23,17 @@ export const ticketReducer = (state, action) => {
         error: null,
       };
 
-    /*case 'ADD_TICKET':
-      const exists = state.tickets.some(t => t.id === action.payload.id);
-      if (exists) return state; // No duplicar
+    case 'ADD_TICKET':
+        const exists = state.tickets.some(t => t.id === action.payload.id);
+        if (exists) return state; // No duplicar
 
-      return {
-        ...state,
-        tickets: [action.payload, ...state.tickets],
-      };*/
+        return {
+          ...state,
+          tickets: [action.payload, ...state.tickets],
+        };
 
 
-   case 'UPD_TICKET': {
+    case 'UPD_TICKET': {
 
       const { id } = action.payload;
       let changed = false;
@@ -116,12 +90,6 @@ export const ticketReducer = (state, action) => {
       };
 
     
-    case 'SET_A_ERROR':
-      return {
-        ...state,
-        error: action.payload,
-      };
-
     case 'ASSIGN_AGENT':
       return {
     ...state,
@@ -134,7 +102,7 @@ export const ticketReducer = (state, action) => {
 
 
 
-    case 'SET_ASSIGNMENT_ERROR':
+   /*case 'SET_ASSIGNMENT_ERROR':
       return {
         ...state,
         error: action.payload,
@@ -248,7 +216,7 @@ export const ticketReducer = (state, action) => {
         ...state,
         updated_action: action.payload,
         error: null,
-      };
+      };*/
 
     default:
       return state;

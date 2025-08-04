@@ -7,6 +7,34 @@ export const initialDailyStatsState = {
 
 export const dailyStatsReducer = (state, action) => {
   switch (action.type) {
+    case 'SET_STATS':
+      return {
+        ...state,
+        statistics: action.payload,
+        error: null,
+      };
+
+    case 'SET_HISTORICAL_STATS':
+      return {
+        ...state,
+        historical_statistics: action.payload,
+        error: null,
+      };
+
+    case 'SET_CLOSED_TICKETS':
+      return {
+        ...state,
+        closedTickets_statistics: action.payload,
+        error: null,
+      };
+
+  case 'SET_HISTORICAL_CLOSED_TICKETS':
+      return {
+        ...state,
+        closedHistoricalTickets_statistics: action.payload,
+        error: null,
+      };
+
     case 'SET_DAILY_STATS':
       return {
         ...state,
@@ -14,8 +42,7 @@ export const dailyStatsReducer = (state, action) => {
         error: null,
       };
 
-      case 'SET_HISTORIC_DAILY_STATS':
-        console.log(action.payload)
+    case 'SET_HISTORIC_DAILY_STATS':
       return {
         ...state,
         historic_daily_stats: action.payload,
