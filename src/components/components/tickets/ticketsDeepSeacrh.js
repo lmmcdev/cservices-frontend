@@ -1,5 +1,8 @@
+// SearchTicketDeep.jsx
 import React, { useState, useCallback, useEffect } from 'react';
-import { Box, Typography, TextField, Chip, MenuItem } from '@mui/material';
+import {
+  Box, Typography, TextField, Chip, MenuItem
+} from '@mui/material';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import GroupIcon from '@mui/icons-material/Group';
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
@@ -8,6 +11,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 import { searchTickets } from '../../../utils/apiTickets';
 import { useAgents } from '../../../context/agentsContext';
@@ -15,6 +19,8 @@ import CallerIDAutoComplete from '../../auxiliars/callerIDAutocomplete';
 import CollaboratorAutoComplete from '../../auxiliars/collaboratorAutocomplete';
 import SearchTicketResults from './searchTicketsResults';
 import SearchButton from '../../auxiliars/searchButton';
+
+dayjs.extend(customParseFormat);
 
 const PAGE_SIZE = 50;
 
@@ -29,33 +35,57 @@ const defaultStatusOptions = [
 ];
 
 const defaultLocationOptions = [
-  'Bird Road',
-  'East Hialeah',
-  'Hollywood',
-  'Homestead',
-  'Miami 27th Ave',
-  'Pembroke Pines',
-  'Plantation',
-  'Tamarac',
-  'West Hialeah',
-  'West Kendall',
-  'Cutler Ridge',
-  'Hialeah',
-  'Hiatus',
-  'Marlins Park',
-  'Miami Gardens',
-  'North Miami Beach',
-  'West Palm Beach',
-  'Westchester',
-  'OTC',
-  'Pharmacy',
-  'Referrals'
+  'Bird Road','East Hialeah','Hollywood','Homestead','Miami 27th Ave',
+  'Pembroke Pines','Plantation','Tamarac','West Hialeah','West Kendall',
+  'Cutler Ridge','Hialeah','Hiatus','Marlins Park','Miami Gardens',
+  'North Miami Beach','West Palm Beach','Westchester','OTC','Pharmacy','Referrals'
 ];
 
 const controlTextFieldSx = {
   '& .MuiInputBase-root': { height: 40 },
   '& .MuiOutlinedInput-input': { padding: '8px 14px' }
 };
+
+// -------------------- DOB helpers --------------------
+const normalizeDob = (val) => {
+  if (!val) return null;
+  const s = String(val).trim();
+  const invalids = new Set([
+    '1901-01-01','01-01-1901','01/01/1901','N/A','NA','null','undefined',''
+  ]);
+  if (invalids.has(s)) return null;
+
+  // 1) intenta parse "libre" (ISO usually)
+  let d = dayjs(s);
+  if (d.isValid()) return d.format('MMM D, YYYY');
+
+  // 2) intenta formatos comunes
+  const FORMATS = [
+    'MM/DD/YYYY','M/D/YYYY',
+    'MM-DD-YYYY','M-D-YYYY',
+    'DD/MM/YYYY','D/M/YYYY',
+    'DD-MM-YYYY','D-M-YYYY',
+    'YYYY-MM-DD','YYYY/MM/DD',
+    'MMM D, YYYY','D MMM YYYY'
+  ];
+  for (const f of FORMATS) {
+    d = dayjs(s, f, true);
+    if (d.isValid()) return d.format('MMM D, YYYY');
+  }
+
+  // 3) deja el string crudo si parece válido
+  return s;
+};
+
+const pickDob = (t) =>
+  t?.displayDob ||
+  t?.patient_dob || t?.patientDOB || t?.DOB || t?.dob ||
+  t?.patient_date_of_birth || t?.date_of_birth || t?.Date_of_Birth || t?.Patient_DOB ||
+  t?.patient?.DOB || t?.patient?.dob ||
+  t?.linked_patient_snapshot?.DOB || t?.linked_patient_snapshot?.Dob ||
+  t?.linked_patient_snapshot?.dob || t?.linked_patient_snapshot?.date_of_birth ||
+  null;
+// ----------------------------------------------------
 
 const SearchTicketDeep = ({
   queryPlaceholder = '',
@@ -100,12 +130,47 @@ const SearchTicketDeep = ({
       const query = inputValue.trim() ? inputValue : '*';
       setLoading(true);
       try {
-        const body = { query, page: pageNumber, size: PAGE_SIZE, ...(filter ? { filter } : {}) };
+        const body = {
+          query,
+          page: pageNumber,
+          size: PAGE_SIZE,
+          // Pide explícitamente campos usados por el card
+          select: [
+            'id',
+            'patient_name',
+            'patient_dob',
+            'patientDOB',
+            'DOB',
+            'dob',
+            'patient_date_of_birth',
+            'date_of_birth',
+            'status',
+            'assigned_department',
+            'caller_id',
+            'call_reason',
+            'summary',
+            'creation_date',
+            'agent_assigned',
+            'phone',
+            'email',
+            'linked_patient_snapshot'
+          ],
+          ...(filter ? { filter } : {})
+        };
+
         const res = await searchTickets(body);
-        const data = res?.message?.value || [];
+        const raw = res?.message?.value || [];
+
+        // Normaliza y agrega displayDob
+        const data = raw.map((item) => ({
+          ...item,
+          displayDob: normalizeDob(pickDob(item)),
+        }));
+
         if (pageNumber === 1) setResults(data);
-        else setResults(prev => [...prev, ...data]);
-        setHasMore(data.length === PAGE_SIZE);
+        else setResults((prev) => [...prev, ...data]);
+
+        setHasMore(raw.length === PAGE_SIZE);
       } catch (e) {
         console.error('Error in deep search:', e);
       } finally {
@@ -158,9 +223,7 @@ const SearchTicketDeep = ({
               size="small"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSearch();
-              }}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(); }}
               placeholder={queryPlaceholder}
               sx={controlTextFieldSx}
             />
@@ -189,12 +252,7 @@ const SearchTicketDeep = ({
               {(activeFilters.includes('location') || activeFilters.includes('agent')) && (
                 <Box sx={{ display: 'flex', gap: 2, width: '100%', flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
                   {activeFilters.includes('location') && (
-                    <Box
-                      sx={{
-                        flex: 1,
-                        '& .MuiAutocomplete-root': { width: '100% !important' }
-                      }}
-                    >
+                    <Box sx={{ flex: 1, '& .MuiAutocomplete-root': { width: '100% !important' } }}>
                       <CallerIDAutoComplete
                         label="Location"
                         options={locationOptions}
@@ -204,12 +262,7 @@ const SearchTicketDeep = ({
                     </Box>
                   )}
                   {activeFilters.includes('agent') && (
-                    <Box
-                      sx={{
-                        flex: 1,
-                        '& .MuiAutocomplete-root': { width: '100% !important' }
-                      }}
-                    >
+                    <Box sx={{ flex: 1, '& .MuiAutocomplete-root': { width: '100% !important' } }}>
                       <CollaboratorAutoComplete
                         agents={agents}
                         selectedEmails={selectedAgents}
@@ -261,9 +314,7 @@ const SearchTicketDeep = ({
                   onClick={() => toggleFilter(option.value)}
                   label={
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                      {React.cloneElement(option.icon, {
-                        sx: { fontSize: 18, color: isActive ? '#00A1FF' : '#666' },
-                      })}
+                      {React.cloneElement(option.icon, { sx: { fontSize: 18, color: isActive ? '#00A1FF' : '#666' } })}
                       <span style={{ position: 'relative', top: '1px' }}>{option.label}</span>
                     </Box>
                   }
@@ -279,9 +330,7 @@ const SearchTicketDeep = ({
                       backgroundColor: '#DFF3FF',
                       borderColor: '#00A1FF',
                       color: '#00A1FF',
-                      '& svg': {
-                        color: '#00A1FF',
-                      },
+                      '& svg': { color: '#00A1FF' },
                     },
                   }}
                 />
@@ -295,10 +344,7 @@ const SearchTicketDeep = ({
           loading={loading}
           inputValue={inputValue}
           hasMore={hasMore}
-          loadMore={() => {
-            const nextPage = page + 1;
-            setPage(nextPage);
-          }}
+          loadMore={() => { const nextPage = page + 1; setPage(nextPage); }}
         />
       </Box>
     </LocalizationProvider>
