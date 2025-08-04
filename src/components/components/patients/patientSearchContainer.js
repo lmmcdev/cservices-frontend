@@ -3,14 +3,7 @@ import React, { useState } from 'react';
 import SearchPatientDeepContainer from './patientsDeepSeacrh';
 
 const PatientSearchContainer = ({onSelectFunc}) => {
- const [selectedPatient, setSelectedPatient] = useState(null);
-
-  const onSelect = (patient) => {
-    console.log('Selected patient:', patient);
-    setSelectedPatient(patient);
-    //setOpenConfirmDialog(true);
-  };
-
+ const [selectedPatient, ] = useState(null);
 
   return (
     <div>

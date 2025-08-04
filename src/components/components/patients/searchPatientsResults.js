@@ -1,9 +1,8 @@
 import React from 'react';
 import {
-  Box, Card, Typography, CircularProgress,
-  Dialog, DialogTitle, DialogContent, IconButton, List, ListItem, Tooltip
+  Box, Card, Typography, CircularProgress, Tooltip
 } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+//import CloseIcon from '@mui/icons-material/Close';
 import { flags } from '../../auxiliars/icons';
 //import FemaleIcon from '@mui/icons-material/Female';
 //import MaleIcon from '@mui/icons-material/Male';
@@ -58,12 +57,7 @@ const SearchPatientResults = ({
   loading,
   inputValue,
   lastElementRef,
-  dialogOpen,
-  selectedPatient,
-  tickets,
-  ticketsLoading,
   onPatientClick,
-  onCloseDialog
 }) => {
   
   return (
@@ -241,6 +235,8 @@ const SearchPatientResults = ({
         )}
       </Box>
 
+        {/**
+         * 
       <Dialog open={dialogOpen} onClose={onCloseDialog} fullWidth maxWidth="md">
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           Tickets for {selectedPatient?.Name || 'Patient'}
@@ -273,6 +269,8 @@ const SearchPatientResults = ({
           )}
         </DialogContent>
       </Dialog>
+      
+         */}
     </>
   );
 };
