@@ -6,7 +6,7 @@ import {
   Typography,
   Box
 } from '@mui/material';
-import CenterSelect from '../components/centerSelect';
+import CenterSelect from '../components/fields/centerSelect';
 import ActionButtons from '../auxiliars/actionButtons';
 import { Shuffle } from 'phosphor-react';
 

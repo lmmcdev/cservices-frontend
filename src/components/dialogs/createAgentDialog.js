@@ -10,7 +10,7 @@ import * as Yup from 'yup';
 import DepartmentSelect from '../auxiliars/departmentSelect';
 import { useGraphEmailCheck } from '../../utils/useGraphEmailCheck';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import RolSelect from '../components/rolSelect';
+import RolSelect from '../components/fields/rolSelect';
 
 const validationSchema = Yup.object({
   agentName: Yup.string().required('Display name is required'),

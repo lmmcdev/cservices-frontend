@@ -13,7 +13,7 @@ import { ticketReducer, initialState } from '../../store/ticketsReducer';
 import AlertSnackbar from '../auxiliars/alertSnackbar';
 import { useFilters } from '../../context/filterContext';
 import { useAgents } from '../../context/agentsContext';
-import SearchBar from '../searchBar';
+import SearchBar from '../components/fields/searchBar';
 
 export default function Topbar({ agent }) {
   const { state } = useAgents();

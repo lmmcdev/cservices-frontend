@@ -10,9 +10,9 @@ import {
   Button,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import TicketQuickViewDialog from './dialogs/ticketQuickViewDialog';
-import { getStatusColor } from '../utils/js/statusColors';
-import usePaginatedTickets from './hooks/usePaginatedTickets';
+import TicketQuickViewDialog from '../dialogs/ticketQuickViewDialog';
+import { getStatusColor } from '../../utils/js/statusColors';
+import usePaginatedTickets from '../hooks/usePaginatedTickets';
 
 export default function RightDrawer({
   open,

@@ -10,8 +10,8 @@ import {
   LabelList,
 } from 'recharts';
 import { Card, CardContent, Box, Typography } from '@mui/material';
-import { useDailyStatsState } from '../context/dailyStatsContext';
-import { useHistoricalStats } from '../context/historicalStatsContext';
+import { useDailyStatsState } from '../../../context/dailyStatsContext';
+import { useHistoricalStats } from '../../../context/historicalStatsContext';
 
 // Animaciones CSS para tooltip
 const animations = `
