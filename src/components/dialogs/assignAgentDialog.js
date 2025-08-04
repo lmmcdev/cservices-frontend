@@ -7,13 +7,12 @@ import { assignAgent, changeStatus } from "../../utils/apiTickets";
 import ProfilePic from "../components/profilePic";
 import { icons } from '../auxiliars/icons';
 
-const AssignAgentModal = ({ open, onClose, ticket, agentEmail, dispatch, setLoading, onAssign }) => {
+const AssignAgentModal = ({ open, onClose, ticket, agentEmail, dispatch, setLoading }) => {
   const handleAssign = async () => {
     try {
       const result = await assignAgent(dispatch, setLoading, ticket.id, agentEmail, agentEmail);
       if (result.success) {
         await changeStatus(dispatch, setLoading, ticket.id, agentEmail,'In Progress') //cambiar status a in progress
-        onAssign(); // para refrescar datos en el padre
         onClose();
       }
       

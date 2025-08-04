@@ -47,9 +47,6 @@ export default function TableTickets() {
     setPage(0);
   }, [selectedStatus]);
 
-  const handleAssignAgent = (ticketId, agentEmail) => {
-    console.log("Asignar", agentEmail, "al ticket", ticketId);
-  };
 
   const validTickets = Array.isArray(state.tickets) ? state.tickets : [];
   const filteredRows = validTickets.filter((row) => {
@@ -319,7 +316,6 @@ export default function TableTickets() {
           agentEmail={user.username}
           dispatch={dispatch}
           setLoading={setLoading}
-          onAssign={handleAssignAgent}
         />
       )}
     </>
