@@ -5,7 +5,7 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import ProviderListContainer from '../components/providers/providerList';
-import SearchPatientDeepContainer from '../components/patients/patientsDeepSeacrh';
+import SearchPatientDeepContainer from '../components/patients/patientsDeepSearch';
 
 const RelateTicketModal = ({ open, onClose, onSelect, relateTicketAction, handleAllActions }) => {
   const [tab, setTab] = useState(0);

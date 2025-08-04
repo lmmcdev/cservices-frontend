@@ -14,6 +14,8 @@ import AlertSnackbar from '../auxiliars/alertSnackbar';
 import { useFilters } from '../../context/filterContext';
 import { useAgents } from '../../context/agentsContext';
 import SearchBar from '../searchBar';
+import DialerModal from '../auxiliars/dialerModal';
+import DialpadIcon from '@mui/icons-material/Dialpad';
 
 export default function Topbar({ agent }) {
   const { state } = useAgents();
@@ -21,7 +23,8 @@ export default function Topbar({ agent }) {
   const { setLoading } = useLoading();
   const [, dispatch] = useReducer(ticketReducer, initialState);
   const [open, setOpen] = useState(false);
-  const [activeUI, setActiveUI] = useState('filters'); // 'filters' | 'search' | null
+  const [dialerOpen, setDialerOpen] = useState(false);
+  const [activeUI, setActiveUI] = useState('filters');
 
   const [errorOpen, setErrorOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
@@ -90,7 +93,6 @@ export default function Topbar({ agent }) {
           </Typography>
 
           <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-            {/* Filtros */}
             <Fade in={activeUI === 'filters'} timeout={300} unmountOnExit>
               <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
                 <TextField
@@ -128,7 +130,6 @@ export default function Topbar({ agent }) {
               </Stack>
             </Fade>
 
-            {/* Search Bar */}
             <Fade in={activeUI === 'search'} timeout={300} unmountOnExit>
               <Stack direction="row" alignItems="center" spacing={1}>
                 <SearchBar
@@ -138,7 +139,6 @@ export default function Topbar({ agent }) {
               </Stack>
             </Fade>
 
-            {/* Botón de búsqueda */}
             <Tooltip title="Search">
               <IconButton
                 onClick={toggleSearchBar}
@@ -152,20 +152,27 @@ export default function Topbar({ agent }) {
               </IconButton>
             </Tooltip>
 
-            {/* Botón para ocultar filtros */}
             <Tooltip title="Show/Hide Filters">
               <IconButton onClick={toggleFilters} sx={{ '&:hover': { backgroundColor: 'transparent' } }}>
                 {activeUI === 'filters' ? <icons.filterOn fontSize="small" /> : <icons.filterOff fontSize="small" />}
               </IconButton>
             </Tooltip>
 
-            {/* Otros botones */}
             <Tooltip title="Add Case">
               <IconButton
                 onClick={() => setOpen(true)}
                 sx={{ padding: 0, height: 26, width: 36, '&:hover': { backgroundColor: 'transparent' } }}
               >
                 <icons.addCase style={{ fontSize: '17px' }} />
+              </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Open dialer">
+              <IconButton
+                onClick={() => setDialerOpen(true)}
+                sx={{ padding: 0, height: 26, width: 36, color: '#00a1ff', '&:hover': { backgroundColor: 'transparent' } }}
+              >
+                <DialpadIcon style={{ fontSize: '20px' }} />
               </IconButton>
             </Tooltip>
           </Stack>
@@ -178,6 +185,8 @@ export default function Topbar({ agent }) {
         handleOnSubmit={handleSubmit}
         agentEmail={agent}
       />
+
+      <DialerModal open={dialerOpen} onClose={() => setDialerOpen(false)} />
 
       <AlertSnackbar open={errorOpen} onClose={() => setErrorOpen(false)} severity="error" message={errorMessage} />
       <AlertSnackbar open={successOpen} onClose={() => setSuccessOpen(false)} severity="success" message={successMessage} />
