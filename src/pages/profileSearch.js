@@ -15,21 +15,16 @@ import {
   IconButton
 } from '@mui/material';
 import { Icon } from '@iconify/react';
-//import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
-//import ApartmentIcon from '@mui/icons-material/Apartment';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
-//import LocalPharmacyIcon from '@mui/icons-material/LocalPharmacy';
-//import SecurityIcon from '@mui/icons-material/Security';
-//import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 import ProviderList from '../components/components/providers/providerList';
 import ProviderEditForm from './editProvider';
 import { handleUpdateProvider } from '../utils/js/providerActions';
 import { useLoading } from '../providers/loadingProvider';
 import AlertSnackbar from '../components/auxiliars/alertSnackbar';
-//import PatientList from '../components/patientList';
-import SearchPatientDeep from '../components/components/patients/patientsDeepSeacrh';
 import SearchTicketDeep from '../components/components/tickets/ticketsDeepSeacrh';
-//import { useMemo } from 'react';
+import PatientSearchContainer from '../components/components/patients/patientSearchContainer';
+import { handleGetTicketsByPatient } from '../utils/js/patientsActions';
+import TicketListUI from '../components/components/tickets/ticketListUI';
 
 const mockData = [];
 
@@ -60,8 +55,9 @@ export default function ProfileSearch() {
   const isSmall = useMediaQuery('(max-width:900px)');
   const [selectedView, setSelectedView] = useState('profile'); 
   const [selectedProvider, setSelectedProvider] = useState(null);
-  //const [selectedPatient, setSelectedPatient] = useState(null);
+  const [, setSelectedPatient] = useState(null);
   const { setLoading } = useLoading();
+  const [patientTickets, setPatientTickets] = useState([]);
 
   const [errorOpen, setErrorOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
@@ -100,6 +96,28 @@ export default function ProfileSearch() {
   
   };
 
+  const setSelectedPatientFunc = async (patient) => {
+    const tickets = await handleGetTicketsByPatient({
+      setLoading,
+      dataPatient: patient,
+      setSuccessMessage,
+      setErrorMessage,
+      setSuccessOpen,
+      setErrorOpen
+    });
+
+    if(tickets.success) {
+      console.log('Tickets for patient:', tickets.message?.message.items || []);
+      setPatientTickets(tickets.message?.message.items || []);
+      setSelectedPatient(patient);
+      setSelectedView('patients-search');
+      //console.log('Tickets for patient:', tickets.message);
+    }
+    
+    //setPatientTickets(tickets.message?.items);
+    //setSelected(patient);
+    //setSelectedView('profile');
+  }
 
   return (
     <>
@@ -297,7 +315,7 @@ export default function ProfileSearch() {
           */}
           {selectedView === 'patients-search' && (
             <>
-              <SearchPatientDeep />
+              <PatientSearchContainer onSelectFunc={setSelectedPatientFunc} />
             </>
           )}
 
@@ -314,17 +332,7 @@ export default function ProfileSearch() {
 
         {/* Right panel */}
         <Box sx={{ flexGrow: 1, p: 4, overflowY: 'auto' }}>
-          {selectedView === 'profile' && (
-            selected ? (
-              <>
-                
-              </>
-            ) : (
-              <Typography color="#5B5F7B">
-                Select a patient to view details.
-              </Typography>
-            )
-          )}
+         
 
           {selectedView === 'providers' && (
             selectedProvider ? (
@@ -332,6 +340,28 @@ export default function ProfileSearch() {
                 initialData={selectedProvider}
                 onSubmit={async (updatedValues, providerID) => {
                   await updateProviderUI(updatedValues, providerID)
+                }}
+              />
+            ) : (
+              <Typography color="#5B5F7B">
+                Select a provider from the left panel.
+              </Typography>
+            )
+          )}
+
+          {selectedView === 'patients-search' && (
+            patientTickets.length > 0 ? (
+              <TicketListUI
+                tickets={patientTickets}
+              />
+            ) : (
+              <Typography color="#5B5F7B">
+                Select a patient from the left panel.
+              </Typography>
+            )
+          )}
+
+          {/**
                 }}
               />
             ) : (
@@ -372,153 +402,3 @@ export default function ProfileSearch() {
   );
 
 }
-
-/**const mockData = [
-  { 
-    id: 1, 
-    name: 'Sofia Vergara', 
-    type: 'patient', 
-    phone: '555-1234', 
-    dob: '1943-02-15', 
-    starred: true,
-    callCount: 20,
-    cases: [
-      { id: 'c1', title: 'Diabetes Follow-up', date: '2023-01-10' },
-      { id: 'c2', title: 'Blood Pressure Check', date: '2023-06-22' }
-    ],
-    notes: 'Prefers morning appointments.'
-  },
-  {
-    id: 2,
-    name: 'Lionel Messi',
-    type: 'patient',
-    phone: '555-5678',
-    dob: '1939-11-03',
-    starred: false,
-    callCount: 5,
-    cases: [
-      { id: 'c3', title: 'Knee Pain Consultation', date: '2024-02-19' }
-    ],
-    notes: ''
-  },
-  {
-    id: 3,
-    name: 'Donald Trump',
-    type: 'patient',
-    phone: '555-2468',
-    dob: '1985-07-12',
-    starred: true,
-    callCount: 18,
-    cases: [
-      { id: 'c4', title: 'Annual Physical', date: '2024-05-05' },
-      { id: 'c5', title: 'Allergy Testing', date: '2024-06-15' }
-    ],
-    notes: 'Has peanut allergy.'
-  },
-  {
-    id: 4,
-    name: 'Dr. Javier Reyna',
-    type: 'doctorsOffice',
-    phone: '555-3333',
-    dob: '',
-    starred: true,
-    callCount: 2,
-    cases: [],
-    notes: 'Cardiologist'
-  },
-  {
-    id: 5,
-    name: 'CVS Pharmacy',
-    type: 'pharmacy',
-    phone: '555-0001',
-    dob: '',
-    starred: true,
-    callCount: 0,
-    cases: [],
-    notes: ''
-  },
-  {
-    id: 6,
-    name: 'HealthSun',
-    type: 'insurance',
-    phone: '555-9999',
-    dob: '',
-    starred: false,
-    callCount: 0,
-    cases: [],
-    notes: ''
-  },
-  {
-    id: 7,
-    name: 'Kendall Regional',
-    type: 'hospital',
-    phone: '555-7777',
-    dob: '',
-    starred: false,
-    callCount: 0,
-    cases: [],
-    notes: ''
-  },
-  {
-    id: 8,
-    name: 'La Colonia Medical Center',
-    type: 'competitor',
-    phone: '555-8888',
-    dob: '',
-    starred: false,
-    callCount: 0,
-    cases: [],
-    notes: ''
-  }
-];
-
-const typeAvatars = {
-  patient: '👤',
-  doctorsOffice: '🩺',
-  pharmacy: '💊',
-  insurance: '🛡️',
-  hospital: '🏥',
-  competitor: '🏪'
-};
-
-const avatarColors = {
-  patient: '#eae8fa',
-  doctorsOffice: '#dff3ff',
-  pharmacy: '#ffe2ea',
-  insurance: '#daf8f4',
-  hospital: '#fff5da',
-  competitor: '#ffe3c4',
-  default: '#f1f5ff'
-}; 
- * 
- * 
- * 
- * 
- * lineas 244 a 254
- * <Typography fontSize={13} fontWeight="bold" color="#5B5F7B" mb={1}>
-            CATEGORIES
-          </Typography>
- * <List>
-            {[
-              { label: 'Patient', icon: AssignmentIndIcon },
-              { label: "Doctor's Office", icon: MedicalServicesIcon },
-              { label: 'Pharmacy', icon: LocalPharmacyIcon },
-              { label: 'Insurance', icon: SecurityIcon },
-              { label: 'Hospital', icon: LocalHospitalIcon },
-              { label: 'Competitors', icon: ApartmentIcon }
-            ].map(({ label, icon: Icon }) => (
-              <ListItemButton
-                key={label}
-                selected={filter === label}
-                onClick={() => {
-                  setFilter(label);
-                  setSelectedView('profile');
-                }}
-                sx={{ borderRadius: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 1.2 }}
-              >
-                <ListItemIcon sx={{ minWidth: 'auto', mr: 0 }}><Icon fontSize="small" /></ListItemIcon>
-                <ListItemText primary={label} />
-              </ListItemButton>
-            ))}
-          </List>
- */

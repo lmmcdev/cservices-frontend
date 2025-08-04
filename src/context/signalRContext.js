@@ -16,14 +16,17 @@ export function SignalRProvider({ children }) {
   const fetchStats = useFetchStatistics();
   const fetchDoneStats = useDoneFetchStatistics();
   //const { department, accessTokenMSAL } = useAuth();
-  const { department, } = useAuth();
+  const { department, user } = useAuth();
 
   //console.log(department)
   const initializeSignalR = async ({ onTicketCreated, onTicketUpdated }) => {
+  
     if (connectionRef.current) return;
 
     try {
-      const res = await fetch('https://signalrcservices.azurewebsites.net/api/negotiate');
+      const res = await fetch(`https://signalrcservices.azurewebsites.net/api/negotiate?userId=${user?.username}`,
+        
+      );
       if (!res.ok) throw new Error('Failed to fetch negotiate info');
 
       const { url, accessToken } = await res.json();
@@ -35,6 +38,14 @@ export function SignalRProvider({ children }) {
         .withAutomaticReconnect()
         .build();
 
+
+      await connection.start();
+      console.log('✅ SignalR conectado');
+
+      // 4. Unirse a grupos específicos (vía método expuesto en el servidor)
+      //await connection.invoke('JoinGroup', `${user?.username}`);
+      //await connection.invoke('JoinGroup', `department:${department}`);
+      console.log('📌 Suscrito a grupos del agente y departamento');
       //evento ticket creado
       connection.on('ticketCreated', (ticket) => {
         if (ticket.assigned_department === department) {
@@ -45,9 +56,20 @@ export function SignalRProvider({ children }) {
 
       //evento ticket actualizado
       connection.on('ticketUpdated', (ticket) => {
-          console.log('Ticket updated:', ticket);
+
+        //if (ticket.agent_assigned === user?.username || ticket.assigned_department === department) {
+          
+          console.log('own ticket actualizado:', ticket);
           dispatch({ type: 'UPD_TICKET', payload: ticket });
           onTicketUpdated?.(ticket);
+        //}
+      });
+
+      //evento ticket actualizado por canal (no funcional)
+      connection.on('ticketUpdatedAgent', (ticket) => {
+        console.log('agent channel:', ticket);
+          //dispatch({ type: 'UPD_TICKET', payload: ticket });
+          //onTicketUpdated?.(ticket);
       });
 
       //evento disparador estadisticas
@@ -65,8 +87,7 @@ export function SignalRProvider({ children }) {
       })
 
      
-      await connection.start();
-      console.log('✅ SignalR conectado');
+      
       connectionRef.current = connection;       
 
     } catch (err) {
@@ -74,24 +95,9 @@ export function SignalRProvider({ children }) {
     }
   };
 
-  const lockTicket = async ({ ticketId, agent }) => {
-    try {
-      await connectionRef.current?.invoke('LockTicket', { ticketId, agent });
-    } catch (err) {
-      console.error(`❌ Error bloqueando ticket ${ticketId}:`, err);
-    }
-  };
-
-  const unlockTicket = async ({ ticketId }) => {
-    try {
-      await connectionRef.current?.invoke('UnlockTicket', { ticketId });
-    } catch (err) {
-      console.error(`❌ Error desbloqueando ticket ${ticketId}:`, err);
-    }
-  };
 
   return (
-    <SignalRContext.Provider value={{ initializeSignalR, lockTicket, unlockTicket }}>
+    <SignalRContext.Provider value={{ initializeSignalR }}>
       {children}
     </SignalRContext.Provider>
   );
