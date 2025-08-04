@@ -14,8 +14,17 @@ import { TicketIndicators } from '../ticketIndicators';
 export default function TicketQuickViewDialog({ open, onClose, ticket }) {
   if (!ticket) return null;
 
-  //const ai_data = ticket?.aiClassification;
-  console.log(ticket)
+  let ai_data = ticket?.aiClassification || {};
+  // convert ai_data to json if it's a string
+  if (typeof ai_data === 'string') {
+    try {
+      ai_data = JSON.parse(ai_data);
+    } catch (error) {
+      console.error('Error parsing AI classification data:', error);
+      return null;
+    }
+  }
+
   return (
     <Dialog
       open={open}
@@ -77,7 +86,7 @@ export default function TicketQuickViewDialog({ open, onClose, ticket }) {
                     >
                       Ticket AI Classification
                     </Typography>
-                    <TicketIndicators ai_data={ticket.aiClassification} columnLayout />
+                    <TicketIndicators ai_data={ai_data} columnLayout />
                   </Card>
                 </Grid>
               </>
