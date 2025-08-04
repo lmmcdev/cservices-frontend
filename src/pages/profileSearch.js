@@ -21,10 +21,11 @@ import ProviderEditForm from './editProvider';
 import { handleUpdateProvider } from '../utils/js/providerActions';
 import { useLoading } from '../providers/loadingProvider';
 import AlertSnackbar from '../components/auxiliars/alertSnackbar';
-import SearchTicketDeep from '../components/components/tickets/ticketsDeepSeacrh';
 import PatientSearchContainer from '../components/components/patients/patientSearchContainer';
 import { handleGetTicketsByPatient } from '../utils/js/patientsActions';
 import TicketListUI from '../components/components/tickets/ticketListUI';
+import TicketSearchContainer from '../components/components/tickets/ticketSearchContainer';
+import TicketQuickViewDialog from '../components/dialogs/ticketQuickViewDialog';
 
 const mockData = [];
 
@@ -63,9 +64,20 @@ export default function ProfileSearch() {
   const [successOpen, setSuccessOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [quickViewTicket, setQuickViewTicket] = useState(null);
   
-  
-  
+  const [openQuickView, setOpenQuickView] = useState(false);
+
+  const handleQuickViewClose = () => {
+    setOpenQuickView(false);
+    setQuickViewTicket(null);
+  };
+
+  const handleQuickViewOpen = (ticket) => {
+    setQuickViewTicket(ticket);
+    setOpenQuickView(true);
+  };
+
   const applyFilters = data =>
     data.filter(p => {
       const q = query.toLowerCase();
@@ -95,6 +107,13 @@ export default function ProfileSearch() {
     await handleUpdateProvider({setLoading, dataProvider, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
   
   };
+  const setSelectedTicketFunc = async (ticket) => {
+    handleQuickViewOpen(ticket);
+    //console.log('Selected ticket:', ticket);
+    
+    setSelectedView('tickets-search');
+    //setSelectedTicket(ticket);
+  }
 
   const setSelectedPatientFunc = async (patient) => {
     const tickets = await handleGetTicketsByPatient({
@@ -320,7 +339,7 @@ export default function ProfileSearch() {
           )}
 
           {selectedView === 'tickets-search' && (
-            <SearchTicketDeep />
+            <TicketSearchContainer onSelectFunc={setSelectedTicketFunc} />
           )}
         </Box>
 
@@ -398,7 +417,16 @@ export default function ProfileSearch() {
             severity="success"
             message={successMessage}
           />
+
+
+          <TicketQuickViewDialog
+            open={openQuickView}
+            onClose={handleQuickViewClose}
+            ticket={quickViewTicket}
+          />
           </>
+
+
   );
 
 }

@@ -88,6 +88,7 @@ const pickDob = (t) =>
 // ----------------------------------------------------
 
 const SearchTicketDeep = ({
+  onSelect, selectedTicketFunc,
   queryPlaceholder = '',
   statusOptions = defaultStatusOptions,
   locationOptions = defaultLocationOptions
@@ -345,6 +346,8 @@ const SearchTicketDeep = ({
           inputValue={inputValue}
           hasMore={hasMore}
           loadMore={() => { const nextPage = page + 1; setPage(nextPage); }}
+          selectedTicket={onSelect}
+          
         />
       </Box>
     </LocalizationProvider>

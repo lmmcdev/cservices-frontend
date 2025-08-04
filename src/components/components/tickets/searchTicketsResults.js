@@ -103,7 +103,7 @@ const statusColors = {
 const getStatusStyle = (status) => statusColors[status] || statusColors.New;
 
 // -------------------- Component --------------------
-const SearchTicketResults = ({ results, loading, inputValue, hasMore, loadMore }) => {
+const SearchTicketResults = ({ results, loading, inputValue, hasMore, loadMore, selectedTicket }) => {
   const observerRef = useRef(null);
 
   const lastElementRef = useCallback(
@@ -172,6 +172,7 @@ const SearchTicketResults = ({ results, loading, inputValue, hasMore, loadMore }
                 outlineOffset: '2px',
               },
             }}
+            onClick={() => selectedTicket(ticket)}
           >
             {/* marcador redondo con status */}
             <Box sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
