@@ -107,8 +107,7 @@ export default function ProfileSearch() {
     });
 
     if(tickets.success) {
-      console.log('Tickets for patient:', tickets.message?.message.items || []);
-      setPatientTickets(tickets.message?.message.items || []);
+      setPatientTickets(tickets.message?.items || []);
       setSelectedPatient(patient);
       setSelectedView('patients-search');
       //console.log('Tickets for patient:', tickets.message);
@@ -119,6 +118,7 @@ export default function ProfileSearch() {
     //setSelectedView('profile');
   }
 
+  console.log('renderizing component ProfileSearch');
   return (
     <>
     <Card
