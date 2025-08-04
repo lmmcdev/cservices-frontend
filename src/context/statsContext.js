@@ -1,11 +1,11 @@
 import React, { createContext, useReducer, useContext } from 'react';
-import { ticketReducer, initialState } from '../store/ticketsReducer';
+import { dailyStatsReducer, initialDailyStatsState } from '../store/statsReducer';
 import { getStats } from '../utils/apiStats';
 
 const StatsContext = createContext();
 
 export const StatsProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(ticketReducer, initialState);
+  const [state, dispatch] = useReducer(dailyStatsReducer, initialDailyStatsState);
 
   const fetchStatistics = async (accessToken, date) => {
     try {

@@ -10,10 +10,10 @@ import {
 } from '../context/historicalStatsContext';
 import { useHistoricalDoneFetchStatistics } from '../context/doneHistoricalTicketsContext';
 
-import RightDrawer from '../components/rightDrawer';
+import RightDrawer from '../components/includes/rightDrawer.js';
 import { HistoricalTopAgents } from '../components/topAgentsSection';
-import { HistoricalCallsByHour } from '../components/callsByHourChart';
-import { HistoricalTicketRiskChart } from '../components/ticketsRiskChart';
+import { HistoricalCallsByHour } from '../components/components/charts/callsByHourChart';
+import { HistoricalTicketRiskChart } from '../components/components/charts/ticketsRiskChart.jsx';
 import { HistoricalTicketCategoriesChart } from '../components/ticketsCategoriesChart';
 import { HistoricalTicketPriorityChart } from '../components/ticketsPriorityChart';
 import ActiveAgents from '../components/activeAgents.jsx';
@@ -28,7 +28,7 @@ import { useLocation } from 'react-router-dom';
 
 const HistoricStatistics = () => {
   const { accounts, instance } = useMsal();
-  const { state } = useHistoricalStats();
+  const { stateStats } = useHistoricalStats();
   const fetchAllHistoricalStats = useFetchAllHistoricalStatistics();
   const fetchHistoricalDoneTickets = useHistoricalDoneFetchStatistics();
 
@@ -99,7 +99,7 @@ useEffect(() => {
   setDrawerOpen(true);
 };
 
-  const statistics = state.historical_statistics || {};
+  const statistics = stateStats.historical_statistics || {};
 
   return (
     <>

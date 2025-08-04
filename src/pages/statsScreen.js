@@ -6,13 +6,13 @@ import {
   Box,
   Grid,
 } from '@mui/material';
-import RightDrawer from '../components/rightDrawer';
+import RightDrawer from '../components/includes/rightDrawer.js';
 
-import { DailyCallsByHour } from '../components/callsByHourChart';
+import { DailyCallsByHour } from '../components/components/charts/callsByHourChart';
 import ActiveAgents from '../components/activeAgents.jsx';
 import CustomerSatisfaction from '../components/customerSatisfaction.jsx';
 import { getTicketsByStatus, getTicketsByIds } from '../utils/apiStats';
-import { DailyTicketRiskChart } from '../components/ticketsRiskChart.jsx';
+import { DailyTicketRiskChart } from '../components/components/charts/ticketsRiskChart.jsx';
 import { DailyTopAgents } from '../components/topAgentsSection';
 import { DailyTicketCategoriesChart } from '../components/ticketsCategoriesChart.jsx';
 import { DailyTicketPriorityChart } from '../components/ticketsPriorityChart.jsx';

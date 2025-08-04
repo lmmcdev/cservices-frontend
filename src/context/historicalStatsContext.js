@@ -1,5 +1,4 @@
 import React, { createContext, useReducer, useContext } from 'react';
-import { ticketReducer, initialState } from '../store/ticketsReducer';
 import { dailyStatsReducer, initialDailyStatsState } from '../store/statsReducer';
 import { getStats, getDailyStats } from '../utils/apiStats';
 import { useLoading } from '../providers/loadingProvider';
@@ -7,7 +6,6 @@ import { useLoading } from '../providers/loadingProvider';
 const HistoricalStatsContext = createContext();
 
 export const HistoricalStatsProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(ticketReducer, initialState);
   const [stateStats, dispatchStats ] = useReducer(dailyStatsReducer, initialDailyStatsState);
   const { setLoading } = useLoading();
 
@@ -16,7 +14,7 @@ export const HistoricalStatsProvider = ({ children }) => {
     try {
       const res = await getStats(accessToken, date);
       if (res.success) {
-        dispatch({ type: 'SET_HISTORICAL_STATS', payload: res.message });
+        dispatchStats({ type: 'SET_HISTORICAL_STATS', payload: res.message });
       } else {
         console.error('Error fetching historical stats:', res.message);
       }
@@ -53,9 +51,8 @@ export const HistoricalStatsProvider = ({ children }) => {
   return (
     <HistoricalStatsContext.Provider
       value={{
-        state,
         stateStats,
-        dispatch,
+        dispatchStats,
         fetchHistoricalStatistics,
         fetchDailyStatistics,
         fetchAllHistoricalStats, // 👈 exporta la nueva
