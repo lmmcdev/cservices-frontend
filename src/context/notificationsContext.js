@@ -25,7 +25,7 @@ export function NotificationProvider({ children }) {
       {children}
       <Snackbar
         open={notification.open}
-        autoHideDuration={5000}
+        autoHideDuration={25000}
         onClose={handleClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       >
