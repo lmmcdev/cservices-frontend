@@ -7,7 +7,7 @@ import {
   DialogContent,
   Typography
 } from '@mui/material';
-import CollaboratorAutoComplete from '../auxiliars/collaboratorAutocomplete';
+import CollaboratorAutoComplete from '../components/fields/collaboratorAutocomplete';
 import ActionButtons from '../auxiliars/actionButtons';
 import { icons } from '../auxiliars/icons';
 

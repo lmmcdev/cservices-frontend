@@ -15,8 +15,8 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 
 import { searchTickets } from '../../../utils/apiTickets';
 import { useAgents } from '../../../context/agentsContext';
-import CallerIDAutoComplete from '../../auxiliars/callerIDAutocomplete';
-import CollaboratorAutoComplete from '../../auxiliars/collaboratorAutocomplete';
+import CallerIDAutoComplete from '../fields/callerIDAutocomplete';
+import CollaboratorAutoComplete from '../fields/collaboratorAutocomplete';
 import SearchTicketResults from './searchTicketsResults';
 import SearchButton from '../../auxiliars/searchButton';
 

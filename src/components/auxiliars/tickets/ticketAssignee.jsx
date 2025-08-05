@@ -9,7 +9,7 @@ import {
   Avatar,
   Stack
 } from '@mui/material';
-import { getUserPhotoByEmail } from '../utils/graphHelper';
+import { getUserPhotoByEmail } from '../../../utils/graphHelper';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHandHoldingHand } from '@fortawesome/free-solid-svg-icons';
 import { faShuffle } from '@fortawesome/free-solid-svg-icons';

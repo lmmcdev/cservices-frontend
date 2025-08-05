@@ -3,7 +3,7 @@ import {
   Dialog, DialogTitle, DialogContent, Typography, Stack,
   MenuItem, Box, Divider, TextField
 } from '@mui/material';
-import DepartmentSelect from '../auxiliars/departmentSelect';
+import DepartmentSelect from '../components/fields/departmentSelect';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import ActionButtons from '../auxiliars/actionButtons';

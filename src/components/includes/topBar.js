@@ -3,8 +3,8 @@ import {
   Card, CardContent, Typography, TextField, IconButton,
   Tooltip, Stack, Fade
 } from '@mui/material';
-import CollaboratorAutoComplete from '../auxiliars/collaboratorAutocomplete';
-import CallerIDAutoComplete from '../auxiliars/callerIDAutocomplete';
+import CollaboratorAutoComplete from '../components/fields/collaboratorAutocomplete';
+import CallerIDAutoComplete from '../components/fields/callerIDAutocomplete';
 import { icons } from '../auxiliars/icons';
 import CreateTicketDialog from '../dialogs/createTicketDialog';
 import { createNewTicket } from '../../utils/apiTickets';
@@ -14,7 +14,7 @@ import AlertSnackbar from '../auxiliars/alertSnackbar';
 import { useFilters } from '../../context/filterContext';
 import { useAgents } from '../../context/agentsContext';
 import SearchBar from '../components/fields/searchBar';
-import DialerModal from '../auxiliars/dialerModal';
+import DialerModal from '../dialogs/dialerModal';
 import DialpadIcon from '@mui/icons-material/Dialpad';
 
 export default function Topbar({ agent }) {

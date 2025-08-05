@@ -18,7 +18,7 @@ import PauseCircleFilledIcon from '@mui/icons-material/PauseCircleFilled';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DownloadIcon from '@mui/icons-material/Download';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import AudioVisualizer from './auxiliars/audioVisualizer'; // Ajusta la ruta si está en otra carpeta
+import AudioVisualizer from './audioVisualizer'; // Ajusta la ruta si está en otra carpeta
 
 const statusColors = {
   New: { bg: '#FFE2EA', text: '#FF6692' },
