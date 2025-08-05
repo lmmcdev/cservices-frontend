@@ -17,6 +17,21 @@ import { registerForPushNotifications } from './utils/js/registerPush';
 
 import './App.css';
 
+
+// Lazy-loaded pages
+const TableTickets = lazy(() => import('./pages/tableTickets'));
+const EditTicket = lazy(() => import('./pages/editTicket'));
+const TableAgents = lazy(() => import('./pages/tableAgents'));
+const EditAgent = lazy(() => import('./pages/editAgent'));
+const AuthErrorScreen = lazy(() => import('./pages/authErrorScreen'));
+const UnknownAgentNotice = lazy(() => import('./pages/unknownAgentNotice'));
+const StatsScreen = lazy(() => import('./pages/statsScreen'));
+//const HistoricalStats = lazy(() => import ('./pages/historicalStatsScreen'));
+const ProfileSearch = lazy(() => import('./pages/profileSearch'));
+const SearchPatientDeep = lazy(() => import('./components/components/patients/patientsDeepSeacrh'));
+const SearchTicketDeep = lazy(() => import('./components/components/tickets/ticketsDeepSeacrh'))
+
+
 function AppContent() {
   const { showNotification } = useNotification();
   const { initializeSignalR } = useSignalR();

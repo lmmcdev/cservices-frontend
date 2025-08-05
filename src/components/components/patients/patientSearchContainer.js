@@ -1,6 +1,6 @@
 //generate new react component
 import React, { useState } from 'react';
-import SearchPatientDeepContainer from './patientsDeepSeacrh';
+import SearchPatientDeepContainer from './patientsDeepSearch';
 
 const PatientSearchContainer = ({onSelectFunc}) => {
  const [selectedPatient, ] = useState(null);

@@ -4,10 +4,8 @@ import {
 } from '@mui/material';
 //import CloseIcon from '@mui/icons-material/Close';
 import { flags } from '../../auxiliars/icons';
-//import FemaleIcon from '@mui/icons-material/Female';
-//import MaleIcon from '@mui/icons-material/Male';
-//import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import CakeIcon from '@mui/icons-material/Cake';
+import PhoneCallLink from '../phoneCallLink';
 
 const getLanguageCode = (languageString) => {
   if (!languageString) return null;
@@ -212,13 +210,28 @@ const SearchPatientResults = ({
                   </Typography>
                 </Box>
     
-                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.3, display: 'block' }}>
-                  {patient.Email && (
-                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.3, display: 'block' }}>
-                      {patient.Email.toLowerCase()}
-                    </Typography>
-                  )}
-                </Typography>
+                {patient.Email && (
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 0.3, display: 'block' }}>
+                    {patient.Email.toLowerCase()}
+                  </Typography>
+                )}
+
+                {patient.Contact_Information && (
+                  <Box sx={{ mt: 0.3 }}>
+                    <PhoneCallLink
+                      phoneRaw={patient.Contact_Information}
+                      contactName={patient.Name || 'this patient'}
+                      underline="always"
+                      color="#6c757d"
+                      fontSize="0.75rem"
+                      withIcon={true}
+                      sx={{
+                        textDecoration: 'underline',
+                        textUnderlineOffset: '2px',
+                      }}
+                    />
+                  </Box>
+                )}
               </Box>
             </Card>
           );
