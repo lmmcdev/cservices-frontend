@@ -1,5 +1,5 @@
 import React from 'react';
-import { IconButton, Tooltip, useTheme } from '@mui/material';
+import { IconButton, Tooltip } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useMsal } from '@azure/msal-react';
 
@@ -26,7 +26,7 @@ const LogoutButton = ({
   redirectUri = '/',        // URI a la que redirigir tras cerrar sesión
   tooltip = 'Sign out'      // Texto de acceso rápido al pasar el cursor
 }) => {
-  const theme = useTheme();
+  
   const { instance } = useMsal();
 
   const handleLogout = () => {

@@ -151,7 +151,7 @@ export default function CollapsibleDrawer() {
               gap: open ? 0 : 1,
             }}
           >
-<LogoutButton />
+            <LogoutButton />
           </Box>
                 
 
