@@ -3,16 +3,17 @@ import { Box, Typography, Button } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
+import LoginButton from '../components/components/fields/loginAzureButton';
 
 const AuthErrorScreen = ({ errorMessage, onRetry }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (user) {
       navigate('/dashboard', { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate]);*/
   
   return (
     <Box
@@ -34,12 +35,12 @@ const AuthErrorScreen = ({ errorMessage, onRetry }) => {
       <Typography variant="body1" sx={{ mb: 3 }}>
         {errorMessage || 'There is a problem in your end, please check if your browser allows popups.'}
       </Typography>
-      <Button variant="contained" color="primary" onClick={onRetry} sx={{mb:5}}>
-        Retry sign in
+      
+      <Button variant="contained" color="primary" sx={{mb: 5}} onClick={() => navigate('/dashboard', { replace: true })}>
+        Try to re-enter
       </Button>
-      <Button variant="contained" color="primary" onClick={() => navigate('/dashboard', { replace: true })}>
-        Try to enter
-      </Button>
+      <LoginButton />
+      
     </Box>
   );
 };

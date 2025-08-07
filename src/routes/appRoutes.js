@@ -60,12 +60,14 @@ export default function AppRoutes({ agentEmail, filters, setFilters, authError, 
             } />
           </Route>
 
-          <Route element={<MinimalCenteredLayout />}>
+          
+        </Route>
+        <Route element={<MinimalCenteredLayout />}>
             <Route path="/auth-error" element={<AuthErrorScreen errorMessage={authError} onRetry={login} />} />
             <Route path="/unknown-agent" element={<UnknownAgentNotice userEmail={user?.username} onRetry={() => window.location.reload()} />} />
           </Route>
-        </Route>
         <Route path="*" element={<NotFound404 />} />
+        
       </Routes>
     </Suspense>
   );
