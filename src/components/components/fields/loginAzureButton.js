@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMsal } from '@azure/msal-react';
 import { msalConfig } from "../../../utils/azureAuth";
-import { Box, Typography, Button } from '@mui/material';
+import { Button } from '@mui/material';
 
 
 const LoginButton = () => {
