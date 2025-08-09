@@ -10,7 +10,7 @@ import {
   Button
 } from '@mui/material';
 
-import { getStatusColor } from '../utils/js/statusColors';
+import { getStatusColor } from '../../../utils/js/statusColors';
 
 const TicketStatusBar = ({ currentStatus, onStatusChange }) => {
   const [pendingStatus, setPendingStatus] = useState(null);

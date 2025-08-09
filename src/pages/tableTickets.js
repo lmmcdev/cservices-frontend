@@ -29,7 +29,7 @@ import StatusFilterBoxes from '../components/statusFilterBoxes';
 import { SortAscending, SortDescending } from 'phosphor-react';
 import { getStatusColor } from '../utils/js/statusColors.js';
 import SuspenseFallback from '../components/auxiliars/suspenseFallback.js';
-import { TicketIndicators } from '../components/ticketIndicators';
+import { TicketIndicators } from '../components/auxiliars/tickets/ticketIndicators.jsx';
 
 export default function TableTickets() {
   const { filters } = useFilters();
@@ -257,7 +257,7 @@ export default function TableTickets() {
                                     color: '#fff',
                                   },
                                 }}
-                                onClick={() => navigate(`/tickets/edit/${row.id}`)}
+                                onClick={() => navigate(`/tickets/edit/${row.id}`, { state: { row }})}
                               >
                                 <icons.edit sx={{ fontSize: 16 }} />
                               </Box>

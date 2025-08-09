@@ -16,7 +16,7 @@ import { LoadingProvider } from '../providers/loadingProvider';
 // ...otros imports lazy
 // Lazy-loaded pages
 const TableTickets = lazy(() => import('../pages/tableTickets'));
-const EditTicket = lazy(() => import('../pages/editTicket'));
+const EditTicket = lazy(() => import('../pages/editTicketLocal'));
 const TableAgents = lazy(() => import('../pages/tableAgents'));
 const EditAgent = lazy(() => import('../pages/editAgent'));
 const AuthErrorScreen = lazy(() => import('../pages/authErrorScreen'));
