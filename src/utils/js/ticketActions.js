@@ -30,7 +30,7 @@ export async function handleAddNoteHandler({ dispatch, setLoading, ticketId, age
   const newNote = [{
     agent_email: agentEmail,
     event_type: 'user_note',
-    content: noteContent.trim(),
+    event: noteContent.trim(),
     datetime: new Date().toISOString()
   }];
   const result = await addNotes(dispatch, setLoading, ticketId, agentEmail, newNote);
