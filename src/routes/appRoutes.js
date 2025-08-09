@@ -16,7 +16,7 @@ import { LoadingProvider } from '../providers/loadingProvider';
 // ...otros imports lazy
 // Lazy-loaded pages
 const TableTickets = lazy(() => import('../pages/tableTickets'));
-const EditTicket = lazy(() => import('../pages/editTicket'));
+const EditTicket = lazy(() => import('../pages/editTicketLocal'));
 const TableAgents = lazy(() => import('../pages/tableAgents'));
 const EditAgent = lazy(() => import('../pages/editAgent'));
 const AuthErrorScreen = lazy(() => import('../pages/authErrorScreen'));
@@ -60,12 +60,14 @@ export default function AppRoutes({ agentEmail, filters, setFilters, authError, 
             } />
           </Route>
 
-          <Route element={<MinimalCenteredLayout />}>
+          
+        </Route>
+        <Route element={<MinimalCenteredLayout />}>
             <Route path="/auth-error" element={<AuthErrorScreen errorMessage={authError} onRetry={login} />} />
             <Route path="/unknown-agent" element={<UnknownAgentNotice userEmail={user?.username} onRetry={() => window.location.reload()} />} />
           </Route>
-        </Route>
         <Route path="*" element={<NotFound404 />} />
+        
       </Routes>
     </Suspense>
   );

@@ -9,7 +9,7 @@ import {
   Grid, Card
 } from '@mui/material';
 import ActionButtons from '../auxiliars/actionButtons';
-import { TicketIndicators } from '../ticketIndicators';
+import { TicketIndicators } from '../auxiliars/tickets/ticketIndicators';
 
 export default function TicketQuickViewDialog({ open, onClose, ticket }) {
   if (!ticket) return null;

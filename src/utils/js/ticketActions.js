@@ -44,6 +44,9 @@ export async function handleAddNoteHandler({ dispatch, setLoading, ticketId, age
     setErrorMessage(result.message);
     setErrorOpen(true);
   }
+
+  console.log(result)
+  return result;
 }
 
 export async function handleRemoveCollaboratorHandler({ dispatch, setLoading, ticketId, agentEmail, collaborators, emailToRemove, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen, setEditField }) {
@@ -56,7 +59,8 @@ export async function handleRemoveCollaboratorHandler({ dispatch, setLoading, ti
     setErrorMessage(result.message);
     setErrorOpen(true);
   }
-  //setEditField(null);
+  //console.log('Updated collaborators:', updated);
+  return updated;
 }
 
 export async function handleChangeDepartmentHandler({ dispatch, setLoading, ticketId, agentEmail, newDept, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen, setEditField }) {
@@ -69,6 +73,8 @@ export async function handleChangeDepartmentHandler({ dispatch, setLoading, tick
     setErrorMessage(result.message);
     setErrorOpen(true);
   }
+
+  return result;
   //setEditField(null);
 }
 
@@ -155,6 +161,8 @@ export async function updateCollaboratorsHandler({ dispatch, setLoading, ticketI
         setErrorMessage(result.message);
         setErrorOpen(true);
     }
+
+    return updated;
   //setEditField(null);
 }
 
@@ -167,13 +175,15 @@ export async function updateAssigneeHandler({ dispatch, setLoading, ticketId, ag
         setErrorMessage(result.message);
         setErrorOpen(true);
     }
+
+    console.log(result)
+    return result;
   //setEditField(null);
 }
 
 export const relateTicketHandler = async ({dispatch, setLoading, ticketId, agentEmail, action, ticketPhone, patientId, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen}) => {
-  console.log(ticketId, agentEmail)
-  const result = await relateTicketsByPhone(dispatch, setLoading, ticketId, agentEmail, action, ticketPhone, patientId, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen)
   
+  const result = await relateTicketsByPhone(dispatch, setLoading, ticketId, agentEmail, action, ticketPhone, patientId, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen)
   if (result.success) {
         setSuccessMessage(result.message);
         setSuccessOpen(true);
@@ -181,4 +191,7 @@ export const relateTicketHandler = async ({dispatch, setLoading, ticketId, agent
         setErrorMessage(result.message);
         setErrorOpen(true);
     }
+
+  console.log('Relate ticket result:', result?.updated_ticket);
+    return result;
 };

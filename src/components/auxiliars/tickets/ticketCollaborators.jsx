@@ -1,16 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Card,
-  CardContent,
-  Typography,
-  Box,
-  Avatar,
-  Stack,
-  IconButton,
-  Tooltip
+  Card, CardContent, Typography, Box, Avatar, Stack, IconButton, Tooltip
 } from '@mui/material';
-import { getUserPhotoByEmail } from '../utils/graphHelper'; // asegúrate del nombre correcto del archivo
-import { icons } from './auxiliars/icons';
+import { getUserPhotoByEmail } from '../../../utils/graphHelper';
+import { icons } from '../icons';
 import { Icon } from '@iconify/react';
 
 const statusColors = {
@@ -22,6 +15,14 @@ const statusColors = {
   Duplicated: { bg: '#FFE3C4', text: '#FF8A00' },
 };
 
+function shallowEqual(a, b) {
+  const aK = Object.keys(a);
+  const bK = Object.keys(b);
+  if (aK.length !== bK.length) return false;
+  for (const k of aK) if (a[k] !== b[k]) return false;
+  return true;
+}
+
 export default function TicketCollaborators({
   collaborators = [],
   onAddCollaborator,
@@ -30,24 +31,54 @@ export default function TicketCollaborators({
 }) {
   const [photoUrls, setPhotoUrls] = useState({});
 
+  // Lista estable y limpia de correos
+  const cleanCollaborators = useMemo(
+    () => collaborators
+      .filter(Boolean)
+      .map(e => e.trim())
+      .filter(Boolean),
+    [collaborators]
+  );
+
   useEffect(() => {
+    let cancelled = false;
+
     const fetchPhotos = async () => {
-      const results = {};
-      await Promise.all(
-        collaborators.map(async (email) => {
+      if (cleanCollaborators.length === 0) {
+        if (!shallowEqual(photoUrls, {})) setPhotoUrls({});
+        return;
+      }
+
+      const entries = await Promise.all(
+        cleanCollaborators.map(async (email) => {
           try {
             const url = await getUserPhotoByEmail(email);
-            if (url) results[email] = url;
-          } catch (err) {
-            console.warn(`No se pudo cargar la foto de ${email}:`, err.message);
+            return [email, url || ''];
+          } catch {
+            return [email, ''];
           }
         })
       );
-      setPhotoUrls(results);
+
+      if (cancelled) return;
+
+      // construye el nuevo mapa solo con los que tengan algún valor (o vacío controlado)
+      const next = entries.reduce((acc, [email, url]) => {
+        if (url) acc[email] = url;
+        return acc;
+      }, {});
+
+      if (!shallowEqual(photoUrls, next)) {
+        setPhotoUrls(next);
+      }
     };
 
-    if (collaborators.length > 0) fetchPhotos();
-  }, [collaborators]);
+    fetchPhotos();
+
+    return () => { cancelled = true; };
+    // importante: dependemos de la lista limpia y del estado actual para comparar
+    // eslint-disable-next-line
+  }, [cleanCollaborators]); // no incluyas photoUrls para no re-disparar innecesariamente
 
   return (
     <Card variant="outlined" sx={{ height: '100%' }}>
@@ -56,9 +87,7 @@ export default function TicketCollaborators({
           <Box display="flex" alignItems="center">
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Box sx={{
-                width: 8,
-                height: 24,
-                borderRadius: 10,
+                width: 8, height: 24, borderRadius: 10,
                 backgroundColor: statusColors[status]?.text || '#00a1ff'
               }} />
               <Typography variant="h6" sx={{ fontWeight: 'bold', color: statusColors[status]?.text || '#00a1ff' }}>
@@ -75,11 +104,11 @@ export default function TicketCollaborators({
           )}
         </Box>
 
-        {collaborators.length === 0 ? (
+        {cleanCollaborators.length === 0 ? (
           <Typography variant="body2" color="text.secondary">No collaborators.</Typography>
         ) : (
           <Stack spacing={1}>
-            {collaborators.map((email, index) => {
+            {cleanCollaborators.map((email) => {
               const name = email.replace(/@.*$/, '').replace('.', ' ');
               const formattedName = name
                 .split(' ')
@@ -87,28 +116,16 @@ export default function TicketCollaborators({
                 .join(' ');
 
               return (
-                <Box
-                  key={index}
-                  display="flex"
-                  alignItems="center"
-                  justifyContent="space-between"
-                >
+                <Box key={email} display="flex" alignItems="center" justifyContent="space-between">
                   <Box display="flex" alignItems="center" gap={1}>
-                    <Avatar
-                      src={photoUrls[email]}
-                      alt={formattedName}
-                      sx={{ width: 40, height: 40 }}
-                    >
+                    <Avatar src={photoUrls[email]} alt={formattedName} sx={{ width: 40, height: 40 }}>
                       {formattedName.charAt(0)}
                     </Avatar>
                     <Typography variant="body2">{formattedName}</Typography>
                   </Box>
                   {onRemoveCollaborator && (
                     <Tooltip title="Remove collaborator">
-                      <IconButton
-                        size="small"
-                        onClick={() => onRemoveCollaborator(email)}
-                      >
+                      <IconButton size="small" onClick={() => onRemoveCollaborator(email)}>
                         <Icon icon="solar:trash-bin-trash-bold-duotone" width="20" height="20" style={{ color: '#555' }} />
                       </IconButton>
                     </Tooltip>

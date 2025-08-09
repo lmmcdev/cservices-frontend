@@ -117,7 +117,7 @@ export const addNotes = async (dispatch, setLoading, ticketId, currentAgentEmail
       throw new Error(data.message || 'Error updating notes');
     }
 
-    return { success: true, message: data.message || 'Updated successfully' };
+    return { success: true, message: data.message || 'Updated successfully', ticket: data.ticket || null };
   } catch (err) {
     const message = err.message || 'Something went wrong';
     dispatch({ type: 'SET_PATIENT_NAME_ERROR', payload: message });
@@ -168,7 +168,7 @@ export const updateTicketDepartment = async (dispatch, setLoading, ticketId, cur
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        ticketId: ticketId,
+        tickets: ticketId,
         agent_email: currentAgentEmail,
         newDepartment: newDepartment,
       }),
@@ -434,7 +434,8 @@ export const relateTicketsByPhone = async (dispatch, setLoading, ticket_id, agen
    return {
       success: true,
       message: data.message || `Action ${action} completed successfully.`,
-      updated_ticket_ids: data.updated_ticket_ids || []
+      updated_ticket_ids: data.updated_ticket_ids || [],
+      updated_ticket: data.updatedTicket || null
     };
 
   } catch (err) {

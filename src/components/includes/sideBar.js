@@ -16,6 +16,7 @@ import SettingsDialog from '../dialogs/settingsDialog';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAgents } from '../../context/agentsContext';
 import { useAuth } from '../../context/authContext';
+import LogoutButton from '../components/fields/logoutAzureButton';
 
 const drawerWidthOpen = 200;
 const drawerWidthClosed = 80;
@@ -137,6 +138,22 @@ export default function CollapsibleDrawer() {
           </List>
 
           <Box sx={{ flexGrow: 1 }} />
+          <Box
+            sx={{
+              width: '100%',
+              display: 'flex',
+              flexDirection: open ? 'row' : 'column',
+              alignItems: 'center',
+              justifyContent: open ? 'space-between' : 'center',
+              px: open ? 2 : 0,
+              pb: 2,
+              pt: 0.2,
+              gap: open ? 0 : 1,
+            }}
+          >
+            <LogoutButton />
+          </Box>
+                
 
           <Divider
             sx={{
@@ -187,6 +204,7 @@ export default function CollapsibleDrawer() {
                 >
                   <icons.collapseRight />
                 </IconButton>
+
 
                 <Tooltip title="Open settings">
                   <Box

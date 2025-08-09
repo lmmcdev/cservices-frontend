@@ -58,6 +58,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await msalInstance.acquireTokenSilent({ ...loginRequest, account });
       setAccessToken(response.accessToken); // ← guarda el token
+      console.log('all msal data', response)
       return response;
     } catch (error) {
       if (error instanceof InteractionRequiredAuthError) {
