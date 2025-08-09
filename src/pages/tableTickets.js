@@ -20,6 +20,7 @@ import {
   IconButton,
   Tooltip
 } from '@mui/material';
+import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import AssignAgentModal from '../components/dialogs/assignAgentDialog';
 import { icons } from '../components/auxiliars/icons.js';
 import { useNavigate } from 'react-router-dom';
@@ -231,7 +232,27 @@ export default function TableTickets() {
                         <TicketIndicators ai_data={row.aiClassification} showTooltip iconsOnly />
                       </TableCell>
                       <TableCell>{row.caller_id}</TableCell>
-                      <TableCell>{row.patient_name}</TableCell>
+                      <TableCell>
+                        {row.linked_patient_snapshot?.Name ? (
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <Tooltip title="Ver perfil de paciente">
+                              <IconButton
+                                size="small"
+                                color="success"
+                                onClick={() => {
+                                  // Aquí puedes abrir un modal, navegar, etc.
+                                  // Ejemplo: navigate(`/patients/${row.linked_patient_snapshot.Id}`)
+                                }}
+                              >
+                                <InsertLinkIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                            {row.linked_patient_snapshot.Name}
+                          </Box>
+                        ) : (
+                          row.patient_name
+                        )}
+                      </TableCell>
                       <TableCell>{row.patient_dob}</TableCell>
                       <TableCell>{row.phone ? formatPhone(row.phone) : 'N/A'}</TableCell>
                       <TableCell>{row.creation_date}</TableCell>
