@@ -1,19 +1,19 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { useNavigate } from 'react-router-dom';
-//import { useAuth } from '../context/authContext';
+import { useAuth } from '../context/authContext';
 import LoginButton from '../components/components/fields/loginAzureButton';
 
 const AuthErrorScreen = ({ errorMessage, onRetry }) => {
   const navigate = useNavigate();
-  //const { user } = useAuth();
+  const { user } = useAuth();
 
-  /*useEffect(() => {
+  useEffect(() => {
     if (user) {
       navigate('/dashboard', { replace: true });
     }
-  }, [user, navigate]);*/
+  }, [user, navigate]);
   
   return (
     <Box
