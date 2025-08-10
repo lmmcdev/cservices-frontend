@@ -14,10 +14,13 @@ import { useNotification } from './context/notificationsContext';
 import MsalProviderWrapper from './providers/msalProvider';
 import { useInitAppData } from './components/hooks/useInitAppData';
 import { registerForPushNotifications } from './utils/js/registerPush';
+import { setupFetchAuth } from './setupFetchAuth';
+
 
 import './App.css';
 
 function AppContent() {
+  setupFetchAuth();
   const { showNotification } = useNotification();
   const { initializeSignalR } = useSignalR();
   const { user, authError, login, authLoaded } = useAuth();
