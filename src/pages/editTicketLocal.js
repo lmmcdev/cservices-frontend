@@ -111,8 +111,7 @@ export default function EditTicketLocal() {
     }
   }, [ticket]);
 
-  
-  
+ 
   /** ========= Callbacks ESTABLES para diálogos y acciones pequeñas ========= */
   const openNoteDialogCb = useCallback(() => setOpenNoteDialog(true), []);
   const closeNoteDialogCb = useCallback(() => setOpenNoteDialog(false), []);
@@ -134,10 +133,10 @@ export default function EditTicketLocal() {
   const {
   handleStatusChangeUI, handleAddNote, onAddCollaboratorCb, handleRemoveCollaborator, handleChangeDepartment, updatePatientNameUI, updatePatientDobUI, updateCallbackNumberUI, ticketAssigneeUI,
   handleCenterHandlerUI, handleRelateCurrentTicket, handleRelateAllPastTickets, handleRelateFutureTickets, handleUnlinkTicket,
-} = useEditTicketLocalActions({
-  dispatch, setLoading, ticketId, agentEmail, navigate, setStatus, setNotes, setNoteContent, setOpenNoteDialog, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
-  collaborators, setCollaborators, setEditField, setAgentAssigned, setLinkedPatientSnapshot, noteContent,
-});
+  } = useEditTicketLocalActions({
+    dispatch, setLoading, ticketId, agentEmail, navigate, setStatus, setNotes, setNoteContent, setOpenNoteDialog, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
+    collaborators, setCollaborators, setEditField, setAgentAssigned, setLinkedPatientSnapshot, noteContent,
+  });
 
   const {
     handleAddCollaboratorClick, handleModalTicket, showActions, handleRelateAllActions, closeEditTicket, onChangeCenterCb, onReassignAgentCb, onAgentSelectorAddCb,
@@ -145,6 +144,11 @@ export default function EditTicketLocal() {
     ticket, relateTicketAction, pendingPatient, setAgentDialogOpen, setRelateTicketAction, setOpenRelateModal, setPendingPatient, setOpenConfirmDialog, navigate, handleRelateCurrentTicket, 
     handleRelateAllPastTickets, handleRelateFutureTickets, handleCenterHandlerUI, ticketAssigneeUI, onAddCollaboratorCb,
   });
+
+  const onRelateCurrent = useCallback(() => handleModalTicket('relateCurrent'), [handleModalTicket]);
+  const onRelatePast    = useCallback(() => handleModalTicket('relateAllPast'), [handleModalTicket]);
+  const onRelateFuture  = useCallback(() => handleModalTicket('relateFuture'),   [handleModalTicket]);
+
 
 
   /** ========= Props/valores MEMO para pasar a hijos ========= */
@@ -274,9 +278,9 @@ export default function EditTicketLocal() {
 
                       <TicketLinkOptions
                         ticket={ticket}
-                        onRelateCurrentTicket={() => handleModalTicket('relateCurrent')}
-                        onRelateAllPastTickets={() => handleModalTicket('relateAllPast')}
-                        onRelateFutureTickets={() => handleModalTicket('relateFuture')}
+                        onRelateCurrentTicket={onRelateCurrent}
+                        onRelateAllPastTickets={onRelatePast}
+                        onRelateFutureTickets={onRelateFuture}
                         onUnlinkTicket={handleUnlinkTicket}
                         handleAllActions={handleRelateAllActions}
                       />

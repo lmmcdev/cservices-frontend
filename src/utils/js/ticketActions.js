@@ -20,9 +20,13 @@ export async function handleStatusChange({ dispatch, setLoading, ticketId, agent
     setStatus(newStatus);
     setSuccessOpen(true);
   } else {
-    setErrorMessage(result.message);
+    const error = result.details || result.message || 'Error updating status';
+    console.log('Status change error:', result);
+    setErrorMessage(error);
     setErrorOpen(true);
   }
+
+  return result;
 }
 
 export async function handleAddNoteHandler({ dispatch, setLoading, ticketId, agentEmail, noteContent, setNotes, setNoteContent, setOpenNoteDialog, setSuccessMessage, setSuccessOpen, setErrorMessage, setErrorOpen }) {

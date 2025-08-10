@@ -59,7 +59,7 @@ export function SignalRProvider({ children }) {
 
         //if (ticket.agent_assigned === user?.username || ticket.assigned_department === department) {
           
-          console.log('own ticket actualizado:', ticket);
+          //console.log('own ticket actualizado:', ticket);
           dispatch({ type: 'UPD_TICKET', payload: ticket });
           onTicketUpdated?.(ticket);
         //}

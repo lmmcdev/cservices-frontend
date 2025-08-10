@@ -13,27 +13,26 @@ import {
   handleCenterHandler,
   relateTicketHandler,
 } from '../../utils/js/ticketActions';
+import setIfChanged from '../../utils/js/state';
 
-/**
- * Extrae SOLO las funciones/handlers, conservando tu lógica actual.
- * No introduce runAction ni cambios de UX.
- */
 export function useEditTicketLocalActions({
-  // deps obligatorios
   dispatch, setLoading, ticketId, agentEmail, navigate,
-  // setters de UI/snackbars/estados que ya usas
   setStatus, setNotes, setNoteContent, setOpenNoteDialog,
   setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
   collaborators, setCollaborators, setEditField, setAgentAssigned,
   setLinkedPatientSnapshot,
-  // datos puntuales
   noteContent,
 }) {
   const handleStatusChangeUI = useCallback(async (newStatus) => {
-    handleStatusChange({
+    // Tu helper ya recibe los setters; mantenemos el flujo original
+    const result = await handleStatusChange({
       dispatch, setLoading, ticketId, agentEmail, newStatus,
       setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
     });
+    // Si quieres asegurar no-rerender cuando no cambia:
+    if (result.success) {
+        setIfChanged(setStatus, newStatus);
+    }
   }, [dispatch, setLoading, ticketId, agentEmail, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
 
   const handleAddNote = useCallback(async () => {
@@ -42,7 +41,13 @@ export function useEditTicketLocalActions({
       setNotes, setNoteContent, setOpenNoteDialog, setStatus,
       setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
     });
-    if (result?.success) setNotes(result.ticket?.notes);
+    if (result?.success) {
+      setIfChanged(
+        setNotes,
+        result.ticket?.notes || [],
+        (a, b) => JSON.stringify(a) === JSON.stringify(b)
+      );
+    }
   }, [dispatch, setLoading, ticketId, agentEmail, noteContent, setNotes, setNoteContent, setOpenNoteDialog, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
 
   const onAddCollaboratorCb = useCallback(async (selectedAgents) => {
@@ -50,7 +55,11 @@ export function useEditTicketLocalActions({
       dispatch, setLoading, ticketId, agentEmail, collaborators, selectedAgents,
       setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
     });
-    setCollaborators(result);
+    setIfChanged(
+      setCollaborators,
+      result,
+      (a, b) => JSON.stringify(a) === JSON.stringify(b)
+    );
     setEditField(null);
   }, [dispatch, setLoading, ticketId, agentEmail, collaborators, setCollaborators, setEditField, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
 
@@ -59,7 +68,11 @@ export function useEditTicketLocalActions({
       dispatch, setLoading, ticketId, agentEmail, collaborators, emailToRemove,
       setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
     });
-    setCollaborators(result);
+    setIfChanged(
+      setCollaborators,
+      result,
+      (a, b) => JSON.stringify(a) === JSON.stringify(b)
+    );
     setEditField(null);
   }, [dispatch, setLoading, ticketId, agentEmail, collaborators, setCollaborators, setEditField, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
 
@@ -103,7 +116,9 @@ export function useEditTicketLocalActions({
       dispatch, setLoading, ticketId, agentEmail, selectedAgent,
       setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
     });
-    if (result?.success) setAgentAssigned(selectedAgent);
+    if (result?.success) {
+      setIfChanged(setAgentAssigned, selectedAgent);
+    }
     setEditField(null);
   }, [dispatch, setLoading, ticketId, agentEmail, setAgentAssigned, setEditField, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
 
@@ -122,7 +137,11 @@ export function useEditTicketLocalActions({
       setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
     });
     if (result?.success) {
-      setLinkedPatientSnapshot(result.updated_ticket?.linked_patient_snapshot || null);
+      setIfChanged(
+        setLinkedPatientSnapshot,
+        result.updated_ticket?.linked_patient_snapshot || null,
+        (a, b) => JSON.stringify(a) === JSON.stringify(b)
+      );
     }
   }, [dispatch, setLoading, agentEmail, setLinkedPatientSnapshot, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
 
@@ -149,7 +168,11 @@ export function useEditTicketLocalActions({
       setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
     });
     if (result?.success) {
-      setLinkedPatientSnapshot(result.updated_ticket?.linked_patient_snapshot || null);
+      setIfChanged(
+        setLinkedPatientSnapshot,
+        result.updated_ticket?.linked_patient_snapshot || null,
+        (a, b) => JSON.stringify(a) === JSON.stringify(b)
+      );
     }
   }, [dispatch, setLoading, agentEmail, setLinkedPatientSnapshot, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
 
