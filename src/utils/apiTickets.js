@@ -3,7 +3,7 @@ import { ENDPOINT_URLS } from "./js/constants";
 
 export const fetchTableData = async (agentAssigned) => {
 
-    const response = await fetch(`${ENDPOINT_URLS.API}/cosmoGet?agent_assigned=${encodeURIComponent(agentAssigned)}`);
+    const response = await fetch(`${ENDPOINT_URLS.API}/cosmoGet`);
     if(response.status === 204) return { success: true, message: [] }; // No content
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Error fetching tickets');
@@ -42,8 +42,8 @@ export const assignAgent = async (dispatch, setLoading, ticketId, currentAgentEm
       },
       body: JSON.stringify({
         tickets: ticketId,
-        agent_email: currentAgentEmail,
-        target_agent_email: targetAgentEmail,
+        //agent_email: currentAgentEmail,
+        target_agent_email: currentAgentEmail,
       }),
     });
  
@@ -57,7 +57,7 @@ export const assignAgent = async (dispatch, setLoading, ticketId, currentAgentEm
     
   } catch (err) {
     const message = err.message || 'Something went wrong';
-    dispatch({ type: 'SET_PATIENT_NAME_ERROR', payload: message });
+    dispatch({ type: 'SET_ERROR', payload: message });
     return { success: false, message };
   } finally {
     setLoading(false);
@@ -76,7 +76,6 @@ export const changeStatus = async (dispatch, setLoading, ticketId, currentAgentE
       },
       body: JSON.stringify({
         ticketId: ticketId,
-        agent_email: currentAgentEmail,
         newStatus: newStatus,
       }),
     });
@@ -244,7 +243,6 @@ export const updatePatientName = async (dispatch, setLoading, ticketId, currentA
       },
       body: JSON.stringify({
         tickets: ticketId,
-        agent_email: currentAgentEmail,
         nuevo_nombreapellido: newPatientName,
       }),
     });
@@ -308,7 +306,6 @@ export const updateCallbackNumber = async (dispatch, setLoading, ticketId, curre
       },
       body: JSON.stringify({
         tickets: ticketId,
-        agent_email: currentAgentEmail,
         new_phone: newPatientPhone,
       }),
     });
