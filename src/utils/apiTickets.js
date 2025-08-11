@@ -4,6 +4,7 @@ import { ENDPOINT_URLS } from "./js/constants";
 export const fetchTableData = async (agentAssigned) => {
 
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoGet?agent_assigned=${encodeURIComponent(agentAssigned)}`);
+    if(response.status === 204) return { success: true, message: [] }; // No content
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Error fetching tickets');
     return data;

@@ -1,33 +1,27 @@
-// AuthContext.jsx
-import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
-import { PublicClientApplication, InteractionRequiredAuthError } from "@azure/msal-browser";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+} from "react";
+import {
+  PublicClientApplication,
+  InteractionRequiredAuthError,
+} from "@azure/msal-browser";
 import { useAgents } from "./agentsContext";
 import { ENDPOINT_URLS } from "../utils/js/constants";
 
-// ===== CONFIG =====
-const TENANT_ID = "7313ad10-b885-4b50-9c75-9dbbd975618f";
-const SPA_CLIENT_ID = "08e5a940-4349-45b0-94ce-46505e0a99a3"; // "08e5a940-4349-45b0-94ce-46505e0a99a3" or "aeec4f18-85f7-4c67-8498-39d4af1440c1"
+// ⬇️ usa SIEMPRE la config centralizada
+import { msalConfig, apiScopes, graphScopes, loginRequest } from "../utils/azureAuth";
 
-
-const API_SCOPE = "api://aeec4f18-85f7-4c67-8498-39d4af1440c1/access_as_user";
-const GRAPH_SCOPES = ["User.Read", "User.ReadBasic.All"];
-const API_BASE = ENDPOINT_URLS.API;
-// eslint-disable-next-line
-export const msalInstance = new PublicClientApplication({
-  // eslint-disable-next-line 
-  // eslint-disable-next-line 
-  auth: {
-    clientId: SPA_CLIENT_ID,
-    authority: `https://login.microsoftonline.com/${TENANT_ID}`,
-    redirectUri: window.location.origin,
-  },
-  cache: { cacheLocation: "localStorage", storeAuthStateInCookie: false },
-});
+export const msalInstance = new PublicClientApplication(msalConfig);
 
 const AuthContext = createContext(undefined);
 
-const graphRequest = { scopes: GRAPH_SCOPES };
-const apiRequest = { scopes: [API_SCOPE] };
+const graphRequest = { scopes: graphScopes };
+const apiRequest = { scopes: apiScopes };
 
 async function acquire(msal, req, account) {
   try {
@@ -53,19 +47,22 @@ export const AuthProvider = ({ children }) => {
   const { state: agentsState } = useAgents();
   const [agentData, setAgentData] = useState(null);
 
+  const API_BASE = ENDPOINT_URLS.API;
+
   const login = useCallback(async () => {
     try {
       await msalInstance.initialize();
 
       let account = msalInstance.getActiveAccount();
-      console.log('all data account:', account)
+      console.log('All account', account)
       if (!account) {
+        // Intenta SSO silencioso, y si no, popup
         try {
-          const resp = await msalInstance.ssoSilent(graphRequest);
+          const resp = await msalInstance.ssoSilent(loginRequest);
           account = resp.account;
           msalInstance.setActiveAccount(account);
         } catch {
-          const resp = await msalInstance.loginPopup(graphRequest);
+          const resp = await msalInstance.loginPopup(loginRequest);
           account = resp.account;
           msalInstance.setActiveAccount(account);
         }
@@ -73,14 +70,17 @@ export const AuthProvider = ({ children }) => {
       if (!account) throw new Error("No active account after login.");
       setUser(account);
 
+      // Tokens en paralelo (Graph + API)
       const [tokenGraph, tokenApi] = await Promise.all([
         acquire(msalInstance, graphRequest, account).catch(() => null),
         acquire(msalInstance, apiRequest, account).catch(() => null),
       ]);
       setAccessTokenGraph(tokenGraph);
       setAccessTokenApi(tokenApi);
-      console.log('all data tokens:', { tokenGraph, tokenApi });
 
+      console.log('tokens app', {tokenGraph, tokenApi})
+
+      // Foto de perfil (opcional)
       if (tokenGraph) {
         try {
           const resp = await fetch("https://graph.microsoft.com/v1.0/me/photo/$value", {
@@ -90,7 +90,9 @@ export const AuthProvider = ({ children }) => {
             const blob = await resp.blob();
             setProfilePhoto(URL.createObjectURL(blob));
           }
-        } catch {}
+        } catch (e) {
+          // opcional: log
+        }
       }
 
       setAuthError(null);
@@ -113,21 +115,22 @@ export const AuthProvider = ({ children }) => {
     });
   }, []);
 
-  // ✅ useCallback: función estable
-  const getAccessTokenForApi = useCallback(async (accountOverride) => {
-    const account = accountOverride || msalInstance.getActiveAccount() || user;
-    if (!account) return null;
-    try {
-      const token = await acquire(msalInstance, apiRequest, account);
-      setAccessTokenApi(token);
-      return token;
-    } catch (e) {
-      setAuthError(e?.message || "Failed to acquire API token");
-      return null;
-    }
-  }, [user]);
+  const getAccessTokenForApi = useCallback(
+    async (accountOverride) => {
+      const account = accountOverride || msalInstance.getActiveAccount() || user;
+      if (!account) return null;
+      try {
+        const token = await acquire(msalInstance, apiRequest, account);
+        setAccessTokenApi(token);
+        return token;
+      } catch (e) {
+        setAuthError(e?.message || "Failed to acquire API token");
+        return null;
+      }
+    },
+    [user]
+  );
 
-  // ✅ useCallback depende de getAccessTokenForApi (estable) y accessTokenApi
   const callApi = useCallback(
     async (path, init = {}) => {
       const account = msalInstance.getActiveAccount() || user;
@@ -151,13 +154,11 @@ export const AuthProvider = ({ children }) => {
       const ct = res.headers.get("content-type") || "";
       return ct.includes("application/json") ? await res.json() : undefined;
     },
-    [accessTokenApi, user, getAccessTokenForApi]
+    [accessTokenApi, user, getAccessTokenForApi, API_BASE]
   );
 
-  // Mount: intenta login (estable)
   useEffect(() => { login(); }, [login]);
 
-  // ✅ Evita el warning: usa agentsState.agents dentro del effect
   useEffect(() => {
     if (!user) {
       setAgentData(null);
@@ -168,19 +169,20 @@ export const AuthProvider = ({ children }) => {
       setAgentData(null);
       return;
     }
-    const mail = (user.username || (user.idTokenClaims && user.idTokenClaims.preferred_username) || "").toLowerCase();
+    const mail = (user.username ||
+      user.idTokenClaims?.preferred_username ||
+      "").toLowerCase();
     const match = list.find(a => (a.agent_email || "").toLowerCase() === mail);
     setAgentData(match || null);
-  }, [user, agentsState]); // ← depende del objeto state; si prefieres, usa [user, agentsState?.agents]
+  }, [user, agentsState]);
 
-  // ✅ useMemo depende de funciones estables (getAccessTokenForApi, callApi) y estados
   const value = useMemo(() => ({
     user,
     accessTokenGraph,
     accessTokenApi,
     profilePhoto,
     agentData,
-    department: (agentData && agentData.agent_department) || null,
+    department: agentData?.agent_department || null,
     authLoaded,
     authError,
     login,
@@ -209,23 +211,3 @@ export const useAuth = () => {
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 };
-
-/**USO del contexto
- * 
- * import { useAuth } from "../context/authContext";
-
-function useUpdateNotes() {
-  const { callApi } = useAuth();
-
-  const updateNotes = (payload) =>
-    callApi("/cosmoUpdateNotes", {
-      method: "PATCH",
-      body: JSON.stringify(payload),
-    });
-
-  return { updateNotes };
-}
-
-/**
- * user lleva la info de todo el account, incluido tokenClaims.groups
- */
