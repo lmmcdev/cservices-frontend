@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useContext } from 'react';
+/*import React, { createContext, useReducer, useContext } from 'react';
 import { dailyStatsReducer, initialDailyStatsState } from '../store/statsReducer';
 //import { getStats } from '../utils/apiStats';
 
@@ -17,7 +17,7 @@ export const StatsProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Error fetching stats', error);
-    }*/
+    }
   };
 
   return (
@@ -31,5 +31,5 @@ export const StatsProvider = ({ children }) => {
 export const useStats = () => useContext(StatsContext);
 export const useStatsState = () => useContext(StatsContext).state;
 export const useStatsDispatch = () => useContext(StatsContext).dispatch;
-export const useFetchStatistics = () => useContext(StatsContext).fetchStatistics;
+export const useFetchStatistics = () => useContext(StatsContext).fetchStatistics;*/
 

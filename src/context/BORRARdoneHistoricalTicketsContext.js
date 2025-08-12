@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer } from 'react';
+/*import { createContext, useContext, useReducer } from 'react';
 import { ticketReducer, initialState } from '../store/ticketsReducer';
 //import { getTicketResolvedByAgents } from '../utils/apiStats';
 
@@ -21,7 +21,7 @@ export function DoneHistoricalTicketsProvider({ children }) {
     } catch (error) {
       //dispatch({ type: 'ERROR_CLOSED_TICKETS', payload: error.message });
       console.error('Error fetching stats', error);
-    }*/
+    }
   };
 
   return (
@@ -35,4 +35,4 @@ export function DoneHistoricalTicketsProvider({ children }) {
 export const useHistoricalDoneStats = () => useContext(DoneHistoricalTicketsContext);
 export const useHistoricalDoneStatsState = () => useContext(DoneHistoricalTicketsContext).state;
 export const useHistoricalDoneStatsDispatch = () => useContext(DoneHistoricalTicketsContext).dispatch;
-export const useHistoricalDoneFetchStatistics = () => useContext(DoneHistoricalTicketsContext).fetchHistoricalDoneTickets;
+export const useHistoricalDoneFetchStatistics = () => useContext(DoneHistoricalTicketsContext).fetchHistoricalDoneTickets;*/
