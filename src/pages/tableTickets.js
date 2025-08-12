@@ -72,7 +72,7 @@ export default function TableTickets() {
   
   const validTickets = Array.isArray(tickets) ? tickets : [];
   if (validTickets.length === 0) {
-    return <div>No tickets found</div>;
+    return null;
   }
 
   const filteredRows = validTickets.filter((row) => {
