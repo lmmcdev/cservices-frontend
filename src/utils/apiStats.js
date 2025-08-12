@@ -140,7 +140,7 @@ export const getDailyStats = async (date, scope='date') => {
     }
 
     // Devuelve solo los datos
-    return { success: true, message: 'Updated successfully', data: data || []};
+    return { success: true, message: 'Updated successfully', ...data || []};
   } catch (err) {
     const message = err.message || 'Something went wrong';
     return { success: false, message };

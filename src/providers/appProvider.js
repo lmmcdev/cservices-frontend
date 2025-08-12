@@ -3,8 +3,6 @@ import { AgentsProvider } from '../context/agentsContext';
 import { AuthProvider } from '../context/authContext';
 import { LoadingProvider } from '../providers/loadingProvider';
 import { SettingsProvider } from '../context/settingsContext';
-import { StatsProvider } from '../context/statsContext';
-import { DoneTicketsProvider } from '../context/doneTicketsContext';
 import { TicketsProvider } from '../context/ticketsContext';
 import { DailyStatsProvider } from '../context/dailyStatsContext';
 import { SignalRProvider } from '../context/signalRContext';
@@ -20,8 +18,6 @@ export default function AppProviders({ children }) {
       <AuthProvider>
         <LoadingProvider>
           <SettingsProvider>
-            <StatsProvider>
-              <DoneTicketsProvider>
                 <TicketsProvider>
                   <DailyStatsProvider>
                     <SignalRProvider>
@@ -37,8 +33,6 @@ export default function AppProviders({ children }) {
                     </SignalRProvider>
                   </DailyStatsProvider>
                 </TicketsProvider>
-              </DoneTicketsProvider>
-            </StatsProvider>
           </SettingsProvider>
         </LoadingProvider>
       </AuthProvider>
