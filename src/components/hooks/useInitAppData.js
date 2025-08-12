@@ -1,16 +1,18 @@
 // useInitAppData.js
 import { useEffect } from 'react';
-import { useTickets } from "../../context/ticketsContext";
+//import { useTickets } from "../../context/ticketsContext";
 import { useAgents } from "../../context/agentsContext";
 import { useAuth } from "../../context/authContext";
 import { useLoading } from "../../providers/loadingProvider";
-import { fetchTableData } from "../../utils/apiTickets";
+//import { fetchTableData } from "../../utils/apiTickets";
 import { fetchAgentData } from '../../utils/apiAgents';
 import { useNavigate } from 'react-router-dom';
 
+//hay que agarrar los agentes desde azure entra, grupos app-cservices-agentes y app-cservices-supervisors
+
 export const useInitAppData = () => {
   const { user } = useAuth();
-  const { dispatch: ticketDispatch } = useTickets();
+  //const { dispatch: ticketDispatch } = useTickets();
   const { dispatch: agentDispatch } = useAgents();
   const { setLoading } = useLoading();
   const navigate = useNavigate();
@@ -20,10 +22,10 @@ export const useInitAppData = () => {
       setLoading(true);
       try {
         const agents = await fetchAgentData(user?.username);
-        const tickets = await fetchTableData(user?.username);
+        //const tickets = await fetchTableData(user?.username);
         console.log(agents.message)
         agentDispatch({ type: 'SET_AGENTS', payload: agents.message.agents });
-        ticketDispatch({ type: 'SET_TICKETS', payload: tickets.message });
+        //ticketDispatch({ type: 'SET_TICKETS', payload: tickets.message });
       } 
       catch(err) {
         navigate('/404');
