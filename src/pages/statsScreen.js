@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useStatsState, useFetchStatistics } from '../context/statsContext';
+//import { useStatsState,  } from '../context/statsContext';
 //import { useDoneFetchStatistics } from '../context/doneTicketsContext';
 import {
   Box,
@@ -17,13 +17,15 @@ import { DailyTicketCategoriesChart } from '../components/ticketsCategoriesChart
 import { DailyTicketPriorityChart } from '../components/ticketsPriorityChart.jsx';
 import { DailyAverageResolutionTime } from '../components/averageResolutionTime';
 import { DailyTopPerformerCard } from '../components/topPerformerCard';
+import { getDailyStats } from '../utils/apiStats';
+import { useDailyStatsDispatch, useDailyStatsState } from '../context/dailyStatsContext.js';
 
 import FloatingSettingsButton from '../components/components/floatingSettingsButton';
 import StatusFilterBoxes from '../components/statusFilterBoxes'; // ✅ reutilizado
 
 export default function StatsScreen() {
-  const state = useStatsState();
-  const fetchStatistics = useFetchStatistics();
+  const state = useDailyStatsState();
+  //const fetchStatistics = useFetchStatistics();
   //const fetchDoneStats = useDoneFetchStatistics();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -35,10 +37,15 @@ export default function StatsScreen() {
   const today = new Date(time);
   const selectedDate = today.toLocaleDateString('en-CA'); // ✅ formato YYYY-MM-DD
 
+  const dailyStatsDispatch = useDailyStatsDispatch(); 
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-          await fetchStatistics();
+          const result = await getDailyStats(selectedDate);
+          if (result.success) { 
+            dailyStatsDispatch({type: 'SET_DAILY_STATS', payload: result})
+          }
       } catch (error) {
         console.error('Error fetching statistics:', error);
       }
@@ -71,8 +78,7 @@ export default function StatsScreen() {
     setSelectedTicketIds([]);
   };
 
-  const statistics = state.statistics || {};
-  const entries = Object.entries(statistics).filter(([key]) => key !== 'total');
+  const statistics = state.daily_statistics || {};
 
   /** ✅ fetchFn dinámico usando useCallback */
   const fetchFn = useCallback(
@@ -112,7 +118,7 @@ export default function StatsScreen() {
         <StatusFilterBoxes
           selectedStatus={selectedStatus}
           setSelectedStatus={handleBoxClick}
-          ticketsCountByStatus={{ ...Object.fromEntries(entries), Total: statistics.total }}
+          ticketsCountByStatus={statistics?.statusCounts || {}}
         />
       </Box>
 

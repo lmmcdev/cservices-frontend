@@ -15,7 +15,7 @@ export const HistoricalStatsProvider = ({ children }) => {
     try {
       const res = await getDailyStats(date);
       if (res.success) {
-        dispatchStats({ type: 'SET_HISTORIC_DAILY_STATS', payload: res.data });
+        dispatchStats({ type: 'SET_HISTORIC_DAILY_STATS', payload: res });
       } else {
         console.error('Error fetching historical daily stats:', res.message);
       }
