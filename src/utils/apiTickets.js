@@ -119,7 +119,7 @@ export const addNotes = async (dispatch, setLoading, ticketId, currentAgentEmail
       throw new Error(data.message || 'Error updating notes');
     }
 
-    return { success: true, message: data.message || 'Updated successfully', ticket: data.ticket || null };
+    return { success: true, message: 'Updated successfully', ticket: data || null };
   } catch (err) {
     const message = err.message || 'Something went wrong';
     dispatch({ type: 'SET_ERROR', payload: message });

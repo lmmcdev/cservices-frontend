@@ -3,12 +3,11 @@ import {
   Box,
   Grid,
 } from '@mui/material';
-import { useMsal } from '@azure/msal-react';
 import {
   useHistoricalStats,
   useFetchAllHistoricalStatistics,
 } from '../context/historicalStatsContext';
-import { useHistoricalDoneFetchStatistics } from '../context/doneHistoricalTicketsContext';
+//import { useHistoricalDoneFetchStatistics } from '../context/doneHistoricalTicketsContext';
 
 import RightDrawer from '../components/includes/rightDrawer.js';
 import { HistoricalTopAgents } from '../components/topAgentsSection';
@@ -27,14 +26,12 @@ import FloatingDateSelector from '../components/auxiliars/floatingDateSelector.j
 import { useLocation } from 'react-router-dom';
 
 const HistoricStatistics = () => {
-  const { accounts, instance } = useMsal();
   const { stateStats } = useHistoricalStats();
   const fetchAllHistoricalStats = useFetchAllHistoricalStatistics();
-  const fetchHistoricalDoneTickets = useHistoricalDoneFetchStatistics();
+  //const fetchHistoricalDoneTickets = useHistoricalDoneFetchStatistics();
 
   const [date, setDate] = useState('');
   const [, setLoading] = useState(false);
-  const [accessTokenMSAL, setAccessTokenMSAL] = useState(null);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerStatus, setDrawerStatus] = useState('');
@@ -55,23 +52,9 @@ useEffect(() => {
     if (!date) return;
     try {
       setLoading(true);
-      const accessToken = await instance
-        .acquireTokenSilent({
-          scopes: ['User.Read'],
-          account: accounts[0],
-        })
-        .then((res) => res.accessToken)
-        .catch((err) => {
-          console.error('Error acquiring token', err);
-          return null;
-        });
+        await fetchAllHistoricalStats(date);
 
-      if (accessToken) {
-        setAccessTokenMSAL(accessToken);
-        await fetchAllHistoricalStats(accessToken, date);
-        await fetchHistoricalDoneTickets(accessToken, date);
-      }
-    } catch (err) {
+      } catch (err) {
       console.error('Error fetching stats', err);
     } finally {
       setLoading(false);
@@ -99,7 +82,7 @@ useEffect(() => {
   setDrawerOpen(true);
 };
 
-  const statistics = stateStats.historical_statistics || {};
+  const statistics = stateStats.historic_daily_stats || {};
 
   return (
     <>
@@ -132,7 +115,7 @@ useEffect(() => {
         <StatusFilterBoxes
           selectedStatus={selectedStatus}
           setSelectedStatus={handleBoxClick}
-          ticketsCountByStatus={statistics}
+          ticketsCountByStatus={statistics?.statusCounts || {}}
         />
       </Box>
 
@@ -299,11 +282,11 @@ useEffect(() => {
         status={drawerStatus}
         fetchFn={({ continuationToken, limit }) => {
           if (selectedTicketIds.length > 0) {
-            return getTicketsByIds(accessTokenMSAL, selectedTicketIds, {
+            return getTicketsByIds(selectedTicketIds, {
               params: { continuationToken, limit }
             });
           }
-          return getTicketsByStatus(accessTokenMSAL, selectedStatus, date, {
+          return getTicketsByStatus(selectedStatus, date, {
             params: { continuationToken, limit }
           });
         }}

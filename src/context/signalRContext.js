@@ -3,8 +3,8 @@ import * as signalR from '@microsoft/signalr';
 import { useTicketsDispatch } from './ticketsContext';
 import { useDailyStatsDispatch } from './dailyStatsContext';
 import { useAuth } from './authContext';
-import { useFetchStatistics } from './statsContext';
-import { useDoneFetchStatistics } from './doneTicketsContext';
+//import { useFetchStatistics } from './statsContext';
+//import { useDoneFetchStatistics } from './doneTicketsContext';
 
 const SignalRContext = createContext();
 
@@ -13,8 +13,8 @@ export function SignalRProvider({ children }) {
   const connectionRef = useRef(null);
   const dispatch = useTicketsDispatch();
   const dailyStatsDispatch = useDailyStatsDispatch(); 
-  const fetchStats = useFetchStatistics();
-  const fetchDoneStats = useDoneFetchStatistics();
+  //const fetchStats = useFetchStatistics();
+  //const fetchDoneStats = useDoneFetchStatistics();
   //const { department, accessTokenMSAL } = useAuth();
   const { department, user } = useAuth();
 
@@ -66,21 +66,21 @@ export function SignalRProvider({ children }) {
       });
 
       //evento ticket actualizado por canal (no funcional)
-      connection.on('ticketUpdatedAgent', (ticket) => {
+      /*connection.on('ticketUpdatedAgent', (ticket) => {
         console.log('agent channel:', ticket);
           //dispatch({ type: 'UPD_TICKET', payload: ticket });
           //onTicketUpdated?.(ticket);
-      });
+      });*/
 
       //evento disparador estadisticas
-      connection.on('statsUpdated', () => {
+      /*connection.on('statsUpdated', () => {
         fetchStats();
       });
 
       //evento disparador tickets closed by agents
       connection.on('ticketClosed', () => {
         fetchDoneStats();
-      });
+      });*/
 
       connection.on('dailyStats', (data) => {
         dailyStatsDispatch({type: 'SET_DAILY_STATS', payload: data})

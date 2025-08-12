@@ -33,7 +33,7 @@ function formatAgentName(email) {
 }
 
 function TicketNotesBase({ notes = [], onAddNote, status }) {
-  //console.log(notes)
+  console.log(notes)
   const [showSystemLogs, setShowSystemLogs] = useState(false);
   const [sortAscending, setSortAscending] = useState(true);
 

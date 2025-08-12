@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useStatsState, useFetchStatistics } from '../context/statsContext';
-import { useDoneFetchStatistics } from '../context/doneTicketsContext';
-import { useMsal } from '@azure/msal-react';
+//import { useDoneFetchStatistics } from '../context/doneTicketsContext';
 import {
   Box,
   Grid,
@@ -25,14 +24,12 @@ import StatusFilterBoxes from '../components/statusFilterBoxes'; // ✅ reutiliz
 export default function StatsScreen() {
   const state = useStatsState();
   const fetchStatistics = useFetchStatistics();
-  const fetchDoneStats = useDoneFetchStatistics();
-  const { accounts, instance } = useMsal();
+  //const fetchDoneStats = useDoneFetchStatistics();
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerStatus, setDrawerStatus] = useState('');
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [selectedTicketIds, setSelectedTicketIds] = useState([]);
-  const [accessTokenMSAL, setAccessTokenMSAL] = useState(null);
 
   const time = Date.now();
   const today = new Date(time);
@@ -41,22 +38,7 @@ export default function StatsScreen() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const accessToken = await instance
-          .acquireTokenSilent({
-            scopes: ['User.Read'],
-            account: accounts[0],
-          })
-          .then(response => response.accessToken)
-          .catch(error => {
-            console.error('Error acquiring token', error);
-            return null;
-          });
-
-        if (accessToken) {
-          setAccessTokenMSAL(accessToken);
-          await fetchStatistics(accessToken);
-          await fetchDoneStats(accessToken);
-        }
+          await fetchStatistics();
       } catch (error) {
         console.error('Error fetching statistics:', error);
       }
@@ -97,16 +79,16 @@ export default function StatsScreen() {
     ({ continuationToken, limit }) => {
       if (selectedTicketIds.length > 0) {
         // ✅ Por IDs
-        return getTicketsByIds(accessTokenMSAL, selectedTicketIds, {
+        return getTicketsByIds(selectedTicketIds, {
           params: { continuationToken, limit },
         });
       }
       // ✅ Por Status
-      return getTicketsByStatus(accessTokenMSAL, selectedStatus, selectedDate, {
+      return getTicketsByStatus(selectedStatus, selectedDate, {
         params: { continuationToken, limit },
       });
     },
-    [accessTokenMSAL, selectedTicketIds, selectedStatus, selectedDate]
+    [selectedTicketIds, selectedStatus, selectedDate]
   );
 
   return (

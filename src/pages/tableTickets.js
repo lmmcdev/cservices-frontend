@@ -31,10 +31,12 @@ import { SortAscending, SortDescending } from 'phosphor-react';
 import { getStatusColor } from '../utils/js/statusColors.js';
 import SuspenseFallback from '../components/auxiliars/suspenseFallback.js';
 import { TicketIndicators } from '../components/auxiliars/tickets/ticketIndicators.jsx';
+import { fetchTableData } from '../utils/apiTickets.js';
 
 export default function TableTickets() {
   const { filters } = useFilters();
-  const { state, dispatch } = useTickets();
+  const { dispatch } = useTickets();
+
   const { setLoading } = useLoading();
   const { user } = useAuth();
   const [selectedStatus, setSelectedStatus] = useState('Total');
@@ -43,13 +45,36 @@ export default function TableTickets() {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const navigate = useNavigate();
   const [sortDirection, setSortDirection] = useState('desc');
+  const [tickets, setTickets] = useState([]);
 
   useEffect(() => {
     setPage(0);
   }, [selectedStatus]);
 
+  //create a function to fetch tickets
+  const fetchTickets = async () => {
+    setLoading(true);
+    try {
+      const tickets = await fetchTableData();
+      setTickets(tickets.message);
+      dispatch({ type: 'SET_TICKETS', payload: tickets.message });
+    } catch (error) {
+      console.error('Error fetching tickets:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const validTickets = Array.isArray(state.tickets) ? state.tickets : [];
+  useEffect(() => {
+    fetchTickets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  
+  const validTickets = Array.isArray(tickets) ? tickets : [];
+  if (validTickets.length === 0) {
+    return <div>No tickets found</div>;
+  }
+
   const filteredRows = validTickets.filter((row) => {
     const matchStatus = selectedStatus === 'Total' || row.status === selectedStatus;
     const matchAgent =
@@ -63,6 +88,7 @@ export default function TableTickets() {
     return matchStatus && matchAgent && matchCaller && matchDate && matchDepartment;
   });
 
+
   const sortedRows = [...filteredRows].sort((a, b) => {
     const dateA = new Date(a.creation_date);
     const dateB = new Date(b.creation_date);
@@ -73,6 +99,7 @@ export default function TableTickets() {
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
+
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -110,7 +137,7 @@ export default function TableTickets() {
     return '+1 ' + parts.join('');
   };
 
-  if (!Array.isArray(state.tickets) || state.tickets.length === 0) {
+  if (!Array.isArray(tickets) || tickets.length === 0) {
     return <SuspenseFallback />;
   }
 

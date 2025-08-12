@@ -1,6 +1,6 @@
 import { createContext, useContext, useReducer } from 'react';
 import { ticketReducer, initialState } from '../store/ticketsReducer';
-import { getTicketResolvedByAgents } from '../utils/apiStats';
+//import { getTicketResolvedByAgents } from '../utils/apiStats';
 
 const DoneHistoricalTicketsContext = createContext();
 
@@ -9,8 +9,9 @@ export function DoneHistoricalTicketsProvider({ children }) {
 
   const fetchHistoricalDoneTickets = async (accessToken, date = null) => {
     //dispatch({ type: 'LOADING_CLOSED_TICKETS' }); // opcional
+    /*
     try {
-      const res = await getTicketResolvedByAgents(accessToken, date);
+      //const res = await getTicketResolvedByAgents(accessToken, date);
       if (res.success) {
         dispatch({ type: 'SET_HISTORICAL_CLOSED_TICKETS', payload: res.message });
       } else {
@@ -20,7 +21,7 @@ export function DoneHistoricalTicketsProvider({ children }) {
     } catch (error) {
       //dispatch({ type: 'ERROR_CLOSED_TICKETS', payload: error.message });
       console.error('Error fetching stats', error);
-    }
+    }*/
   };
 
   return (

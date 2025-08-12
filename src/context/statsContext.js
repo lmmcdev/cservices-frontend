@@ -1,15 +1,15 @@
 import React, { createContext, useReducer, useContext } from 'react';
 import { dailyStatsReducer, initialDailyStatsState } from '../store/statsReducer';
-import { getStats } from '../utils/apiStats';
+//import { getStats } from '../utils/apiStats';
 
 const StatsContext = createContext();
 
 export const StatsProvider = ({ children }) => {
   const [state, dispatch] = useReducer(dailyStatsReducer, initialDailyStatsState);
 
-  const fetchStatistics = async (accessToken, date) => {
-    try {
-      const res = await getStats(accessToken, date);
+  const fetchStatistics = async (date) => {
+    /*try {
+      const res = await getStats(date);
       if (res.success) {
         dispatch({ type: 'SET_STATS', payload: res.message });
       } else {
@@ -17,7 +17,7 @@ export const StatsProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Error fetching stats', error);
-    }
+    }*/
   };
 
   return (

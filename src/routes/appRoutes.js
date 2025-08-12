@@ -9,8 +9,8 @@ import PrivateRoute from '../components/privateRoute';
 import NotFound404 from '../pages/404';
 import HistoricStatistics from '../pages/historicalStatsScreen';
 import { HistoricalStatsProvider } from '../context/historicalStatsContext';
-import { DoneTicketsProvider } from '../context/doneTicketsContext';
-import { DoneHistoricalTicketsProvider } from '../context/doneHistoricalTicketsContext';
+//import { DoneTicketsProvider } from '../context/doneTicketsContext';
+//import { DoneHistoricalTicketsProvider } from '../context/doneHistoricalTicketsContext';
 import { LoadingProvider } from '../providers/loadingProvider';
 
 // ...otros imports lazy
@@ -50,11 +50,7 @@ export default function AppRoutes({ agentEmail, filters, setFilters, authError, 
             <Route path="/historical_statistics" element={
               <LoadingProvider>
                 <HistoricalStatsProvider>
-                  <DoneTicketsProvider>
-                    <DoneHistoricalTicketsProvider>
                       <HistoricStatistics />
-                    </DoneHistoricalTicketsProvider>
-                  </DoneTicketsProvider>
                 </HistoricalStatsProvider>
               </LoadingProvider>
             } />

@@ -38,7 +38,6 @@ export const ticketReducer = (state, action) => {
       const { id } = action.payload;
       let changed = false;
 
-      //console.log('ticket del backend:', action.payload);
       const nextTickets = state.tickets.map(t => {
         if (t.id !== id) return t;
 

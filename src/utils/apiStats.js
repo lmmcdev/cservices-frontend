@@ -1,15 +1,12 @@
 // ticketUtils.js
 
 //statistics
-export const getStats = async (accessToken, date) => {
+/*export const getStats = async (date) => {
   if (accessToken === null) return { success: false, message: 'No access token provided' };
 
   try {
     const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetStats?date=${encodeURIComponent(date)}`, {
       method: 'GET',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
     });
     const data = await response.json();
     if (!response.ok) {
@@ -22,10 +19,10 @@ export const getStats = async (accessToken, date) => {
     const message = err.message || 'Something went wrong';
     return { success: false, message };
   }
-};
+};*/
 
-export const getTicketsByStatus = async (accessToken, status, date, {params}) => {
-  if (accessToken === null) return { success: false, message: 'No access token provided' };
+export const getTicketsByStatus = async (status, date, {params}) => {
+  //if (accessToken === null) return { success: false, message: 'No access token provided' };
   const token = params.continuationToken;
   let tokenCosmos = ''
   if (params.continuationToken) {
@@ -34,10 +31,6 @@ export const getTicketsByStatus = async (accessToken, status, date, {params}) =>
   try {
     const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetTicketsByStatus`, {
       method: 'POST',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      },
       body: JSON.stringify({
               limit: params.limit,
               continuationToken: tokenCosmos,
@@ -61,21 +54,16 @@ export const getTicketsByStatus = async (accessToken, status, date, {params}) =>
 
 
 /**usar para obtener la estadistica por hora de un dia especifico (container tickets_stats) */
-export const getTicketsByIds = async (accessToken, ticketIds, {params}) => {
+export const getTicketsByIds = async (ticketIds, {params}) => {
   //if (accessToken === null) return { success: false, message: 'No access token provided' };
   const token = params.continuationToken;
   let tokenCosmos = ''
   if (params.continuationToken) {
       tokenCosmos = token;
   }
-  console.log(ticketIds)
   try {
     const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetByIds`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-       "Authorization": `Bearer ${accessToken}`
-      },
       body: JSON.stringify({ 
         limit: params.limit,
         continuationToken: tokenCosmos,
@@ -98,9 +86,9 @@ export const getTicketsByIds = async (accessToken, ticketIds, {params}) => {
 };
 
 
-
+/**************BORRAR USADA EN HISTORICAL DONE CONTEXT ****************************/
 export const getTicketResolvedByAgents = async (accessToken, date) => {
-  if (accessToken === null) return { success: false, message: 'No access token provided' };
+  /*if (accessToken === null) return { success: false, message: 'No access token provided' };
   
   // Si date es null o vacío, usa la fecha actual
   const today = new Date();
@@ -125,8 +113,11 @@ export const getTicketResolvedByAgents = async (accessToken, date) => {
   } catch (err) {
     const message = err.message || 'Something went wrong';
     return { success: false, message };
-  }
+  }*/
 };
+
+
+
 
 
 /**usar para obtener la estadistica por hora de un dia especifico (container tickets_stats) */
@@ -140,9 +131,6 @@ export const getDailyStats = async (date, scope='date') => {
   try {
     const response = await fetch(`https://cservicesapi.azurewebsites.net/api/getTicketStats?${scope}=${encodeURIComponent(resolvedDate)}`, {
       method: 'GET',
-      headers: {
-        Authorization: `Bearer `,
-      },
     });
 
 
@@ -152,7 +140,7 @@ export const getDailyStats = async (date, scope='date') => {
     }
 
     // Devuelve solo los datos
-    return { success: true, message: data.message || 'Updated successfully' };
+    return { success: true, message: 'Updated successfully', data: data || []};
   } catch (err) {
     const message = err.message || 'Something went wrong';
     return { success: false, message };
