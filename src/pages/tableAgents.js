@@ -1,7 +1,4 @@
-import React, { useState, useReducer } from 'react';
-import { ticketReducer, initialState } from '../store/ticketsReducer';
-import { useLoading } from '../providers/loadingProvider';
-import AlertSnackbar from '../components/auxiliars/alertSnackbar';
+import React, { useState } from 'react';
 
 import {
   Box, Card, CardContent, Typography,
@@ -10,28 +7,14 @@ import {
 } from '@mui/material';
 import { icons } from '../components/auxiliars/icons';
 import { useNavigate } from 'react-router-dom';
-import CreateAgentModal from '../components/dialogs/createAgentDialog';
 import { useAgents } from '../context/agentsContext';
-import { useGraphEmailCheck } from '../utils/useGraphEmailCheck';
-import { useAuth } from '../context/authContext.js';
-import { submitNewAgent, updateAgent } from '../utils/js/agentActions.js';
 
 export default function TableAgents() {
   const { state } = useAgents();
   const agents = state.agents;
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [openCreateModal, setOpenCreateModal] = useState(false);
   const navigate = useNavigate();
-  const [, dispatch] = useReducer(ticketReducer, initialState);
-  const { setLoading } = useLoading();
-  const { user } = useAuth();
-  const { verifyEmailExists } = useGraphEmailCheck();
-
-  const [errorOpen, setErrorOpen] = useState(false);
-  const [successOpen, setSuccessOpen] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
 
 
     const paginatedAgents = agents.slice(
@@ -213,29 +196,3 @@ export default function TableAgents() {
     </>
   );
 }
-
-
-/**onclick update
- * 
- * <Tooltip title="Disable/Enable Agent" placement="bottom">
-                        <IconButton
-                          onClick={() =>
-                            handleUpdate({
-                              agent_id: agent.id,
-                              email: agent.agent_email,
-                              displayName: agent.agent_name,
-                              role: agent.agent_rol,
-                              department: agent.agent_department,
-                              location: agent.agent_location,
-                              isRemote: agent.remote_agent,
-                              isDisable: !agent.is_disabled,
-                            })
-                          }
-                          sx={{ color: '#00A1FF' }}
-                        >
-                          <icons.edit style={{ fontSize: 16, color: 'inherit' }} />
-                        </IconButton>
-                      </Tooltip>
- * 
- * 
- */
