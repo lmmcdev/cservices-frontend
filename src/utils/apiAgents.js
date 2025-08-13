@@ -1,8 +1,9 @@
-
 //fetch table agents
+import { ENDPOINT_URLS } from "./js/constants";
+
 export const fetchAgentData = async (agentAssigned) => {
 
-  const response = await fetch(`https://cservicesapi.azurewebsites.net/api/cosmoGetAgents?agentAssigned=${encodeURIComponent(agentAssigned)}`);
+  const response = await fetch(`${ENDPOINT_URLS.API}/cosmoGetAgents?agentAssigned=${encodeURIComponent(agentAssigned)}`);
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.message || 'Error fetching agents data');
@@ -14,10 +15,10 @@ export const fetchAgentData = async (agentAssigned) => {
 //edit agent
 export const editAgent = async (dispatch, setLoading, formData) => {
   //console
-  setLoading(true);
+  /*setLoading(true);
   
   try {
-    const response = await fetch('https://cservicesapi.azurewebsites.net/api/cosmoUpdateAgent', {
+    const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateAgent`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -61,7 +62,7 @@ export const editAgent = async (dispatch, setLoading, formData) => {
     return { success: false, message };
   } finally {
     setLoading(false);
-  }
+  }*/
 };
 
 
@@ -70,8 +71,8 @@ export const createAgent = async (dispatch, setLoading, formData) => {
   //console
   //setLoading(true);
   
-  try {
-    const response = await fetch('https://cservicesapi.azurewebsites.net/api/cosmoInsertAgent', {
+  /*try {
+    const response = await fetch(`${ENDPOINT_URLS.API}/cosmoInsertAgent`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -103,5 +104,5 @@ export const createAgent = async (dispatch, setLoading, formData) => {
     return { success: false, message };
   } finally {
     setLoading(false);
-  }
+  }*/
 };

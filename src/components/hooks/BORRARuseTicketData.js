@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+/*import { useState, useEffect } from 'react';
 
 export function useTicketData(ticketId, tickets) {
   const ticket = tickets.find(t => t.id === ticketId);
@@ -56,4 +56,4 @@ export function useTicketData(ticketId, tickets) {
     patientDob,
     setPatientDob,
   };
-}
+}*/

@@ -1,5 +1,5 @@
 // hooks/useTicketById.js
-import { useMemo } from 'react';
+/*import { useMemo } from 'react';
 import { useTickets } from '../../context/ticketsContext';
 
 export function useTicketById(ticketId) {
@@ -14,4 +14,4 @@ export function useTicketById(ticketId) {
   );
 
   return ticket;
-}
+}*/

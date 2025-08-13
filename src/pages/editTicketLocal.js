@@ -64,7 +64,8 @@ export default function EditTicketLocal() {
   const agents = agentsState.agents;
   const { user } = useAuth();
   const agentEmail = user.username;
-  
+
+ 
   //statuses
   const [status, setStatus] = useState(ticket?.status || '');
   const [notes, setNotes] = useState(ticket?.notes || []);

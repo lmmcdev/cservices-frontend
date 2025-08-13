@@ -55,12 +55,15 @@ export function useEditTicketLocalActions({
       dispatch, setLoading, ticketId, agentEmail, collaborators, selectedAgents,
       setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
     });
-    setIfChanged(
-      setCollaborators,
-      result,
-      (a, b) => JSON.stringify(a) === JSON.stringify(b)
-    );
-    setEditField(null);
+
+    //if(result.success) {
+      setIfChanged(
+        setCollaborators,
+        result,
+        (a, b) => JSON.stringify(a) === JSON.stringify(b)
+      );
+      setEditField(null);
+    //}
   }, [dispatch, setLoading, ticketId, agentEmail, collaborators, setCollaborators, setEditField, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
 
   const handleRemoveCollaborator = useCallback(async (emailToRemove) => {

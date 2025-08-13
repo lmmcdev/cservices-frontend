@@ -41,9 +41,10 @@ export default function CollapsibleDrawer() {
   ];
 
   // ✅ Solo ítems visibles para el rol del agente actual
-  const filteredItems = navItems.filter((item) =>
+  /*const filteredItems = navItems.filter((item) =>
     item.roles.includes(currentAgent.agent_rol)
-  );
+  );*/
+  const filteredItems = navItems;
 
   const handleListItemClick = (path) => {
     navigate(path);

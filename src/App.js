@@ -20,7 +20,9 @@ import { setupFetchAuth } from './setupFetchAuth';
 import './App.css';
 
 function AppContent() {
-  setupFetchAuth();
+  React.useEffect(() => {
+    setupFetchAuth();
+  }, []); // ← una sola vez
   const { showNotification } = useNotification();
   const { initializeSignalR } = useSignalR();
   const { user, authError, login, authLoaded } = useAuth();

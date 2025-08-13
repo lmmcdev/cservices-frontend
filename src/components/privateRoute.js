@@ -7,14 +7,13 @@ const PrivateRoute = () => {
   const { authLoaded, user } = useAuth();
   const { state } = useAgents();
   const allAgents = state.agents ?? [];
-  const allowedRoles = ['Agent', 'Supervisor', 'Admin', 'Quality'];
 
   if (!authLoaded) {
     return <div>Cargando...</div>;
   }
 
   const knownAgent = allAgents.find(a => a.agent_email === user?.username);
-  const isAuthorized = Boolean(user && knownAgent && allowedRoles.includes(knownAgent.agent_rol));
+  const isAuthorized = Boolean(user && knownAgent);
 
   // Si no está autorizado, redirige sin usar useEffect
   if (!isAuthorized) {

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+/*import { useState, useCallback } from 'react';
 import { getTicketsByStatus } from '../../utils/apiStats';
 
 export const useFetchTicketsByStatus = () => {
@@ -22,4 +22,4 @@ export const useFetchTicketsByStatus = () => {
   }, []);
 
   return { tickets, loading, error, fetchTickets };
-};
+};*/

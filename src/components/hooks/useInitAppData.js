@@ -1,40 +1,45 @@
-// useInitAppData.js
-import { useEffect } from 'react';
-//import { useTickets } from "../../context/ticketsContext";
-import { useAgents } from "../../context/agentsContext";
-import { useAuth } from "../../context/authContext";
-import { useLoading } from "../../providers/loadingProvider";
-//import { fetchTableData } from "../../utils/apiTickets";
-import { fetchAgentData } from '../../utils/apiAgents';
-import { useNavigate } from 'react-router-dom';
-
-//hay que agarrar los agentes desde azure entra, grupos app-cservices-agentes y app-cservices-supervisors
+// src/components/hooks/useInitAppData.js
+import { useEffect, useRef } from 'react';
+import { useAgents } from '../../context/agentsContext';
+import { useAuth } from '../../context/authContext';
+import { useLoading } from '../../providers/loadingProvider';
+import { fetchAgentsFromAAD } from '../../services/fetchAgentData';
+import { DEFAULT_AGENT_GROUPS } from '../../utils/js/constants';
 
 export const useInitAppData = () => {
-  const { user } = useAuth();
-  //const { dispatch: ticketDispatch } = useTickets();
+  const { authLoaded, accessTokenGraph } = useAuth();
   const { dispatch: agentDispatch } = useAgents();
   const { setLoading } = useLoading();
-  const navigate = useNavigate();
+
+  // 🧠 CERROJO: asegura que solo cargamos una vez por sesión
+  const loadedRef = useRef(false);
 
   useEffect(() => {
-    const load = async () => {
+    if (!authLoaded || !accessTokenGraph) return;
+    if (loadedRef.current) return;
+    loadedRef.current = true;
+
+    let cancelled = false;
+
+    (async () => {
       setLoading(true);
       try {
-        const agents = await fetchAgentData(user?.username);
-        //const tickets = await fetchTableData(user?.username);
-        console.log(agents.message)
-        agentDispatch({ type: 'SET_AGENTS', payload: agents.message.agents });
-        //ticketDispatch({ type: 'SET_TICKETS', payload: tickets.message });
-      } 
-      catch(err) {
-        navigate('/404');
+        const agents = await fetchAgentsFromAAD(accessTokenGraph, {
+          groupIds: DEFAULT_AGENT_GROUPS,
+        });
+
+        if (!cancelled) {
+          // Publica en tu contexto de agentes.
+          // Nota: cada agente trae { id, name, email, agent_name, agent_email, source }
+          agentDispatch({ type: 'SET_AGENTS', payload: agents });
+        }
+      } catch (err) {
+        console.error('Agents error:', err);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-      finally {
-        setLoading(false);
-      }
-    };
-    if (user?.username) load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.username]);
+    })();
+
+    return () => { cancelled = true; };
+  }, [authLoaded, accessTokenGraph, agentDispatch, setLoading]);
 };
