@@ -1,26 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box, Grid, Card, CardContent, Typography,
-  TextField, Checkbox, FormControlLabel, Button,
-  IconButton, Tooltip
+  TextField, Button,
 } from '@mui/material';
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 
 import ProfilePic from '../components/components/profilePic';
-import DepartmentSelect from '../components/components/fields/departmentSelect';
 import RolSelect from '../components/components/fields/rolSelect';
-import AlertSnackbar from '../components/auxiliars/alertSnackbar';
 
-import { useLoading } from '../providers/loadingProvider';
-import { useAuth } from '../context/authContext';
 import { useAgents } from '../context/agentsContext';
-import { useGraphEmailCheck } from '../utils/useGraphEmailCheck';
-
-import { updateAgent } from '../utils/js/agentActions';
-
-import PersonOffIcon from '@mui/icons-material/PersonOff';
 
 //import { useSidebar } from '../context/sidebarContext';
 
@@ -38,54 +28,28 @@ const AgentSchema = Yup.object().shape({
 export default function EditAgent() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { user } = useAuth();
-    const { setLoading } = useLoading();
-    const { verifyEmailExists } = useGraphEmailCheck();
-    const { state, dispatch } = useAgents();
+    const { state } = useAgents();
 
-    const supEmail = user?.username;
     const agent = state.agents.find(a => a.id === id );
-    const agent_id = agent?.id;
 
-    const [errorOpen, setErrorOpen] = useState(false);
-    const [successOpen, setSuccessOpen] = useState(false);
-    const [successMessage, setSuccessMessage] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
     
     //const { open } = useSidebar();
 
     const agentEmail = agent.agent_email;
+    console.log(agent)
 
     const initialValues = {
       displayName: agent?.agent_name || '',
       department: agent?.agent_department || '',
       location: '', // No disponible en state, lo puedes adaptar
       role: agent?.agent_rol || '',
-      accessLevel: '', // Adaptar según tu modelo
+      accessLevel: agent.group_display_name, // Adaptar según tu modelo
       email: agent?.agent_email || '',
       isRemote: agent?.remote_agent || false,
-       isDisable: agent.is_disabled || false,
+       isDisable: agent.accountEnabled || false,
     };
 
-  const handleSubmit = async (values) => {
-    console.log(values)
-    const data = {
-      values,
-      verifyEmailExists,
-      agentId: agent_id,
-      supEmail: supEmail,
-      dispatch,
-      setLoading,
-      setSuccessMessage,
-      setErrorMessage,
-      setSuccessOpen,
-      setErrorOpen
-    };
-    await updateAgent(data);
-    
-  };
-
-    //console.log(agent.id)
+      //console.log(agent.id)
     // Aquí puedes llamar tu Azure Function o API para actualizar el agente
 
 
@@ -118,7 +82,6 @@ export default function EditAgent() {
         <Formik
           initialValues={initialValues}
           validationSchema={AgentSchema}
-          onSubmit={handleSubmit}
         >
           {({ values, errors, touched, handleChange, setFieldValue }) => (
             <Form>
@@ -153,6 +116,7 @@ export default function EditAgent() {
                               onChange={handleChange}
                               error={touched.displayName && Boolean(errors.displayName)}
                               helperText={touched.displayName && errors.displayName}
+                              disabled={true}
                               sx={{ height: '56px',
                                 '& .MuiOutlinedInput-root': {
                                   '&.Mui-focused fieldset': {
@@ -164,23 +128,27 @@ export default function EditAgent() {
                                 },
                               }}
                             />
-                            <DepartmentSelect
+
+                            <TextField
+                              name="department"
+                              label="Department"
+                              fullWidth
                               value={values.department}
-                              onChange={(val) => setFieldValue('department', val)}
-                              error={touched.department && Boolean(errors.department)}
-                              helperText={touched.department && errors.department}
-                              sx={{
-                                width: '540px',
-                                '& .MuiInputLabel-root': {
-                                  fontSize: '16px',
+                              onChange={handleChange}
+                            
+                              disabled={true}
+                              sx={{ height: '56px',
+                                '& .MuiOutlinedInput-root': {
+                                  '&.Mui-focused fieldset': {
+                                    borderColor: '#00A1FF',
+                                  },
                                 },
-                                '& .MuiSelect-select': {
-                                  fontSize: '16px',
-                                  padding: '14px',
+                                '&:hover .MuiOutlinedInput-notchedOutline': {
+                                  borderColor: '#aaa',
                                 },
-                                height: '56px'
                               }}
                             />
+                            
                             <RolSelect
                               name="role"
                               label="Role"
@@ -204,11 +172,9 @@ export default function EditAgent() {
                               name="location"
                               label="Location"
                               fullWidth
-                              value={values.location}
-                              onChange={handleChange}
-                              error={touched.location && Boolean(errors.location)}
-                              helperText={touched.location && errors.location}
+                              value={values.city}
                               InputLabelProps={{ shrink: true }}
+                              disabled={true}
                               sx={{ height: '56px',
                                 '& .MuiOutlinedInput-root': {
                                   '&.Mui-focused fieldset': {
@@ -225,9 +191,7 @@ export default function EditAgent() {
                               label="Access Level"
                               fullWidth
                               value={values.accessLevel}
-                              onChange={handleChange}
-                              error={touched.accessLevel && Boolean(errors.accessLevel)}
-                              helperText={touched.accessLevel && errors.accessLevel}
+                              disabled={true}
                               InputLabelProps={{ shrink: true }}
                               sx={{ height: '56px',
                                 '& .MuiOutlinedInput-root': {
@@ -264,9 +228,7 @@ export default function EditAgent() {
                           label="Email"
                           fullWidth
                           value={values.email}
-                          onChange={handleChange}
-                          error={touched.email && Boolean(errors.email)}
-                          helperText={touched.email && errors.email}
+                          disabled={true}
                           sx={{ height: '56px',
                                 '& .MuiOutlinedInput-root': {
                                   '&.Mui-focused fieldset': {
@@ -281,28 +243,7 @@ export default function EditAgent() {
                       </CardContent>
                     </Card>
 
-                    {/* Work Arrangement */}
-                    <Card variant="outlined" sx={{ width: '350px' }}>
-                      <CardContent sx={{ p: '20px 25px 25px 30px' }}>
-                        <Box display="flex" alignItems="center" gap={1} mb={2}>
-                          <Box sx={{ width: 8, height: 24, borderRadius: 10, backgroundColor: '#00A1FF' }} />
-                          <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#00A1FF' }}>
-                            Work Arrangement
-                          </Typography>
-                        </Box>
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              name="isRemote"
-                              checked={values.isRemote}
-                              onChange={handleChange}
-                            />
-                          }
-                          label="Remote Agent"
-                        />
-                      </CardContent>
-                    </Card>
-
+                  
                     {/* Disabled Agent */}
                     <Card variant="outlined" sx={{ width: '350px' }}>
                       <CardContent sx={{ p: '20px 25px 25px 30px' }}>
@@ -316,22 +257,6 @@ export default function EditAgent() {
                                 Account Status
                               </Typography>
                             </Box>
-
-                            {/* Botón con tooltip */}
-                            <Tooltip title="Deactivate">
-                              <span>
-                                <IconButton
-                                  onClick={() => setFieldValue("isDisable", true)}
-                                  disabled={!values.email}
-                                  sx={{
-                                    color: values.email ? '#00A1FF' : '#B0B0B0',
-                                    cursor: values.email ? 'pointer' : 'not-allowed',
-                                  }}
-                                >
-                                  <PersonOffIcon />
-                                </IconButton>
-                              </span>
-                            </Tooltip>
                           </Box>
 
                           {/* Estado visual debajo */}
@@ -341,41 +266,22 @@ export default function EditAgent() {
                                 width: 12,
                                 height: 12,
                                 borderRadius: '50%',
-                                backgroundColor: values.email ? 'success.main' : 'error.main',
+                                backgroundColor: values.isDisable ? 'success.main' : 'error.main',
                               }}
                             />
                             <Typography
                               variant="body2"
-                              sx={{ color: values.email ? 'success.main' : 'error.main', fontWeight: 'bold' }}
+                              sx={{ color: values.isDisable ? 'success.main' : 'error.main', fontWeight: 'bold' }}
                             >
-                              {values.email ? 'Enabled' : 'Deactivated'}
+                              {values.isDisable ? 'Enabled' : 'Disabled'}
                             </Typography>
-                          </Box>
-                        </Box>
+                          </Box>                        </Box>
                       </CardContent>
                     </Card>
 
                     {/* Botones */}
                     <Box display="flex" justifyContent="flex-end" gap={2} sx={{ width: '100%' }}>
-                      <Button
-                        type="submit"
-                        sx={{
-                          width: '120px',
-                          height: '44px',
-                          fontSize: '16px',
-                          fontWeight: 'bold',
-                          color: '#00A1FF',
-                          backgroundColor: '#DFF3FF',
-                          border: '2px solid #00A1FF',
-                          textTransform: 'none',
-                          '&:hover': {
-                            backgroundColor: '#00A1FF',
-                            color: '#FFFFFF',
-                          },
-                        }}
-                      >
-                        Save
-                      </Button>
+                      
                       <Button
                         onClick={() => navigate(-1)}
                         sx={{
@@ -392,7 +298,7 @@ export default function EditAgent() {
                           },
                         }}
                       >
-                        Cancel
+                        Back
                       </Button>
                     </Box>
                   </Box>
@@ -406,18 +312,7 @@ export default function EditAgent() {
   </Card>
 
 
-      <AlertSnackbar
-        open={errorOpen}
-        onClose={() => setErrorOpen(false)}
-        severity="error"
-        message={errorMessage}
-      />
-      <AlertSnackbar
-        open={successOpen}
-        onClose={() => setSuccessOpen(false)}
-        severity="success"
-        message={successMessage}
-      />
+     
     </>
   );
 }

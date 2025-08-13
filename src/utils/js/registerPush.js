@@ -42,7 +42,8 @@ export async function registerForPushNotifications(agentData = {}) {
     });
     console.log('✅ Usuario suscrito a notificaciones');
 
-    const agentDepartment = agentData.agent_department?.toLowerCase() || 'default';
+    //const agentDepartment = agentData.agent_department?.toLowerCase() || 'default';
+    const agentDepartment = 'Referrals';
     const agentRole = agentData.agent_rol?.toLowerCase() || 'agent';
 
     const installation = {
@@ -53,6 +54,7 @@ export async function registerForPushNotifications(agentData = {}) {
         p256dh: arrayBufferToBase64(subscription.getKey?.('p256dh')),
         auth: arrayBufferToBase64(subscription.getKey?.('auth')),
       },
+
       tags: [`dept:${agentDepartment}`, `role:${agentRole}`],
     };
 

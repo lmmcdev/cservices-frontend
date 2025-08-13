@@ -4,7 +4,7 @@ import { useLoading } from '../providers/loadingProvider';
 import AlertSnackbar from '../components/auxiliars/alertSnackbar';
 
 import {
-  Box, Button, Card, CardContent, Typography,
+  Box, Card, CardContent, Typography,
   Table, TableBody, TableCell, TableContainer, TableHead,
   TableRow, TablePagination, Paper, Tooltip, IconButton
 } from '@mui/material';
@@ -45,32 +45,7 @@ export default function TableAgents() {
     setPage(0);
   };
 
-  const handleSubmit = async (data) => {
-    await submitNewAgent({
-      data,
-      supEmail: user?.username,
-      dispatch,
-      setLoading,
-      setSuccessMessage,
-      setErrorMessage,
-      setSuccessOpen,
-      setErrorOpen,
-    });
-  };
-
-  const handleUpdate = async (values) => {
-    await updateAgent({
-      values,
-      verifyEmailExists,
-      user,
-      dispatch,
-      setLoading,
-      setSuccessMessage,
-      setErrorMessage,
-      setSuccessOpen,
-      setErrorOpen,
-    });
-  };
+  
 
   return (
     <>
@@ -107,26 +82,6 @@ export default function TableAgents() {
                 Agent Directory
               </Typography>
             </Box>
-
-            <Button
-              onClick={() => setOpenCreateModal(true)}
-              sx={{
-                width: '120px',
-                height: '44px',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                color: '#00A1FF',
-                backgroundColor: '#DFF3FF',
-                border: '2px solid #00A1FF',
-                textTransform: 'none',
-                '&:hover': {
-                  backgroundColor: '#00A1FF',
-                  color: '#FFFFFF',
-                },
-              }}
-            >
-              Add Agent
-            </Button>
           </Box>
 
           {/* TABLA */}
@@ -224,20 +179,9 @@ export default function TableAgents() {
                                     color: '#FFFFFF',
                                   },
                                 }}
-                                onClick={() =>
-                                  handleUpdate({
-                                    agent_id: agent.id,
-                                    email: agent.agent_email,
-                                    displayName: agent.agent_name,
-                                    role: agent.agent_rol,
-                                    department: agent.agent_department,
-                                    location: agent.agent_location,
-                                    isRemote: agent.remote_agent,
-                                    isDisable: !agent.is_disabled,
-                                  })
-                                }
+                                
                               >
-                                {agent.is_disabled
+                                {agent.accountEnabled
                                   ? icons.lock({ style: { fontSize: 16, color: 'inherit' } })
                                   : icons.unlock({ style: { fontSize: 16, color: 'inherit' } })}
                               </Box>
@@ -266,27 +210,6 @@ export default function TableAgents() {
           </Box>
         </CardContent>
       </Card>
-
-      {/* Modal para agregar agente */}
-      <CreateAgentModal
-        open={openCreateModal}
-        onClose={() => setOpenCreateModal(false)}
-        handleOnSubmit={handleSubmit}
-      />
-
-      {/* Alertas */}
-      <AlertSnackbar
-        open={errorOpen}
-        onClose={() => setErrorOpen(false)}
-        severity="error"
-        message={errorMessage}
-      />
-      <AlertSnackbar
-        open={successOpen}
-        onClose={() => setSuccessOpen(false)}
-        severity="success"
-        message={successMessage}
-      />
     </>
   );
 }
