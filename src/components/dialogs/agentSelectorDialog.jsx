@@ -18,11 +18,9 @@ export default function AgentSelectorDialog({
   agents,
   initialSelected = [],
 }) {
-  console.log(initialSelected)
   const [selected, setSelected] = useState(initialSelected);
 
   const handleAdd = () => {
-    console.log("agregando", selected)
     onAdd(selected);
     onClose();
   };
@@ -32,7 +30,6 @@ export default function AgentSelectorDialog({
     onClose();
   };
 
-  console.log(selected)
 
   return (
    <Dialog
