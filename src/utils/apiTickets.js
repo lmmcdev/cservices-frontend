@@ -467,8 +467,8 @@ export const searchTickets = async ({ query, page, size, filter }, accessToken) 
         });
         const data = await response.json();
 
-        if (!response.ok) {
-            throw new Error(data.message || 'Error fetching tickets');
+        if (data.error !== undefined && data.error !== null) {
+            return { success: false, message: data.error || 'Error fetching tickets' }; 
         }
         // Devuelve solo los datos
         return { success: true, message: data || 'Updated successfully' };
