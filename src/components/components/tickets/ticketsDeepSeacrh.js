@@ -162,6 +162,10 @@ const SearchTicketDeep = ({
         const res = await searchTickets(body);
         const raw = res?.message?.value || [];
 
+        if(!res.success) {
+          return { success: false, message: res.message || 'Error fetching tickets' };
+        }
+
         // Normaliza y agrega displayDob
         const data = raw.map((item) => ({
           ...item,
