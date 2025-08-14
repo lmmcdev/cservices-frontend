@@ -11,7 +11,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { icons } from '../auxiliars/icons';
-import ProfilePic from '../components/profilePic';
+import ProfilePic from '../auxiliars/tickets/profilePic';
 import SettingsDialog from '../dialogs/settingsDialog';
 import { useNavigate, useLocation } from 'react-router-dom';
 //import { useAgents } from '../../context/agentsContext';

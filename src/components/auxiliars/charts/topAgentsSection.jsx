@@ -15,11 +15,11 @@ import {
 } from '@mui/material';
 import ChevronLeft from '@mui/icons-material/ChevronLeft';
 import ChevronRight from '@mui/icons-material/ChevronRight';
-import ProfilePic from './components/profilePic';
+import ProfilePic from '../tickets/profilePic';
 import { keyframes } from '@emotion/react';
-import { formatMinutesToHoursPretty } from '../utils/js/minutosToHourMinutes';
-import { useDailyStatsState } from '../context/dailyStatsContext';
-import { useHistoricalStats } from '../context/historicalStatsContext';
+import { formatMinutesToHoursPretty } from '../../../utils/js/minutosToHourMinutes';
+import { useDailyStatsState } from '../../../context/dailyStatsContext';
+import { useHistoricalStats } from '../../../context/historicalStatsContext';
 
 // Animación para medallas
 const bounceHover = keyframes`

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Card, Box, Typography, Chip } from '@mui/material';
-import SpecialtyAvatar from '../components/specialtyAvatar';
+import SpecialtyAvatar from './specialtyAvatar';
 import AddressLink from './addressLink';
-import PhoneCallLink from './components/phoneCallLink';
-import { useSettings } from '../context/settingsContext';
+import PhoneCallLink from '../tickets/phoneCallLink';
+import { useSettings } from '../../../context/settingsContext';
 
 const getPhoneRaw = (p) =>
   p['Office_Phone'] ||

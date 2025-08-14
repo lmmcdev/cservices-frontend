@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { updateWorkTime } from '../../utils/apiTickets';
+import { updateWorkTime } from '../../../utils/apiTickets';
 
 export function useWorkTimer({ ticketData, agentEmail, status, enabled }) {
   const startTimeRef = useRef(null);

@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Avatar, Box } from '@mui/material';
-import { useProfilePhoto } from '../../context/profilePhotoContext';
-import { useAuth } from '../../context/authContext';
-import { getUserPhotoByEmail } from '../../utils/graphHelper';
+import { useProfilePhoto } from '../../../context/profilePhotoContext';
+import { useAuth } from '../../../context/authContext';
+import { getUserPhotoByEmail } from '../../../utils/graphHelper';
 
 const ProfilePic = ({ email, size = 40 }) => {
   const { user } = useAuth();

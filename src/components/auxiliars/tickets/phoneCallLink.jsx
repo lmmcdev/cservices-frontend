@@ -11,9 +11,9 @@ import {
   Box,
   Divider, // 👈 añadido
 } from '@mui/material';
-import { Iconify } from '../auxiliars/icons';
-import { useSettings } from '../../context/settingsContext';
-import ActionButtons from '../auxiliars/actionButtons';
+import { Iconify } from '../icons';
+import { useSettings } from '../../../context/settingsContext';
+import ActionButtons from '../../components/fields/actionButtons';
 
 /* ---------- Utils: formato de teléfono ---------- */
 const formatPhone = (raw) => {

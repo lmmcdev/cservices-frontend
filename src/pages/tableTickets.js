@@ -26,7 +26,7 @@ import { icons } from '../components/auxiliars/icons.js';
 import { useNavigate } from 'react-router-dom';
 import { useFilters } from '../context/filterContext.js';
 import { emailToFullName } from '../utils/js/emailToFullName.js';
-import StatusFilterBoxes from '../components/statusFilterBoxes';
+import StatusFilterBoxes from '../components/auxiliars/statusFilterBoxes.jsx';
 import { SortAscending, SortDescending } from 'phosphor-react';
 import { getStatusColor } from '../utils/js/statusColors.js';
 import SuspenseFallback from '../components/auxiliars/suspenseFallback.js';

@@ -7,21 +7,21 @@ import {
 } from '@mui/material';
 import RightDrawer from '../components/includes/rightDrawer.js';
 
-import { DailyCallsByHour } from '../components/components/charts/callsByHourChart';
-import ActiveAgents from '../components/activeAgents.jsx';
-import CustomerSatisfaction from '../components/customerSatisfaction.jsx';
+import { DailyCallsByHour } from '../components/auxiliars/charts/callsByHourChart.jsx';
+import ActiveAgents from '../components/auxiliars/charts/activeAgents.jsx';
+import CustomerSatisfaction from '../components/auxiliars/charts/customerSatisfaction.jsx';
 import { getTicketsByStatus, getTicketsByIds } from '../utils/apiStats';
-import { DailyTicketRiskChart } from '../components/components/charts/ticketsRiskChart.jsx';
-import { DailyTopAgents } from '../components/topAgentsSection';
-import { DailyTicketCategoriesChart } from '../components/ticketsCategoriesChart.jsx';
-import { DailyTicketPriorityChart } from '../components/ticketsPriorityChart.jsx';
-import { DailyAverageResolutionTime } from '../components/averageResolutionTime';
-import { DailyTopPerformerCard } from '../components/topPerformerCard';
+import { DailyTicketRiskChart } from '../components/auxiliars/charts/ticketsRiskChart.jsx';
+import { DailyTopAgents } from '../components/auxiliars/charts/topAgentsSection.jsx';
+import { DailyTicketCategoriesChart } from '../components/auxiliars/charts/ticketsCategoriesChart.jsx';
+import { DailyTicketPriorityChart } from '../components/auxiliars/charts/ticketsPriorityChart.jsx';
+import { DailyAverageResolutionTime } from '../components/auxiliars/charts/averageResolutionTime.jsx';
+import { DailyTopPerformerCard } from '../components/auxiliars/charts/topPerformerCard.jsx';
 import { getDailyStats } from '../utils/apiStats';
 import { useDailyStatsDispatch, useDailyStatsState } from '../context/dailyStatsContext.js';
 
-import FloatingSettingsButton from '../components/components/floatingSettingsButton';
-import StatusFilterBoxes from '../components/statusFilterBoxes'; // ✅ reutilizado
+import FloatingSettingsButton from '../components/auxiliars/charts/floatingSettingsButton.jsx';
+import StatusFilterBoxes from '../components/auxiliars/statusFilterBoxes.jsx'; // ✅ reutilizado
 
 export default function StatsScreen() {
   const state = useDailyStatsState();

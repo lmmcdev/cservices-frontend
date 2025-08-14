@@ -10,19 +10,19 @@ import {
 //import { useHistoricalDoneFetchStatistics } from '../context/doneHistoricalTicketsContext';
 
 import RightDrawer from '../components/includes/rightDrawer.js';
-import { HistoricalTopAgents } from '../components/topAgentsSection';
-import { HistoricalCallsByHour } from '../components/components/charts/callsByHourChart';
-import { HistoricalTicketRiskChart } from '../components/components/charts/ticketsRiskChart.jsx';
-import { HistoricalTicketCategoriesChart } from '../components/ticketsCategoriesChart';
-import { HistoricalTicketPriorityChart } from '../components/ticketsPriorityChart';
-import ActiveAgents from '../components/activeAgents.jsx';
-import CustomerSatisfaction from '../components/customerSatisfaction.jsx';
-import { HistoricalAverageResolutionTime } from '../components/averageResolutionTime';
-import { HistoricalTopPerformerCard } from '../components/topPerformerCard';
+import { HistoricalTopAgents } from '../components/auxiliars/charts/topAgentsSection.jsx';
+import { HistoricalCallsByHour } from '../components/auxiliars/charts/callsByHourChart.jsx';
+import { HistoricalTicketRiskChart } from '../components/auxiliars/charts/ticketsRiskChart.jsx';
+import { HistoricalTicketCategoriesChart } from '../components/auxiliars/charts/ticketsCategoriesChart.jsx';
+import { HistoricalTicketPriorityChart } from '../components/auxiliars/charts/ticketsPriorityChart.jsx';
+import ActiveAgents from '../components/auxiliars/charts/activeAgents.jsx';
+import CustomerSatisfaction from '../components/auxiliars/charts/customerSatisfaction.jsx';
+import { HistoricalAverageResolutionTime } from '../components/auxiliars/charts/averageResolutionTime.jsx';
+import { HistoricalTopPerformerCard } from '../components/auxiliars/charts/topPerformerCard.jsx';
 import { getTicketsByStatus, getTicketsByIds } from '../utils/apiStats';
-import FloatingSettingsButton from '../components/components/floatingSettingsButton.jsx';
-import StatusFilterBoxes from '../components/statusFilterBoxes'; // ✅ importa tu componente reutilizable
-import FloatingDateSelector from '../components/auxiliars/floatingDateSelector.jsx';
+import FloatingSettingsButton from '../components/auxiliars/charts/floatingSettingsButton.jsx';
+import StatusFilterBoxes from '../components/auxiliars/statusFilterBoxes.jsx'; // ✅ importa tu componente reutilizable
+import FloatingDateSelector from '../components/auxiliars/charts/floatingDateSelector.jsx';
 import { useLocation } from 'react-router-dom';
 
 const HistoricStatistics = () => {

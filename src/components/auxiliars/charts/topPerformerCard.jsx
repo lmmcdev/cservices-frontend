@@ -3,8 +3,8 @@
 import React, { useMemo } from 'react';
 import { Box, Typography, Card } from '@mui/material';
 import confetti from 'canvas-confetti';
-import { useDailyStatsState } from '../context/dailyStatsContext';
-import { useHistoricalStats } from '../context/historicalStatsContext';
+import { useDailyStatsState } from '../../../context/dailyStatsContext';
+import { useHistoricalStats } from '../../../context/historicalStatsContext';
 
 function TopPerformerCardBase({ agentStats = [], title }) {
   const topAgent = useMemo(() => {

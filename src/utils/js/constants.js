@@ -7,7 +7,8 @@ export const TICKET_ACTIONS = {
 };
 
 export const ENDPOINT_URLS = {
-    API: 'https://cservicesapi.azurewebsites.net/api'
+    API: 'https://cservicesapi.azurewebsites.net/api',
+    SIGNALR: 'https://signalrcservices.azurewebsites.net/api'
 };
 
 export const GROUP_IDS = {

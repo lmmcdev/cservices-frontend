@@ -14,8 +14,8 @@ import {
   Sector,
   Tooltip as RechartsTooltip,
 } from 'recharts';
-import { useDailyStatsState } from '../context/dailyStatsContext';
-import { useHistoricalStats } from '../context/historicalStatsContext';
+import { useDailyStatsState } from '../../../context/dailyStatsContext';
+import { useHistoricalStats } from '../../../context/historicalStatsContext';
 
 const PRIORITY_COLORS = {
   high: '#f46a6a',

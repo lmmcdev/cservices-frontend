@@ -61,7 +61,6 @@ export async function registerForPushNotifications(agentData = {}) {
     // Registrar dispositivo en backend
     const response = await fetch('https://cservicesapi.azurewebsites.net/api/registerDevice', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(installation),
     });
 

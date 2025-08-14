@@ -3,6 +3,7 @@ import * as signalR from '@microsoft/signalr';
 import { useTicketsDispatch } from './ticketsContext';
 import { useDailyStatsDispatch } from './dailyStatsContext';
 import { useAuth } from './authContext';
+import { ENDPOINT_URLS } from '../utils/js/constants';
 //import { useFetchStatistics } from './statsContext';
 //import { useDoneFetchStatistics } from './doneTicketsContext';
 
@@ -24,9 +25,7 @@ export function SignalRProvider({ children }) {
     if (connectionRef.current) return;
 
     try {
-      const res = await fetch(`https://signalrcservices.azurewebsites.net/api/negotiate?userId=${user?.username}`,
-        
-      );
+      const res = await fetch(`${ENDPOINT_URLS.SIGNALR}/negotiate?userId=${user?.username}`);
       if (!res.ok) throw new Error('Failed to fetch negotiate info');
 
       const { url, accessToken } = await res.json();

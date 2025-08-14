@@ -1,8 +1,8 @@
 import React from 'react';
 import { Avatar } from '@mui/material';
-import { Iconify } from './auxiliars/icons';
+import { Iconify } from '../icons';
 
-const pickIconName = (taxonomyDesc = '') => {
+const pickIconNamess = (taxonomyDesc = '') => {
   const t = taxonomyDesc?.toString().toLowerCase().trim();
   if (!t) return 'material-symbols:medical-services';
 
@@ -43,7 +43,7 @@ const pickIconName = (taxonomyDesc = '') => {
 };
 
 const SpecialtyAvatar = ({ taxonomy }) => {
-  const iconName = pickIconName(taxonomy);
+  const iconName = pickIconNamess(taxonomy);
   return (
     <Avatar sx={{ bgcolor: '#DFF3FF', color: '#00A1FF' }}>
       <Iconify icon={iconName} width="20" height="20" style={{ color: 'inherit' }} />

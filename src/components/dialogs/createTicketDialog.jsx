@@ -6,7 +6,7 @@ import {
 import DepartmentSelect from '../components/fields/departmentSelect';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import ActionButtons from '../auxiliars/actionButtons';
+import ActionButtons from '../components/fields/actionButtons';
 
 const statusOptions = ['Emergency', 'In Progress', 'Pending', 'Done'];
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
-import ProviderCard from '../../providerCard';
+import ProviderCard from '../../auxiliars/providers/providerCard';
 
 const ProviderListUI = ({
   providers,

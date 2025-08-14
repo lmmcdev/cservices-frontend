@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, Tooltip, Typography } from '@mui/material';
-import { Iconify } from './auxiliars/icons';
+import { Iconify } from '../icons';
 
 const formatZip = (zipBase, zip4) => {
   const onlyDigits = (v) => (v ? String(v).match(/\d/g)?.join('') ?? '' : '');
