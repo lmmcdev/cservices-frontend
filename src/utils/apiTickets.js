@@ -401,7 +401,7 @@ export const relateTicketsByPhone = async (dispatch, setLoading, ticket_id, agen
       success: true,
       message: data.message || `Action ${action} completed successfully.`,
       updated_ticket_ids: data.updated_ticket_ids || [],
-      updated_ticket: data.updatedTicket || null
+      updated_ticket: data || null
     };
 
   } catch (err) {
