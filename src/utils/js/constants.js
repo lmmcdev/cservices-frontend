@@ -11,6 +11,7 @@ export const ENDPOINT_URLS = {
     SIGNALR: 'https://signalrcservices.azurewebsites.net/api'
 };
 
+//GRUPOS DE SEGURIDAD DE AZURE
 export const GROUP_IDS = {
   CUSTOMER_SERVICE: {
     AGENTS: '84a3609f-65c5-4353-b0a8-530e7f22907e',
