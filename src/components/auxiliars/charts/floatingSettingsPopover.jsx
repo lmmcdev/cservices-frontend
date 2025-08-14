@@ -10,8 +10,6 @@ import {
   ListItemText
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useAgents } from '../../../context/agentsContext';
-import { useAuth } from '../../../context/authContext';
 import TodayIcon from '@mui/icons-material/Today';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
@@ -20,12 +18,7 @@ export default function FloatingSettingsPopover({ anchorEl, onClose }) {
   const id = open ? 'floating-settings-popover' : undefined;
 
   const navigate = useNavigate();
-  const { state: allAgents } = useAgents();
-  const { user } = useAuth();
-
-  const agents = allAgents.agents;
-  const supEmail = user?.username;
-  const currentAgent = agents.find(a => a.agent_email === supEmail);
+  
 
   // 👉 Mismos items del sidebar
   const navItems = [
@@ -33,10 +26,7 @@ export default function FloatingSettingsPopover({ anchorEl, onClose }) {
     { icon: <CalendarMonthIcon sx={{ fontSize: 22 }} />, label: 'Daily Statistics', path: '/historical_statistics', roles: ['Supervisor'] },
   ];
 
-  const filteredItems = navItems.filter(item =>
-    item.roles.includes(currentAgent?.agent_rol)
-  );
-
+  
   const handleNavigate = (path, label) => {
     navigate(path, { state: { openDateSelector: label === 'Daily Statistics' } });
     onClose();
@@ -66,7 +56,7 @@ export default function FloatingSettingsPopover({ anchorEl, onClose }) {
         </Typography>
 
         <List>
-          {filteredItems.map(({ icon, label, path }) => (
+          {navItems.map(({ icon, label, path }) => (
             <ListItem disablePadding key={label}>
               <ListItemButton
                 onClick={() => handleNavigate(path, label)}
