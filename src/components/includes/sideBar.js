@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// src/components/sideBar.jsx
+import React, { useState, useMemo } from 'react';
 import {
   Drawer,
   List,
@@ -14,50 +15,82 @@ import { icons } from '../auxiliars/icons';
 import ProfilePic from '../auxiliars/tickets/profilePic';
 import SettingsDialog from '../dialogs/settingsDialog';
 import { useNavigate, useLocation } from 'react-router-dom';
-//import { useAgents } from '../../context/agentsContext';
-//import { useAuth } from '../../context/authContext';
 import LogoutButton from '../components/fields/logoutAzureButton';
 
+// ⬇️ Ajusta estas rutas si difieren en tu proyecto
+import { useAuth } from '../../context/authContext';
+import { GROUP_IDS } from '../../utils/js/constants';
+
+//const [user] = useAuth() || {};
 const drawerWidthOpen = 200;
 const drawerWidthClosed = 80;
 
+// 🔐 Helper: ¿el usuario pertenece a alguno de los grupos?
+const hasAnyGroup = (userGroups = [], allowedGroups = []) =>
+  Array.isArray(userGroups) &&
+  Array.isArray(allowedGroups) &&
+  allowedGroups.some(g => userGroups.includes(g));
+
 export default function CollapsibleDrawer() {
   const [open, setOpen] = useState(false);
-  const [openSettings, setOpenSettings] = useState(false); // ⬅️ estado del diálogo
+  const [openSettings, setOpenSettings] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
-  //const { state: allAgents } = useAgents();
-  //const { user } = useAuth();
-  //const agents = allAgents.agents;
-  //const supEmail = user?.username;
-  //const currentAgent = agents.find((a) => a.agent_email === supEmail);
 
-  const navItems = [
-    { icon: <icons.dashboard style={{ fontSize: 22 }} />, label: 'Dashboard', path: '/statistics', roles: ['Supervisor'] },
-    { icon: <icons.callLogs style={{ fontSize: 22 }} />, label: 'Call Logs', path: '/dashboard', roles: ['Agent', 'Customer Service', 'Switchboard', 'Supervisor'] },
-    { icon: <icons.team style={{ fontSize: 22 }} />, label: 'Team', path: '/agents', roles: ['Supervisor'] },
-    { icon: <icons.searchIcon style={{ fontSize: 22 }} />, label: 'Find', path: '/profile-search', roles: ['Supervisor'] },
-  ];
+  //del authContext
+  const { user = {} } = useAuth() || {};
+  const groups = useMemo(() => user?.idTokenClaims?.groups || [], [user]);
 
-  // ✅ Solo ítems visibles para el rol del agente actual
-  /*const filteredItems = navItems.filter((item) =>
-    item.roles.includes(currentAgent.agent_rol)
-  );*/
-  const filteredItems = navItems;
+  // 🎯 Definición del menú + control de acceso por grupos AAD
+  //    - Dashboard (/statistics): solo Supervisores
+  //    - Call Logs (/dashboard): Agents, Supervisors y Remote
+  //    - Team (/agents): solo Supervisores
+  //    - Find (/profile-search): solo Supervisores
+  const navItems = useMemo(() => ([
+    {
+      icon: <icons.dashboard style={{ fontSize: 22 }} />,
+      label: 'Dashboard',
+      path: '/statistics',
+      allowedGroups: [GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS],
+    },
+    {
+      icon: <icons.callLogs style={{ fontSize: 22 }} />,
+      label: 'Call Logs',
+      path: '/dashboard',
+      allowedGroups: [
+        GROUP_IDS.CUSTOMER_SERVICE.AGENTS,
+        GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS,
+        GROUP_IDS.CUSTOMER_SERVICE.REMOTE,
+      ],
+    },
+    {
+      icon: <icons.team style={{ fontSize: 22 }} />,
+      label: 'Team',
+      path: '/agents',
+      allowedGroups: [GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS],
+    },
+    {
+      icon: <icons.searchIcon style={{ fontSize: 22 }} />,
+      label: 'Find',
+      path: '/profile-search',
+      allowedGroups: [GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS],
+    },
+  ]), []);
 
-  const handleListItemClick = (path) => {
-    navigate(path);
-  };
+  // 🧮 Filtrado final por grupos del usuario
+  const visibleItems = useMemo(
+    () => navItems.filter(item => hasAnyGroup(groups, item.allowedGroups)),
+    [groups, navItems]
+  );
 
-  const toggleOpen = () => setOpen((prev) => !prev);
+  const handleListItemClick = (path) => navigate(path);
+  const toggleOpen = () => setOpen(prev => !prev);
 
   const handleOpenSettings = (e) => {
     e?.stopPropagation?.();
     setOpenSettings(true);
   };
-
-  // Accesibilidad: activar con Enter o Space
   const handleKeyActivate = (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -88,7 +121,7 @@ export default function CollapsibleDrawer() {
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <List sx={{ width: '100%', px: open ? 1 : 0 }}>
-            {filteredItems.map(({ icon, label, path }) => {
+            {visibleItems.map(({ icon, label, path }) => {
               const isActive = location.pathname === path;
               return (
                 <ListItemButton
@@ -139,6 +172,7 @@ export default function CollapsibleDrawer() {
           </List>
 
           <Box sx={{ flexGrow: 1 }} />
+
           <Box
             sx={{
               width: '100%',
@@ -154,7 +188,6 @@ export default function CollapsibleDrawer() {
           >
             <LogoutButton />
           </Box>
-                
 
           <Divider
             sx={{
@@ -206,7 +239,6 @@ export default function CollapsibleDrawer() {
                   <icons.collapseRight />
                 </IconButton>
 
-
                 <Tooltip title="Open settings">
                   <Box
                     onClick={handleOpenSettings}
@@ -239,7 +271,6 @@ export default function CollapsibleDrawer() {
         </Box>
       </Drawer>
 
-      {/* Dialog de Settings */}
       <SettingsDialog open={openSettings} onClose={() => setOpenSettings(false)} />
     </>
   );
