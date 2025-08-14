@@ -31,8 +31,11 @@ const ProviderListContainer = ({ onSelect }) => {
 
     setLoading(true);
     try {
-      const response = await getProviders({ params: { name: searchTerm, limit: 50 } });
-      const { items } = response.message;
+      const query = searchTerm;
+      const filter = ''; // puedes ajustar esto según tus necesidades
+      const response = await getProviders(query, filter);
+      const items = response?.message?.results || [];
+      console.log(response)
 
       const term = searchTerm.toLowerCase();
       const filtered = items.filter((provider) => {
