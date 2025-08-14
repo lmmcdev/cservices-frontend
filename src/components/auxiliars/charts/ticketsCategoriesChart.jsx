@@ -12,8 +12,8 @@ import {
   LabelList,
   Cell,
 } from 'recharts';
-import { useDailyStatsState } from '../context/dailyStatsContext';
-import { useHistoricalStats } from '../context/historicalStatsContext';
+import { useDailyStatsState } from '../../../context/dailyStatsContext';
+import { useHistoricalStats } from '../../../context/historicalStatsContext';
 
 const COLORS = [
   '#00b8a3',

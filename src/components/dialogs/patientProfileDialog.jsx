@@ -13,7 +13,7 @@ import {
   Paper,
   CircularProgress,
 } from '@mui/material';
-import usePhoneHistory from '../components/phoneHistory';
+import usePhoneHistory from '../auxiliars/tickets/phoneHistory';
 import { useNavigate } from 'react-router-dom';
 import FilterListIcon from '@mui/icons-material/FilterList';
 

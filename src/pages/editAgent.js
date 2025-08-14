@@ -7,7 +7,7 @@ import {
 import { Formik, Form } from 'formik';
 import * as Yup from 'yup';
 
-import ProfilePic from '../components/components/profilePic';
+import ProfilePic from '../components/auxiliars/tickets/profilePic';
 import RolSelect from '../components/components/fields/rolSelect';
 
 import { useAgents } from '../context/agentsContext';

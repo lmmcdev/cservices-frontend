@@ -5,7 +5,7 @@ import {
 //import CloseIcon from '@mui/icons-material/Close';
 import { flags } from '../../auxiliars/icons';
 import CakeIcon from '@mui/icons-material/Cake';
-import PhoneCallLink from '../phoneCallLink';
+import PhoneCallLink from '../../auxiliars/tickets/phoneCallLink';
 
 const getLanguageCode = (languageString) => {
   if (!languageString) return null;

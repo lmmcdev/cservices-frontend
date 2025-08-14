@@ -4,7 +4,7 @@ import {
   Button, Typography, Card, DialogTitle
 } from "@mui/material";
 import { assignAgent, changeStatus } from "../../utils/apiTickets";
-import ProfilePic from "../components/profilePic";
+import ProfilePic from "../auxiliars/tickets/profilePic";
 import { icons } from '../auxiliars/icons';
 
 const AssignAgentModal = ({ open, onClose, ticket, agentEmail, dispatch, setLoading }) => {

@@ -11,7 +11,7 @@ import {
   MenuItem,
   OutlinedInput
 } from '@mui/material';
-import ActionButtons from '../auxiliars/actionButtons';
+import ActionButtons from '../components/fields/actionButtons';
 import { BsHousesFill } from 'react-icons/bs';
 
 const ChangeDepartmentModal = ({

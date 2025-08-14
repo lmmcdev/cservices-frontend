@@ -8,7 +8,7 @@ import {
 // ❌ ya no hace falta SearchIcon ni Button
 // import SearchIcon from '@mui/icons-material/Search';
 // import { Button } from '@mui/material';
-import SearchButton from '../../auxiliars/searchButton'; // 👈 tu botón reusable
+import SearchButton from '../../auxiliars/searchButton';
 
 import { getProviders } from '../../../utils/apiProviders';
 import ProviderListUI from './providerListUI';

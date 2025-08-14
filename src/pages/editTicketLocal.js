@@ -13,7 +13,7 @@ import TicketCollaborators from '../components/auxiliars/tickets/ticketCollabora
 import TicketAudio from '../components/auxiliars/tickets/ticketAudio.jsx';
 import TicketAssignee from '../components/auxiliars/tickets/ticketAssignee.jsx';
 import Tooltip from '@mui/material/Tooltip';
-import { useWorkTimer } from '../components/components/useWorkTimer';
+import { useWorkTimer } from '../components/auxiliars/tickets/useWorkTimer.jsx';
 import TicketWorkTime from '../components/auxiliars/tickets/ticketWorkTime.js';
 import { useAgents } from '../context/agentsContext';
 import { useAuth } from '../context/authContext';

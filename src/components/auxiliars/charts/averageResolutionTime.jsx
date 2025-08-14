@@ -3,9 +3,9 @@
 import React from 'react';
 import { Card, CardContent, Box, Typography } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import { useDailyStatsState } from '../context/dailyStatsContext';
-import { useHistoricalStats } from '../context/historicalStatsContext';
-import { formatMinutesToHoursPretty } from '../utils/js/minutosToHourMinutes';
+import { useDailyStatsState } from '../../../context/dailyStatsContext';
+import { useHistoricalStats } from '../../../context/historicalStatsContext';
+import { formatMinutesToHoursPretty } from '../../../utils/js/minutosToHourMinutes';
 
 // componente base
 function AverageResolutionTimeCard({ avgMinutes }) {

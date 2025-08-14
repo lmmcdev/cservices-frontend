@@ -10,8 +10,8 @@ import {
   ListItemText
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useAgents } from '../../context/agentsContext';
-import { useAuth } from '../../context/authContext';
+import { useAgents } from '../../../context/agentsContext';
+import { useAuth } from '../../../context/authContext';
 import TodayIcon from '@mui/icons-material/Today';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 

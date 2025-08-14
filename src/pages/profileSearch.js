@@ -18,7 +18,6 @@ import { Icon } from '@iconify/react';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import ProviderList from '../components/components/providers/providerList';
 import ProviderEditForm from './editProvider';
-import { handleUpdateProvider } from '../utils/js/providerActions';
 import { useLoading } from '../providers/loadingProvider';
 import AlertSnackbar from '../components/auxiliars/alertSnackbar';
 import PatientSearchContainer from '../components/components/patients/patientSearchContainer';
@@ -102,11 +101,6 @@ export default function ProfileSearch() {
   //const filtered = useMemo(() => applyFilters(data), [data, query, filter]);
   const filtered = applyFilters(data)
     
-  const updateProviderUI = async (data, id) => {
-    const dataProvider = { ...data, id}
-    await handleUpdateProvider({setLoading, dataProvider, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen});
-  
-  };
   const setSelectedTicketFunc = async (ticket) => {
     handleQuickViewOpen(ticket);
     //console.log('Selected ticket:', ticket);
@@ -357,9 +351,6 @@ export default function ProfileSearch() {
             selectedProvider ? (
               <ProviderEditForm
                 initialData={selectedProvider}
-                onSubmit={async (updatedValues, providerID) => {
-                  await updateProviderUI(updatedValues, providerID)
-                }}
               />
             ) : (
               <Typography color="#5B5F7B">
