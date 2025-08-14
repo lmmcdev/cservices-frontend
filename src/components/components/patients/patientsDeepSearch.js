@@ -75,7 +75,7 @@ const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
       setLoading(true);
       try {
         const res = await searchPatients(query, filter, pageNumber, PAGE_SIZE);
-        const data = res?.message?.value || [];
+        const data = res?.message?.hits || [];
 
         if (pageNumber === 1) {
           setResults(data);

@@ -37,9 +37,6 @@ export const assignAgent = async (dispatch, setLoading, ticketId, currentAgentEm
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/assignAgent`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         tickets: ticketId,
         //agent_email: currentAgentEmail,
@@ -71,9 +68,6 @@ export const changeStatus = async (dispatch, setLoading, ticketId, currentAgentE
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateStatus`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         ticketId: ticketId,
         newStatus: newStatus,
@@ -103,9 +97,6 @@ export const addNotes = async (dispatch, setLoading, ticketId, currentAgentEmail
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateNotes`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         ticketId: ticketId,
         agent_email: currentAgentEmail,
@@ -135,9 +126,6 @@ export const updateCollaborators = async (dispatch, setLoading, ticketId, curren
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateCollaborators`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         ticketId,
         agent_email: currentAgentEmail,
@@ -166,9 +154,6 @@ export const updateTicketDepartment = async (dispatch, setLoading, ticketId, cur
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateTicketDepartment`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         tickets: ticketId,
         agent_email: currentAgentEmail,
@@ -199,9 +184,6 @@ export const updateCenter = async (dispatch, setLoading, formData, center) => {
   try {
     const response = await fetch(`https://prod-69.eastus.logic.azure.com:443/workflows/f358af2ae24b4e2e8957c471c02e7e7c/triggers/When_a_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_a_HTTP_request_is_received%2Frun&sv=1.0&sig=Ztx0ECBzmsTG6JxtrVDQX-WhrqyBQge74GDN59ng4g8`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         "Phone Number": formData.phone,
         "Caller ID": center,
@@ -238,9 +220,6 @@ export const updatePatientName = async (dispatch, setLoading, ticketId, currentA
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdatePatientName`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         tickets: ticketId,
         nuevo_nombreapellido: newPatientName,
@@ -269,9 +248,6 @@ export const updatePatientDOB = async (dispatch, setLoading, ticketId, currentAg
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdatePatientBOD`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         tickets: ticketId,
         agent_email: currentAgentEmail,
@@ -301,9 +277,6 @@ export const updateCallbackNumber = async (dispatch, setLoading, ticketId, curre
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdatePatientPhone`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         tickets: ticketId,
         new_phone: newPatientPhone,
@@ -334,9 +307,6 @@ export const updateWorkTime = async (dispatch, setLoading, ticketId, currentAgen
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateWorkTime`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         tickets: ticketId,
         agent_email: currentAgentEmail,
@@ -371,9 +341,6 @@ export const createNewTicket = async (dispatch, setLoading, formData) => {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoInsertForm`, {
     //const response = await fetch('http://localhost:7072/api/cosmoInsertForm', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({
         form: {
           patient_name: formData.patientName,
@@ -415,7 +382,6 @@ export const relateTicketsByPhone = async (dispatch, setLoading, ticket_id, agen
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/updateTicketsByPhone`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action,
         ticket_id,
@@ -454,10 +420,6 @@ export const searchTickets = async ({ query, page, size, filter }, accessToken) 
     try {
         const response = await fetch(url, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        // Authorization: `Bearer ${accessToken}`, si usas autenticación
-        },
         body: JSON.stringify({
       query,
       page,
