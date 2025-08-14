@@ -33,7 +33,7 @@ export const ticketReducer = (state, action) => {
         };
 
 
-    case 'UPD_TICKET': {
+    /*case 'UPD_TICKET': {
 
       const { id } = action.payload;
       let changed = false;
@@ -56,21 +56,31 @@ export const ticketReducer = (state, action) => {
 
       if (!changed) return state;
       return { ...state, tickets: nextTickets };
+    }*/
+
+  case 'UPSERT_TICKET': {
+      const t = action.payload;
+      if (!t?.id) return state;
+      const idx = state.tickets.findIndex(x => x.id === t.id);
+      if (idx === -1) {
+        return { ...state, tickets: [...state.tickets, t] };
+      }
+      const clone = state.tickets.slice();
+      clone[idx] = { ...clone[idx], ...t };
+      return { ...state, tickets: clone };
     }
 
 
 
-
-
-    /*case 'UPD_TICKET':
+    case 'UPD_TICKET':
       //console.log('Actualizando ticket ID:', action.payload.id);
-      //console.log('Payload completo:', action.payload);
+      console.log('Payload completo:', action.payload);
       return {
         ...state,
         tickets: state.tickets.map(ticket =>
           ticket.id === action.payload.id ? action.payload : ticket
         )
-      };*/
+      };
 
 
     //agents

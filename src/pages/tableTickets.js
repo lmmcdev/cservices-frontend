@@ -1,24 +1,11 @@
 // src/pages/tableTickets.jsx
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useLoading } from '../providers/loadingProvider.jsx';
 import { useAuth } from '../context/authContext.js';
 import { useTickets } from '../context/ticketsContext.js';
 import {
-  Box,
-  Chip,
-  Card,
-  CardContent,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TablePagination,
-  IconButton,
-  Tooltip
+  Box, Chip, Card, CardContent, Paper, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, TablePagination, IconButton, Tooltip
 } from '@mui/material';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import AssignAgentModal from '../components/dialogs/assignAgentDialog';
@@ -35,7 +22,8 @@ import { fetchTableData } from '../utils/apiTickets.js';
 
 export default function TableTickets() {
   const { filters } = useFilters();
-  const { dispatch } = useTickets();
+  const { state, dispatch } = useTickets();
+  const tickets = state.tickets || [];
 
   const { setLoading } = useLoading();
   const { user } = useAuth();
@@ -45,97 +33,108 @@ export default function TableTickets() {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const navigate = useNavigate();
   const [sortDirection, setSortDirection] = useState('desc');
-  const [tickets, setTickets] = useState([]);
 
+  // Reset de página al cambiar filtro rápido
+  useEffect(() => { setPage(0); }, [selectedStatus]);
+
+  // Fetch inicial -> llena contexto global
   useEffect(() => {
-    setPage(0);
-  }, [selectedStatus]);
-
-  //create a function to fetch tickets
-  const fetchTickets = async () => {
-    setLoading(true);
-    try {
-      const tickets = await fetchTableData();
-      setTickets(tickets.message);
-      dispatch({ type: 'SET_TICKETS', payload: tickets.message });
-    } catch (error) {
-      console.error('Error fetching tickets:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTickets();
+    (async () => {
+      setLoading(true);
+      try {
+        const res = await fetchTableData(); // tu helper
+        const list = Array.isArray(res?.message) ? res.message : [];
+        dispatch({ type: 'SET_TICKETS', payload: list });
+      } catch (error) {
+        console.error('Error fetching tickets:', error);
+      } finally {
+        setLoading(false);
+      }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  
-  const validTickets = Array.isArray(tickets) ? tickets : [];
-  if (validTickets.length === 0) {
-    return null;
-  }
 
-  const filteredRows = validTickets.filter((row) => {
-    const matchStatus = selectedStatus === 'Total' || row.status === selectedStatus;
-    const matchAgent =
-      filters.assignedAgents.length === 0 || filters.assignedAgents.includes(row.agent_assigned);
-    const matchCaller =
-      filters.callerIds.length === 0 || filters.callerIds.includes(row.caller_id);
-    const matchDate =
-      !filters.date || row.creation_date?.startsWith(filters.date);
-    const matchDepartment =
-      filters.assignedDepartment.length === 0 || filters.assignedDepartment.includes(row.assigned_department);
-    return matchStatus && matchAgent && matchCaller && matchDate && matchDepartment;
-  });
+  // ---- Helpers de UI ----
+  const columnWidths = useMemo(() => ({
+    status: 110, callerId: 120, name: 160, dob: 120, phone: 130, createdAt: 160, assignedTo: 160
+  }), []);
 
-
-  const sortedRows = [...filteredRows].sort((a, b) => {
-    const dateA = new Date(a.creation_date);
-    const dateB = new Date(b.creation_date);
-    return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
-  });
-
-  const paginatedRows = sortedRows.slice(
-    page * rowsPerPage,
-    page * rowsPerPage + rowsPerPage
-  );
-
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const ticketsCountByStatus = validTickets.reduce((acc, ticket) => {
-    const status = ticket.status || 'Unknown';
-    acc[status] = (acc[status] || 0) + 1;
-    return acc;
-  }, {});
-  ticketsCountByStatus.Total = filteredRows.length;
-
-  const columnWidths = {
-    status: 110,
-    callerId: 120,
-    name: 160,
-    dob: 120,
-    phone: 130,
-    createdAt: 160,
-    assignedTo: 160
-  };
-
-  const formatPhone = (value) => {
-    const digits = value.replace(/\D/g, '').slice(-10);
+  const formatPhone = (value = '') => {
+    const digits = (value || '').replace(/\D/g, '').slice(-10);
     const parts = [];
     if (digits.length > 0) parts.push('(' + digits.slice(0, 3));
     if (digits.length >= 4) parts[0] += ') ';
     if (digits.length >= 4) parts.push(digits.slice(3, 6));
     if (digits.length >= 7) parts.push('-' + digits.slice(6, 10));
-    return '+1 ' + parts.join('');
+    return digits ? '+1 ' + parts.join('') : 'N/A';
   };
+
+  // ---- Derivados: filtros, orden, paginación ----
+  const filteredRows = useMemo(() => {
+    const rows = Array.isArray(tickets) ? tickets : [];
+    return rows.filter((row) => {
+      const matchStatus = selectedStatus === 'Total' || row.status === selectedStatus;
+      const matchAgent =
+        (filters.assignedAgents?.length || 0) === 0 || filters.assignedAgents.includes(row.agent_assigned);
+      const matchCaller =
+        (filters.callerIds?.length || 0) === 0 || filters.callerIds.includes(row.caller_id);
+      const matchDate = !filters.date || row.creation_date?.startsWith(filters.date);
+      const matchDepartment =
+        (filters.assignedDepartment?.length || 0) === 0 || filters.assignedDepartment.includes(row.assigned_department);
+      return matchStatus && matchAgent && matchCaller && matchDate && matchDepartment;
+    });
+  }, [tickets, selectedStatus, filters]);
+
+  const sortedRows = useMemo(() => {
+    const rows = [...filteredRows];
+    rows.sort((a, b) => {
+      const dateA = new Date(a.creation_date);
+      const dateB = new Date(b.creation_date);
+      return sortDirection === 'asc' ? dateA - dateB : dateB - dateA;
+    });
+    return rows;
+  }, [filteredRows, sortDirection]);
+
+  const paginatedRows = useMemo(
+    () => sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
+    [sortedRows, page, rowsPerPage]
+  );
+
+  const ticketsCountByStatus = useMemo(() => {
+    const acc = (tickets || []).reduce((m, t) => {
+      const s = t.status || 'Unknown';
+      m[s] = (m[s] || 0) + 1;
+      return m;
+    }, {});
+    acc.Total = filteredRows.length;
+    return acc;
+  }, [tickets, filteredRows.length]);
+
+  const handleChangePage = (_e, newPage) => setPage(newPage);
+  const handleChangeRowsPerPage = (e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); };
+
+  // ---- Callbacks para actualizaciones en caliente ----
+  // Si tu modal devuelve el ticket actualizado, lo consolidamos aquí
+  const handleAssignedSuccess = useCallback((updatedTicket) => {
+    if (updatedTicket?.id) {
+      dispatch({ type: 'UPSERT_TICKET', payload: updatedTicket });
+    }
+  }, [dispatch]);
+
+  // En caso de que quieras asignarte sin pasar por modal (optimista):
+  // const assignToMeOptimistic = useCallback(async (ticket) => {
+  //   const prev = ticket;
+  //   const optimistic = { ...ticket, agent_assigned: user?.username, _optimistic: true };
+  //   dispatch({ type: 'UPSERT_TICKET', payload: optimistic });
+  //   try {
+  //     const res = await fetch('/api/assignAgent', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ tickets: ticket.id }) });
+  //     const json = await res.json();
+  //     const updated = json?.message || json;
+  //     dispatch({ type: 'UPSERT_TICKET', payload: { ...updated, _optimistic: false } });
+  //   } catch (e) {
+  //     dispatch({ type: 'UPSERT_TICKET', payload: prev }); // rollback
+  //   }
+  // }, [dispatch, user?.username]);
 
   if (!Array.isArray(tickets) || tickets.length === 0) {
     return <SuspenseFallback />;
@@ -158,7 +157,7 @@ export default function TableTickets() {
         }}
       >
         <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-          {/* FILTROS alineados con la tabla y con margen inferior extra */}
+          {/* FILTROS */}
           <Box sx={{ flexShrink: 0, px: 4, pt: 4, pb: 2 }}>
             <StatusFilterBoxes
               selectedStatus={selectedStatus}
@@ -167,7 +166,7 @@ export default function TableTickets() {
             />
           </Box>
 
-          {/* TABLA CON HEADERS FIJOS */}
+          {/* TABLA */}
           <Box sx={{ flex: 1, overflow: 'hidden', px: 4 }}>
             <TableContainer
               component={Paper}
@@ -190,9 +189,7 @@ export default function TableTickets() {
                     <TableCell sx={{ width: columnWidths.status, minWidth: columnWidths.status, fontWeight: 'bold' }}>
                       Status
                     </TableCell>
-                    <TableCell sx={{ width: 100, fontWeight: 'bold' }}>
-                      Flags
-                    </TableCell>
+                    <TableCell sx={{ width: 100, fontWeight: 'bold' }}>Flags</TableCell>
                     <TableCell sx={{ width: columnWidths.callerId, minWidth: columnWidths.callerId, fontWeight: 'bold' }}>
                       Caller ID
                     </TableCell>
@@ -217,12 +214,10 @@ export default function TableTickets() {
                       onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
                     >
                       <Box display="flex" alignItems="center">
-                        Created At&nbsp;
-                        {sortDirection === 'asc' ? (
-                          <SortAscending size={20} weight="bold" style={{ marginLeft: 8 }} />
-                        ) : (
-                          <SortDescending size={20} weight="bold" style={{ marginLeft: 8 }} />
-                        )}
+                        Created At&nbsp;{sortDirection === 'asc'
+                          ? <SortAscending size={20} weight="bold" style={{ marginLeft: 8 }} />
+                          : <SortDescending size={20} weight="bold" style={{ marginLeft: 8 }} />
+                        }
                       </Box>
                     </TableCell>
                     <TableCell sx={{ width: columnWidths.assignedTo, minWidth: columnWidths.assignedTo, fontWeight: 'bold' }}>
@@ -233,6 +228,7 @@ export default function TableTickets() {
                     </TableCell>
                   </TableRow>
                 </TableHead>
+
                 <TableBody>
                   {paginatedRows.map((row, idx) => (
                     <TableRow key={row.id || idx} sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>
@@ -246,44 +242,32 @@ export default function TableTickets() {
                             fontWeight: 'bold',
                             fontSize: 12,
                             borderRadius: '16px',
-                            '& .MuiChip-label': {
-                              display: 'flex',
-                              alignItems: 'center',
-                              py: '4px',
-                              px: '15px',
-                            },
+                            '& .MuiChip-label': { display: 'flex', alignItems: 'center', py: '4px', px: '15px' },
                           }}
                         />
                       </TableCell>
-                      <TableCell>
-                        <TicketIndicators ai_data={row.aiClassification} showTooltip iconsOnly />
-                      </TableCell>
+
+                      <TableCell><TicketIndicators ai_data={row.aiClassification} showTooltip iconsOnly /></TableCell>
                       <TableCell>{row.caller_id}</TableCell>
+
                       <TableCell>
                         {row.linked_patient_snapshot?.Name ? (
                           <Box display="flex" alignItems="center" gap={1}>
                             <Tooltip title="Ver perfil de paciente">
-                              <IconButton
-                                size="small"
-                                color="success"
-                                onClick={() => {
-                                  // Aquí puedes abrir un modal, navegar, etc.
-                                  // Ejemplo: navigate(`/patients/${row.linked_patient_snapshot.Id}`)
-                                }}
-                              >
+                              <IconButton size="small" color="success" onClick={() => { /* navigate(...) */ }}>
                                 <InsertLinkIcon fontSize="small" />
                               </IconButton>
                             </Tooltip>
                             {row.linked_patient_snapshot.Name}
                           </Box>
-                        ) : (
-                          row.patient_name
-                        )}
+                        ) : (row.patient_name)}
                       </TableCell>
+
                       <TableCell>{row.patient_dob}</TableCell>
-                      <TableCell>{row.phone ? formatPhone(row.phone) : 'N/A'}</TableCell>
+                      <TableCell>{formatPhone(row.phone)}</TableCell>
                       <TableCell>{row.creation_date}</TableCell>
                       <TableCell>{emailToFullName(row.agent_assigned)}</TableCell>
+
                       <TableCell>
                         <Box display="flex" justifyContent="center" gap={1}>
                           {row.agent_assigned ? (
@@ -297,15 +281,11 @@ export default function TableTickets() {
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  width: 32,
-                                  height: 32,
+                                  width: 32, height: 32,
                                   transition: 'background-color 0.3s',
-                                  '&:hover': {
-                                    backgroundColor: '#00A1FF',
-                                    color: '#fff',
-                                  },
+                                  '&:hover': { backgroundColor: '#00A1FF', color: '#fff' },
                                 }}
-                                onClick={() => navigate(`/tickets/edit/${row.id}`, { state: { row }})}
+                                onClick={() => navigate(`/tickets/edit/${row.id}`, { state: { row } })}
                               >
                                 <icons.edit sx={{ fontSize: 16 }} />
                               </Box>
@@ -318,14 +298,9 @@ export default function TableTickets() {
                                   backgroundColor: '#daf8f4',
                                   color: '#00b8a3',
                                   borderRadius: '50%',
-                                  p: 1,
-                                  width: 32,
-                                  height: 32,
+                                  p: 1, width: 32, height: 32,
                                   transition: 'background-color 0.3s',
-                                  '&:hover': {
-                                    backgroundColor: '#00b8a3',
-                                    color: '#fff',
-                                  },
+                                  '&:hover': { backgroundColor: '#00b8a3', color: '#fff' },
                                 }}
                               >
                                 <icons.assignToMe size={16} />
@@ -337,6 +312,7 @@ export default function TableTickets() {
                     </TableRow>
                   ))}
                 </TableBody>
+
               </Table>
             </TableContainer>
           </Box>
@@ -362,8 +338,9 @@ export default function TableTickets() {
           onClose={() => setSelectedTicket(null)}
           ticket={selectedTicket}
           agentEmail={user.username}
-          dispatch={dispatch}
-          setLoading={setLoading}
+          dispatch={dispatch}               // si tu modal lo usa
+          setLoading={setLoading}           // si tu modal lo usa
+          onAssigned={handleAssignedSuccess} // <- NUEVO: al confirmar, llamar con el ticket actualizado
         />
       )}
     </>
