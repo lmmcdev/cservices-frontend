@@ -1,79 +1,144 @@
 // utils/ticketsReducer.js
+
+const getStatus = (t) => (t?.status ? t.status : 'Unknown');
+
+function buildDerived(tickets) {
+  const ids = [];
+  const byId = {};
+  const statusCounts = {};
+
+  for (const t of tickets || []) {
+    ids.push(t.id);
+    byId[t.id] = t;
+    const s = getStatus(t);
+    statusCounts[s] = (statusCounts[s] || 0) + 1;
+  }
+  return { ids, byId, statusCounts };
+}
+
 export const initialState = {
+  // existentes
   tickets: [],
   agents: [],
   updated_agent: [],
   updated_action: [],
-  statistics:[],
+  statistics: [],
   historical_statistics: [],
   closedTickets_statistics: [],
   closedHistoricalTickets_statistics: [],
   error: null,
+
+  // nuevos índices derivados
+  ids: [],
+  byId: {},               // { [id]: ticket }
+  statusCounts: {},       // { 'New': 10, 'Done': 3, ... }
+  _ticketsVersion: 0,     // bump en cada cambio para memo/selectores
 };
 
 export const ticketReducer = (state, action) => {
   switch (action.type) {
-
-    
-
-    case 'SET_TICKETS':
+    // ------------------------------------------------------
+    // Tickets: set masivo
+    // ------------------------------------------------------
+    case 'SET_TICKETS': {
+      const tickets = Array.isArray(action.payload) ? action.payload : [];
+      const { ids, byId, statusCounts } = buildDerived(tickets);
       return {
         ...state,
-        tickets: action.payload,
+        tickets,
+        ids,
+        byId,
+        statusCounts,
+        _ticketsVersion: state._ticketsVersion + 1,
         error: null,
       };
-
-    case 'ADD_TICKET':
-        const exists = state.tickets.some(t => t.id === action.payload.id);
-        if (exists) return state; // No duplicar
-
-        return {
-          ...state,
-          tickets: [action.payload, ...state.tickets],
-        };
-
-
-    case 'UPD_TICKET': {
-
-      const { id } = action.payload;
-      let changed = false;
-
-      const nextTickets = state.tickets.map(t => {
-        if (t.id !== id) return t;
-
-        const merged = { ...t, ...action.payload };
-
-        // Si NO vino en el payload, lo eliminamos manualmente
-        if (!('linked_patient_snapshot' in action.payload)) {
-          delete merged.linked_patient_snapshot;
-        }
-
-        //console.log('ticket actualizado:', merged);
-        if (shallowEqual(t, merged)) return t;
-        changed = true;
-        return merged;
-      });
-
-      if (!changed) return state;
-      return { ...state, tickets: nextTickets };
     }
 
+    // ------------------------------------------------------
+    // Tickets: alta (evita duplicados por id)
+    // ------------------------------------------------------
+    case 'ADD_TICKET': {
+      const t = action.payload;
+      if (!t?.id) return state;
+      if (state.byId[t.id]) return state; // ya existe
 
+      const tickets = [t, ...state.tickets];
+      const ids = [t.id, ...state.ids];
+      const byId = { ...state.byId, [t.id]: t };
+      const s = getStatus(t);
+      const statusCounts = {
+        ...state.statusCounts,
+        [s]: (state.statusCounts[s] || 0) + 1,
+      };
 
-
-
-    /*case 'UPD_TICKET':
-      //console.log('Actualizando ticket ID:', action.payload.id);
-      //console.log('Payload completo:', action.payload);
       return {
         ...state,
-        tickets: state.tickets.map(ticket =>
-          ticket.id === action.payload.id ? action.payload : ticket
-        )
-      };*/
+        tickets,
+        ids,
+        byId,
+        statusCounts,
+        _ticketsVersion: state._ticketsVersion + 1,
+      };
+    }
 
+    // ------------------------------------------------------
+    // Tickets: actualización por id (merge)
+    // ------------------------------------------------------
+    case 'UPD_TICKET': {
+      const t = action.payload;
+      if (!t?.id) return state;
 
-    //agents
+      const prev = state.byId[t.id];
+      // si no existía, lo agregamos al final para no romper orden actual
+      if (!prev) {
+        const tickets = [...state.tickets, t];
+        const ids = [...state.ids, t.id];
+        const byId = { ...state.byId, [t.id]: t };
+        const s = getStatus(t);
+        const statusCounts = {
+          ...state.statusCounts,
+          [s]: (state.statusCounts[s] || 0) + 1,
+        };
+        return {
+          ...state,
+          tickets,
+          ids,
+          byId,
+          statusCounts,
+          _ticketsVersion: state._ticketsVersion + 1,
+        };
+      }
+
+      // merge en array tickets (mantiene posición)
+      const tickets = state.tickets.map(x => (x.id === t.id ? { ...x, ...t } : x));
+      // merge en byId
+      const merged = { ...prev, ...t };
+      const byId = { ...state.byId, [t.id]: merged };
+
+      // actualizar contadores por cambio de status (si lo hay)
+      const prevS = getStatus(prev);
+      const newS = getStatus(merged);
+      let statusCounts = state.statusCounts;
+      if (prevS !== newS) {
+        statusCounts = {
+          ...state.statusCounts,
+          [prevS]: Math.max(0, (state.statusCounts[prevS] || 1) - 1),
+          [newS]: (state.statusCounts[newS] || 0) + 1,
+        };
+      }
+
+      return {
+        ...state,
+        tickets,
+        byId,
+        statusCounts,
+        _ticketsVersion: state._ticketsVersion + 1,
+      };
+    }
+
+    // ------------------------------------------------------
+    // Agents
+    // ------------------------------------------------------
     case 'SET_AGENTS':
       return {
         ...state,
@@ -81,51 +146,51 @@ export const ticketReducer = (state, action) => {
         error: null,
       };
 
-
+    // ------------------------------------------------------
+    // Error
+    // ------------------------------------------------------
     case 'SET_ERROR':
       return {
         ...state,
         error: action.payload,
       };
 
-    
-    case 'ASSIGN_AGENT':
+    // ------------------------------------------------------
+    // Asignación de agente
+    // ------------------------------------------------------
+    case 'ASSIGN_AGENT': {
+      const { id, targetAgentEmail } = action.payload || {};
+      if (!id) return state;
+
+      // actualizar tickets array
+      const tickets = state.tickets.map(ticket =>
+        ticket.id === id ? { ...ticket, agent_assigned: targetAgentEmail } : ticket
+      );
+
+      // actualizar byId
+      const prev = state.byId[id];
+      if (!prev) {
+        // si no existe, dejamos el array con el merge y no tocamos índices
+        return {
+          ...state,
+          tickets,
+          _ticketsVersion: state._ticketsVersion + 1,
+        };
+      }
+      const byId = {
+        ...state.byId,
+        [id]: { ...prev, agent_assigned: targetAgentEmail },
+      };
+
       return {
-    ...state,
-      tickets: state.tickets.map(ticket =>
-        ticket.id === action.payload.id
-          ? { ...ticket, agent_assigned: action.payload.targetAgentEmail }
-          : ticket
-      ),
-    };
+        ...state,
+        tickets,
+        byId,
+        _ticketsVersion: state._ticketsVersion + 1,
+      };
+    }
 
     default:
       return state;
   }
 };
-
-
-
-function shallowEqual(objA, objB) {
-  if (objA === objB) return true;
-
-  if (
-    typeof objA !== 'object' || objA === null ||
-    typeof objB !== 'object' || objB === null
-  ) {
-    return false;
-  }
-
-  const keysA = Object.keys(objA);
-  const keysB = Object.keys(objB);
-
-  if (keysA.length !== keysB.length) return false;
-
-  for (let key of keysA) {
-    if (!objB.hasOwnProperty(key) || objA[key] !== objB[key]) {
-      return false;
-    }
-  }
-
-  return true;
-}

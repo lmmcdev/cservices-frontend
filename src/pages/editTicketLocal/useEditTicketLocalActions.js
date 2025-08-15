@@ -30,7 +30,8 @@ export function useEditTicketLocalActions({
       setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
     });
     // Si quieres asegurar no-rerender cuando no cambia:
-    if (result.success) {
+    console.log(result)
+    if (result?.success) {
         setIfChanged(setStatus, newStatus);
     }
   }, [dispatch, setLoading, ticketId, agentEmail, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);

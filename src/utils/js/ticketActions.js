@@ -12,19 +12,20 @@ import {
   relateTicketsByPhone
 } from '../apiTickets';
 
-export async function handleStatusChange({ dispatch, setLoading, ticketId, agentEmail, newStatus, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen }) {
+export async function handleStatusChange({ dispatch, setLoading, ticketId, newStatus, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen }) {
   setLoading(true);
-  const result = await changeStatus(dispatch, setLoading, ticketId, agentEmail, newStatus);
+  
+  const result = await changeStatus(ticketId, newStatus);
   if (result.success) {
     setSuccessMessage(result.message);
     setStatus(newStatus);
     setSuccessOpen(true);
   } else {
     const error = result.details || result.message || 'Error updating status';
-    console.log('Status change error:', result);
     setErrorMessage(error);
     setErrorOpen(true);
   }
+  setLoading(false);
 
   return result;
 }
@@ -171,7 +172,8 @@ export async function updateCollaboratorsHandler({ dispatch, setLoading, ticketI
 }
 
 export async function updateAssigneeHandler({ dispatch, setLoading, ticketId, agentEmail, selectedAgent, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen, setEditField }) {
-    const result = await assignAgent(dispatch, setLoading, ticketId, selectedAgent, agentEmail);
+    setLoading(true);
+    const result = await assignAgent(ticketId, selectedAgent);
     if (result.success) {
         setSuccessMessage(result.message);
         setSuccessOpen(true);
@@ -180,7 +182,7 @@ export async function updateAssigneeHandler({ dispatch, setLoading, ticketId, ag
         setErrorOpen(true);
     }
 
-    console.log(result)
+    setLoading(false);
     return result;
   //setEditField(null);
 }
