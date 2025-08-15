@@ -193,11 +193,20 @@ export const relateTicketHandler = async ({dispatch, setLoading, ticketId, agent
   if (result.success) {
         setSuccessMessage(result.message);
         setSuccessOpen(true);
+        // Aquí podrías actualizar el estado de los tickets si es necesario
+        const updated = result.updated_ticket;
+        dispatch({
+          type: 'UPD_TICKET',
+          payload: {
+            id: updated.id,
+            linked_patient_snapshot: updated.linked_patient_snapshot ?? null,
+            patient_id: updated.patient_id ?? null,
+          }
+        });
     } else {
         setErrorMessage(result.message);
         setErrorOpen(true);
     }
 
-  console.log('Relate ticket result:', result?.updated_ticket);
     return result;
 };
