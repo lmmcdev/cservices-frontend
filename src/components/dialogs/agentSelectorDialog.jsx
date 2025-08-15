@@ -7,8 +7,8 @@ import {
   DialogContent,
   Typography
 } from '@mui/material';
-import CollaboratorAutoComplete from '../components/fields/collaboratorAutocomplete';
-import ActionButtons from '../components/fields/actionButtons';
+import CollaboratorAutoComplete from '../fields/collaboratorAutocomplete';
+import ActionButtons from '../fields/actionButtons';
 import { icons } from '../auxiliars/icons';
 
 export default function AgentSelectorDialog({

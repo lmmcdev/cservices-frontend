@@ -7,7 +7,7 @@ import {
   DialogContent,
   TextField
 } from '@mui/material';
-import ActionButtons from '../components/fields/actionButtons';
+import ActionButtons from '../fields/actionButtons';
 
 export default function AddNoteDialog({ open, onClose, onSubmit, value, onChange }) {
   const isEmpty = !value || !String(value).trim();
