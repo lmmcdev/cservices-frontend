@@ -10,9 +10,10 @@ import { icons } from '../auxiliars/icons';
 const AssignAgentModal = ({ open, onClose, ticket, agentEmail, dispatch, setLoading }) => {
   const handleAssign = async () => {
     try {
-      const result = await assignAgent(dispatch, setLoading, ticket.id, agentEmail, agentEmail);
+      const result = await assignAgent( ticket.id, agentEmail);
+      console.log("Assigning agent:", result);
       if (result.success) {
-        await changeStatus(dispatch, setLoading, ticket.id, agentEmail,'In Progress') //cambiar status a in progress
+        await changeStatus(ticket.id, 'In Progress') //cambiar status a in progress
         onClose();
       }
       
