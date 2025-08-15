@@ -1,184 +1,217 @@
-// useEditTicketLocalActions.js
+// src/components/hooks/useEditTicketLocalActions.js
 import { useCallback } from 'react';
-import {
-  handleStatusChange,
-  handleAddNoteHandler,
-  handleRemoveCollaboratorHandler,
-  handleChangeDepartmentHandler,
-  updatePatientNameHandler,
-  updatePatientDobHandler,
-  updateCallbackNumberHandler,
-  updateCollaboratorsHandler,
-  updateAssigneeHandler,
-  handleCenterHandler,
-  relateTicketHandler,
-} from '../../utils/js/ticketActions';
 import setIfChanged from '../../utils/js/state';
 
+// ⬇️ importa el hook que expone todos los handlers ya “pre cableados”
+import { useTicketHandlers } from '../../utils/js/ticketActions';
+// (opcional) por si quieres extraer ticket del result en algunos casos
+import { pickUpdatedTicket } from '../../utils/tickets/ticketActionHelper';
+
 export function useEditTicketLocalActions({
-  dispatch, setLoading, ticketId, agentEmail, navigate,
-  setStatus, setNotes, setNoteContent, setOpenNoteDialog,
-  setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
-  collaborators, setCollaborators, setEditField, setAgentAssigned,
+  ticketId,
+  agentEmail,
+  navigate,
+
+  // setters locales del componente
+  setStatus,
+  setNotes,
+  setNoteContent,
+  setOpenNoteDialog,
+  setCollaborators,
+  setEditField,
+  setAgentAssigned,
   setLinkedPatientSnapshot,
+
+  // valores locales
+  collaborators,
   noteContent,
 }) {
+  const {
+    handleStatusChange,
+    handleAddNoteHandler,
+    updateCollaboratorsHandler,
+    handleRemoveCollaboratorHandler,
+    handleChangeDepartmentHandler,
+    updatePatientNameHandler,
+    updatePatientDobHandler,
+    updateCallbackNumberHandler,
+    updateAssigneeHandler,
+    handleCenterHandler,
+    relateTicketHandler,
+  } = useTicketHandlers();
+
+  // ---- STATUS ----
   const handleStatusChangeUI = useCallback(async (newStatus) => {
-    // Tu helper ya recibe los setters; mantenemos el flujo original
-    const result = await handleStatusChange({
-      dispatch, setLoading, ticketId, agentEmail, newStatus,
-      setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
+    const res = await handleStatusChange({
+      ticketId,
+      newStatus,
+      setStatus, // el handler llamará esto en onSuccess
     });
-    // Si quieres asegurar no-rerender cuando no cambia:
-    console.log(result)
-    if (result?.success) {
-        setIfChanged(setStatus, newStatus);
-    }
-  }, [dispatch, setLoading, ticketId, agentEmail, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
+    if (res?.success) setIfChanged(setStatus, newStatus);
+  }, [handleStatusChange, ticketId, setStatus]);
 
+  // ---- NOTAS ----
   const handleAddNote = useCallback(async () => {
-    const result = await handleAddNoteHandler({
-      dispatch, setLoading, ticketId, agentEmail, noteContent,
-      setNotes, setNoteContent, setOpenNoteDialog, setStatus,
-      setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
-    });
-    if (result?.success) {
-      setIfChanged(
-        setNotes,
-        result.ticket?.notes || [],
-        (a, b) => JSON.stringify(a) === JSON.stringify(b)
-      );
-    }
-  }, [dispatch, setLoading, ticketId, agentEmail, noteContent, setNotes, setNoteContent, setOpenNoteDialog, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
+    if (!noteContent?.trim()) return;
 
+    const res = await handleAddNoteHandler({
+      ticketId,
+      agentEmail,
+      noteContent,
+      // al terminar, limpia UI local
+      onDone: () => {
+        setNoteContent?.('');
+        setOpenNoteDialog?.(false);
+      },
+    });
+
+    // si el backend devolvió el ticket con notas, actualiza el estado local
+    const t = pickUpdatedTicket(res);
+    if (t?.notes) {
+      setIfChanged(setNotes, t.notes, (a, b) => JSON.stringify(a) === JSON.stringify(b));
+    }
+  }, [handleAddNoteHandler, ticketId, agentEmail, noteContent, setNoteContent, setOpenNoteDialog, setNotes]);
+
+  // ---- COLABORADORES (ADD) ----
   const onAddCollaboratorCb = useCallback(async (selectedAgents) => {
-    const result = await updateCollaboratorsHandler({
-      dispatch, setLoading, ticketId, agentEmail, collaborators, selectedAgents,
-      setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
+    const list = await updateCollaboratorsHandler({
+      ticketId,
+      agentEmail,
+      collaborators,
+      selectedAgents,
     });
+    // el handler devuelve SIEMPRE el array final de colaboradores
+    setIfChanged(setCollaborators, list, (a, b) => JSON.stringify(a) === JSON.stringify(b));
+    setEditField?.(null);
+  }, [updateCollaboratorsHandler, ticketId, agentEmail, collaborators, setCollaborators, setEditField]);
 
-    //if(result.success) {
-      setIfChanged(
-        setCollaborators,
-        result,
-        (a, b) => JSON.stringify(a) === JSON.stringify(b)
-      );
-      setEditField(null);
-    //}
-  }, [dispatch, setLoading, ticketId, agentEmail, collaborators, setCollaborators, setEditField, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
-
+  // ---- COLABORADORES (REMOVE) ----
   const handleRemoveCollaborator = useCallback(async (emailToRemove) => {
-    const result = await handleRemoveCollaboratorHandler({
-      dispatch, setLoading, ticketId, agentEmail, collaborators, emailToRemove,
-      setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
+    const list = await handleRemoveCollaboratorHandler({
+      ticketId,
+      agentEmail,
+      collaborators,
+      emailToRemove,
     });
-    setIfChanged(
-      setCollaborators,
-      result,
-      (a, b) => JSON.stringify(a) === JSON.stringify(b)
-    );
-    setEditField(null);
-  }, [dispatch, setLoading, ticketId, agentEmail, collaborators, setCollaborators, setEditField, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
+    setIfChanged(setCollaborators, list, (a, b) => JSON.stringify(a) === JSON.stringify(b));
+    setEditField?.(null);
+  }, [handleRemoveCollaboratorHandler, ticketId, agentEmail, collaborators, setCollaborators, setEditField]);
 
+  // ---- DEPARTAMENTO ----
   const handleChangeDepartment = useCallback(async (newDept) => {
-    const result = await handleChangeDepartmentHandler({
-      dispatch, setLoading, ticketId, agentEmail, newDept,
-      setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
+    const res = await handleChangeDepartmentHandler({
+      ticketId,
+      agentEmail,
+      newDept,
     });
-    if (result?.success) {
-      setEditField(null);
-      navigate('/dashboard');
+    if (res?.success) {
+      setEditField?.(null);
+      navigate?.('/dashboard');
     }
-  }, [dispatch, setLoading, ticketId, agentEmail, navigate, setEditField, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
+  }, [handleChangeDepartmentHandler, ticketId, agentEmail, navigate, setEditField]);
 
+  // ---- PACIENTE: NOMBRE ----
   const updatePatientNameUI = useCallback(async (newName) => {
-    await updatePatientNameHandler({
-      dispatch, setLoading, ticketId, agentEmail, newName,
-      setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
-    });
-    setEditField(null);
-  }, [dispatch, setLoading, ticketId, agentEmail, setEditField, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
+    await updatePatientNameHandler({ ticketId, agentEmail, newName });
+    setEditField?.(null);
+  }, [updatePatientNameHandler, ticketId, agentEmail, setEditField]);
 
+  // ---- PACIENTE: DOB (YYYY-MM-DD) ----
   const updatePatientDobUI = useCallback(async (newDob) => {
     await updatePatientDobHandler({
-      dispatch, setLoading, ticketId, agentEmail, newDob,
-      setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
+      ticketId,
+      agentEmail,
+      newDob,
+      // si quisieras mantener un estado local formateado, podrías pasar:
+      // onSetLocalDob: (mmddyyyy) => setPatientDob?.(mmddyyyy),
     });
-    setEditField(null);
-  }, [dispatch, setLoading, ticketId, agentEmail, setEditField, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
+    setEditField?.(null);
+  }, [updatePatientDobHandler, ticketId, agentEmail, setEditField]);
 
+  // ---- CALLBACK NUMBER ----
   const updateCallbackNumberUI = useCallback(async (newPhone) => {
-    await updateCallbackNumberHandler({
-      dispatch, setLoading, ticketId, agentEmail, newPhone,
-      setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
-    });
-    setEditField(null);
-  }, [dispatch, setLoading, ticketId, agentEmail, setEditField, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
+    await updateCallbackNumberHandler({ ticketId, agentEmail, newPhone });
+    setEditField?.(null);
+  }, [updateCallbackNumberHandler, ticketId, agentEmail, setEditField]);
 
+  // ---- ASSIGNEE ----
   const ticketAssigneeUI = useCallback(async (selectedAgent) => {
-    const result = await updateAssigneeHandler({
-      dispatch, setLoading, ticketId, agentEmail, selectedAgent,
-      setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
-    });
-    if (result?.success) {
-      setIfChanged(setAgentAssigned, selectedAgent);
-    }
-    setEditField(null);
-  }, [dispatch, setLoading, ticketId, agentEmail, setAgentAssigned, setEditField, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
+    const res = await updateAssigneeHandler({ ticketId, selectedAgent });
+    if (res?.success) setIfChanged(setAgentAssigned, selectedAgent);
+    setEditField?.(null);
+  }, [updateAssigneeHandler, ticketId, setAgentAssigned, setEditField]);
 
+  // ---- CENTER (2 pasos) ----
   const handleCenterHandlerUI = useCallback(async (selectedCenter, ticketArg) => {
     await handleCenterHandler({
-      dispatch, setLoading, ticketId, ticket: ticketArg, agentEmail, selectedCenter,
-      setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
+      ticketId,
+      ticket: ticketArg,
+      agentEmail,
+      selectedCenter,
     });
-    setEditField(null);
-  }, [dispatch, setLoading, ticketId, agentEmail, setEditField, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
+    setEditField?.(null);
+  }, [handleCenterHandler, ticketId, agentEmail, setEditField]);
 
+  // ---- LINK/UNLINK paciente ----
   const handleRelateCurrentTicket = useCallback(async (ticketArg, patient) => {
-    const result = await relateTicketHandler({
-      dispatch, setLoading, ticketId: ticketArg.id, agentEmail,
-      action: 'relateCurrent', ticketPhone: ticketArg.phone, patientId: patient.id,
-      setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
+    const res = await relateTicketHandler({
+      ticketId: ticketArg.id,
+      agentEmail,
+      action: 'relateCurrent',
+      ticketPhone: ticketArg.phone,
+      patientId: patient.id,
     });
-    if (result?.success) {
-      setIfChanged(
-        setLinkedPatientSnapshot,
-        result.updated_ticket?.linked_patient_snapshot || null,
-        (a, b) => JSON.stringify(a) === JSON.stringify(b)
-      );
+    if (res?.success) {
+      const u = res?.updated_ticket || pickUpdatedTicket(res);
+      if (u) {
+        setIfChanged(
+          setLinkedPatientSnapshot,
+          u.linked_patient_snapshot ?? null,
+          (a, b) => JSON.stringify(a) === JSON.stringify(b)
+        );
+      }
     }
-  }, [dispatch, setLoading, agentEmail, setLinkedPatientSnapshot, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
+  }, [relateTicketHandler, agentEmail, setLinkedPatientSnapshot]);
 
   const handleRelateAllPastTickets = useCallback(async (ticketArg, patient) => {
     await relateTicketHandler({
-      dispatch, setLoading, ticketId: ticketArg.id, agentEmail,
-      action: 'relatePast', ticketPhone: ticketArg.phone, patientId: patient.id,
-      setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
+      ticketId: ticketArg.id,
+      agentEmail,
+      action: 'relatePast',
+      ticketPhone: ticketArg.phone,
+      patientId: patient.id,
     });
-  }, [dispatch, setLoading, agentEmail, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
+  }, [relateTicketHandler, agentEmail]);
 
   const handleRelateFutureTickets = useCallback(async (ticketArg, patient) => {
     await relateTicketHandler({
-      dispatch, setLoading, ticketId: ticketArg.id, agentEmail,
-      action: 'relateFuture', ticketPhone: ticketArg.phone, patientId: patient.id,
-      setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
+      ticketId: ticketArg.id,
+      agentEmail,
+      action: 'relateFuture',
+      ticketPhone: ticketArg.phone,
+      patientId: patient.id,
     });
-  }, [dispatch, setLoading, agentEmail, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
+  }, [relateTicketHandler, agentEmail]);
 
   const handleUnlinkTicket = useCallback(async (ticketArg) => {
-    const result = await relateTicketHandler({
-      dispatch, setLoading, ticketId: ticketArg.id, agentEmail,
-      action: 'unlink', ticketPhone: null, patientId: null,
-      setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
+    const res = await relateTicketHandler({
+      ticketId: ticketArg.id,
+      agentEmail,
+      action: 'unlink',
+      ticketPhone: null,
+      patientId: null,
     });
-    if (result?.success) {
-      setIfChanged(
-        setLinkedPatientSnapshot,
-        result.updated_ticket?.linked_patient_snapshot || null,
-        (a, b) => JSON.stringify(a) === JSON.stringify(b)
-      );
+    if (res?.success) {
+      const u = res?.updated_ticket || pickUpdatedTicket(res);
+      if (u) {
+        setIfChanged(
+          setLinkedPatientSnapshot,
+          u.linked_patient_snapshot ?? null,
+          (a, b) => JSON.stringify(a) === JSON.stringify(b)
+        );
+      }
     }
-  }, [dispatch, setLoading, agentEmail, setLinkedPatientSnapshot, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen]);
+  }, [relateTicketHandler, agentEmail, setLinkedPatientSnapshot]);
 
   return {
     handleStatusChangeUI,

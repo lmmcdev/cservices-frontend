@@ -1,4 +1,5 @@
-//document this file
+// src/utils/tickets/ticketActions.js
+import { useCallback } from 'react';
 import {
   changeStatus,
   addNotes,
@@ -8,226 +9,246 @@ import {
   updatePatientDOB,
   updateCallbackNumber,
   assignAgent,
-  updateCenter,
+  //updateCenter,
   relateTicketsByPhone
 } from '../apiTickets';
 
-import { runTicketAction, pickUpdatedTicket } from '../../utils/tickets/ticketActionHelper';
+import { useTicketActionRunner } from '../../components/hooks/useTicketActionRunner';
+import { pickUpdatedTicket } from '../../utils/tickets/ticketActionHelper';
+import { useTickets } from '../../context/ticketsContext';
+import { useLoading } from '../../providers/loadingProvider';
 
-// --- Ejemplos de refactor ---
+/**
+ * Hook que expone todos los handlers de ticket ya “pre cableados” con:
+ * - loading global
+ * - notificaciones globales
+ * - dispatch global para UPD_TICKET
+ *
+ * Los handlers sólo piden los datos específicos de la acción.
+ */
+export function useTicketHandlers() {
+  const run = useTicketActionRunner();        // runner ya mapea notificaciones + loading global
+  const { dispatch } = useTickets();          // para pasar a APIs legacy que lo requieren
+  const { setLoading } = useLoading();        // idem
 
-export async function handleStatusChange({
-  dispatch, setLoading, ticketId, newStatus,
-  setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen
-}) {
-  return runTicketAction({
-    fn: changeStatus,
-    args: [ticketId, newStatus],
-    setLoading, setSuccessMessage, setSuccessOpen, setErrorMessage, setErrorOpen,
-    // si tu endpoint devuelve el ticket, haz UPD_TICKET:
-    dispatch,
-    getUpdatedTicket: (res) =>
-      pickUpdatedTicket(res) || { id: ticketId, status: newStatus },
-    onSuccess: () => { setStatus?.(newStatus); }
-  });
+  // -------- Status --------
+  const handleStatusChange = useCallback(async ({
+    ticketId,
+    newStatus,
+    setStatus, // opcional: si quieres también setear estado local en el componente
+  }) => {
+    const res = await run({
+      fn: changeStatus,
+      args: [ticketId, newStatus],
+      // el runner ya hace loading/notify y UPD_TICKET si se lo damos:
+      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, status: newStatus }),
+      onSuccess: () => setStatus?.(newStatus),
+    });
+    return res;
+  }, [run]);
+
+
+  // -------- Notas --------
+  const handleAddNoteHandler = useCallback(async ({
+    ticketId,
+    agentEmail,
+    noteContent,
+    onDone, // opcional: callback post-éxito en el componente
+  }) => {
+    if (!noteContent?.trim()) return;
+
+    const newNote = [{
+      agent_email: agentEmail,
+      event_type: 'user_note',
+      event: noteContent.trim(),
+      datetime: new Date().toISOString(),
+    }];
+
+    return run({
+      fn: addNotes,
+      // API legacy: (dispatch, setLoading, ticketId, agentEmail, notes[])
+      args: [ticketId, agentEmail, newNote],
+      getUpdatedTicket: pickUpdatedTicket,
+      onSuccess: () => onDone?.(),
+    });
+  }, [run]);
+
+
+  // -------- Colaboradores: ADD --------
+  const updateCollaboratorsHandler = useCallback(async ({
+    ticketId,
+    agentEmail,
+    collaborators = [],
+    selectedAgents = [],
+  }) => {
+    const base = Array.isArray(collaborators) ? collaborators : [];
+    const updated = [...new Set([...base, ...selectedAgents.filter(a => !base.includes(a))])];
+
+    const res = await run({
+      fn: updateCollaborators,
+      // API legacy: (dispatch, setLoading, ticketId, agentEmail, collaborators[])
+      args: [ticketId, agentEmail, updated],
+      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, collaborators: updated }),
+    });
+
+    const t = pickUpdatedTicket(res);
+    return Array.isArray(t?.collaborators) ? t.collaborators : updated;
+  }, [run]);
+
+
+  // -------- Colaboradores: REMOVE --------
+  const handleRemoveCollaboratorHandler = useCallback(async ({
+    ticketId,
+    agentEmail,
+    collaborators = [],
+    emailToRemove,
+  }) => {
+    const base = Array.isArray(collaborators) ? collaborators : [];
+    const updated = base.filter(c => c !== emailToRemove);
+
+    const res = await run({
+      fn: updateCollaborators,
+      args: [ticketId, agentEmail, updated],
+      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, collaborators: updated }),
+    });
+
+    const t = pickUpdatedTicket(res);
+    return Array.isArray(t?.collaborators) ? t.collaborators : updated;
+  }, [run]);
+
+
+  // -------- Departamento --------
+  const handleChangeDepartmentHandler = useCallback(async ({
+    ticketId,
+    agentEmail,
+    newDept,
+  }) => {
+    if (!newDept) return;
+    return run({
+      fn: updateTicketDepartment,
+      args: [ticketId, agentEmail, newDept],
+      getUpdatedTicket: pickUpdatedTicket,
+    });
+  }, [run]);
+
+
+  // -------- Centro (dos pasos) --------
+  /*const handleCenterHandler = useCallback(async ({
+    ticketId,
+    ticket,        // objeto ticket para updateCenter (API legacy)
+    agentEmail,
+    selectedCenter,
+  }) => {
+    if (!selectedCenter) return;
+
+    const r1 = await run({
+      fn: updateTicketDepartment,
+      args: [dispatch, setLoading, ticketId, agentEmail, selectedCenter],
+      getUpdatedTicket: pickUpdatedTicket,
+    });
+    if (!r1?.success) return r1;
+
+    return run({
+      fn: updateCenter,
+      args: [dispatch, setLoading, ticket, selectedCenter],
+      getUpdatedTicket: pickUpdatedTicket,
+    });
+  }, [run, dispatch, setLoading]);*/
+
+  // -------- Patient Name --------
+  const updatePatientNameHandler = useCallback(async ({
+    ticketId,
+    agentEmail,
+    newName,
+  }) => {
+    return run({
+      fn: updatePatientName,
+      args: [ticketId, newName],
+      getUpdatedTicket: pickUpdatedTicket,
+    });
+  }, [run]);
+
+
+  // -------- Patient DOB --------
+  const updatePatientDobHandler = useCallback(async ({
+    ticketId,
+    agentEmail,
+    newDob,         // YYYY-MM-DD
+    onSetLocalDob,  // opcional: callback para setear estado local formateado
+  }) => {
+    if (!newDob) return;
+
+    const [y, m, d] = newDob.split('-');
+    const mmddyyyy = `${m}/${d}/${y}`;
+
+    return run({
+      fn: updatePatientDOB,
+      args: [ticketId, mmddyyyy],
+      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, patient_dob: mmddyyyy }),
+      onSuccess: () => onSetLocalDob?.(mmddyyyy),
+    });
+  }, [run]);
+
+
+  // -------- Callback Number --------
+  const updateCallbackNumberHandler = useCallback(async ({
+    ticketId,
+    agentEmail,
+    newPhone,
+  }) => {
+    return run({
+      fn: updateCallbackNumber,
+      args: [ticketId, newPhone],
+      getUpdatedTicket: pickUpdatedTicket,
+    });
+  }, [run]);
+
+
+  // -------- Assign Agent --------
+  const updateAssigneeHandler = useCallback(async ({
+    ticketId,
+    selectedAgent, // email
+  }) => {
+    return run({
+      fn: assignAgent,
+      args: [ticketId, selectedAgent],
+      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, agent_assigned: selectedAgent }),
+    });
+  }, [run]);
+
+  // -------- Relacionar por teléfono / patientId --------
+  const relateTicketHandler = useCallback(async ({
+    ticketId,
+    agentEmail,
+    action,       // 'link' | 'unlink' (según tu backend)
+    ticketPhone,
+    patientId,
+  }) => {
+    const res = await run({
+      fn: relateTicketsByPhone,
+      // API legacy extensa: pasa sólo lo que realmente use tu endpoint
+      args: [dispatch, setLoading, ticketId, agentEmail, action, ticketPhone, patientId],
+      getUpdatedTicket: (r) => {
+        const u = r?.updated_ticket || pickUpdatedTicket(r);
+        return u
+          ? { id: u.id, linked_patient_snapshot: u.linked_patient_snapshot ?? null, patient_id: u.patient_id ?? null }
+          : null;
+      },
+    });
+    return res;
+  }, [run, dispatch, setLoading]);
+
+  return {
+    handleStatusChange,
+    handleAddNoteHandler,
+    updateCollaboratorsHandler,
+    handleRemoveCollaboratorHandler,
+    handleChangeDepartmentHandler,
+    //handleCenterHandler,
+    updatePatientNameHandler,
+    updatePatientDobHandler,
+    updateCallbackNumberHandler,
+    updateAssigneeHandler,
+    relateTicketHandler,
+  };
 }
-
-export async function handleAddNoteHandler({
-  dispatch, setLoading, ticketId, agentEmail, noteContent,
-  setNoteContent, setOpenNoteDialog, setSuccessMessage, setSuccessOpen, setErrorMessage, setErrorOpen
-}) {
-  if (!noteContent?.trim()) return;
-
-  const newNote = [{
-    agent_email: agentEmail,
-    event_type: 'user_note',
-    event: noteContent.trim(),
-    datetime: new Date().toISOString()
-  }];
-
-  return runTicketAction({
-    fn: addNotes,
-    // ojo: mantengo tu firma original (si addNotes recibe dispatch y setLoading ya no haría falta)
-    args: [dispatch, setLoading, ticketId, agentEmail, newNote],
-    setLoading, setSuccessMessage, setSuccessOpen, setErrorMessage, setErrorOpen,
-    dispatch,
-    getUpdatedTicket: pickUpdatedTicket,
-    onSuccess: () => {
-      setNoteContent?.('');
-      setOpenNoteDialog?.(false);
-    }
-  });
-}
-
-// AÑADIR colaboradores
-export async function updateCollaboratorsHandler({
-  dispatch, setLoading, ticketId, agentEmail,
-  collaborators, selectedAgents,
-  setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
-}) {
-  const base = Array.isArray(collaborators) ? collaborators : [];
-  // dedupe por si vienen repetidos
-  const updated = [...new Set([...base, ...selectedAgents.filter(a => !base.includes(a))])];
-
-  const result = await runTicketAction({
-    fn: updateCollaborators,
-    args: [ticketId, agentEmail, updated],
-    setLoading, setSuccessMessage, setSuccessOpen, setErrorMessage, setErrorOpen,
-    dispatch,
-    // para el store: si el backend no trae ticket, usamos fallback con id
-    getUpdatedTicket: (res) => pickUpdatedTicket(res) || { id: ticketId, collaborators: updated },
-  });
-
-  // Recojo el ticket y devuelvo solo lo necesario para el componente
-  const t = pickUpdatedTicket(result);
-  return Array.isArray(t?.collaborators) ? t.collaborators : updated;
-}
-
-// REMOVER colaborador (mismo patrón)
-export async function handleRemoveCollaboratorHandler({
-  dispatch, setLoading, ticketId, agentEmail,
-  collaborators, emailToRemove,
-  setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
-}) {
-  const base = Array.isArray(collaborators) ? collaborators : [];
-  const updated = base.filter(c => c !== emailToRemove);
-
-  const result = await runTicketAction({
-    fn: updateCollaborators,
-    args: [ticketId, agentEmail, updated],
-    setLoading, setSuccessMessage, setSuccessOpen, setErrorMessage, setErrorOpen,
-    dispatch,
-    getUpdatedTicket: (res) => pickUpdatedTicket(res) || { id: ticketId, collaborators: updated },
-  });
-
-  //recojo el ticket y devuelvo solo lo necesario para el componente
-  const t = pickUpdatedTicket(result);
-  return Array.isArray(t?.collaborators) ? t.collaborators : updated;
-}
-
-
-export async function handleChangeDepartmentHandler({
-  dispatch, setLoading, ticketId, agentEmail, newDept,
-  setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen
-}) {
-  if (!newDept) return;
-  return runTicketAction({
-    fn: updateTicketDepartment,
-    args: [dispatch, setLoading, ticketId, agentEmail, newDept],
-    setLoading, setSuccessMessage, setSuccessOpen, setErrorMessage, setErrorOpen,
-    dispatch,
-    getUpdatedTicket: pickUpdatedTicket
-  });
-}
-
-export async function handleCenterHandler({
-  dispatch, setLoading, ticketId, ticket, agentEmail, selectedCenter,
-  setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen
-}) {
-  if (!selectedCenter) return;
-
-  // Primera mutación: reasignar departamento (si eso es lo que hace updateTicketDepartment)
-  const res1 = await runTicketAction({
-    fn: updateTicketDepartment,
-    args: [dispatch, setLoading, ticketId, agentEmail, selectedCenter],
-    setLoading, setSuccessMessage, setSuccessOpen, setErrorMessage, setErrorOpen,
-    dispatch,
-    getUpdatedTicket: pickUpdatedTicket
-  });
-  if (!res1?.success) return res1;
-
-  // Segunda mutación: updateCenter
-  return runTicketAction({
-    fn: updateCenter,
-    args: [dispatch, setLoading, ticket, selectedCenter],
-    setLoading, setSuccessMessage, setSuccessOpen, setErrorMessage, setErrorOpen,
-    dispatch,
-    getUpdatedTicket: pickUpdatedTicket
-  });
-}
-
-export async function updatePatientNameHandler({
-  dispatch, setLoading, ticketId, agentEmail, newName,
-  setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen
-}) {
-  return runTicketAction({
-    fn: updatePatientName,
-    args: [dispatch, setLoading, ticketId, agentEmail, newName],
-    setLoading, setSuccessMessage, setSuccessOpen, setErrorMessage, setErrorOpen,
-    dispatch,
-    getUpdatedTicket: pickUpdatedTicket
-  });
-}
-
-export async function updatePatientDobHandler({
-  dispatch, setLoading, ticketId, agentEmail, newDob,
-  setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen, setPatientDob
-}) {
-  if (!newDob) {
-    setErrorMessage?.('La fecha de nacimiento está vacía.');
-    setErrorOpen?.(true);
-    return;
-  }
-  // Normalización YYYY-MM-DD -> MM/DD/YYYY
-  const [year, month, day] = newDob.split('-');
-  const mmddyyyy = `${month}/${day}/${year}`;
-
-  return runTicketAction({
-    fn: updatePatientDOB,
-    args: [dispatch, setLoading, ticketId, agentEmail, mmddyyyy],
-    setLoading, setSuccessMessage, setSuccessOpen, setErrorMessage, setErrorOpen,
-    dispatch,
-    getUpdatedTicket: (res) =>
-      pickUpdatedTicket(res) || { id: ticketId, patient_dob: mmddyyyy },
-    onSuccess: () => setPatientDob?.(mmddyyyy),
-    errorMessage: 'Error al procesar la fecha'
-  });
-}
-
-export async function updateCallbackNumberHandler({
-  dispatch, setLoading, ticketId, agentEmail, newPhone,
-  setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen
-}) {
-  return runTicketAction({
-    fn: updateCallbackNumber,
-    args: [dispatch, setLoading, ticketId, agentEmail, newPhone],
-    setLoading, setSuccessMessage, setSuccessOpen, setErrorMessage, setErrorOpen,
-    dispatch,
-    getUpdatedTicket: pickUpdatedTicket
-  });
-}
-
-
-export async function updateAssigneeHandler({
-  dispatch, setLoading, ticketId, agentEmail, selectedAgent,
-  setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen
-}) {
-  return runTicketAction({
-    fn: assignAgent,
-    args: [ticketId, selectedAgent],
-    setLoading, setSuccessMessage, setSuccessOpen, setErrorMessage, setErrorOpen,
-    dispatch,
-    getUpdatedTicket: (res) =>
-      pickUpdatedTicket(res) || { id: ticketId, agent_assigned: selectedAgent }
-  });
-}
-
-export const relateTicketHandler = async ({
-  dispatch, setLoading, ticketId, agentEmail, action, ticketPhone, patientId,
-  setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen
-}) => {
-  return runTicketAction({
-    fn: relateTicketsByPhone,
-    args: [dispatch, setLoading, ticketId, agentEmail, action, ticketPhone, patientId,
-           setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen],
-    setLoading, setSuccessMessage, setSuccessOpen, setErrorMessage, setErrorOpen,
-    dispatch,
-    getUpdatedTicket: (res) => {
-      // Tu endpoint devolvía updated_ticket
-      const u = res?.updated_ticket || pickUpdatedTicket(res);
-      return u
-        ? { id: u.id, linked_patient_snapshot: u.linked_patient_snapshot ?? null, patient_id: u.patient_id ?? null }
-        : null;
-    }
-  });
-};
