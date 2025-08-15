@@ -27,6 +27,7 @@ export function useTicketActionRunner() {
         setErrorOpen,
         ...cfg,
       }),
-    [dispatch, setLoading, showNotification]
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, setLoading, showNotification, setErrorMessage, setSuccessMessage]
   );
 }
