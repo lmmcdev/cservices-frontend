@@ -115,8 +115,7 @@ export const addNotes = async (dispatch, setLoading, ticketId, currentAgentEmail
 };
 
 //update collaborators
-export const updateCollaborators = async (dispatch, setLoading, ticketId, currentAgentEmail, collaborators) => {
-  setLoading(true);
+export const updateCollaborators = async (ticketId, currentAgentEmail, collaborators) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateCollaborators`, {
       method: "PATCH",
@@ -132,13 +131,10 @@ export const updateCollaborators = async (dispatch, setLoading, ticketId, curren
     if (!response.ok) {
       throw new Error(data.message || 'Error updating collaborators');
     }
-    return { success: true, message: data.message || 'Updated successfully' };
+    return { success: true, message: data.message || 'Updated successfully'     };
   } catch (err) {
     const message = err.message || 'Something went wrong';
-    dispatch({ type: 'SET_ERROR', payload: message });
     return { success: false, message };
-  } finally {
-    setLoading(false);
   }
 };
 
