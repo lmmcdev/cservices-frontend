@@ -51,6 +51,7 @@ export function useTicketsData({ auto = true } = {}) {
   }, [auto, refresh]);
 
   // Selectores mínimos derivados del reducer (usando _ticketsVersion para invalidar memos)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const tickets = useMemo(() => state.tickets || [], [state._ticketsVersion]);
   const ticketsVersion = useMemo(() => state._ticketsVersion || 0, [state._ticketsVersion]);
 
