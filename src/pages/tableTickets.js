@@ -8,9 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useFilters } from '../context/filterContext.js';
 import StatusFilterBoxes from '../components/auxiliars/statusFilterBoxes.jsx';
 import SuspenseFallback from '../components/auxiliars/suspenseFallback.js';
-import {
-  selectTickets, selectStatusCounts, filterTickets, sortByCreatedAt, paginate, selectTicketsVersion,
-} from '../utils/tickets/selectors.js';
+import { selectStatusCounts, filterTickets, sortByCreatedAt, paginate } from '../utils/tickets/selectors.js';
 import TicketsTable from './tableTickets/ticketsTable.jsx';
 import { useTicketsData } from '../components/hooks/useTicketsData.js';
 
@@ -21,7 +19,7 @@ export default function TableTickets() {
   const navigate = useNavigate();
 
   // 👇 Hook centralizado de datos
-  const { tickets, ticketsVersion, refresh } = useTicketsData({ auto: true });
+  const { tickets, ticketsVersion } = useTicketsData({ auto: true });
 
   const [selectedStatus, setSelectedStatus] = useState('Total');
   const [page, setPage] = useState(0);
@@ -51,11 +49,14 @@ export default function TableTickets() {
     [filteredRows, sortDirection]
   );
 
+  // Paginación
   const paginatedRows = useMemo(
     () => paginate(sortedRows, page, rowsPerPage),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [sortedRows, page, rowsPerPage]
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const precounted = useMemo(() => selectStatusCounts(state), [state.statusCounts]);
   const ticketsCountByStatus = useMemo(
     () => ({ ...precounted, Total: filteredRows.length }),
