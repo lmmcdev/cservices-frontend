@@ -33,7 +33,7 @@ export const phoneHistory = async (dispatch, setLoading, phoneNumber) => {
 
 // assign agent to a ticket
 //a partir de aqui los dispatch se manejan en el evento signalr
-export const assignAgent = async (dispatch, setLoading, ticketId, currentAgentEmail, targetAgentEmail) => {
+export const assignAgent = async (ticketId, currentAgentEmail) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/assignAgent`, {
       method: "PATCH",
@@ -54,17 +54,15 @@ export const assignAgent = async (dispatch, setLoading, ticketId, currentAgentEm
     
   } catch (err) {
     const message = err.message || 'Something went wrong';
-    dispatch({ type: 'SET_ERROR', payload: message });
+
     return { success: false, message };
-  } finally {
-    setLoading(false);
-  }
+  } 
 };
 
 
 //update agent_assigned
 // assign agent to a ticket
-export const changeStatus = async (dispatch, setLoading, ticketId, currentAgentEmail, newStatus) => {
+export const changeStatus = async (ticketId, newStatus) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateStatus`, {
       method: "PATCH",
@@ -83,12 +81,8 @@ export const changeStatus = async (dispatch, setLoading, ticketId, currentAgentE
     return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';
-    dispatch({ type: 'SET_ERROR', payload: message });
-    //console.log('Error details:', err);
     return { success: false, message, details: err.details || null };
-  } finally {
-    setLoading(false);
-  }
+  } 
 };
 
 

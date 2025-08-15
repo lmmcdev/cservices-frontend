@@ -2,7 +2,7 @@ import React, { memo, useCallback } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { useNavigate } from 'react-router-dom';
-import LoginButton from '../components/components/fields/loginAzureButton';
+import LoginButton from '../components/fields/loginAzureButton';
 
 const rootSx = {
   width: '100%',
