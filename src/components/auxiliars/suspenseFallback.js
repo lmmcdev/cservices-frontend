@@ -19,14 +19,16 @@ const SuspenseFallback = () => {
       role="status"
       aria-busy="true"
       sx={{
-        minHeight: '100vh',
+        position: 'fixed',
+        inset: 0,              // top/right/bottom/left: 0
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         px: 2,
-        bgcolor: theme.palette.mode === 'dark'
+        bgcolor: theme => theme.palette.mode === 'dark'
           ? alpha(theme.palette.background.default, 0.6)
           : alpha('#f5f7fb', 0.6),
+        zIndex: theme => theme.zIndex.modal + 1, // encima del layout
       }}
     >
       <Paper

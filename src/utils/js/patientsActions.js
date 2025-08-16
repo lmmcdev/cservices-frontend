@@ -1,19 +1,37 @@
 // utils/providersActions.js
-import { getTicketsByPatientId } from "../apiPatients";
+import { useCallback } from "react";
+import { getTicketsByPatientId, searchPatients } from "../apiPatients";
+import { pickUpdatedEntity } from "../apiActionHelper";
+import { useApiActionRunner } from "../../components/hooks/useApiActionRunner";
+//import { pickUpdatedTicket } from "../../utils/tickets/ticketActionHelper";
 
-export async function handleGetTicketsByPatient({ setLoading, dataPatient, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen }) {
-    setLoading(true);
-    const result = await getTicketsByPatientId(dataPatient.id );
-    if (result.success) {
-        setSuccessMessage('Tickets fetched successfully');
-        setSuccessOpen(true);
-        setLoading(false);
-    } else {
-        setErrorMessage(result.message);
-        setErrorOpen(true);
-        setLoading(false)
-    }
-  
-    return result;
-}
+export function useApiHandlers() {
+  const run = useApiActionRunner();
 
+  const handleGetTicketsByPatient = useCallback(async (patient) => {
+      const res = await run({
+        fn: getTicketsByPatientId,
+        args: [patient],
+        //actionType: 'UPD_PATIENT',
+        getUpdatedEntity: (res) => pickUpdatedEntity(res, 'patient'),
+      });
+      return res;
+    }, [run]);
+
+
+    const searchPatientsHandler = useCallback(async (query, filter, pageNumber, PAGE_SIZE) => {
+      const res = await run({
+        fn: searchPatients,
+        args: [query, filter, pageNumber, PAGE_SIZE],
+        //actionType: 'UPD_PATIENT',
+        getUpdatedEntity: (res) => pickUpdatedEntity(res, 'patient'),
+      });
+      return res;
+    }, [run]);
+
+
+    return {
+      handleGetTicketsByPatient,
+      searchPatientsHandler
+    };
+  }

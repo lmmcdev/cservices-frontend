@@ -40,7 +40,6 @@ export async function runTicketAction({
 
     if (result?.success) {
       // Notificación de éxito
-      console.log(result)
       const okMsg = successMessage ?? result?.message ?? 'Operation completed';
       if (okMsg && setSuccessMessage && setSuccessOpen) {
         setSuccessMessage(okMsg);

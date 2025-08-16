@@ -18,13 +18,13 @@ import { Icon } from '@iconify/react';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import ProviderList from '../components/components/providers/providerList';
 import ProviderEditForm from './editProvider';
-import { useLoading } from '../providers/loadingProvider';
-import AlertSnackbar from '../components/auxiliars/alertSnackbar';
 import PatientSearchContainer from '../components/components/patients/patientSearchContainer';
-import { handleGetTicketsByPatient } from '../utils/js/patientsActions';
+//import { handleGetTicketsByPatient } from '../utils/js/patientsActions';
 import TicketListUI from '../components/components/tickets/ticketListUI';
 import TicketSearchContainer from '../components/components/tickets/ticketSearchContainer';
 import TicketQuickViewDialog from '../components/dialogs/ticketQuickViewDialog';
+import { useApiHandlers } from '../utils/js/patientsActions';
+
 
 const mockData = [];
 
@@ -56,16 +56,13 @@ export default function ProfileSearch() {
   const [selectedView, setSelectedView] = useState('profile'); 
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [, setSelectedPatient] = useState(null);
-  const { setLoading } = useLoading();
   const [patientTickets, setPatientTickets] = useState([]);
 
-  const [errorOpen, setErrorOpen] = useState(false);
-  const [successOpen, setSuccessOpen] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
   const [quickViewTicket, setQuickViewTicket] = useState(null);
   
   const [openQuickView, setOpenQuickView] = useState(false);
+
+  const { handleGetTicketsByPatient } = useApiHandlers();
 
   const handleQuickViewClose = () => {
     setOpenQuickView(false);
@@ -110,14 +107,7 @@ export default function ProfileSearch() {
   }
 
   const setSelectedPatientFunc = async (patient) => {
-    const tickets = await handleGetTicketsByPatient({
-      setLoading,
-      dataPatient: patient,
-      setSuccessMessage,
-      setErrorMessage,
-      setSuccessOpen,
-      setErrorOpen
-    });
+    const tickets = await handleGetTicketsByPatient(patient.id);
 
     if(tickets.success) {
       setPatientTickets(tickets.message?.items || []);
@@ -131,7 +121,6 @@ export default function ProfileSearch() {
     //setSelectedView('profile');
   }
 
-  console.log('renderizing component ProfileSearch');
   return (
     <>
     <Card
@@ -395,20 +384,7 @@ export default function ProfileSearch() {
       </CardContent>
     </Card>
 
-    {/* Snackbars */}
-          <AlertSnackbar
-            open={errorOpen}
-            onClose={() => setErrorOpen(false)}
-            severity="error"
-            message={errorMessage}
-          />
-          <AlertSnackbar
-            open={successOpen}
-            onClose={() => setSuccessOpen(false)}
-            severity="success"
-            message={successMessage}
-          />
-
+ 
 
           <TicketQuickViewDialog
             open={openQuickView}

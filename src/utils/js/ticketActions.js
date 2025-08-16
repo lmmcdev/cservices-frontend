@@ -15,8 +15,8 @@ import {
 
 import { useTicketActionRunner } from '../../components/hooks/useTicketActionRunner';
 import { pickUpdatedTicket } from '../../utils/tickets/ticketActionHelper';
-import { useTickets } from '../../context/ticketsContext';
-import { useLoading } from '../../providers/loadingProvider';
+//import { useTickets } from '../../context/ticketsContext';
+//import { useLoading } from '../../providers/loadingProvider';
 
 /**
  * Hook que expone todos los handlers de ticket ya “pre cableados” con:
@@ -28,8 +28,8 @@ import { useLoading } from '../../providers/loadingProvider';
  */
 export function useTicketHandlers() {
   const run = useTicketActionRunner();        // runner ya mapea notificaciones + loading global
-  const { dispatch } = useTickets();          // para pasar a APIs legacy que lo requieren
-  const { setLoading } = useLoading();        // idem
+  //const { dispatch } = useTickets();          // para pasar a APIs legacy que lo requieren
+  //const { setLoading } = useLoading();        // idem
 
   // -------- Status --------
   const handleStatusChange = useCallback(async ({
@@ -227,7 +227,7 @@ export function useTicketHandlers() {
     const res = await run({
       fn: relateTicketsByPhone,
       // API legacy extensa: pasa sólo lo que realmente use tu endpoint
-      args: [dispatch, setLoading, ticketId, agentEmail, action, ticketPhone, patientId],
+      args: [ticketId, agentEmail, action, ticketPhone, patientId],
       getUpdatedTicket: (r) => {
         const u = r?.updated_ticket || pickUpdatedTicket(r);
         return u
@@ -236,7 +236,7 @@ export function useTicketHandlers() {
       },
     });
     return res;
-  }, [run, dispatch, setLoading]);
+  }, [run]);
 
   return {
     handleStatusChange,

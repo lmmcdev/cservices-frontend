@@ -4,10 +4,10 @@ import CakeIcon from '@mui/icons-material/Cake';
 import RingVolumeIcon from '@mui/icons-material/RingVolume';
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
 
-import { searchPatients, } from '../../../utils/apiPatients';
 import MDVitaLocationSelect from '../../fields/mdvitaCenterSelect';
 import SearchPatientResults from './searchPatientsResults';
 import SearchButton from '../../auxiliars/searchButton';
+import { useApiHandlers } from '../../../utils/js/patientsActions';
 
 const PAGE_SIZE = 50;
 
@@ -20,7 +20,6 @@ const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
   const [inputValue, setInputValue] = useState('');
   const [results, setResults] = useState([]);
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(false);
 
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -28,6 +27,7 @@ const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
   const [tickets, setTickets] = useState([]);
   const [ticketsLoading, ] = useState(false);
   const [selectedMDVitaLocation, setSelectedMDVitaLocation] = useState('');
+  const { searchPatientsHandler } = useApiHandlers();
 
   const observerRef = useRef(null);
 
@@ -67,14 +67,15 @@ const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
     };
   };
 
+  
   const fetchPatients = useCallback(
     async (searchValues, pageNumber) => {
       const { query, filter } = buildSearchParams(searchValues);
       if (!query || query.length < 2) return;
 
-      setLoading(true);
       try {
-        const res = await searchPatients(query, filter, pageNumber, PAGE_SIZE);
+
+        const res = await searchPatientsHandler(query, filter, pageNumber, PAGE_SIZE);
         const data = res?.message?.hits || [];
 
         if (pageNumber === 1) {
@@ -86,16 +87,13 @@ const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
         setHasMore(data.length === PAGE_SIZE);
       } catch (err) {
         console.error('Error fetching patients:', err);
-      } finally {
-        setLoading(false);
-      }
+      } 
     },
-    []
+    [searchPatientsHandler]
   );
 
   const lastElementRef = useCallback(
     (node) => {
-      if (loading) return;
       if (observerRef.current) observerRef.current.disconnect();
 
       observerRef.current = new IntersectionObserver((entries) => {
@@ -108,7 +106,7 @@ const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
 
       if (node) observerRef.current.observe(node);
     },
-    [loading, hasMore, searchValues, page, fetchPatients]
+    [hasMore, searchValues, page, fetchPatients]
   );
 
   const handleCloseDialog = () => {
@@ -173,7 +171,7 @@ const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
               if (e.key === 'Enter') handleSearch();
             }}
           />
-          <SearchButton onClick={handleSearch} disabled={loading} />
+          <SearchButton onClick={handleSearch} />
         </Box>
 
         {hasFilters && (
@@ -268,7 +266,6 @@ const SearchPatientDeepContainer = ({ onSelect, selectedPatientFunc  }) => {
 
       <SearchPatientResults
         results={results}
-        loading={loading}
         inputValue={inputValue}
         lastElementRef={lastElementRef}
         dialogOpen={dialogOpen}
