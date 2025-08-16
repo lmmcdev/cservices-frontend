@@ -136,16 +136,7 @@ export const ticketReducer = (state, action) => {
       };
     }
 
-    // ------------------------------------------------------
-    // Agents
-    // ------------------------------------------------------
-    case 'SET_AGENTS':
-      return {
-        ...state,
-        agents: action.payload,
-        error: null,
-      };
-
+    
     // ------------------------------------------------------
     // Error
     // ------------------------------------------------------
@@ -155,40 +146,6 @@ export const ticketReducer = (state, action) => {
         error: action.payload,
       };
 
-    // ------------------------------------------------------
-    // Asignación de agente
-    // ------------------------------------------------------
-    case 'ASSIGN_AGENT': {
-      const { id, targetAgentEmail } = action.payload || {};
-      if (!id) return state;
-
-      // actualizar tickets array
-      const tickets = state.tickets.map(ticket =>
-        ticket.id === id ? { ...ticket, agent_assigned: targetAgentEmail } : ticket
-      );
-
-      // actualizar byId
-      const prev = state.byId[id];
-      if (!prev) {
-        // si no existe, dejamos el array con el merge y no tocamos índices
-        return {
-          ...state,
-          tickets,
-          _ticketsVersion: state._ticketsVersion + 1,
-        };
-      }
-      const byId = {
-        ...state.byId,
-        [id]: { ...prev, agent_assigned: targetAgentEmail },
-      };
-
-      return {
-        ...state,
-        tickets,
-        byId,
-        _ticketsVersion: state._ticketsVersion + 1,
-      };
-    }
 
     default:
       return state;

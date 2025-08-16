@@ -3,10 +3,10 @@ import {
   Dialog, DialogTitle, DialogContent, Typography, Stack,
   MenuItem, Box, Divider, TextField
 } from '@mui/material';
-import DepartmentSelect from '../components/fields/departmentSelect';
+import DepartmentSelect from '../fields/departmentSelect';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import ActionButtons from '../components/fields/actionButtons';
+import ActionButtons from '../fields/actionButtons';
 
 const statusOptions = ['Emergency', 'In Progress', 'Pending', 'Done'];
 

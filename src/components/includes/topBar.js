@@ -3,8 +3,8 @@ import {
   Card, CardContent, Typography, TextField, IconButton,
   Tooltip, Stack, Fade
 } from '@mui/material';
-import CollaboratorAutoComplete from '../components/fields/collaboratorAutocomplete';
-import CallerIDAutoComplete from '../components/fields/callerIDAutocomplete';
+import CollaboratorAutoComplete from '../fields/collaboratorAutocomplete';
+import CallerIDAutoComplete from '../fields/callerIDAutocomplete';
 import { icons } from '../auxiliars/icons';
 import CreateTicketDialog from '../dialogs/createTicketDialog';
 import { createNewTicket } from '../../utils/apiTickets';
@@ -13,7 +13,7 @@ import { ticketReducer, initialState } from '../../store/ticketsReducer';
 import AlertSnackbar from '../auxiliars/alertSnackbar';
 import { useFilters } from '../../context/filterContext';
 import { useAgents } from '../../context/agentsContext';
-import SearchBar from '../components/fields/searchBar';
+import SearchBar from '../fields/searchBar';
 import DialerModal from '../dialogs/dialerModal';
 import DialpadIcon from '@mui/icons-material/Dialpad';
 

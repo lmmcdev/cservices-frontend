@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { Iconify } from '../icons';
 import { useSettings } from '../../../context/settingsContext';
-import ActionButtons from '../../components/fields/actionButtons';
+import ActionButtons from '../../fields/actionButtons';
 
 /* ---------- Utils: formato de teléfono ---------- */
 const formatPhone = (raw) => {

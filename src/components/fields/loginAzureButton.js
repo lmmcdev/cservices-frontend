@@ -1,6 +1,6 @@
 import React from 'react';
 import { useMsal } from '@azure/msal-react';
-import { msalConfig } from "../../../utils/azureAuth";
+import { msalConfig } from '../../utils/azureAuth';
 import { Button } from '@mui/material';
 
 

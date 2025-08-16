@@ -8,7 +8,7 @@ import {
   Box,
   Grid, Card
 } from '@mui/material';
-import ActionButtons from '../components/fields/actionButtons';
+import ActionButtons from '../fields/actionButtons';
 import { TicketIndicators } from '../auxiliars/tickets/ticketIndicators';
 
 export default function TicketQuickViewDialog({ open, onClose, ticket }) {

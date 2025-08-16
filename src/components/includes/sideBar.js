@@ -15,7 +15,7 @@ import { icons } from '../auxiliars/icons';
 import ProfilePic from '../auxiliars/tickets/profilePic';
 import SettingsDialog from '../dialogs/settingsDialog';
 import { useNavigate, useLocation } from 'react-router-dom';
-import LogoutButton from '../components/fields/logoutAzureButton';
+import LogoutButton from '../fields/logoutAzureButton';
 
 // ⬇️ Ajusta estas rutas si difieren en tu proyecto
 import { useAuth } from '../../context/authContext';

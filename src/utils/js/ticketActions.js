@@ -1,4 +1,5 @@
-// utils/ticketActions.js
+// src/utils/tickets/ticketActions.js
+import { useCallback } from 'react';
 import {
   changeStatus,
   addNotes,
@@ -8,196 +9,246 @@ import {
   updatePatientDOB,
   updateCallbackNumber,
   assignAgent,
-  updateCenter,
+  //updateCenter,
   relateTicketsByPhone
 } from '../apiTickets';
 
-export async function handleStatusChange({ dispatch, setLoading, ticketId, newStatus, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen }) {
-  setLoading(true);
-  
-  const result = await changeStatus(ticketId, newStatus);
-  if (result.success) {
-    setSuccessMessage(result.message);
-    setStatus(newStatus);
-    setSuccessOpen(true);
-  } else {
-    const error = result.details || result.message || 'Error updating status';
-    setErrorMessage(error);
-    setErrorOpen(true);
-  }
-  setLoading(false);
+import { useTicketActionRunner } from '../../components/hooks/useTicketActionRunner';
+import { pickUpdatedTicket } from '../../utils/tickets/ticketActionHelper';
+import { useTickets } from '../../context/ticketsContext';
+import { useLoading } from '../../providers/loadingProvider';
 
-  return result;
+/**
+ * Hook que expone todos los handlers de ticket ya “pre cableados” con:
+ * - loading global
+ * - notificaciones globales
+ * - dispatch global para UPD_TICKET
+ *
+ * Los handlers sólo piden los datos específicos de la acción.
+ */
+export function useTicketHandlers() {
+  const run = useTicketActionRunner();        // runner ya mapea notificaciones + loading global
+  const { dispatch } = useTickets();          // para pasar a APIs legacy que lo requieren
+  const { setLoading } = useLoading();        // idem
+
+  // -------- Status --------
+  const handleStatusChange = useCallback(async ({
+    ticketId,
+    newStatus,
+    setStatus, // opcional: si quieres también setear estado local en el componente
+  }) => {
+    const res = await run({
+      fn: changeStatus,
+      args: [ticketId, newStatus],
+      // el runner ya hace loading/notify y UPD_TICKET si se lo damos:
+      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, status: newStatus }),
+      onSuccess: () => setStatus?.(newStatus),
+    });
+    return res;
+  }, [run]);
+
+
+  // -------- Notas --------
+  const handleAddNoteHandler = useCallback(async ({
+    ticketId,
+    agentEmail,
+    noteContent,
+    onDone, // opcional: callback post-éxito en el componente
+  }) => {
+    if (!noteContent?.trim()) return;
+
+    const newNote = [{
+      agent_email: agentEmail,
+      event_type: 'user_note',
+      event: noteContent.trim(),
+      datetime: new Date().toISOString(),
+    }];
+
+    return run({
+      fn: addNotes,
+      // API legacy: (dispatch, setLoading, ticketId, agentEmail, notes[])
+      args: [ticketId, agentEmail, newNote],
+      getUpdatedTicket: pickUpdatedTicket,
+      onSuccess: () => onDone?.(),
+    });
+  }, [run]);
+
+
+  // -------- Colaboradores: ADD --------
+  const updateCollaboratorsHandler = useCallback(async ({
+    ticketId,
+    agentEmail,
+    collaborators = [],
+    selectedAgents = [],
+  }) => {
+    const base = Array.isArray(collaborators) ? collaborators : [];
+    const updated = [...new Set([...base, ...selectedAgents.filter(a => !base.includes(a))])];
+
+    const res = await run({
+      fn: updateCollaborators,
+      // API legacy: (dispatch, setLoading, ticketId, agentEmail, collaborators[])
+      args: [ticketId, agentEmail, updated],
+      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, collaborators: updated }),
+    });
+
+    const t = pickUpdatedTicket(res);
+    return Array.isArray(t?.collaborators) ? t.collaborators : updated;
+  }, [run]);
+
+
+  // -------- Colaboradores: REMOVE --------
+  const handleRemoveCollaboratorHandler = useCallback(async ({
+    ticketId,
+    agentEmail,
+    collaborators = [],
+    emailToRemove,
+  }) => {
+    const base = Array.isArray(collaborators) ? collaborators : [];
+    const updated = base.filter(c => c !== emailToRemove);
+
+    const res = await run({
+      fn: updateCollaborators,
+      args: [ticketId, agentEmail, updated],
+      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, collaborators: updated }),
+    });
+
+    const t = pickUpdatedTicket(res);
+    return Array.isArray(t?.collaborators) ? t.collaborators : updated;
+  }, [run]);
+
+
+  // -------- Departamento --------
+  const handleChangeDepartmentHandler = useCallback(async ({
+    ticketId,
+    agentEmail,
+    newDept,
+  }) => {
+    if (!newDept) return;
+    return run({
+      fn: updateTicketDepartment,
+      args: [ticketId, agentEmail, newDept],
+      getUpdatedTicket: pickUpdatedTicket,
+    });
+  }, [run]);
+
+
+  // -------- Centro (dos pasos) --------
+  /*const handleCenterHandler = useCallback(async ({
+    ticketId,
+    ticket,        // objeto ticket para updateCenter (API legacy)
+    agentEmail,
+    selectedCenter,
+  }) => {
+    if (!selectedCenter) return;
+
+    const r1 = await run({
+      fn: updateTicketDepartment,
+      args: [dispatch, setLoading, ticketId, agentEmail, selectedCenter],
+      getUpdatedTicket: pickUpdatedTicket,
+    });
+    if (!r1?.success) return r1;
+
+    return run({
+      fn: updateCenter,
+      args: [dispatch, setLoading, ticket, selectedCenter],
+      getUpdatedTicket: pickUpdatedTicket,
+    });
+  }, [run, dispatch, setLoading]);*/
+
+  // -------- Patient Name --------
+  const updatePatientNameHandler = useCallback(async ({
+    ticketId,
+    agentEmail,
+    newName,
+  }) => {
+    return run({
+      fn: updatePatientName,
+      args: [ticketId, newName],
+      getUpdatedTicket: pickUpdatedTicket,
+    });
+  }, [run]);
+
+
+  // -------- Patient DOB --------
+  const updatePatientDobHandler = useCallback(async ({
+    ticketId,
+    agentEmail,
+    newDob,         // YYYY-MM-DD
+    onSetLocalDob,  // opcional: callback para setear estado local formateado
+  }) => {
+    if (!newDob) return;
+
+    const [y, m, d] = newDob.split('-');
+    const mmddyyyy = `${m}/${d}/${y}`;
+
+    return run({
+      fn: updatePatientDOB,
+      args: [ticketId, mmddyyyy],
+      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, patient_dob: mmddyyyy }),
+      onSuccess: () => onSetLocalDob?.(mmddyyyy),
+    });
+  }, [run]);
+
+
+  // -------- Callback Number --------
+  const updateCallbackNumberHandler = useCallback(async ({
+    ticketId,
+    agentEmail,
+    newPhone,
+  }) => {
+    return run({
+      fn: updateCallbackNumber,
+      args: [ticketId, newPhone],
+      getUpdatedTicket: pickUpdatedTicket,
+    });
+  }, [run]);
+
+
+  // -------- Assign Agent --------
+  const updateAssigneeHandler = useCallback(async ({
+    ticketId,
+    selectedAgent, // email
+  }) => {
+    return run({
+      fn: assignAgent,
+      args: [ticketId, selectedAgent],
+      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, agent_assigned: selectedAgent }),
+    });
+  }, [run]);
+
+  // -------- Relacionar por teléfono / patientId --------
+  const relateTicketHandler = useCallback(async ({
+    ticketId,
+    agentEmail,
+    action,       // 'link' | 'unlink' (según tu backend)
+    ticketPhone,
+    patientId,
+  }) => {
+    const res = await run({
+      fn: relateTicketsByPhone,
+      // API legacy extensa: pasa sólo lo que realmente use tu endpoint
+      args: [dispatch, setLoading, ticketId, agentEmail, action, ticketPhone, patientId],
+      getUpdatedTicket: (r) => {
+        const u = r?.updated_ticket || pickUpdatedTicket(r);
+        return u
+          ? { id: u.id, linked_patient_snapshot: u.linked_patient_snapshot ?? null, patient_id: u.patient_id ?? null }
+          : null;
+      },
+    });
+    return res;
+  }, [run, dispatch, setLoading]);
+
+  return {
+    handleStatusChange,
+    handleAddNoteHandler,
+    updateCollaboratorsHandler,
+    handleRemoveCollaboratorHandler,
+    handleChangeDepartmentHandler,
+    //handleCenterHandler,
+    updatePatientNameHandler,
+    updatePatientDobHandler,
+    updateCallbackNumberHandler,
+    updateAssigneeHandler,
+    relateTicketHandler,
+  };
 }
-
-export async function handleAddNoteHandler({ dispatch, setLoading, ticketId, agentEmail, noteContent, setNotes, setNoteContent, setOpenNoteDialog, setSuccessMessage, setSuccessOpen, setErrorMessage, setErrorOpen }) {
-  if (!noteContent.trim()) return;
-  const newNote = [{
-    agent_email: agentEmail,
-    event_type: 'user_note',
-    event: noteContent.trim(),
-    datetime: new Date().toISOString()
-  }];
-  const result = await addNotes(dispatch, setLoading, ticketId, agentEmail, newNote);
-  if (result.success) {
-    //setNotes((prev) => [...prev, ...newNote]);
-    setNoteContent('');
-    setOpenNoteDialog(false);
-    setSuccessMessage(result.message);
-    setSuccessOpen(true);
-  } else {
-    setErrorMessage(result.message);
-    setErrorOpen(true);
-  }
-
-  console.log(result)
-  return result;
-}
-
-export async function handleRemoveCollaboratorHandler({ dispatch, setLoading, ticketId, agentEmail, collaborators, emailToRemove, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen, setEditField }) {
-  const updated = collaborators.filter(c => c !== emailToRemove);
-  const result = await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
-  if (result.success) {
-    setSuccessMessage(result.message);
-    setSuccessOpen(true);
-  } else {
-    setErrorMessage(result.message);
-    setErrorOpen(true);
-  }
-  //console.log('Updated collaborators:', updated);
-  return updated;
-}
-
-export async function handleChangeDepartmentHandler({ dispatch, setLoading, ticketId, agentEmail, newDept, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen, setEditField }) {
-  if (!newDept) return;
-  const result = await updateTicketDepartment(dispatch, setLoading, ticketId, agentEmail, newDept);
-  if (result.success) {
-    setSuccessMessage(result.message);
-    setSuccessOpen(true);
-  } else {
-    setErrorMessage(result.message);
-    setErrorOpen(true);
-  }
-
-  return result;
-  //setEditField(null);
-}
-
-export async function handleCenterHandler({ dispatch, setLoading, ticketId, ticket, agentEmail, selectedCenter, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen, setEditField }) {
-  if (!selectedCenter) return;
-  const result = await updateTicketDepartment(dispatch, setLoading, ticketId, agentEmail, selectedCenter);
-  if (result.success) {
-    const updCenter = await updateCenter(dispatch, setLoading, ticket, selectedCenter);
-    if (updCenter.success) {
-              setSuccessMessage(updCenter.message);
-              setSuccessOpen(true);
-            } else {
-              setErrorMessage(updCenter.message);
-              setErrorOpen(true);
-            }
-    setSuccessMessage(result.message);
-    setSuccessOpen(true);
-  } else {
-    setErrorMessage(result.message);
-    setErrorOpen(true);
-  }
-  //setEditField(null);
-}
-
-export async function updatePatientNameHandler({ dispatch, setLoading, ticketId, agentEmail, newName, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen, setEditField }) {
-  const result = await updatePatientName(dispatch, setLoading, ticketId, agentEmail, newName);
-  if (result.success) {
-    setSuccessMessage(result.message);
-    setSuccessOpen(true);
-  } else {
-    setErrorMessage(result.message);
-    setErrorOpen(true);
-  }
-  //setEditField(null);
-}
-
-export async function updatePatientDobHandler({ dispatch, setLoading, ticketId, agentEmail, newDob, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen, setEditField, setPatientDob }) {
-  if (!newDob) {
-    setErrorMessage("La fecha de nacimiento está vacía.");
-    setErrorOpen(true);
-    return;
-  }
-  try {
-    const [year, month, day] = newDob.split('-');
-    const mmddyyyy = `${month}/${day}/${year}`;
-    const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/\d{4}$/;
-    if (!regex.test(mmddyyyy)) throw new Error("Formato de fecha inválido");
-
-    const result = await updatePatientDOB(dispatch, setLoading, ticketId, agentEmail, mmddyyyy);
-    if (result.success) {
-      setSuccessMessage(result.message);
-      setSuccessOpen(true);
-      setPatientDob(mmddyyyy);
-    } else {
-      setErrorMessage(result.message);
-      setErrorOpen(true);
-    }
-  } catch (err) {
-    setErrorMessage("Error al procesar la fecha: " + err.message);
-    setErrorOpen(true);
-  }
-  //setEditField(null);
-}
-
-export async function updateCallbackNumberHandler({ dispatch, setLoading, ticketId, agentEmail, newPhone, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen, setEditField }) {
-  const result = await updateCallbackNumber(dispatch, setLoading, ticketId, agentEmail, newPhone);
-  if (result.success) {
-    setSuccessMessage(result.message);
-    setSuccessOpen(true);
-  } else {
-    setErrorMessage(result.message);
-    setErrorOpen(true);
-  }
-  //setEditField(null);
-}
-
-export async function updateCollaboratorsHandler({ dispatch, setLoading, ticketId, agentEmail, collaborators, selectedAgents, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen, setEditField }) {
-    const updated = [...collaborators, ...selectedAgents.filter(a => !collaborators.includes(a))];
-    const result = await updateCollaborators(dispatch, setLoading, ticketId, agentEmail, updated);
-    if (result.success) {
-        setSuccessMessage(result.message);
-        setSuccessOpen(true);
-    } else {
-        setErrorMessage(result.message);
-        setErrorOpen(true);
-    }
-
-    return updated;
-  //setEditField(null);
-}
-
-export async function updateAssigneeHandler({ dispatch, setLoading, ticketId, agentEmail, selectedAgent, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen, setEditField }) {
-    setLoading(true);
-    const result = await assignAgent(ticketId, selectedAgent);
-    if (result.success) {
-        setSuccessMessage(result.message);
-        setSuccessOpen(true);
-    } else {
-        setErrorMessage(result.message);
-        setErrorOpen(true);
-    }
-
-    setLoading(false);
-    return result;
-  //setEditField(null);
-}
-
-export const relateTicketHandler = async ({dispatch, setLoading, ticketId, agentEmail, action, ticketPhone, patientId, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen}) => {
-  
-  const result = await relateTicketsByPhone(dispatch, setLoading, ticketId, agentEmail, action, ticketPhone, patientId, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen)
-  if (result.success) {
-        setSuccessMessage(result.message);
-        setSuccessOpen(true);
-    } else {
-        setErrorMessage(result.message);
-        setErrorOpen(true);
-    }
-
-  console.log('Relate ticket result:', result?.updated_ticket);
-    return result;
-};

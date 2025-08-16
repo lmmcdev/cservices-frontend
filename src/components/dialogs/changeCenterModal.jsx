@@ -6,8 +6,8 @@ import {
   Typography,
   Box
 } from '@mui/material';
-import CenterSelect from '../components/fields/centerSelect';
-import ActionButtons from '../components/fields/actionButtons';
+import CenterSelect from '../fields/centerSelect';
+import ActionButtons from '../fields/actionButtons';
 import { Shuffle } from 'phosphor-react';
 
 const ChangeCenterModal = ({

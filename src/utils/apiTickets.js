@@ -23,7 +23,6 @@ export const phoneHistory = async (dispatch, setLoading, phoneNumber) => {
     return { success: true, message: data.items || 'Updated successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';
-    dispatch({ type: 'SET_ERROR', payload: message });
     return { success: false, message };
   } finally {
     setLoading(false);
@@ -87,7 +86,7 @@ export const changeStatus = async (ticketId, newStatus) => {
 
 
 // add agent note to ticket
-export const addNotes = async (dispatch, setLoading, ticketId, currentAgentEmail, note) => {
+export const addNotes = async (ticketId, currentAgentEmail, note) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateNotes`, {
       method: "PATCH",
@@ -107,16 +106,12 @@ export const addNotes = async (dispatch, setLoading, ticketId, currentAgentEmail
     return { success: true, message: 'Updated successfully', ticket: data || null };
   } catch (err) {
     const message = err.message || 'Something went wrong';
-    dispatch({ type: 'SET_ERROR', payload: message });
     return { success: false, message };
-  } finally {
-    setLoading(false);
-  }
+  } 
 };
 
 //update collaborators
-export const updateCollaborators = async (dispatch, setLoading, ticketId, currentAgentEmail, collaborators) => {
-  setLoading(true);
+export const updateCollaborators = async (ticketId, currentAgentEmail, collaborators) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateCollaborators`, {
       method: "PATCH",
@@ -132,19 +127,15 @@ export const updateCollaborators = async (dispatch, setLoading, ticketId, curren
     if (!response.ok) {
       throw new Error(data.message || 'Error updating collaborators');
     }
-    return { success: true, message: data.message || 'Updated successfully' };
+    return { success: true, message: data.message || 'Updated successfully'     };
   } catch (err) {
     const message = err.message || 'Something went wrong';
-    dispatch({ type: 'SET_ERROR', payload: message });
     return { success: false, message };
-  } finally {
-    setLoading(false);
   }
 };
 
 //update department on ticket
-export const updateTicketDepartment = async (dispatch, setLoading, ticketId, currentAgentEmail, newDepartment) => {
-  setLoading(true);
+export const updateTicketDepartment = async (ticketId, currentAgentEmail, newDepartment) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateTicketDepartment`, {
       method: "PATCH",
@@ -164,10 +155,7 @@ export const updateTicketDepartment = async (dispatch, setLoading, ticketId, cur
     return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';
-    dispatch({ type: 'SET_ERROR', payload: message });
     return { success: false, message };
-  } finally {
-    setLoading(false);
   }
 };
 
@@ -209,8 +197,7 @@ export const updateCenter = async (dispatch, setLoading, formData, center) => {
 
 
 //update patient name
-export const updatePatientName = async (dispatch, setLoading, ticketId, currentAgentEmail, newPatientName) => {
-  setLoading(true);
+export const updatePatientName = async (ticketId, newPatientName) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdatePatientName`, {
       method: "PATCH",
@@ -229,22 +216,17 @@ export const updatePatientName = async (dispatch, setLoading, ticketId, currentA
     return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';
-    dispatch({ type: 'SET_ERROR', payload: message });
     return { success: false, message };
-  } finally {
-    setLoading(false);
   }
 };
 
 //update patient dob
-export const updatePatientDOB = async (dispatch, setLoading, ticketId, currentAgentEmail, newPatientBOD) => {
-  setLoading(true);
+export const updatePatientDOB = async (ticketId, newPatientBOD) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdatePatientBOD`, {
       method: "PATCH",
       body: JSON.stringify({
         tickets: ticketId,
-        agent_email: currentAgentEmail,
         nueva_fechanacimiento: newPatientBOD,
       }),
     });
@@ -258,16 +240,12 @@ export const updatePatientDOB = async (dispatch, setLoading, ticketId, currentAg
     return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';
-    dispatch({ type: 'SET_ERROR', payload: message });
     return { success: false, message };
-  } finally {
-    setLoading(false);
   }
 };
 
 //update patient phone
-export const updateCallbackNumber = async (dispatch, setLoading, ticketId, currentAgentEmail, newPatientPhone) => {
-  setLoading(true);
+export const updateCallbackNumber = async (ticketId, newPatientPhone) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdatePatientPhone`, {
       method: "PATCH",
@@ -287,10 +265,7 @@ export const updateCallbackNumber = async (dispatch, setLoading, ticketId, curre
     return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';
-    dispatch({ type: 'SET_ERROR', payload: message });
     return { success: false, message };
-  } finally {
-    setLoading(false);
   }
 };
 
