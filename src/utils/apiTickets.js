@@ -346,8 +346,7 @@ export const createNewTicket = async (dispatch, setLoading, formData) => {
 
 
 //relate ticket
-export const relateTicketsByPhone = async (dispatch, setLoading, ticket_id, agent_email = null, action = 'relatePast', phone = null, patient_id = null) => {
-  setLoading(true);
+export const relateTicketsByPhone = async (ticket_id, agent_email = null, action = 'relatePast', phone = null, patient_id = null) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/updateTicketsByPhone`, {
       method: 'POST',
@@ -375,10 +374,7 @@ export const relateTicketsByPhone = async (dispatch, setLoading, ticket_id, agen
 
   } catch (err) {
     const message = err.message || 'Something went wrong';
-    dispatch({ type: 'SET_TICKET_ERROR', payload: message });
     return { success: false, message };
-  } finally {
-    setLoading(false);
   }
 };
 
