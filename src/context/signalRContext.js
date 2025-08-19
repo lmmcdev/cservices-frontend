@@ -73,10 +73,11 @@ export function SignalRProvider({ children }) {
       // 3) REGISTRO DE EVENTOS (solo los de grupos)
       connection.on('ticketCreated', (ticket) => {
         if (!ticket) return;
+        console.log('Creted ticket', ticket)
         // si quieres filtrar por depto en el cliente:
-        if (!department || ticket.assigned_department === department) {
+        //if (!department || ticket.assigned_department === department) {
           ticketsDispatch({ type: 'ADD_TICKET', payload: ticket });
-        }
+        //}
         handlers.onTicketCreated?.(ticket);
       });
 
@@ -88,6 +89,7 @@ export function SignalRProvider({ children }) {
 
       connection.on('dailyStats', (data) => {
         if (!data) return;
+        console.log('Daily stats received', data);
         dailyStatsDispatch({ type: 'SET_DAILY_STATS', payload: data });
         handlers.onDailyStats?.(data);
       });
@@ -100,7 +102,8 @@ export function SignalRProvider({ children }) {
       // 5) suscripciones base (usuario + departamento)
       const baseGroups = [
         user.username,
-        department ? `department:${department}` : null,
+        //department ? `department:${department}` : null,
+        department ? `department:Referrals` : null,
       ];
       await joinGroups(...baseGroups);
 
