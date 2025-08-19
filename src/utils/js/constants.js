@@ -8,7 +8,8 @@ export const TICKET_ACTIONS = {
 
 export const ENDPOINT_URLS = {
     API: 'https://cservicesapi.azurewebsites.net/api',
-    SIGNALR: 'https://signalrcservices.azurewebsites.net/api'
+    SIGNALR: 'https://signalrcservices.azurewebsites.net/api',
+    SIGNALRGROUPS: 'https://signalrcservices.azurewebsites.net/api'
 };
 
 //GRUPOS DE SEGURIDAD DE AZURE

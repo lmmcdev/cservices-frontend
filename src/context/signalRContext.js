@@ -1,107 +1,149 @@
-import React, { createContext, useContext, useRef } from 'react';
+import React, { createContext, useContext, useRef, useCallback } from 'react';
 import * as signalR from '@microsoft/signalr';
 import { useTicketsDispatch } from './ticketsContext';
 import { useDailyStatsDispatch } from './dailyStatsContext';
 import { useAuth } from './authContext';
 import { ENDPOINT_URLS } from '../utils/js/constants';
-//import { useFetchStatistics } from './statsContext';
-//import { useDoneFetchStatistics } from './doneTicketsContext';
 
 const SignalRContext = createContext();
 
-// signalRContext.js
 export function SignalRProvider({ children }) {
   const connectionRef = useRef(null);
-  const dispatch = useTicketsDispatch();
-  const dailyStatsDispatch = useDailyStatsDispatch(); 
-  //const fetchStats = useFetchStatistics();
-  //const fetchDoneStats = useDoneFetchStatistics();
-  //const { department, accessTokenMSAL } = useAuth();
-  const { department, user } = useAuth();
+  const subscribedGroupsRef = useRef(new Set()); // grupos suscritos (para re-suscribir en reconexión)
 
-  //console.log(department)
-  const initializeSignalR = async ({ onTicketCreated, onTicketUpdated }) => {
-  
-    if (connectionRef.current) return;
+  const ticketsDispatch = useTicketsDispatch();
+  const dailyStatsDispatch = useDailyStatsDispatch();
+  const { user, department } = useAuth();
 
-    try {
-      const res = await fetch(`${ENDPOINT_URLS.SIGNALR}/negotiate?userId=${user?.username}`);
-      if (!res.ok) throw new Error('Failed to fetch negotiate info');
+  // ---- helper HTTP POST JSON ----
+  const postJSON = useCallback(async (url, body) => {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body ?? {}),
+    });
+    if (!res.ok) {
+      const txt = await res.text().catch(() => '');
+      throw new Error(`${res.status} ${res.statusText} - ${txt || 'Request failed'}`);
+    }
+    return res.json();
+  }, []);
 
-      const { url, accessToken } = await res.json();
+  // ---- suscribir a grupos (vía tu función /signalr/group) ----
+  const joinGroups = useCallback(
+    async (...groups) => {
+      const userId = user?.username;
+      if (!userId) return;
 
+      const uniq = [...new Set(groups.filter(Boolean))];
+      if (!uniq.length) return;
+
+      await Promise.all(
+        uniq.map(groupName =>
+          postJSON(`${ENDPOINT_URLS.SIGNALRGROUPS}/signalr/group`, {
+            userId,
+            groupName,
+            action: 'add',
+          })
+        )
+      );
+
+      uniq.forEach(g => subscribedGroupsRef.current.add(g));
+    },
+    [user?.username, postJSON]
+  );
+
+  // ---- inicializar y escuchar SOLO eventos por grupos ----
+  const initializeSignalR = useCallback(
+    async (handlers = {}) => {
+      if (connectionRef.current || !user?.username) return;
+
+      // 1) negotiate (vía POST body { userId })
+      const { url, accessToken } = await postJSON(
+        `${ENDPOINT_URLS.SIGNALRGROUPS}/negotiate`,
+        { userId: user.username }
+      );
+
+      // 2) construir conexión
       const connection = new signalR.HubConnectionBuilder()
-        .withUrl(url, {
-          accessTokenFactory: () => accessToken,
-        })
+        .withUrl(url, { accessTokenFactory: () => accessToken })
         .withAutomaticReconnect()
         .build();
 
-
-      await connection.start();
-      console.log('✅ SignalR conectado');
-
-      // 4. Unirse a grupos específicos (vía método expuesto en el servidor)
-      //await connection.invoke('JoinGroup', `${user?.username}`);
-      //await connection.invoke('JoinGroup', `department:${department}`);
-      console.log('📌 Suscrito a grupos del agente y departamento');
-      //evento ticket creado
+      // 3) REGISTRO DE EVENTOS (solo los de grupos)
       connection.on('ticketCreated', (ticket) => {
-        if (ticket.assigned_department === department) {
-          dispatch({ type: 'ADD_TICKET', payload: ticket });
-          onTicketCreated?.(ticket);
+        if (!ticket) return;
+        // si quieres filtrar por depto en el cliente:
+        if (!department || ticket.assigned_department === department) {
+          ticketsDispatch({ type: 'ADD_TICKET', payload: ticket });
         }
+        handlers.onTicketCreated?.(ticket);
       });
 
-      //evento ticket actualizado
       connection.on('ticketUpdated', (ticket) => {
-
-        //if (ticket.agent_assigned === user?.username || ticket.assigned_department === department) {
-          
-          //console.log('own ticket actualizado:', ticket);
-          dispatch({ type: 'UPD_TICKET', payload: ticket });
-          onTicketUpdated?.(ticket);
-        //}
+        if (!ticket) return;
+        ticketsDispatch({ type: 'UPD_TICKET', payload: ticket });
+        handlers.onTicketUpdated?.(ticket);
       });
-
-      //evento ticket actualizado por canal (no funcional)
-      /*connection.on('ticketUpdatedAgent', (ticket) => {
-        console.log('agent channel:', ticket);
-          //dispatch({ type: 'UPD_TICKET', payload: ticket });
-          //onTicketUpdated?.(ticket);
-      });*/
-
-      //evento disparador estadisticas
-      /*connection.on('statsUpdated', () => {
-        fetchStats();
-      });
-
-      //evento disparador tickets closed by agents
-      connection.on('ticketClosed', () => {
-        fetchDoneStats();
-      });*/
 
       connection.on('dailyStats', (data) => {
-        dailyStatsDispatch({type: 'SET_DAILY_STATS', payload: data})
-      })
+        if (!data) return;
+        dailyStatsDispatch({ type: 'SET_DAILY_STATS', payload: data });
+        handlers.onDailyStats?.(data);
+      });
 
-     
-      
-      connectionRef.current = connection;       
+      // 4) conectar
+      await connection.start();
+      connectionRef.current = connection;
+      console.log('✅ SignalR conectado');
 
-    } catch (err) {
-      console.error('❌ Error al conectar con SignalR:', err);
+      // 5) suscripciones base (usuario + departamento)
+      const baseGroups = [
+        user.username,
+        department ? `department:${department}` : null,
+      ];
+      await joinGroups(...baseGroups);
+
+      // 6) re-suscribir al reconectar
+      connection.onreconnected(async () => {
+        const again = Array.from(subscribedGroupsRef.current);
+        if (again.length) {
+          await joinGroups(...again);
+          console.log('🔁 Re-suscrito a grupos tras reconexión:', again);
+        }
+      });
+    },
+    [user?.username, department, postJSON, joinGroups, ticketsDispatch, dailyStatsDispatch]
+  );
+
+  // ---- enviar a un grupo (opcional, útil para pruebas/admin) ----
+  const sendToGroup = useCallback(
+    async (groupName, target, payload) => {
+      return postJSON(`${ENDPOINT_URLS.SIGNALRGROUPS}/signalr/send-group`, {
+        groupName,
+        target,
+        payload,
+      });
+    },
+    [postJSON]
+  );
+
+  // ---- desconectar ----
+  const disconnect = useCallback(async () => {
+    const conn = connectionRef.current;
+    connectionRef.current = null;
+    subscribedGroupsRef.current.clear();
+    if (conn) {
+      try { await conn.stop(); } catch {}
     }
-  };
-
+  }, []);
 
   return (
-    <SignalRContext.Provider value={{ initializeSignalR }}>
+    <SignalRContext.Provider value={{ initializeSignalR, joinGroups, sendToGroup, disconnect }}>
       {children}
     </SignalRContext.Provider>
   );
 }
-
 
 export function useSignalR() {
   return useContext(SignalRContext);
