@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState, useEffect, useCallback, useMemo, memo } from 'react';
+import React, { lazy, Suspense, useState, useEffect, useCallback, useMemo, memo, use } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Box, Typography, Paper, Grid, Card, CardContent, TextField, IconButton, Backdrop, CircularProgress
@@ -13,7 +13,7 @@ import TicketCollaborators from '../components/auxiliars/tickets/ticketCollabora
 import TicketAudio from '../components/auxiliars/tickets/ticketAudio.jsx';
 import TicketAssignee from '../components/auxiliars/tickets/ticketAssignee.jsx';
 import Tooltip from '@mui/material/Tooltip';
-import { useWorkTimer } from '../components/auxiliars/tickets/useWorkTimer.jsx';
+import { useWorkTimer } from '../components/hooks/useWorkTimer.jsx';
 import TicketWorkTime from '../components/auxiliars/tickets/ticketWorkTime.js';
 import { useAgents } from '../context/agentsContext';
 import { useAuth } from '../context/authContext';
@@ -98,9 +98,13 @@ export default function EditTicketLocal() {
   const [pendingPatient, setPendingPatient] = useState(null);
 
   const [openPatientDialog, setOpenPatientDialog] = useState(false);
-  useWorkTimer( {ticketData:ticket, agentEmail, status, enabled:true} );
+  //useWorkTimer( {ticketData:ticket, agentEmail, status, enabled:true} );
 
+  const registerWorkTime = useWorkTimer({ ticketData: ticket, status, enabled: true });
   useEffect(() => {
+    return () => registerWorkTime;
+  },[])
+  /*useEffect(() => {
     if (ticket?.notes) {
       setNotes(ticket.notes);
     }
@@ -110,7 +114,7 @@ export default function EditTicketLocal() {
     if (ticket) {
       setStatus(ticket.status || '');
     }
-  }, [ticket]);
+  }, [ticket]);*/
 
  
   /** ========= Callbacks ESTABLES para diálogos y acciones pequeñas ========= */
@@ -263,7 +267,7 @@ export default function EditTicketLocal() {
                         }}
                       />
                       <Grid container alignItems="center" justifyContent="space-between">
-                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: getStatusColor(ticket?.status) }}>
+                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: getStatusColor(status, 'text') || '#00a1ff' }}>
                           Patient Information local
                         </Typography>
                         <TicketLinkOptions />
@@ -505,7 +509,7 @@ export default function EditTicketLocal() {
                   </Typography>
                 </Box>
                 <Box sx={{ width: '100%', minWidth: '280px' }}>
-                  <TicketWorkTimeMemo workTimeData={workTimeData} />
+                  { /*<TicketWorkTimeMemo workTimeData={workTimeData} /> */}
                 </Box>
               </CardContent>
             </Card>
