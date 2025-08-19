@@ -28,12 +28,7 @@ const AuthErrorScreen = ({ errorMessage, onRetry }) => {
     navigate('/dashboard', { replace: true });
   }, [navigate]);
 
-  const handleRetry = useCallback(() => {
-    if (onRetry) {
-      onRetry();
-    }
-  }, [onRetry]);
-
+ 
   return (
     <Box sx={rootSx}>
 

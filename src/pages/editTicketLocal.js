@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState, useEffect, useCallback, useMemo, memo, use } from 'react';
+import React, { lazy, Suspense, useState, useCallback, useMemo, memo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Box, Typography, Paper, Grid, Card, CardContent, TextField, IconButton, Backdrop, CircularProgress
@@ -13,8 +13,8 @@ import TicketCollaborators from '../components/auxiliars/tickets/ticketCollabora
 import TicketAudio from '../components/auxiliars/tickets/ticketAudio.jsx';
 import TicketAssignee from '../components/auxiliars/tickets/ticketAssignee.jsx';
 import Tooltip from '@mui/material/Tooltip';
-import { useWorkTimer } from '../components/hooks/useWorkTimer.jsx';
-import TicketWorkTime from '../components/auxiliars/tickets/ticketWorkTime.js';
+//import { useWorkTimer } from '../components/hooks/useWorkTimer.jsx';
+//import TicketWorkTime from '../components/auxiliars/tickets/ticketWorkTime.js';
 import { useAgents } from '../context/agentsContext';
 import { useAuth } from '../context/authContext';
 import { useTickets } from '../context/ticketsContext.js';
@@ -32,7 +32,7 @@ const TicketNotesMemo = memo(TicketNotes);
 const TicketCollaboratorsMemo = memo(TicketCollaborators);
 const TicketAudioMemo = memo(TicketAudio);
 const TicketAssigneeMemo = memo(TicketAssignee);
-const TicketWorkTimeMemo = memo(TicketWorkTime);
+//const TicketWorkTimeMemo = memo(TicketWorkTime);
 const TicketIndicatorsMemo = memo(TicketIndicators);
 
 // ✅ versiones lazy
@@ -100,8 +100,8 @@ export default function EditTicketLocal() {
   const [openPatientDialog, setOpenPatientDialog] = useState(false);
   //useWorkTimer( {ticketData:ticket, agentEmail, status, enabled:true} );
 
-  const registerWorkTime = useWorkTimer({ ticketData: ticket, status, enabled: true });
-  useEffect(() => {
+  //const registerWorkTime = useWorkTimer({ ticketData: ticket, status, enabled: true });
+  /*useEffect(() => {
     return () => registerWorkTime;
   },[])
   /*useEffect(() => {
@@ -158,7 +158,7 @@ export default function EditTicketLocal() {
 
   /** ========= Props/valores MEMO para pasar a hijos ========= */
   const indicatorsData = useMemo(() => ticket?.aiClassification, [ticket?.aiClassification]);
-  const workTimeData   = useMemo(() => ticket?.work_time,        [ticket?.work_time]);
+  //const workTimeData   = useMemo(() => ticket?.work_time,        [ticket?.work_time]);
   const audioUrl       = useMemo(() => ticket?.url_audio,        [ticket?.url_audio]);
   const notesStable         = useMemo(() => notes,         [notes]);
   const collaboratorsStable = useMemo(() => collaborators, [collaborators]);
