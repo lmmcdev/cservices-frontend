@@ -7,6 +7,7 @@ import ActionCell from './actionCell.jsx';
 import QCFlag from './qcflag.jsx';
 import { emailToFullName } from '../../utils/js/emailToFullName.js';
 import { formatPhone } from '../../utils/js/formatPhone.js';
+import DOBCell from './dobCell.jsx';
 
 function areEqual(prev, next) {
   // Re-render mínimo: compara id + cambios relevantes
@@ -48,6 +49,8 @@ const TicketsRow = React.memo(function TicketsRow({
 
       <TableCell>{row.caller_id}</TableCell>
 
+      
+
       <TableCell>
         <PatientCell
           snapshot={row.linked_patient_snapshot}
@@ -56,7 +59,14 @@ const TicketsRow = React.memo(function TicketsRow({
         />
       </TableCell>
 
-      <TableCell>{row.patient_dob}</TableCell>
+      <TableCell>
+        <DOBCell
+          snapshot={row.linked_patient_snapshot}
+          fallbackName={row.patient_dob}
+          onOpenProfile={() => onOpenPatientProfile?.(row)}
+        />
+      </TableCell>
+
       <TableCell>{formatPhone(row.phone)}</TableCell>
       <TableCell>{row.creation_date}</TableCell>
       <TableCell>{emailToFullName(row.agent_assigned)}</TableCell>

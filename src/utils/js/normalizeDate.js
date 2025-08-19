@@ -1,3 +1,8 @@
+/**
+ * Normalizes a ticket date string from "MM/DD/YYYY" to "YYYY-MM-DD"
+ * @param {*} datetimeString 
+ * @returns 
+ */
 export function normalizeTicketDate(datetimeString) {
   if (!datetimeString || typeof datetimeString !== 'string') return null;
   const [datePart] = datetimeString.split('.');
