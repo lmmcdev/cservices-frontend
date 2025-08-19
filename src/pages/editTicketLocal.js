@@ -137,7 +137,8 @@ export default function EditTicketLocal() {
 
   const {
   handleStatusChangeUI, handleAddNote, onAddCollaboratorCb, handleRemoveCollaborator, handleChangeDepartment, updatePatientNameUI, updatePatientDobUI, updateCallbackNumberUI, ticketAssigneeUI,
-  handleCenterHandlerUI, handleRelateCurrentTicket, handleRelateAllPastTickets, handleRelateFutureTickets, handleUnlinkTicket,
+  //handleCenterHandlerUI, 
+  handleRelateCurrentTicket, handleRelateAllPastTickets, handleRelateFutureTickets, handleUnlinkTicket,
   } = useEditTicketLocalActions({
     dispatch, setLoading, ticketId, agentEmail, navigate, setStatus, setNotes, setNoteContent, setOpenNoteDialog, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
     collaborators, setCollaborators, setEditField, setAgentAssigned, setLinkedPatientSnapshot, noteContent,
@@ -147,7 +148,9 @@ export default function EditTicketLocal() {
     handleAddCollaboratorClick, handleModalTicket, showActions, handleRelateAllActions, closeEditTicket, onChangeCenterCb, onReassignAgentCb, onAgentSelectorAddCb,
   } = useEditTicketLocalUi({
     ticket, relateTicketAction, pendingPatient, setAgentDialogOpen, setRelateTicketAction, setOpenRelateModal, setPendingPatient, setOpenConfirmDialog, navigate, handleRelateCurrentTicket, 
-    handleRelateAllPastTickets, handleRelateFutureTickets, handleCenterHandlerUI, ticketAssigneeUI, onAddCollaboratorCb,
+    handleRelateAllPastTickets, handleRelateFutureTickets, 
+    //handleCenterHandlerUI, 
+    ticketAssigneeUI, onAddCollaboratorCb,
   });
 
   const onRelateCurrent = useCallback(() => handleModalTicket('relateCurrent'), [handleModalTicket]);
