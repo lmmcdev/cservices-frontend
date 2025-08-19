@@ -53,7 +53,7 @@ export default function ProfileSearch() {
   ///const [filter, setFilter] = useState('All');
   const [filter, ] = useState('All');
   const isSmall = useMediaQuery('(max-width:900px)');
-  const [selectedView, setSelectedView] = useState('profile'); 
+  const [selectedView, setSelectedView] = useState('tickets-search'); 
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [, setSelectedPatient] = useState(null);
   const [patientTickets, setPatientTickets] = useState([]);
