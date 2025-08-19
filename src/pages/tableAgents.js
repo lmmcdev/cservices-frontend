@@ -37,9 +37,10 @@ export default function TableAgents() {
           borderRadius: 4,
           position: 'fixed',
           top: 150,
-          left: 220,
-          right: 20,
-          bottom: 20,
+          left: 'calc(var(--drawer-width, 80px) + var(--content-gap))', // 👈 se mueve con el sidebar
+          right: 39,
+          bottom: 39,
+          transition: 'left .3s ease',                    // 👈 animación suave
           display: 'flex',
           flexDirection: 'column',
           boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',

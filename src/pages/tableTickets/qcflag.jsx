@@ -4,7 +4,7 @@ import { Chip, Tooltip } from '@mui/material';
 const QCFlag = React.memo(function QCFlag({ visible }) {
   if (!visible) return null;
   return (
-    <Tooltip title="This ticket had been marked by quality control">
+    <Tooltip title="Flagged for quality review">
       <Chip
         label="QC"
         size="small"

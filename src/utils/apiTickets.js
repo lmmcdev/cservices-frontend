@@ -1,6 +1,48 @@
 // ticketUtils.js
 import { ENDPOINT_URLS } from "./js/constants";
 
+// Obtiene un ticket completo por id
+export const getTicketById = async (ticketId) => {
+  try {
+    // 1) intento rápido vía búsqueda con filtro por id
+    const res = await fetch(`${ENDPOINT_URLS.API}/searchTickets`, {
+      method: "POST",
+      body: JSON.stringify({
+        query: null,
+        page: 0,
+        size: 1,
+        filter: { ids: [ticketId] }, // ajusta si tu API usa otro nombre
+      }),
+    });
+    const data = await res.json();
+    const list = data?.items || data?.results;
+    if (res.ok && Array.isArray(list) && list.length > 0) {
+      return { success: true, message: list[0] };
+    }
+  } catch (e) {
+    // sigue al fallback
+  }
+
+  // 2) fallback: traer todos y filtrar por id
+  try {
+    const res = await fetch(`${ENDPOINT_URLS.API}/cosmoGet`);
+    if (res.status === 204) return { success: false, message: "Ticket not found" };
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Error fetching tickets");
+
+    const rows = Array.isArray(data?.items) ? data.items : data;
+    const found = Array.isArray(rows)
+      ? rows.find((t) => String(t.id) === String(ticketId))
+      : null;
+
+    return found
+      ? { success: true, message: found }
+      : { success: false, message: "Ticket not found" };
+  } catch (err) {
+    return { success: false, message: err.message || "Error fetching ticket" };
+  }
+};
+
 export const fetchTableData = async (agentAssigned) => {
 
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoGet`);

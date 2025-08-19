@@ -18,7 +18,7 @@ import ChangeAgentModal from '../components/dialogs/changeAgentModal';
 import ChangeDepartmentModal from '../components/dialogs/changeDepartmentModal';
 import PatientProfileDialog from '../components/dialogs/patientProfileDialog';
 import Tooltip from '@mui/material/Tooltip';
-import { useWorkTimer } from '../components/components/useWorkTimer';
+import { useWorkTimer } from '../components/hooks/useWorkTimer.jsx';
 import TicketWorkTime from '../components/ticketWorkTime';
 import { useAgents } from '../context/agentsContext';
 import { useAuth } from '../context/authContext';
@@ -80,17 +80,33 @@ export default function EditTicket() {
   const [linked_patient_snapshot, setLinkedPatientSnapshot] = useState(ticket?.linked_patient_snapshot || '');
 
   
- const formatDateForInput = (dateStr = '01-01-1901') => {
-  const date = new Date(dateStr);
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // getMonth() es 0-indexado
-  const day = String(date.getDate()).padStart(2, '0');
-  const year = date.getFullYear();
-  return `${month}/${day}/${year}`;
+ const toInputDate = (value) => {
+  if (!value) return '';
+  const d = /^\d{4}-\d{2}-\d{2}$/.test(value)
+    ? new Date(`${value}T00:00:00Z`)
+    : new Date(value);
+  if (isNaN(d)) return '';
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const day = String(d.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 };
 
-  const [patientDob, setPatientDob] = useState(formatDateForInput(ticket?.patient_dob));
+  const [patientDob, setPatientDob] = useState(toInputDate(ticket?.patient_dob));
   const [callbakNumber, setCallbackNumber] = useState(ticket?.callback_number || '');
   const [ patientPhone, ] = useState(ticket?.phone || '')
+
+  const formatDateMMDDYYYY = (value) => {
+  if (!value) return '';
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const d = new Date(`${value}T00:00:00Z`);
+    return isNaN(d) ? value : d.toLocaleDateString('en-US', { timeZone: 'UTC' });
+  }
+  const d = new Date(value);
+  if (!isNaN(d)) return d.toLocaleDateString('en-US', { timeZone: 'UTC' });
+  const m = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? `${m[2]}/${m[3]}/${m[1]}` : value;
+};
 
   //state status
   const [errorOpen, setErrorOpen] = useState(false);
@@ -260,6 +276,14 @@ const closeEditTicket = () => {
 
   navigate('/dashboard');
 }
+
+const agentsFiltered = useMemo(() => {
+  if (!Array.isArray(agents)) return [];
+  const existingCollaborators = ticket?.collaborators?.map(c => c.email) || [];
+  return agents.filter(a =>
+    a?.email !== agentAssigned && !existingCollaborators.includes(a?.email)
+  );
+}, [agents, agentAssigned, ticket?.collaborators]);
 
 
 
@@ -446,7 +470,7 @@ return (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                       <InsertLinkIcon color="success" />
                       <Typography variant="subtitle" sx={{ color: '#2e7d32' }}>
-                        {linked_patient_snapshot.DOB}
+                        {formatDateMMDDYYYY(linked_patient_snapshot.DOB)}
                       </Typography>
                     </Box>
                   ) : (
@@ -475,7 +499,7 @@ return (
                         </Box>
                       ) : (
                         <Box display="flex" alignItems="center" justifyContent="space-between">
-                          <Typography>{patientDob}</Typography>
+                          <Typography>{formatDateMMDDYYYY(patientDob)}</Typography>
                           <IconButton onClick={() => setEditField('dob')}><EditIcon fontSize="small" /></IconButton>
                         </Box>
                       )}
@@ -637,12 +661,11 @@ return (
       {/**dialog para agentes */}
       <AgentSelectorDialog
         open={agentDialogOpen}
-        onClose={() => setAgentDialogOpen(false)}
-        onAdd={async (selectedAgents) => {
-          await addCollaboratorUI(selectedAgents);          
-        }}
+        onClose={closeAgentDialogCb}
+        onAdd={onAgentSelectorAddCb}
         agents={agents}
-        initialSelected={ticket?.collaborators}
+        assigneeEmail={agentAssigned}
+        existingCollaborators={collaboratorsStable}
       />
 
       {/*Dialog para reasignar agente*/}
@@ -712,6 +735,7 @@ return (
         patientName={patientName}
         patientDob={patientDob}
         patientPhone={patientPhone}
+        currentTicket={ticket}
       />
 
       {/* Snackbars */}

@@ -39,7 +39,7 @@ const PatientProfileDialog = ({
   currentTicket
 }) => {
   const { history: allCases, error } = usePhoneHistory(patientPhone);
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
   // Divide los casos en llamadas del día actual y el resto
   const today = new Date().toISOString();
@@ -52,6 +52,18 @@ const navigate = useNavigate();
     !isSameDay(item.creation_date, today)
   ) || [];
 
+  const formatDateMMDDYYYY = (value) => {
+    if (!value) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const d = new Date(`${value}T00:00:00Z`);
+      return isNaN(d) ? value : d.toLocaleDateString('en-US', { timeZone: 'UTC' });
+    }
+    const d = new Date(value);
+    if (!isNaN(d)) return d.toLocaleDateString('en-US', { timeZone: 'UTC' });
+    const m = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m ? `${m[2]}/${m[3]}/${m[1]}` : value;
+  };
+
   //Colores de los status
     const statusColors = {
         New: { bg: '#FFE2EA', text: '#FF6692' },
@@ -62,7 +74,21 @@ const navigate = useNavigate();
         Duplicated: { bg: '#FFE3C4', text: '#FF8A00' },
     };
 
+    // Deriva datos desde el ticket linkeado si existe; si no, usa props
+    const linked = currentTicket?.linked_patient_snapshot;
+    const displayName = linked?.Name || patientName || 'N/A';
+    const displayDob = linked?.DOB
+      ? formatDateMMDDYYYY(linked.DOB)
+      : (patientDob ? formatDateMMDDYYYY(patientDob) : 'N/A');
 
+
+    const goToTicket = (t) => {
+      onClose?.(); // cierra el Dialog para que no quede encima
+      navigate(`/tickets/edit/${t.id}`, {
+        state: { row: t }, // 👈 EditTicketLocal espera state.row
+      });
+    };
+      
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle
@@ -89,10 +115,10 @@ const navigate = useNavigate();
           {/* LEFT COLUMN: Patient Info + Today's Activity */}
           <Box flex={1}>
             <Typography variant="subtitle1">
-              <strong>Name:</strong> {patientName || 'N/A'}
+              <strong>Name:</strong> {displayName}
             </Typography>
             <Typography variant="subtitle1">
-              <strong>DOB:</strong> {patientDob || 'N/A'}
+              <strong>DOB:</strong> {displayDob}
             </Typography>
             <Typography variant="subtitle1" sx={{ mb: 2 }}>
               <strong>Phone:</strong> {patientPhone || 'N/A'}
@@ -121,13 +147,8 @@ const navigate = useNavigate();
                       cursor: 'pointer',
                       '&:hover': { backgroundColor: '#F3F4F6' }
                     }}
-                    onClick={() =>
-                      navigate(`/tickets/edit/${item.id}`, {
-                        state: {
-                          ticket: item
-                        },
-                      })
-                    }>
+                    onClick={() => goToTicket(item)}
+                  >
                     <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
                         {item.call_reason || 'No reason'}
                     </Typography>
@@ -187,13 +208,7 @@ const navigate = useNavigate();
                       cursor: 'pointer',
                       '&:hover': { backgroundColor: '#F3F4F6' }
                     }}
-                    onClick={() =>
-                      navigate(`/tickets/edit/${item.id}`, {
-                        state: {
-                          ticket: item
-                        },
-                      })
-                    }
+                    onClick={() => goToTicket(item)}
                   >
                     <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
                       {item.call_reason || 'No reason'}

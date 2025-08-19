@@ -6,7 +6,7 @@ const PatientCell = React.memo(function PatientCell({ snapshot, fallbackName, on
   if (snapshot?.Name) {
     return (
       <Box display="flex" alignItems="center" gap={1}>
-        <Tooltip title="Ver perfil de paciente">
+        <Tooltip title="Linked patient">
           <IconButton size="small" color="success" onClick={onOpenProfile}>
             <InsertLinkIcon fontSize="small" />
           </IconButton>

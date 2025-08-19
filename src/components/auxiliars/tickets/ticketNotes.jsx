@@ -33,7 +33,6 @@ function formatAgentName(email) {
 }
 
 function TicketNotesBase({ notes = [], onAddNote, status }) {
-  //console.log(notes)
   const [showSystemLogs, setShowSystemLogs] = useState(false);
   const [sortAscending, setSortAscending] = useState(true);
 
@@ -45,35 +44,28 @@ function TicketNotesBase({ notes = [], onAddNote, status }) {
     setSortAscending(prev => !prev);
   }, []);
 
-  // Filtrado + orden + “preparación” memoizada
   const preparedNotes = useMemo(() => {
-    // filtro
-    const filtered = showSystemLogs
-      ? notes
-      : notes.filter(n => n?.event_type === 'user_note');
-
-    // orden (no mutar notes)
+    const filtered = showSystemLogs ? notes : notes.filter(n => n?.event_type === 'user_note');
     const sorted = [...filtered].sort((a, b) => {
       const aT = new Date(a?.datetime || 0).getTime();
       const bT = new Date(b?.datetime || 0).getTime();
       return sortAscending ? aT - bT : bT - aT;
     });
-
-    // pre-cálculo de strings para no crear Date en el render map
     return sorted.map(n => ({
       ...n,
       __displayName: formatAgentName(n?.agent_email),
       __displayDate: n?.datetime ? new Date(n.datetime).toLocaleString() : '',
       __alignRight: n?.event_type === 'user_note',
-      __key: n?.id || `${n?.datetime || ''}-${n?.agent_email || ''}`, // key estable si hay id/datetime
+      __key: n?.id || `${n?.datetime || ''}-${n?.agent_email || ''}`,
     }));
   }, [notes, showSystemLogs, sortAscending]);
 
   const color = statusColors[status]?.text || '#00a1ff';
   const bubbleBg = statusColors[status]?.bg || '#e0f7fa';
+  const iconFixed = '#00a1ff';
 
   return (
-    <Card variant="outlined">
+    <Card variant="outlined" >
       <CardContent sx={{ p: '20px 25px 25px 30px' }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -84,19 +76,19 @@ function TicketNotesBase({ notes = [], onAddNote, status }) {
           </Box>
           <Box>
             <Tooltip title="Toggle system logs">
-              <IconButton onClick={toggleSystemLogs}>
+              <IconButton onClick={toggleSystemLogs} sx={{ color: iconFixed }}>
                 <i
                   className={`bi ${showSystemLogs ? 'bi-terminal-dash' : 'bi-terminal-plus'}`}
-                  style={{ fontSize: 20, color }}
+                  style={{ fontSize: 20, color: 'inherit' }}
                 />
               </IconButton>
             </Tooltip>
             <Tooltip title="Sort by date">
-              <IconButton onClick={toggleSort}>
+              <IconButton onClick={toggleSort} sx={{ color: iconFixed }}>
                 {sortAscending ? (
-                  <SortAscending size={22} weight="bold" color={color} />
+                  <SortAscending size={22} weight="bold" color={iconFixed} />
                 ) : (
-                  <SortDescending size={22} weight="bold" color={color} />
+                  <SortDescending size={22} weight="bold" color={iconFixed} />
                 )}
               </IconButton>
             </Tooltip>
@@ -112,7 +104,6 @@ function TicketNotesBase({ notes = [], onAddNote, status }) {
           {preparedNotes.length > 0 ? (
             preparedNotes.map((note, idx) => {
               const alignRight = note.__alignRight;
-              // Fallback de key si no hay id/datetime (no ideal, pero estable por orden)
               const key = note.__key || `note-${idx}`;
 
               return (
@@ -133,20 +124,16 @@ function TicketNotesBase({ notes = [], onAddNote, status }) {
                       pr: '20px',
                       bgcolor: alignRight ? bubbleBg : '#f0f0f0',
                       borderRadius: '30px',
-                      boxShadow: 1,
+                      boxShadow: 'none', 
                     }}
                   >
                     {note.content && (
-                      <Typography
-                        sx={{ whiteSpace: 'pre-wrap', fontSize: 14, wordBreak: 'break-word' }}
-                      >
+                      <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: 14, wordBreak: 'break-word' }}>
                         {note.content}
                       </Typography>
                     )}
                     {note.event && (
-                      <Typography
-                        sx={{ mb: 0.5, whiteSpace: 'pre-wrap', fontSize: 14, wordBreak: 'break-word' }}
-                      >
+                      <Typography sx={{ mb: 0.5, whiteSpace: 'pre-wrap', fontSize: 14, wordBreak: 'break-word' }}>
                         {note.event}
                       </Typography>
                     )}
@@ -186,7 +173,6 @@ function TicketNotesBase({ notes = [], onAddNote, status }) {
   );
 }
 
-// Memo con comparación pensada para evitar renders inútiles
 function areEqual(prev, next) {
   if (prev.status !== next.status) return false;
   if (prev.onAddNote !== next.onAddNote) return false;
@@ -195,7 +181,6 @@ function areEqual(prev, next) {
   const b = next.notes || [];
   if (a.length !== b.length) return false;
 
-  // Heurística barata: compara el último timestamp (tras orden cronológico simple)
   const lastA = a.length ? a[a.length - 1]?.datetime : undefined;
   const lastB = b.length ? b[b.length - 1]?.datetime : undefined;
   if (lastA !== lastB) return false;

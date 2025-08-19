@@ -13,7 +13,7 @@ import TicketCollaborators from '../components/auxiliars/tickets/ticketCollabora
 import TicketAudio from '../components/auxiliars/tickets/ticketAudio.jsx';
 import TicketAssignee from '../components/auxiliars/tickets/ticketAssignee.jsx';
 import Tooltip from '@mui/material/Tooltip';
-import { useWorkTimer } from '../components/auxiliars/tickets/useWorkTimer.jsx';
+import { useWorkTimer } from '../components/hooks/useWorkTimer.jsx';
 import TicketWorkTime from '../components/auxiliars/tickets/ticketWorkTime.js';
 import { useAgents } from '../context/agentsContext';
 import { useAuth } from '../context/authContext';
@@ -26,6 +26,7 @@ import { useEditTicketLocalUi } from './editTicketLocal/useEditTicketLocalUI.js'
 import { toInputDate } from '../utils/js/date.js';
 
 import { getStatusColor } from '../utils/js/statusColors.js';
+import PhoneCallLink from '../components/auxiliars/tickets/phoneCallLink';
 
 /** ========= Envolturas MEMO para hijos pesados ========= */
 const TicketNotesMemo = memo(TicketNotes);
@@ -49,9 +50,14 @@ const ConfirmDialog          = lazy(() => import('../components/dialogs/confirmD
 export default function EditTicketLocal() {
   const location = useLocation();
   const { state } = location;
+
+  useEffect(() => {
+    if (state?.row) setTicket(state.row);
+  }, [state?.row]);
+
   //constants 
   const { dispatch } = useTickets();
-  const [ticket, ] = useState(state.row)
+  const [ticket, setTicket] = useState(state?.row);
   //const tickets = ticketsAll.tickets;
   const { setLoading } = useLoading();
   const navigate = useNavigate();
@@ -76,7 +82,7 @@ export default function EditTicketLocal() {
   // Patient data
   const [patientDob, setPatientDob] = useState(toInputDate(ticket?.patient_dob));
   const [callbakNumber, setCallbackNumber] = useState(ticket?.callback_number || '');
-  const [ patientPhone, ] = useState(ticket?.phone || '')
+  const [patientPhone, setPatientPhone] = useState(ticket?.phone || '');
 
   //state status
   const [errorOpen, setErrorOpen] = useState(false);
@@ -112,6 +118,16 @@ export default function EditTicketLocal() {
     }
   }, [ticket]);
 
+  useEffect(() => {
+    if (!ticket) return;
+    setAgentAssigned(ticket.agent_assigned || '');
+    setPatientName(ticket.patient_name || '');
+    setLinkedPatientSnapshot(ticket.linked_patient_snapshot || '');
+    setPatientDob(toInputDate(ticket.patient_dob));
+    setCallbackNumber(ticket.callback_number || '');
+    setCollaborators(ticket.collaborators || []);
+    setPatientPhone(ticket.phone || '');
+  }, [ticket]);
  
   /** ========= Callbacks ESTABLES para diálogos y acciones pequeñas ========= */
   const openNoteDialogCb = useCallback(() => setOpenNoteDialog(true), []);
@@ -158,6 +174,40 @@ export default function EditTicketLocal() {
   const audioUrl       = useMemo(() => ticket?.url_audio,        [ticket?.url_audio]);
   const notesStable         = useMemo(() => notes,         [notes]);
   const collaboratorsStable = useMemo(() => collaborators, [collaborators]);
+
+
+  // 👉 Formatea a MM/DD/YYYY sin sorpresas de timezone
+  const formatDateMMDDYYYY = (value) => {
+    if (!value) return '';
+    // Si viene como 'YYYY-MM-DD', fuerzo UTC para evitar corrimientos
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      const d = new Date(`${value}T00:00:00Z`);
+      return isNaN(d) ? value : d.toLocaleDateString('en-US', { timeZone: 'UTC' });
+    }
+    // ISO u otros formatos parseables
+    const d = new Date(value);
+    if (!isNaN(d)) return d.toLocaleDateString('en-US', { timeZone: 'UTC' });
+    // Fallback si viene mezclado tipo 'YYYY-MM-DDTHH:mm...'
+    const m = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    return m ? `${m[2]}/${m[3]}/${m[1]}` : value;
+  };
+
+  // Tel válido (US): al menos 10 dígitos (permitiendo letras/espacios/ext en el raw)
+  const isDialable = (value) => {
+    if (!value) return false;
+    const digits = (String(value).match(/\d/g) || []).join('');
+    // permite leading "1", pero con 10+ dígitos nos alcanza para considerar marcable
+    return digits.length >= 10;
+  };
+
+  // Excluye al agente asignado para que no aparezca en el selector
+  const agentsFiltered = useMemo(() => {
+    if (!Array.isArray(agents)) return [];
+    const existingCollaborators = ticket?.collaborators?.map(c => c.email) || [];
+    return agents.filter(a =>
+      a?.email !== agentAssigned && !existingCollaborators.includes(a?.email)
+    );
+  }, [agents, agentAssigned, ticket?.collaborators]);
 
   if (!ticket) return <Typography>Ticket not found</Typography>;
 
@@ -263,8 +313,8 @@ export default function EditTicketLocal() {
                         }}
                       />
                       <Grid container alignItems="center" justifyContent="space-between">
-                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: getStatusColor(ticket?.status) }}>
-                          Patient Information local
+                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: getStatusColor(status, 'text') || '#00a1ff' }}>
+                          Patient Information
                         </Typography>
                         <TicketLinkOptions />
                       </Grid>
@@ -289,54 +339,56 @@ export default function EditTicketLocal() {
                   </Box>
 
                   {/* --- Nueva lógica --- */}
-                  {linked_patient_snapshot?.Name ? (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <InsertLinkIcon color="success" />
-                      <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
-                        {linked_patient_snapshot.Name}
-                      </Typography>
-                    </Box>
-                  ) : (
-                    <>
-                      <Typography sx={{ mb: 1 }}>
-                        <strong>Patient:</strong><br />
-                        <Box mt={1}>
-                          {editField === 'name' ? (
-                            <Box display="flex" alignItems="center" gap={1}>
-                              <TextField
-                                value={patientName}
-                                onChange={(e) => setPatientName(e.target.value)}
-                                size="small"
-                                fullWidth
-                              />
-                              <IconButton
-                                onClick={async () => {
-                                  await updatePatientNameUI(patientName);
-                                  setEditField(null);
-                                }}
-                              >
-                                <SaveIcon />
-                              </IconButton>
-                              <IconButton onClick={() => setEditField(null)}><i className="fa fa-close" /></IconButton>
-                            </Box>
-                          ) : (
-                            <Box display="flex" alignItems="center" justifyContent="space-between">
-                              <Typography>{patientName}</Typography>
-                              <IconButton onClick={() => setEditField('name')}><EditIcon fontSize="small" /></IconButton>
-                            </Box>
-                          )}
-                        </Box>
-                      </Typography>
-                    </>
-                  )}
+                  <Typography sx={{ mb: 1 }}>
+                    <strong>Patient Name:</strong><br />
+                    {linked_patient_snapshot?.Name ? (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <InsertLinkIcon color="success" />
+                        <Typography variant="subtitle" sx={{ color: '#2e7d32' }}>
+                          {linked_patient_snapshot.Name}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      <Box>
+                        {editField === 'name' ? (
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <TextField
+                              value={patientName}
+                              onChange={(e) => setPatientName(e.target.value)}
+                              size="small"
+                              fullWidth
+                            />
+                            <IconButton
+                              onClick={async () => {
+                                await updatePatientNameUI(patientName);
+                                setEditField(null);
+                              }}
+                            >
+                              <SaveIcon />
+                            </IconButton>
+                            <IconButton onClick={() => setEditField(null)}>
+                              <i className="fa fa-close" />
+                            </IconButton>
+                          </Box>
+                        ) : (
+                          <Box display="flex" alignItems="center" justifyContent="space-between">
+                            <Typography>{patientName}</Typography>
+                            <IconButton onClick={() => setEditField('name')}>
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        )}
+                      </Box>
+                    )}
+                  </Typography>
 
                   <Typography sx={{ mb: 1 }}>
                     <strong>Patient DOB:</strong><br />
                     {linked_patient_snapshot?.DOB ? (
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                         <InsertLinkIcon color="success" />
-                        <Typography variant="subtitle" sx={{ color: '#2e7d32' }}>
-                          {linked_patient_snapshot.DOB}
+                        <Typography variant="subtitle" component="span" sx={{ color: '#2e7d32' }}>
+                          {formatDateMMDDYYYY(linked_patient_snapshot.DOB)}
                         </Typography>
                       </Box>
                     ) : (
@@ -363,7 +415,7 @@ export default function EditTicketLocal() {
                           </Box>
                         ) : (
                           <Box display="flex" alignItems="center" justifyContent="space-between">
-                            <Typography>{patientDob}</Typography>
+                            <Typography>{formatDateMMDDYYYY(patientDob)}</Typography>
                             <IconButton onClick={() => setEditField('dob')}><EditIcon fontSize="small" /></IconButton>
                           </Box>
                         )}
@@ -373,7 +425,22 @@ export default function EditTicketLocal() {
 
                   {/**make a component for phone number */}
                   <Typography sx={{ mb: 2.5 }}>
-                    <strong>Phone:</strong><br /> {ticket.phone}
+                    <strong>Phone:</strong><br />
+                    <Box component="span">
+                      {isDialable(ticket.phone) ? (
+                        <PhoneCallLink
+                          phoneRaw={ticket.phone}
+                          contactName={linked_patient_snapshot?.Name || patientName || 'this patient'}
+                          underline="always"
+                          withIcon={false}
+                          color="#6c757d"
+                          fontSize="inherit"
+                          sx={{ fontWeight: 'inherit', lineHeight: 'inherit' }}
+                        />
+                      ) : (
+                        <>{ticket.phone || 'N/A'}</>
+                      )}
+                    </Box>
                   </Typography>
 
                   <Typography>
@@ -399,9 +466,23 @@ export default function EditTicketLocal() {
                         </Box>
                       ) : (
                         <Box display="flex" alignItems="center" justifyContent="space-between">
-                          <Typography>{callbakNumber}</Typography>
-                          <IconButton onClick={() => setEditField('phone')}><EditIcon fontSize="small" /></IconButton>
+                        <Box>
+                          {isDialable(callbakNumber) ? (
+                            <PhoneCallLink
+                              phoneRaw={callbakNumber}
+                              contactName={linked_patient_snapshot?.Name || patientName || 'this patient'}
+                              underline="always"
+                              withIcon={false}
+                              color="#6c757d"
+                              fontSize="inherit"
+                              sx={{ fontWeight: 'inherit', lineHeight: 'inherit' }}
+                            />
+                          ) : (
+                            <Typography component="span">{callbakNumber || 'N/A'}</Typography>
+                          )}
                         </Box>
+                        <IconButton onClick={() => setEditField('phone')}><EditIcon fontSize="small" /></IconButton>
+                      </Box>
                       )}
                     </Box>
                   </Typography>
@@ -531,7 +612,8 @@ export default function EditTicketLocal() {
         onClose={closeAgentDialogCb}
         onAdd={onAgentSelectorAddCb}
         agents={agents}
-        initialSelected={ticket?.collaborators}
+        assigneeEmail={agentAssigned}
+        existingCollaborators={collaboratorsStable}
       />
     </LazyModal>
 
@@ -592,6 +674,7 @@ export default function EditTicketLocal() {
         patientName={patientName}
         patientDob={patientDob}
         patientPhone={patientPhone}
+        currentTicket={ticket}
       />
     </LazyModal>
 

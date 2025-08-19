@@ -69,12 +69,13 @@ export default function Topbar({ agent }) {
         sx={{
           position: 'fixed',
           top: 40,
-          left: 220,
-          right: 20,
+          left: 'calc(var(--drawer-width, 80px) + var(--content-gap))', // se mueve con el sidebar
+          right: 39,
           zIndex: (theme) => theme.zIndex.drawer + 1,
           borderRadius: 2,
           backgroundColor: '#fff',
           boxShadow: '0px 4px 12px rgba(239, 241, 246, 1)',
+          transition: 'left .3s ease',                      // animación suave
         }}
       >
         <CardContent

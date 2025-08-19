@@ -58,9 +58,16 @@ export default function TableTickets() {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const precounted = useMemo(() => selectStatusCounts(state), [state.statusCounts]);
+
+  // Total fijo = total de tickets (sin aplicar filtros)
+  const fixedTotal = useMemo(
+    () => (Array.isArray(tickets) ? tickets.length : 0),
+    [tickets]
+  );
+
   const ticketsCountByStatus = useMemo(
-    () => ({ ...precounted, Total: filteredRows.length }),
-    [precounted, filteredRows.length]
+    () => ({ ...precounted, Total: fixedTotal }),
+    [precounted, fixedTotal]
   );
 
   const handleChangePage = (_e, newPage) => setPage(newPage);
@@ -85,8 +92,21 @@ export default function TableTickets() {
 
   return (
     <>
-      <Card sx={{ borderRadius: 4, position: 'fixed', top: 150, left: 220, right: 20, bottom: 20,
-                  display: 'flex', flexDirection: 'column', boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)', bgcolor: '#fff' }}>
+      <Card
+        sx={{
+          borderRadius: 4,
+          position: 'fixed',
+          top: 150,
+          left: 'calc(var(--drawer-width, 80px) + var(--content-gap))', // se mueve con el sidebar
+          right: 39,
+          bottom: 39,
+          transition: 'left .3s ease',                    // animación suave
+          display: 'flex',
+          flexDirection: 'column',
+          boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
+          bgcolor: '#fff',
+        }}
+      >
         <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           <Box sx={{ flexShrink: 0, px: 4, pt: 4, pb: 2 }}>
             <StatusFilterBoxes

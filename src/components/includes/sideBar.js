@@ -1,5 +1,5 @@
 // src/components/sideBar.jsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Drawer,
   List,
@@ -15,11 +15,13 @@ import { icons } from '../auxiliars/icons';
 import ProfilePic from '../auxiliars/tickets/profilePic';
 import SettingsDialog from '../dialogs/settingsDialog';
 import { useNavigate, useLocation } from 'react-router-dom';
-import LogoutButton from '../fields/logoutAzureButton';
 
 // ⬇️ Ajusta estas rutas si difieren en tu proyecto
 import { useAuth } from '../../context/authContext';
 import { GROUP_IDS } from '../../utils/js/constants';
+
+import { useMsal } from '@azure/msal-react';
+import UserAvatarMenu from '../userAvatarMenu';
 
 //const [user] = useAuth() || {};
 const drawerWidthOpen = 200;
@@ -34,6 +36,19 @@ const hasAnyGroup = (userGroups = [], allowedGroups = []) =>
 export default function CollapsibleDrawer() {
   const [open, setOpen] = useState(false);
   const [openSettings, setOpenSettings] = useState(false);
+  const [menuAnchor, setMenuAnchor] = useState(null);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--drawer-width', open ? '200px' : '80px');
+    root.style.setProperty('--content-gap', '39px'); // 👈 gap unificado
+  }, [open]);
+
+
+  const { instance } = useMsal();
+
+  const handleAvatarClick = (e) => setMenuAnchor(e.currentTarget);
+  const handleMenuClose = () => setMenuAnchor(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -91,6 +106,16 @@ export default function CollapsibleDrawer() {
     e?.stopPropagation?.();
     setOpenSettings(true);
   };
+
+  const handleOpenSettingsFromMenu = () => {
+    setOpenSettings(true);
+  };
+
+  const handleLogout = () => {
+    instance.logoutRedirect({ postLogoutRedirectUri: '/' })
+      .catch(e => console.error('Logout failed:', e));
+  };
+
   const handleKeyActivate = (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -106,17 +131,20 @@ export default function CollapsibleDrawer() {
           width: open ? drawerWidthOpen : drawerWidthClosed,
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-            width: open ? drawerWidthOpen : drawerWidthClosed,
-            boxSizing: 'border-box',
-            transition: 'width 0.3s ease',
-            overflowX: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: open ? 'flex-start' : 'center',
-            paddingTop: 2,
-            paddingLeft: open ? 2 : 0,
-            paddingRight: 0,
-          },
+          width: open ? drawerWidthOpen : drawerWidthClosed,
+          boxSizing: 'border-box',
+          transition: 'width 0.3s ease',
+          overflowX: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: open ? 'flex-start' : 'center',
+          paddingTop: 2,
+          paddingLeft: open ? 2 : 0,
+          paddingRight: 0,
+          borderRight: 'none',                                   
+          boxShadow: '8px 0 24px rgba(239, 241, 246, 1)',        
+          backgroundColor: '#fff',                               
+        }
         }}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -173,22 +201,6 @@ export default function CollapsibleDrawer() {
 
           <Box sx={{ flexGrow: 1 }} />
 
-          <Box
-            sx={{
-              width: '100%',
-              display: 'flex',
-              flexDirection: open ? 'row' : 'column',
-              alignItems: 'center',
-              justifyContent: open ? 'space-between' : 'center',
-              px: open ? 2 : 0,
-              pb: 2,
-              pt: 0.2,
-              gap: open ? 0 : 1,
-            }}
-          >
-            <LogoutButton />
-          </Box>
-
           <Divider
             sx={{
               width: open ? '90%' : '100%',
@@ -213,13 +225,18 @@ export default function CollapsibleDrawer() {
             }}
           >
             {open ? (
-              <Tooltip title="Open settings">
+              <Tooltip title="Account">
                 <Box
-                  onClick={handleOpenSettings}
-                  onKeyDown={handleKeyActivate}
+                  onClick={handleAvatarClick}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleAvatarClick(e);
+                    }
+                  }}
                   tabIndex={0}
                   role="button"
-                  aria-label="Open settings"
+                  aria-label="Open account menu"
                   sx={{ cursor: 'pointer', outline: 'none' }}
                 >
                   <ProfilePic size={36} />
@@ -239,13 +256,18 @@ export default function CollapsibleDrawer() {
                   <icons.collapseRight />
                 </IconButton>
 
-                <Tooltip title="Open settings">
+                <Tooltip title="Account">
                   <Box
-                    onClick={handleOpenSettings}
-                    onKeyDown={handleKeyActivate}
+                    onClick={handleAvatarClick}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleAvatarClick(e);
+                      }
+                    }}  
                     tabIndex={0}
                     role="button"
-                    aria-label="Open settings"
+                    aria-label="Open account menu"
                     sx={{ cursor: 'pointer', outline: 'none' }}
                   >
                     <ProfilePic size={36} />
@@ -272,6 +294,15 @@ export default function CollapsibleDrawer() {
       </Drawer>
 
       <SettingsDialog open={openSettings} onClose={() => setOpenSettings(false)} />
+
+      <UserAvatarMenu
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={handleMenuClose}
+        onSettings={handleOpenSettingsFromMenu}
+        onLogout={handleLogout}
+        user={user}
+      />
     </>
   );
 }
