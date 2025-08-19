@@ -9,6 +9,7 @@ import PrivateRoute from '../components/privateRoute';
 import NotFound404 from '../pages/404';
 import HistoricStatistics from '../pages/historicalStatsScreen';
 import { HistoricalStatsProvider } from '../context/historicalStatsContext';
+//import { GROUP_IDS } from '../utils/js/constants';
 //import { DoneTicketsProvider } from '../context/doneTicketsContext';
 //import { DoneHistoricalTicketsProvider } from '../context/doneHistoricalTicketsContext';
 import { LoadingProvider } from '../providers/loadingProvider';
@@ -33,6 +34,7 @@ export default function AppRoutes({ agentEmail, filters, setFilters, authError, 
   return (
     <Suspense fallback={<SuspenseFallback />}>
       <Routes>
+        {/*<Route element={<PrivateRoute allowedGroups={[GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS, GROUP_IDS.CUSTOMER_SERVICE.REMOTE]} />}></Route>*/}
         <Route path="/" element={<PrivateRoute />}>
           <Route element={<MainLayout agentEmail={agentEmail} filters={filters} setFilters={setFilters} />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
