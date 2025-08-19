@@ -164,7 +164,7 @@ export function useTicketHandlers() {
     return run({
       fn: updatePatientName,
       args: [ticketId, newName],
-      getUpdatedTicket: pickUpdatedTicket,
+      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, patient_name: newName }),
     });
   }, [run]);
 
