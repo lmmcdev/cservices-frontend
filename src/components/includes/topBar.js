@@ -42,6 +42,10 @@ export default function Topbar({ agent }) {
     setFilters((prev) => ({ ...prev, assignedAgents: value }));
   };
 
+  const handleCallerIdChange = (value) => { 
+    setFilters((prev) => ({ ...prev, callerIds: value }));
+  }
+
   const toggleSearchBar = () => {
     setActiveUI((prev) => (prev === 'search' ? null : 'search'));
   };
@@ -122,9 +126,7 @@ export default function Topbar({ agent }) {
                   label="Assigned to"
                 />
                 <CallerIDAutoComplete
-                  onChange={(value) => {
-                    console.log('Seleccionado:', value);
-                  }}
+                  onChange={handleCallerIdChange}
                   label="Caller ID"
                 />
               </Stack>
