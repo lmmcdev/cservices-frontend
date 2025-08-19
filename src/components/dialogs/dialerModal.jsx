@@ -213,8 +213,8 @@ export default function DialerModal({
 
   return (
     <>
-      {/* ancla oculta para invocar el protocolo sin romper SPA */}
-      <a ref={anchorRef} href={dialHref} style={{ display: 'none' }} aria-hidden="true" />
+      {/* ancla oculta para invocar el protocolo sin romper SPA 
+      <a ref={anchorRef} href={dialHref} style={{ display: 'none' }} aria-hidden="true" />*/}
 
       <Dialog
         open={open}
