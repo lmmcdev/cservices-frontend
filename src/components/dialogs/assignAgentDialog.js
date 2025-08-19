@@ -3,15 +3,18 @@ import {
   Dialog, DialogContent, DialogActions, Box, Grid,
   Button, Typography, Card, DialogTitle
 } from "@mui/material";
-import { assignAgent, changeStatus } from "../../utils/apiTickets";
+import { changeStatus } from "../../utils/apiTickets";
 import ProfilePic from "../auxiliars/tickets/profilePic";
 import { icons } from '../auxiliars/icons';
+import { useTicketHandlers } from "../../utils/js/ticketActions";
 
-const AssignAgentModal = ({ open, onClose, ticket, agentEmail, dispatch, setLoading }) => {
+const AssignAgentModal = ({ open, onClose, ticket, agentEmail }) => {
+  const {updateAssigneeHandler} = useTicketHandlers();
+
   const handleAssign = async () => {
     try {
-      const result = await assignAgent( ticket.id, agentEmail);
-      console.log("Assigning agent:", result);
+      const ticketId = ticket.id;
+      const result = await updateAssigneeHandler({ ticketId, selectedAgent: agentEmail });
       if (result.success) {
         await changeStatus(ticket.id, 'In Progress') //cambiar status a in progress
         onClose();

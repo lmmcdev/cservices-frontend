@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState, useEffect, useCallback, useMemo, memo } from 'react';
+import React, { lazy, Suspense, useState, useCallback, useMemo, memo, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Box, Typography, Paper, Grid, Card, CardContent, TextField, IconButton, Backdrop, CircularProgress
@@ -33,7 +33,7 @@ const TicketNotesMemo = memo(TicketNotes);
 const TicketCollaboratorsMemo = memo(TicketCollaborators);
 const TicketAudioMemo = memo(TicketAudio);
 const TicketAssigneeMemo = memo(TicketAssignee);
-const TicketWorkTimeMemo = memo(TicketWorkTime);
+//const TicketWorkTimeMemo = memo(TicketWorkTime);
 const TicketIndicatorsMemo = memo(TicketIndicators);
 
 // ✅ versiones lazy
@@ -128,6 +128,17 @@ export default function EditTicketLocal() {
     setCollaborators(ticket.collaborators || []);
     setPatientPhone(ticket.phone || '');
   }, [ticket]);
+
+  useEffect(() => {
+    if (!ticket) return;
+    setAgentAssigned(ticket.agent_assigned || '');
+    setPatientName(ticket.patient_name || '');
+    setLinkedPatientSnapshot(ticket.linked_patient_snapshot || '');
+    setPatientDob(toInputDate(ticket.patient_dob));
+    setCallbackNumber(ticket.callback_number || '');
+    setCollaborators(ticket.collaborators || []);
+    setPatientPhone(ticket.phone || '');
+  }, [ticket]);
  
   /** ========= Callbacks ESTABLES para diálogos y acciones pequeñas ========= */
   const openNoteDialogCb = useCallback(() => setOpenNoteDialog(true), []);
@@ -170,7 +181,7 @@ export default function EditTicketLocal() {
 
   /** ========= Props/valores MEMO para pasar a hijos ========= */
   const indicatorsData = useMemo(() => ticket?.aiClassification, [ticket?.aiClassification]);
-  const workTimeData   = useMemo(() => ticket?.work_time,        [ticket?.work_time]);
+  //const workTimeData   = useMemo(() => ticket?.work_time,        [ticket?.work_time]);
   const audioUrl       = useMemo(() => ticket?.url_audio,        [ticket?.url_audio]);
   const notesStable         = useMemo(() => notes,         [notes]);
   const collaboratorsStable = useMemo(() => collaborators, [collaborators]);
@@ -586,7 +597,7 @@ export default function EditTicketLocal() {
                   </Typography>
                 </Box>
                 <Box sx={{ width: '100%', minWidth: '280px' }}>
-                  <TicketWorkTimeMemo workTimeData={workTimeData} />
+                  { /*<TicketWorkTimeMemo workTimeData={workTimeData} /> */}
                 </Box>
               </CardContent>
             </Card>

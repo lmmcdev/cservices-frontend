@@ -28,51 +28,37 @@ const AuthErrorScreen = ({ errorMessage, onRetry }) => {
     navigate('/dashboard', { replace: true });
   }, [navigate]);
 
-  const handleRetry = useCallback(() => {
-    if (onRetry) {
-      onRetry();
-    }
-  }, [onRetry]);
-
+ 
   return (
     <Box sx={rootSx}>
-      <ErrorOutlineIcon color="error" sx={{ fontSize: 60, mb: 2 }} />
-
-      <Typography variant="h5" gutterBottom color="error">
-        {hasError ? 'You need to sign in' : 'Ready to continue'}
-      </Typography>
-
-      <Typography variant="body1" sx={{ mb: 3 }}>
-        {hasError
-          ? errorMessage
-          : "I can't find any error. If you're already signed in, you can enter."}
-      </Typography>
 
       {!hasError ? (
         // SIN error → botón para entrar al dashboard
-        <Button
-          variant="contained"
-          color="primary"
-          sx={{ mb: 3 }}
-          onClick={handleEnter}
-        >
-          Enter dashboard
-        </Button>
+        <>
+          <Typography variant="body1" sx={{ mb: 3 }}>
+            You are now online
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ mb: 3 }}
+            onClick={handleEnter}
+          >
+            Enter dashboard
+          </Button>
+        </>
       ) : (
         // CON error → botón de login Azure (y opcionalmente reintentar)
         <>
-          {typeof onRetry === 'function' && (
-            <Button
-              variant="outlined"
-              color="primary"
-              sx={{ mb: 2 }}
-              onClick={handleRetry}
-            >
-              Retry
-            </Button>
-          )}
+        <ErrorOutlineIcon color="error" sx={{ fontSize: 60, mb: 2 }} />
+
+        <Typography variant="h5" gutterBottom color="error">
+          {hasError ? 'You need to sign in' : 'Ready to continue'}
+        </Typography>
+        <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
           <LoginButton />
-        </>
+        </Typography>
+      </>
       )}
     </Box>
   );
