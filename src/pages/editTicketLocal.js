@@ -13,6 +13,7 @@ import TicketCollaborators from '../components/auxiliars/tickets/ticketCollabora
 import TicketAudio from '../components/auxiliars/tickets/ticketAudio.jsx';
 import TicketAssignee from '../components/auxiliars/tickets/ticketAssignee.jsx';
 import Tooltip from '@mui/material/Tooltip';
+import { useTicketWorkTimer } from '../components/hooks/useWorkTimer.jsx';
 //import { useWorkTimer } from '../components/hooks/useWorkTimer.jsx';
 //import TicketWorkTime from '../components/auxiliars/tickets/ticketWorkTime.js';
 import { useAgents } from '../context/agentsContext';
@@ -115,6 +116,21 @@ export default function EditTicketLocal() {
       setStatus(ticket.status || '');
     }
   }, [ticket]);*/
+  //tiempo de trabajo
+  const { flushNow, getElapsedSeconds } = useTicketWorkTimer({
+    ticketId: ticket.id,
+    statusProvider: () => status, // se normaliza a snake_case dentro del hook
+    // sendIntervalMs: 60000,     // opcional: envía cada 60s acumulados
+    includeAgentEmail: true,      // ponlo en false si tu endpoint no lo necesita
+  });
+
+  // Ejemplo: flushear manualmente al guardar/cerrar
+  const handleClose = async () => {
+    await flushNow('manual');
+    navigate(-1);
+    // luego navegas/cierra modal
+  };
+
 
  
   /** ========= Callbacks ESTABLES para diálogos y acciones pequeñas ========= */
@@ -198,10 +214,12 @@ export default function EditTicketLocal() {
             gap: 1,
           }}
         >
+          <small>Working time (sec): {getElapsedSeconds()}</small>
+          
           {/* Ir hacia atrás */}
           <Tooltip title="Previous case">
             <IconButton
-              onClick={() => navigate(-1)}
+              onClick={handleClose}
               sx={{
                 '&:hover': {
                   color: '#00a1ff',

@@ -273,6 +273,7 @@ export const updateCallbackNumber = async (ticketId, newPatientPhone) => {
 
 //update work time
 export const updateWorkTime = async (ticketId, time, currentStatus) => {
+  console.log("dispatching work time")
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateWorkTime`, {
       method: "PATCH",
