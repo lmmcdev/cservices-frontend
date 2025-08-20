@@ -16,6 +16,7 @@ import { useAgents } from '../../context/agentsContext';
 import SearchBar from '../fields/searchBar';
 import DialerModal from '../dialogs/dialerModal';
 import DialpadIcon from '@mui/icons-material/Dialpad';
+import { defaultLocationOptions } from '../../utils/js/constants';
 
 export default function Topbar({ agent }) {
   const { state } = useAgents();
@@ -127,6 +128,7 @@ export default function Topbar({ agent }) {
                 />
                 <CallerIDAutoComplete
                   onChange={handleCallerIdChange}
+                  options={defaultLocationOptions}
                   label="Caller ID"
                 />
               </Stack>
