@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, IconButton, Tooltip } from '@mui/material';
-import InsertLinkIcon from '@mui/icons-material/InsertLink';
+import MergeIcon from '@mui/icons-material/Merge';
+
 import { toMMDDYYYY } from '../../utils/js/formatDateToMMDDYYY';
 
 const DOBCell = React.memo(function PatientCell({ snapshot, fallbackName, onOpenProfile }) {
@@ -10,7 +11,7 @@ const DOBCell = React.memo(function PatientCell({ snapshot, fallbackName, onOpen
       <Box display="flex" alignItems="center" gap={1}>
         <Tooltip title="MDVita patient">
           <IconButton size="small" color="success" onClick={onOpenProfile}>
-            <InsertLinkIcon fontSize="small" />
+            <MergeIcon fontSize="small" />
           </IconButton>
         </Tooltip>
         { toMMDDYYYY(snapshot.DOB.split('T')[0]) }

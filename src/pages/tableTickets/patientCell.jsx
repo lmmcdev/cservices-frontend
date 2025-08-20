@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, IconButton, Tooltip } from '@mui/material';
-import InsertLinkIcon from '@mui/icons-material/InsertLink';
+import MergeIcon from '@mui/icons-material/Merge';
 
 const PatientCell = React.memo(function PatientCell({ snapshot, fallbackName, onOpenProfile }) {
   if (snapshot?.Name) {
@@ -8,7 +8,7 @@ const PatientCell = React.memo(function PatientCell({ snapshot, fallbackName, on
       <Box display="flex" alignItems="center" gap={1}>
         <Tooltip title="MDVita patient">
           <IconButton size="small" color="success" onClick={onOpenProfile}>
-            <InsertLinkIcon fontSize="small" />
+            <MergeIcon fontSize="small" />
           </IconButton>
         </Tooltip>
         {snapshot.Name}
