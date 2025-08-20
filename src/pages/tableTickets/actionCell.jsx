@@ -15,7 +15,7 @@ const ActionCell = React.memo(function ActionCell({ isAssigned, onEdit, onAssign
               p: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
               width: 32, height: 32,
               transition: 'background-color 0.3s',
-              '&:hover': { backgroundColor: '#00A1FF', color: '#fff' },
+              '&:hover': { backgroundColor: '#00A1FF', color: '#fff', cursor: 'pointer' },
             }}
             onClick={onEdit}
           >
