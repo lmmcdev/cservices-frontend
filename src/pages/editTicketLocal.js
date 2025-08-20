@@ -1,7 +1,7 @@
 import React, { lazy, Suspense, useState, useCallback, useMemo, memo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  Box, Typography, Paper, Grid, Card, CardContent, TextField, IconButton, Backdrop, CircularProgress
+  Box, Typography, Grid, Card, CardContent, TextField, IconButton, Backdrop, CircularProgress
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -25,7 +25,7 @@ import { useEditTicketLocalActions } from './editTicketLocal/useEditTicketLocalA
 import { useEditTicketLocalUi } from './editTicketLocal/useEditTicketLocalUI.js';
 import { toInputDate } from '../utils/js/date.js';
 import PhoneCallLink from '../components/auxiliars/tickets/phoneCallLink.jsx';
-
+import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import { getStatusColor } from '../utils/js/statusColors.js';
 
 /** ========= Envolturas MEMO para hijos pesados ========= */
