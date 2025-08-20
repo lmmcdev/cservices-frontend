@@ -1,10 +1,10 @@
 // src/hooks/useTicketWorkTimer.js
 import { useEffect, useRef, useCallback } from 'react';
-import { useAuth } from '../../context/authContext';
+//import { useAuth } from '../../context/authContext';
 import { updateWorkTime } from '../../utils/apiTickets';
 
 // normaliza a snake_case para el backend (p.ej. "In Progress" -> "in_progress")
-const normStatus = (s) => (s || '').toLowerCase().replace(/\s+/g, '_');
+//const normStatus = (s) => (s || '').toLowerCase().replace(/\s+/g, '_');
 
 export function useTicketWorkTimer({
   ticketId,
@@ -12,7 +12,7 @@ export function useTicketWorkTimer({
   sendIntervalMs = 0,       // opcional: envíos parciales cada X ms (0 = solo al salir)
   includeAgentEmail = true, // si tu endpoint lo necesita, se adjunta agent_email
 }) {
-  const { user } = useAuth();
+  //const { user } = useAuth();
 
   const startRef = useRef(null);   // ts del último "resume"
   const accMsRef = useRef(0);      // tiempo acumulado en ms
@@ -54,11 +54,11 @@ export function useTicketWorkTimer({
     const workTime = getElapsedSeconds();
     if (workTime <= 0) return;
 
-    const payload = {
+    /*const payload = {
       tickets: ticketId,
       workTime,
       currentStatus: statusProvider?.() || 'In Progress',
-    };
+    };*/
 
     // adjunta correo si tu backend lo requiere
     /*if (includeAgentEmail && user?.username) {
@@ -89,7 +89,7 @@ export function useTicketWorkTimer({
       // (si quieres, aquí puedes guardar en localStorage para reintentar)
       // console.error('work timer flush error:', e);
     }
-  }, [ticketId, statusProvider, user?.username, pause, getElapsedSeconds]);
+  }, [ticketId, statusProvider, pause, getElapsedSeconds]);
 
   useEffect(() => {
     // arranca el cronómetro

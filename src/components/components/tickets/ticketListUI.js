@@ -1,8 +1,7 @@
 import React from 'react';
-import { Card, Box, Typography, Chip, Button } from '@mui/material';
+import { Card, Box, Typography, Chip } from '@mui/material';
 import EmptyState from '../../auxiliars/emptyState';
 import AssignmentTurnedInOutlinedIcon from '@mui/icons-material/AssignmentTurnedInOutlined';
-import CreateTicketDialog from '../../dialogs/createTicketDialog';
 
 /**
  * Renders a list of tickets with their summary and call reason.
