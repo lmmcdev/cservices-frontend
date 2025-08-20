@@ -6,7 +6,6 @@ import { toMMDDYYYY } from '../../utils/js/formatDateToMMDDYYY';
 
 const DOBCell = React.memo(function PatientCell({ snapshot, fallbackName, onOpenProfile }) {
   if (snapshot?.DOB) {
-    console.log(snapshot.DOB.split('T')[0]);
     return (
       <Box display="flex" alignItems="center" gap={1}>
         <Tooltip title="MDVita patient">
