@@ -13,21 +13,13 @@ const ActionCell = React.memo(function ActionCell({
         <Tooltip title="Edit">
           <Box
             sx={{
-              backgroundColor: "#DFF3FF",
-              color: "#00A1FF",
-              borderRadius: "50%",
-              p: 1,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 32,
-              height: 32,
-              transition: "background-color 0.3s",
-              "&:hover": {
-                backgroundColor: "#00A1FF",
-                color: "#fff",
-                cursor: "pointer",
-              },
+              backgroundColor: '#DFF3FF',
+              color: '#00A1FF',
+              borderRadius: '50%',
+              p: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 32, height: 32,
+              transition: 'background-color 0.3s',
+              '&:hover': { backgroundColor: '#00A1FF', color: '#fff', cursor: 'pointer' },
             }}
             onClick={onEdit}
           >
