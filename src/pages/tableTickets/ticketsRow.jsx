@@ -25,29 +25,12 @@ function areEqual(prev, next) {
   );
 }
 
-/** Formatea a MM/DD/YYYY sin sorpresas de timezone */
-const formatDateMMDDYYYY = (value) => {
-  if (!value) return '';
-  // YYYY-MM-DD => forzamos UTC para evitar corrimientos
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    const d = new Date(`${value}T00:00:00Z`);
-    return isNaN(d) ? value : d.toLocaleDateString('en-US', { timeZone: 'UTC' });
-  }
-  // ISO u otros parseables
-  const d = new Date(value);
-  if (!isNaN(d)) return d.toLocaleDateString('en-US', { timeZone: 'UTC' });
-  // Fallback si viene con hora (YYYY-MM-DDTHH:mm...)
-  const m = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
-  return m ? `${m[2]}/${m[3]}/${m[1]}` : value;
-};
 
 const TicketsRow = React.memo(function TicketsRow({
   row, onEdit, onAssignToMe, onOpenPatientProfile,
 }) {
   // Nombre y DOB a mostrar: prioriza snapshot si existe
   const displayName = row?.linked_patient_snapshot?.Name ?? row?.patient_name;
-  const rawDob = row?.linked_patient_snapshot?.DOB ?? row?.patient_dob;
-  const displayDob = formatDateMMDDYYYY(rawDob);
 
   return (
     <TableRow sx={{ '&:hover': { backgroundColor: '#f9fafb' } }}>

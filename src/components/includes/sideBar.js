@@ -102,10 +102,10 @@ export default function CollapsibleDrawer() {
   const handleListItemClick = (path) => navigate(path);
   const toggleOpen = () => setOpen(prev => !prev);
 
-  const handleOpenSettings = (e) => {
+  /*const handleOpenSettings = (e) => {
     e?.stopPropagation?.();
     setOpenSettings(true);
-  };
+  };*/
 
   const handleOpenSettingsFromMenu = () => {
     setOpenSettings(true);
@@ -116,12 +116,12 @@ export default function CollapsibleDrawer() {
       .catch(e => console.error('Logout failed:', e));
   };
 
-  const handleKeyActivate = (e) => {
+  /*const handleKeyActivate = (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       handleOpenSettings(e);
     }
-  };
+  };*/
 
   return (
     <>
