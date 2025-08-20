@@ -8,7 +8,7 @@ const DOBCell = React.memo(function PatientCell({ snapshot, fallbackName, onOpen
     console.log(snapshot.DOB.split('T')[0]);
     return (
       <Box display="flex" alignItems="center" gap={1}>
-        <Tooltip title="Ver perfil de paciente">
+        <Tooltip title="MDVita patient">
           <IconButton size="small" color="success" onClick={onOpenProfile}>
             <InsertLinkIcon fontSize="small" />
           </IconButton>
