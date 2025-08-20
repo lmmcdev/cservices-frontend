@@ -27,3 +27,24 @@ export const DEFAULT_AGENT_GROUPS = [
   GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS,
   GROUP_IDS.CUSTOMER_SERVICE.REMOTE
 ];
+
+export const defaultLocationOptions = [
+  'BIRD ROAD',
+        'EAST HIALEAH',
+        'HOLLYWOOD',
+        'HOMESTEAD',
+        'MIAMI 27TH AVE',
+        'PEMBROKE PINES',
+        'PLANTATION',
+        'TAMARAC',
+        'WEST HIALEAH',
+        'WEST KENDALL','CUTLER RIDGE',
+        'HIALEAH',
+        'Hiatus',
+        'MARLINS PARK',
+        'MIAMI GARDENS',
+        'North Miami Beach MC',
+        'WEST PALM BEACH',
+        'WESTCHESTER',
+        'Referrals', 'OTC', 'Pharmacy',
+];

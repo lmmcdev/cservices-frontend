@@ -13,6 +13,7 @@ import TicketCollaborators from '../components/auxiliars/tickets/ticketCollabora
 import TicketAudio from '../components/auxiliars/tickets/ticketAudio.jsx';
 import TicketAssignee from '../components/auxiliars/tickets/ticketAssignee.jsx';
 import Tooltip from '@mui/material/Tooltip';
+import { useTicketWorkTimer } from '../components/hooks/useWorkTimer.jsx';
 import { useWorkTimer } from '../components/hooks/useWorkTimer.jsx';
 import TicketWorkTime from '../components/auxiliars/tickets/ticketWorkTime.js';
 import { useAgents } from '../context/agentsContext';
@@ -160,7 +161,8 @@ export default function EditTicketLocal() {
 
   const {
   handleStatusChangeUI, handleAddNote, onAddCollaboratorCb, handleRemoveCollaborator, handleChangeDepartment, updatePatientNameUI, updatePatientDobUI, updateCallbackNumberUI, ticketAssigneeUI,
-  handleCenterHandlerUI, handleRelateCurrentTicket, handleRelateAllPastTickets, handleRelateFutureTickets, handleUnlinkTicket,
+  //handleCenterHandlerUI, 
+  handleRelateCurrentTicket, handleRelateAllPastTickets, handleRelateFutureTickets, handleUnlinkTicket,
   } = useEditTicketLocalActions({
     dispatch, setLoading, ticketId, agentEmail, navigate, setStatus, setNotes, setNoteContent, setOpenNoteDialog, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
     collaborators, setCollaborators, setEditField, setAgentAssigned, setLinkedPatientSnapshot, noteContent,
@@ -170,7 +172,9 @@ export default function EditTicketLocal() {
     handleAddCollaboratorClick, handleModalTicket, showActions, handleRelateAllActions, closeEditTicket, onChangeCenterCb, onReassignAgentCb, onAgentSelectorAddCb,
   } = useEditTicketLocalUi({
     ticket, relateTicketAction, pendingPatient, setAgentDialogOpen, setRelateTicketAction, setOpenRelateModal, setPendingPatient, setOpenConfirmDialog, navigate, handleRelateCurrentTicket, 
-    handleRelateAllPastTickets, handleRelateFutureTickets, handleCenterHandlerUI, ticketAssigneeUI, onAddCollaboratorCb,
+    handleRelateAllPastTickets, handleRelateFutureTickets, 
+    //handleCenterHandlerUI, 
+    ticketAssigneeUI, onAddCollaboratorCb,
   });
 
   const onRelateCurrent = useCallback(() => handleModalTicket('relateCurrent'), [handleModalTicket]);
@@ -252,10 +256,12 @@ export default function EditTicketLocal() {
             gap: 1,
           }}
         >
+          <small>Working time (sec): {getElapsedSeconds()}</small>
+          
           {/* Ir hacia atrás */}
           <Tooltip title="Previous case">
             <IconButton
-              onClick={() => navigate(-1)}
+              onClick={handleClose}
               sx={{
                 '&:hover': {
                   color: '#00a1ff',

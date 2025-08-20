@@ -16,6 +16,7 @@ import { useAgents } from '../../context/agentsContext';
 import SearchBar from '../fields/searchBar';
 import DialerModal from '../dialogs/dialerModal';
 import DialpadIcon from '@mui/icons-material/Dialpad';
+import { defaultLocationOptions } from '../../utils/js/constants';
 
 export default function Topbar({ agent }) {
   const { state } = useAgents();
@@ -41,6 +42,10 @@ export default function Topbar({ agent }) {
   const handleAssignedAgentsChange = (value) => {
     setFilters((prev) => ({ ...prev, assignedAgents: value }));
   };
+
+  const handleCallerIdChange = (value) => { 
+    setFilters((prev) => ({ ...prev, callerIds: value }));
+  }
 
   const toggleSearchBar = () => {
     setActiveUI((prev) => (prev === 'search' ? null : 'search'));
@@ -123,9 +128,8 @@ export default function Topbar({ agent }) {
                   label="Assigned to"
                 />
                 <CallerIDAutoComplete
-                  onChange={(value) => {
-                    console.log('Seleccionado:', value);
-                  }}
+                  onChange={handleCallerIdChange}
+                  options={defaultLocationOptions}
                   label="Caller ID"
                 />
               </Stack>

@@ -53,7 +53,7 @@ export default function ProfileSearch() {
   ///const [filter, setFilter] = useState('All');
   const [filter, ] = useState('All');
   const isSmall = useMediaQuery('(max-width:900px)');
-  const [selectedView, setSelectedView] = useState('profile'); 
+  const [selectedView, setSelectedView] = useState('tickets-search'); 
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [, setSelectedPatient] = useState(null);
   const [patientTickets, setPatientTickets] = useState([]);
@@ -109,16 +109,11 @@ export default function ProfileSearch() {
   const setSelectedPatientFunc = async (patient) => {
     const tickets = await handleGetTicketsByPatient(patient.id);
 
-    if(tickets.success) {
-      setPatientTickets(tickets.message?.items || []);
-      setSelectedPatient(patient);
-      setSelectedView('patients-search');
-      //console.log('Tickets for patient:', tickets.message);
-    }
-    
-    //setPatientTickets(tickets.message?.items);
-    //setSelected(patient);
-    //setSelectedView('profile');
+    //devuelve todo
+    setPatientTickets(tickets.message?.items || []);
+    setSelectedPatient(patient);
+    setSelectedView('patients-search');
+     
   }
 
   return (
@@ -307,15 +302,11 @@ export default function ProfileSearch() {
             </>
           )}
 
+          {/** Central Panel */}
           {selectedView === 'providers' && (
             <ProviderList  onSelect={setSelectedProvider} />
           )}
 
-          {/**
-          {selectedView === 'patients' && (
-            <PatientList  onSelect={setSelectedPatient} />
-          )}
-          */}
           {selectedView === 'patients-search' && (
             <>
               <PatientSearchContainer onSelectFunc={setSelectedPatientFunc} />
@@ -335,8 +326,6 @@ export default function ProfileSearch() {
 
         {/* Right panel */}
         <Box sx={{ flexGrow: 1, p: 4, overflowY: 'auto' }}>
-         
-
           {selectedView === 'providers' && (
             selectedProvider ? (
               <ProviderEditForm
@@ -350,37 +339,12 @@ export default function ProfileSearch() {
           )}
 
           {selectedView === 'patients-search' && (
-            patientTickets.length > 0 ? (
+            <>
               <TicketListUI
                 tickets={patientTickets}
               />
-            ) : (
-              <Typography color="#5B5F7B">
-                Select a patient from the left panel.
-              </Typography>
-            )
+            </>
           )}
-
-          {/**
-                }}
-              />
-            ) : (
-              <Typography color="#5B5F7B">
-                Select a provider from the left panel.
-              </Typography>
-            )
-          )}
-
-          {/**
-          {selectedView === 'patients-search' && (
-            selectedProvider ? (
-              <SearchPatientDeep />
-            ) : (
-              <Typography color="#5B5F7B">
-                Select a provider from the left panel.
-              </Typography>
-            )
-          )} */}
         </Box>
       </CardContent>
     </Card>

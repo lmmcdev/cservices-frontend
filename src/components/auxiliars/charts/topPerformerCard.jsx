@@ -5,6 +5,7 @@ import { Box, Typography, Card } from '@mui/material';
 import confetti from 'canvas-confetti';
 import { useDailyStatsState } from '../../../context/dailyStatsContext';
 import { useHistoricalStats } from '../../../context/historicalStatsContext';
+import { capitalizeWords } from '../../../utils/js/capitalizeWords';
 
 function TopPerformerCardBase({ agentStats = [], title }) {
   const topAgent = useMemo(() => {
@@ -62,7 +63,7 @@ function TopPerformerCardBase({ agentStats = [], title }) {
             variant="h6"
             sx={{
               mb: 0.5,
-              fontSize: 'clamp(1rem, 4vw, 1.5rem)',  // mínimo 1rem, ideal 4% del ancho, máximo 1.5rem
+              fontSize: 'clamp(0.5rem, 2vw, 1.2rem)',  // mínimo 1rem, ideal 4% del ancho, máximo 1.5rem
               fontWeight: 'bold',
               whiteSpace: 'normal',  
               overflowWrap: 'break-word', 
@@ -70,7 +71,7 @@ function TopPerformerCardBase({ agentStats = [], title }) {
           >
             {`Congratulations ${
               topAgent.agentEmail.includes('@')
-                ? topAgent.agentEmail.split('@')[0]
+                ? ( capitalizeWords((topAgent.agentEmail.split('@')[0]).replace(".", " ")))
                 : topAgent.agentEmail
             }! 🎉`}
           </Typography>

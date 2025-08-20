@@ -42,7 +42,6 @@ export async function runApiAction({
   mapResult,                  // (result) => newResult (si el backend es inconsistente)
 }) {
   const argArray = Array.isArray(args) ? args : [args];
-  console.log('runApiAction fn:', fn);
 
   try {
     setLoading?.(true);

@@ -43,7 +43,7 @@ export const getTicketById = async (ticketId) => {
   }
 };
 
-export const fetchTableData = async (agentAssigned) => {
+export const fetchTableData = async () => {
 
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoGet`);
     if(response.status === 204) return { success: true, message: [] }; // No content
@@ -80,7 +80,6 @@ export const assignAgent = async (ticketId, currentAgentEmail) => {
       method: "PATCH",
       body: JSON.stringify({
         tickets: ticketId,
-        //agent_email: currentAgentEmail,
         target_agent_email: currentAgentEmail,
       }),
     });
@@ -101,8 +100,8 @@ export const assignAgent = async (ticketId, currentAgentEmail) => {
 };
 
 
-//update agent_assigned
-// assign agent to a ticket
+//update status
+//normalizada
 export const changeStatus = async (ticketId, newStatus) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateStatus`, {
@@ -128,13 +127,13 @@ export const changeStatus = async (ticketId, newStatus) => {
 
 
 // add agent note to ticket
-export const addNotes = async (ticketId, currentAgentEmail, note) => {
+//normalizada 
+export const addNotes = async (ticketId, note) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateNotes`, {
       method: "PATCH",
       body: JSON.stringify({
         ticketId: ticketId,
-        agent_email: currentAgentEmail,
         notes: note,
       }),
     });
@@ -153,13 +152,13 @@ export const addNotes = async (ticketId, currentAgentEmail, note) => {
 };
 
 //update collaborators
-export const updateCollaborators = async (ticketId, currentAgentEmail, collaborators) => {
+//normalizada
+export const updateCollaborators = async (ticketId, collaborators) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateCollaborators`, {
       method: "PATCH",
       body: JSON.stringify({
         ticketId,
-        agent_email: currentAgentEmail,
         collaborators,
       }),
     });
@@ -177,13 +176,12 @@ export const updateCollaborators = async (ticketId, currentAgentEmail, collabora
 };
 
 //update department on ticket
-export const updateTicketDepartment = async (ticketId, currentAgentEmail, newDepartment) => {
+export const updateTicketDepartment = async (ticketId,newDepartment) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateTicketDepartment`, {
       method: "PATCH",
       body: JSON.stringify({
         tickets: ticketId,
-        agent_email: currentAgentEmail,
         newDepartment: newDepartment,
       }),
     });
@@ -239,6 +237,7 @@ export const updateCenter = async (dispatch, setLoading, formData, center) => {
 
 
 //update patient name
+//normalizada
 export const updatePatientName = async (ticketId, newPatientName) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdatePatientName`, {
@@ -263,6 +262,7 @@ export const updatePatientName = async (ticketId, newPatientName) => {
 };
 
 //update patient dob
+//normalizada
 export const updatePatientDOB = async (ticketId, newPatientBOD) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdatePatientBOD`, {
@@ -287,6 +287,7 @@ export const updatePatientDOB = async (ticketId, newPatientBOD) => {
 };
 
 //update patient phone
+//normalizada
 export const updateCallbackNumber = async (ticketId, newPatientPhone) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdatePatientPhone`, {
@@ -313,14 +314,13 @@ export const updateCallbackNumber = async (ticketId, newPatientPhone) => {
 
 
 //update work time
-export const updateWorkTime = async (dispatch, setLoading, ticketId, currentAgentEmail, time, currentStatus) => {
-  setLoading(true);
+export const updateWorkTime = async (ticketId, time, currentStatus) => {
+  console.log("dispatching work time")
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateWorkTime`, {
       method: "PATCH",
       body: JSON.stringify({
         tickets: ticketId,
-        agent_email: currentAgentEmail,
         workTime: time,
         currentStatus: currentStatus
       }),
@@ -336,10 +336,7 @@ export const updateWorkTime = async (dispatch, setLoading, ticketId, currentAgen
     return { success: true, message: data.message || 'Updated work time successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';
-    dispatch({ type: 'SET_ERROR', payload: message });
     return { success: false, message };
-  } finally {
-    setLoading(false);
   }
 };
 
@@ -388,7 +385,8 @@ export const createNewTicket = async (dispatch, setLoading, formData) => {
 
 
 //relate ticket
-export const relateTicketsByPhone = async (ticket_id, agent_email = null, action = 'relatePast', phone = null, patient_id = null) => {
+//normalizada
+export const relateTicketsByPhone = async (ticket_id, action = 'relatePast', phone = null, patient_id = null) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/updateTicketsByPhone`, {
       method: 'POST',
@@ -397,7 +395,6 @@ export const relateTicketsByPhone = async (ticket_id, agent_email = null, action
         ticket_id,
         phone,
         patient_id,
-        agent_email
       }),
     });
 

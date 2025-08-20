@@ -51,14 +51,12 @@ export function useTicketHandlers() {
   // -------- Notas --------
   const handleAddNoteHandler = useCallback(async ({
     ticketId,
-    agentEmail,
     noteContent,
     onDone, // opcional: callback post-éxito en el componente
   }) => {
     if (!noteContent?.trim()) return;
 
     const newNote = [{
-      agent_email: agentEmail,
       event_type: 'user_note',
       event: noteContent.trim(),
       datetime: new Date().toISOString(),
@@ -67,7 +65,7 @@ export function useTicketHandlers() {
     return run({
       fn: addNotes,
       // API legacy: (dispatch, setLoading, ticketId, agentEmail, notes[])
-      args: [ticketId, agentEmail, newNote],
+      args: [ticketId, newNote],
       getUpdatedTicket: pickUpdatedTicket,
       onSuccess: () => onDone?.(),
     });
@@ -77,7 +75,6 @@ export function useTicketHandlers() {
   // -------- Colaboradores: ADD --------
   const updateCollaboratorsHandler = useCallback(async ({
     ticketId,
-    agentEmail,
     collaborators = [],
     selectedAgents = [],
   }) => {
@@ -87,7 +84,7 @@ export function useTicketHandlers() {
     const res = await run({
       fn: updateCollaborators,
       // API legacy: (dispatch, setLoading, ticketId, agentEmail, collaborators[])
-      args: [ticketId, agentEmail, updated],
+      args: [ticketId, updated],
       getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, collaborators: updated }),
     });
 
@@ -99,7 +96,6 @@ export function useTicketHandlers() {
   // -------- Colaboradores: REMOVE --------
   const handleRemoveCollaboratorHandler = useCallback(async ({
     ticketId,
-    agentEmail,
     collaborators = [],
     emailToRemove,
   }) => {
@@ -108,7 +104,7 @@ export function useTicketHandlers() {
 
     const res = await run({
       fn: updateCollaborators,
-      args: [ticketId, agentEmail, updated],
+      args: [ticketId, updated],
       getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, collaborators: updated }),
     });
 
@@ -120,13 +116,12 @@ export function useTicketHandlers() {
   // -------- Departamento --------
   const handleChangeDepartmentHandler = useCallback(async ({
     ticketId,
-    agentEmail,
     newDept,
   }) => {
     if (!newDept) return;
     return run({
       fn: updateTicketDepartment,
-      args: [ticketId, agentEmail, newDept],
+      args: [ticketId, newDept],
       getUpdatedTicket: pickUpdatedTicket,
     });
   }, [run]);
@@ -158,7 +153,6 @@ export function useTicketHandlers() {
   // -------- Patient Name --------
   const updatePatientNameHandler = useCallback(async ({
     ticketId,
-    agentEmail,
     newName,
   }) => {
     return run({
@@ -172,7 +166,6 @@ export function useTicketHandlers() {
   // -------- Patient DOB --------
   const updatePatientDobHandler = useCallback(async ({
     ticketId,
-    agentEmail,
     newDob,         // YYYY-MM-DD
     onSetLocalDob,  // opcional: callback para setear estado local formateado
   }) => {
@@ -193,7 +186,6 @@ export function useTicketHandlers() {
   // -------- Callback Number --------
   const updateCallbackNumberHandler = useCallback(async ({
     ticketId,
-    agentEmail,
     newPhone,
   }) => {
     return run({
@@ -219,7 +211,6 @@ export function useTicketHandlers() {
   // -------- Relacionar por teléfono / patientId --------
   const relateTicketHandler = useCallback(async ({
     ticketId,
-    agentEmail,
     action,       // 'link' | 'unlink' (según tu backend)
     ticketPhone,
     patientId,
@@ -227,7 +218,7 @@ export function useTicketHandlers() {
     const res = await run({
       fn: relateTicketsByPhone,
       // API legacy extensa: pasa sólo lo que realmente use tu endpoint
-      args: [ticketId, agentEmail, action, ticketPhone, patientId],
+      args: [ticketId, action, ticketPhone, patientId],
       getUpdatedTicket: (r) => {
         const u = r?.updated_ticket || pickUpdatedTicket(r);
         return u

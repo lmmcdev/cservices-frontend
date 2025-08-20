@@ -2,8 +2,10 @@ import React from 'react';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import MergeIcon from '@mui/icons-material/Merge';
 
-const PatientCell = React.memo(function PatientCell({ snapshot, fallbackName, onOpenProfile }) {
-  if (snapshot?.Name) {
+import { toMMDDYYYY } from '../../utils/js/formatDateToMMDDYYY';
+
+const DOBCell = React.memo(function PatientCell({ snapshot, fallbackName, onOpenProfile }) {
+  if (snapshot?.DOB) {
     return (
       <Box display="flex" alignItems="center" gap={1}>
         <Tooltip title="MDVita patient">
@@ -11,11 +13,11 @@ const PatientCell = React.memo(function PatientCell({ snapshot, fallbackName, on
             <MergeIcon fontSize="small" />
           </IconButton>
         </Tooltip>
-        {snapshot.Name}
+        { toMMDDYYYY(snapshot.DOB.split('T')[0]) }
       </Box>
     );
   }
-  return <>{fallbackName}</>;
+  return <>{ toMMDDYYYY(fallbackName)}</>;
 });
 
-export default PatientCell;
+export default DOBCell;

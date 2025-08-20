@@ -1,5 +1,7 @@
 // utils/tickets/selectors.js
 
+import { normalizeTicketDate } from "../js/normalizeDate";
+
 // Estado base
 export const selectTickets = (state) => state.tickets || [];
 export const selectTicketsIds = (state) => state.ids || [];
@@ -13,11 +15,13 @@ export const selectTicketById = (state, id) => (state.byId?.[id] || null);
 // Helpers puros (puedes testearlos fácilmente)
 export function filterTickets(rows, { status, agents, callers, date, departments }) {
   const list = Array.isArray(rows) ? rows : [];
+
   return list.filter(r => {
     const byStatus = status === 'Total' || r.status === status;
     const byAgent  = !agents?.length || agents.includes(r.agent_assigned);
-    const byCaller = !callers?.length || callers.includes(r.caller_id);
-    const byDate   = !date || r.creation_date?.startsWith(date);
+    const byCaller = !callers?.length || callers.includes(r.caller_id || r.caller_id?.toString());
+    const dateRoot = normalizeTicketDate(r.creation_date?.split(',')[0]).replaceAll('/', '-');
+    const byDate   = !date || date === dateRoot;
     const byDept   = !departments?.length || departments.includes(r.assigned_department);
     return byStatus && byAgent && byCaller && byDate && byDept;
   });
@@ -46,8 +50,8 @@ export function makeSelectVisibleTickets() {
     const filtered = filterTickets(rows, {
       status: ui.selectedStatus,
       agents: ui.assignedAgents,
-      callers: ui.callerIds,
-      date: ui.date,
+      caller_id: ui.callerIds,
+      creation_date: ui.date,
       departments: ui.assignedDepartment,
     });
     const sorted = sortByCreatedAt(filtered, ui.sortDirection);

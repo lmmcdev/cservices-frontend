@@ -12,6 +12,8 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { defaultLocationOptions } from '../../../utils/js/constants';
+//import MDVitaLocationSelect from '../../fields/mdvitaCenterSelect';
 
 import { searchTickets } from '../../../utils/apiTickets';
 import { useAgents } from '../../../context/agentsContext';
@@ -34,12 +36,12 @@ const defaultStatusOptions = [
   { label: 'Duplicated', value: 'Duplicated' }
 ];
 
-const defaultLocationOptions = [
+/*const defaultLocationOptions = [
   'Bird Road','East Hialeah','Hollywood','Homestead','Miami 27th Ave',
   'Pembroke Pines','Plantation','Tamarac','West Hialeah','West Kendall',
   'Cutler Ridge','Hialeah','Hiatus','Marlins Park','Miami Gardens',
   'North Miami Beach','West Palm Beach','Westchester','OTC','Pharmacy','Referrals'
-];
+];*/
 
 const controlTextFieldSx = {
   '& .MuiInputBase-root': { height: 40 },
@@ -98,6 +100,8 @@ const SearchTicketDeep = ({
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(false);
+  //const [selectedMDVitaLocation, setSelectedMDVitaLocation] = useState('');
+  
 
   const [activeFilters, setActiveFilters] = useState([]);
   const [selectedLocations, setSelectedLocations] = useState([]);
@@ -129,7 +133,6 @@ const SearchTicketDeep = ({
     async (pageNumber) => {
       const filter = buildFilter();
       const query = inputValue.trim() ? inputValue : '*';
-      setLoading(true);
       try {
         const body = {
           query,

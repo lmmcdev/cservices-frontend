@@ -36,7 +36,7 @@ export function useEditTicketLocalActions({
     updatePatientDobHandler,
     updateCallbackNumberHandler,
     updateAssigneeHandler,
-    handleCenterHandler,
+    //handleCenterHandler,
     relateTicketHandler,
   } = useTicketHandlers();
 
@@ -56,7 +56,6 @@ export function useEditTicketLocalActions({
 
     const res = await handleAddNoteHandler({
       ticketId,
-      agentEmail,
       noteContent,
       // al terminar, limpia UI local
       onDone: () => {
@@ -70,69 +69,65 @@ export function useEditTicketLocalActions({
     if (t?.notes) {
       setIfChanged(setNotes, t.notes, (a, b) => JSON.stringify(a) === JSON.stringify(b));
     }
-  }, [handleAddNoteHandler, ticketId, agentEmail, noteContent, setNoteContent, setOpenNoteDialog, setNotes]);
+  }, [handleAddNoteHandler, ticketId, noteContent, setNoteContent, setOpenNoteDialog, setNotes]);
 
   // ---- COLABORADORES (ADD) ----
   const onAddCollaboratorCb = useCallback(async (selectedAgents) => {
     const list = await updateCollaboratorsHandler({
       ticketId,
-      agentEmail,
       collaborators,
       selectedAgents,
     });
     // el handler devuelve SIEMPRE el array final de colaboradores
     setIfChanged(setCollaborators, list, (a, b) => JSON.stringify(a) === JSON.stringify(b));
     setEditField?.(null);
-  }, [updateCollaboratorsHandler, ticketId, agentEmail, collaborators, setCollaborators, setEditField]);
+  }, [updateCollaboratorsHandler, ticketId, collaborators, setCollaborators, setEditField]);
 
   // ---- COLABORADORES (REMOVE) ----
   const handleRemoveCollaborator = useCallback(async (emailToRemove) => {
     const list = await handleRemoveCollaboratorHandler({
       ticketId,
-      agentEmail,
       collaborators,
       emailToRemove,
     });
     setIfChanged(setCollaborators, list, (a, b) => JSON.stringify(a) === JSON.stringify(b));
     setEditField?.(null);
-  }, [handleRemoveCollaboratorHandler, ticketId, agentEmail, collaborators, setCollaborators, setEditField]);
+  }, [handleRemoveCollaboratorHandler, ticketId, collaborators, setCollaborators, setEditField]);
 
   // ---- DEPARTAMENTO ----
   const handleChangeDepartment = useCallback(async (newDept) => {
     const res = await handleChangeDepartmentHandler({
       ticketId,
-      agentEmail,
       newDept,
     });
     if (res?.success) {
       setEditField?.(null);
       navigate?.('/dashboard');
     }
-  }, [handleChangeDepartmentHandler, ticketId, agentEmail, navigate, setEditField]);
+  }, [handleChangeDepartmentHandler, ticketId, navigate, setEditField]);
 
   // ---- PACIENTE: NOMBRE ----
   const updatePatientNameUI = useCallback(async (newName) => {
-    await updatePatientNameHandler({ ticketId, agentEmail, newName });
+    await updatePatientNameHandler({ ticketId, newName });
     setEditField?.(null);
-  }, [updatePatientNameHandler, ticketId, agentEmail, setEditField]);
+  }, [updatePatientNameHandler, ticketId, setEditField]);
 
   // ---- PACIENTE: DOB (YYYY-MM-DD) ----
   const updatePatientDobUI = useCallback(async (newDob) => {
     await updatePatientDobHandler({
       ticketId,
-      agentEmail,
       newDob,
       // si quisieras mantener un estado local formateado, podrías pasar:
       // onSetLocalDob: (mmddyyyy) => setPatientDob?.(mmddyyyy),
     });
     setEditField?.(null);
-  }, [updatePatientDobHandler, ticketId, agentEmail, setEditField]);
+  }, [updatePatientDobHandler, ticketId, setEditField]);
 
   // ---- CALLBACK NUMBER ----
   const updateCallbackNumberUI = useCallback(async (newPhone) => {
-    await updateCallbackNumberHandler({ ticketId, agentEmail, newPhone });
+    await updateCallbackNumberHandler({ ticketId, newPhone });
     setEditField?.(null);
-  }, [updateCallbackNumberHandler, ticketId, agentEmail, setEditField]);
+  }, [updateCallbackNumberHandler, ticketId, setEditField]);
 
   // ---- ASSIGNEE ----
   const ticketAssigneeUI = useCallback(async (selectedAgent) => {
@@ -142,21 +137,19 @@ export function useEditTicketLocalActions({
   }, [updateAssigneeHandler, ticketId, setAgentAssigned, setEditField]);
 
   // ---- CENTER (2 pasos) ----
-  const handleCenterHandlerUI = useCallback(async (selectedCenter, ticketArg) => {
+  /*const handleCenterHandlerUI = useCallback(async (selectedCenter, ticketArg) => {
     await handleCenterHandler({
       ticketId,
       ticket: ticketArg,
-      agentEmail,
       selectedCenter,
     });
     setEditField?.(null);
-  }, [handleCenterHandler, ticketId, agentEmail, setEditField]);
+  }, [handleCenterHandler, ticketId, setEditField]);*/
 
   // ---- LINK/UNLINK paciente ----
   const handleRelateCurrentTicket = useCallback(async (ticketArg, patient) => {
     const res = await relateTicketHandler({
       ticketId: ticketArg.id,
-      agentEmail,
       action: 'relateCurrent',
       ticketPhone: ticketArg.phone,
       patientId: patient.id,
@@ -171,32 +164,29 @@ export function useEditTicketLocalActions({
         );
       }
     }
-  }, [relateTicketHandler, agentEmail, setLinkedPatientSnapshot]);
+  }, [relateTicketHandler, setLinkedPatientSnapshot]);
 
   const handleRelateAllPastTickets = useCallback(async (ticketArg, patient) => {
     await relateTicketHandler({
       ticketId: ticketArg.id,
-      agentEmail,
       action: 'relatePast',
       ticketPhone: ticketArg.phone,
       patientId: patient.id,
     });
-  }, [relateTicketHandler, agentEmail]);
+  }, [relateTicketHandler]);
 
   const handleRelateFutureTickets = useCallback(async (ticketArg, patient) => {
     await relateTicketHandler({
       ticketId: ticketArg.id,
-      agentEmail,
       action: 'relateFuture',
       ticketPhone: ticketArg.phone,
       patientId: patient.id,
     });
-  }, [relateTicketHandler, agentEmail]);
+  }, [relateTicketHandler]);
 
   const handleUnlinkTicket = useCallback(async (ticketArg) => {
     const res = await relateTicketHandler({
       ticketId: ticketArg.id,
-      agentEmail,
       action: 'unlink',
       ticketPhone: null,
       patientId: null,
@@ -211,7 +201,7 @@ export function useEditTicketLocalActions({
         );
       }
     }
-  }, [relateTicketHandler, agentEmail, setLinkedPatientSnapshot]);
+  }, [relateTicketHandler, setLinkedPatientSnapshot]);
 
   return {
     handleStatusChangeUI,
@@ -223,7 +213,7 @@ export function useEditTicketLocalActions({
     updatePatientDobUI,
     updateCallbackNumberUI,
     ticketAssigneeUI,
-    handleCenterHandlerUI,
+    //handleCenterHandlerUI,
     handleRelateCurrentTicket,
     handleRelateAllPastTickets,
     handleRelateFutureTickets,
