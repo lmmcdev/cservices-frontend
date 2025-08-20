@@ -73,7 +73,7 @@ export default function EditTicketLocal() {
   const [notes, setNotes] = useState(ticket?.notes || []);
   const [collaborators, setCollaborators] = useState(ticket?.collaborators || []);
   const [patientName, setPatientName] = useState(ticket?.patient_name || '');
-  const [linked_patient_snapshot, setLinkedPatientSnapshot] = useState(ticket?.linked_patient_snapshot || '');
+  const [linked_patient_snapshot, setLinkedPatientSnapshot] = useState(ticket?.linked_patient_snapshot ?? null);
 
   // Patient data
   const [patientDob, setPatientDob] = useState(toInputDate(ticket?.patient_dob));
@@ -624,6 +624,8 @@ export default function EditTicketLocal() {
         onAdd={onAgentSelectorAddCb}
         agents={agents}
         initialSelected={ticket?.collaborators}
+        assigneeEmail={agentAssigned}            
+        existingCollaborators={collaborators}
       />
     </LazyModal>
 
@@ -684,6 +686,7 @@ export default function EditTicketLocal() {
         patientName={patientName}
         patientDob={patientDob}
         patientPhone={patientPhone}
+        currentTicket={ticket}  
       />
     </LazyModal>
 
