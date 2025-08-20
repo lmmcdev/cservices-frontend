@@ -19,12 +19,13 @@ import { useTicketWorkTimer } from '../components/hooks/useWorkTimer.jsx';
 import { useAgents } from '../context/agentsContext';
 import { useAuth } from '../context/authContext';
 import { useTickets } from '../context/ticketsContext.js';
-import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import { TicketIndicators } from '../components/auxiliars/tickets/ticketIndicators.jsx';
 import TicketLinkOptions from '../components/auxiliars/tickets/ticketLinkOptions.jsx';
 import { useEditTicketLocalActions } from './editTicketLocal/useEditTicketLocalActions.js';
 import { useEditTicketLocalUi } from './editTicketLocal/useEditTicketLocalUI.js';
 import { toInputDate } from '../utils/js/date.js';
+import MergeIcon from '@mui/icons-material/Merge';
+
 
 import { getStatusColor } from '../utils/js/statusColors.js';
 
@@ -316,7 +317,7 @@ export default function EditTicketLocal() {
                   {/* --- Nueva lógica --- */}
                   {linked_patient_snapshot?.Name ? (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                      <InsertLinkIcon color="success" />
+                      <MergeIcon color="success" />
                       <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#2e7d32' }}>
                         {linked_patient_snapshot.Name}
                       </Typography>
@@ -359,7 +360,7 @@ export default function EditTicketLocal() {
                     <strong>Patient DOB:</strong><br />
                     {linked_patient_snapshot?.DOB ? (
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                        <InsertLinkIcon color="success" />
+                        <MergeIcon color="success" />
                         <Typography variant="subtitle" sx={{ color: '#2e7d32' }}>
                           {linked_patient_snapshot.DOB}
                         </Typography>
