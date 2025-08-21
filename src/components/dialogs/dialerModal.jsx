@@ -9,21 +9,14 @@ import CallIcon from '@mui/icons-material/Call';
 import BackspaceIcon from '@mui/icons-material/Backspace';
 import CancelIcon from '@mui/icons-material/Cancel';
 
-/* ============ Utils ============ */
-
-// Normaliza a E.164 asumiendo USA. Ajusta según tu país/escenario.
 const toE164US = (raw = '') => {
   const digits = String(raw).replace(/[^\d]/g, '');
-  if (!digits) return '';
-  // Permite 10 dígitos -> +1XXXXXXXXXX, 11 si empieza por 1
   if (digits.length === 10) return `+1${digits}`;
-  if (digits.length === 11 && digits.startsWith('1')) return `+${digits}`;
-  // Si no cuadra, intenta con + y tal cual (fallback conservador)
-  return raw.startsWith('+') ? raw : `+${digits}`;
+  return '';
 };
 
 const formatUSNational = (raw = '') => {
-  const digits = String(raw).replace(/[^\d]/g, '').slice(-10);
+  const digits = String(raw).replace(/[^\d]/g, '').slice(0, 10);
   if (!digits) return '';
   const a = digits.slice(0, 3);
   const b = digits.slice(3, 6);
@@ -33,28 +26,19 @@ const formatUSNational = (raw = '') => {
   return `(${a}) ${b}-${c}`;
 };
 
-// Construye URL del dial según configuración
 const buildDialUrl = (number, { dialer = 'tel', customPattern, normalizeE164 = true } = {}) => {
   const raw = String(number).trim();
-  const hasStarHash = /[*#]/.test(raw);
-
-  // Si el usuario marcó * o # (DTMF/servicios especiales), mejor respeta lo que escribió con tel:
-  // De lo contrario, normaliza si se solicita.
-  const normalized = hasStarHash
-    ? raw
-    : (normalizeE164 ? toE164US(raw) : raw);
-
+  const normalized = normalizeE164 ? toE164US(raw) : raw;
+  const target = normalized || '';
   switch (dialer) {
-    case 'tel':      return `tel:${normalized}`;
-    case 'msteams':  return `msteams:/l/call/0/0?users=${encodeURIComponent(normalized)}`;
-    case 'skype':    return `skype:${encodeURIComponent(normalized)}?call`;
-    case 'sip':      return `sip:${encodeURIComponent(normalized)}`;
-    case 'custom':   return (customPattern || '').replace('{number}', encodeURIComponent(normalized));
-    default:         return `tel:${normalized}`;
+    case 'tel':      return `tel:${target}`;
+    case 'msteams':  return `msteams:/l/call/0/0?users=${encodeURIComponent(target)}`;
+    case 'skype':    return `skype:${encodeURIComponent(target)}?call`;
+    case 'sip':      return `sip:${encodeURIComponent(target)}`;
+    case 'custom':   return (customPattern || '').replace('{number}', encodeURIComponent(target));
+    default:         return `tel:${target}`;
   }
 };
-
-/* ============ Constantes UI ============ */
 
 const DIALER_KEYS = Object.freeze([
   { digit: '1', letters: '' },
@@ -71,44 +55,36 @@ const DIALER_KEYS = Object.freeze([
   { digit: '#', letters: '' },
 ]);
 
-/* ============ Componente ============ */
-
 export default function DialerModal({
   open,
   onClose,
   initialNumber = '',
-  dialerSettings = { dialer: 'tel', normalizeE164: true }, // { dialer:'tel'|'msteams'|'skype'|'sip'|'custom', customPattern?: 'mysoftphone://call?to={number}', normalizeE164?: boolean }
-  onDialStart,     // (href, number) => void
-  onDialFail,      // (error) => void
-  onNumberChange,  // (number) => void
+  dialerSettings = { dialer: 'tel', normalizeE164: true },
+  onDialStart,
+  onDialFail,
+  onNumberChange,
 }) {
   const [rawNumber, setRawNumber] = useState('');
   const [showCallDialog, setShowCallDialog] = useState(false);
   const inputRef = useRef(null);
-  const anchorRef = useRef(null); // <a> oculto para invocar el handler
 
-  // Enfocar al abrir
   useEffect(() => {
     if (open) {
-      setRawNumber(String(initialNumber || '').replace(/[^\d*#]/g, ''));
+      const onlyDigits = String(initialNumber || '').replace(/[^\d]/g, '').slice(0, 10);
+      setRawNumber(onlyDigits);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [open, initialNumber]);
 
-  // Avisar cambios al padre si se solicita
   useEffect(() => {
     onNumberChange?.(rawNumber);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rawNumber]);
+  }, [rawNumber, onNumberChange]);
 
   const pretty = useMemo(() => formatUSNational(rawNumber), [rawNumber]);
 
   const addDigit = useCallback((d) => {
-    // Permitimos dígitos, * y #. Limita longitud razonable (extensiones/DTMF).
-    setRawNumber(prev => {
-      const next = (prev + d).replace(/[^0-9*#]/g, '');
-      return next.slice(0, 25);
-    });
+    if (!/^\d$/.test(d)) return;
+    setRawNumber(prev => (prev + d).slice(0, 10));
     inputRef.current?.focus();
   }, []);
 
@@ -125,14 +101,13 @@ export default function DialerModal({
   };
 
   const handleChange = (e) => {
-    // Permite pegar y teclear, saneando
-    const cleaned = e.target.value.replace(/[^0-9*#]/g, '').slice(0, 25);
+    const cleaned = e.target.value.replace(/[^\d]/g, '').slice(0, 10);
     setRawNumber(cleaned);
   };
 
   const handleKeyDown = (e) => {
     const { key } = e;
-    if (/^[0-9*#]$/.test(key)) {
+    if (/^\d$/.test(key)) {
       e.preventDefault();
       addDigit(key);
     } else if (key === 'Backspace') {
@@ -141,32 +116,22 @@ export default function DialerModal({
     } else if (key === 'Enter') {
       e.preventDefault();
       handleCall();
+    } else if (key === '*' || key === '#') {
+      e.preventDefault();
     }
   };
 
-  const dialHref = useMemo(
-    () => buildDialUrl(rawNumber, dialerSettings),
-    [rawNumber, dialerSettings]
-  );
+  const canCall = rawNumber.length === 10;
 
-  const canCall = rawNumber.length >= 3; // evita llamar con 1–2 dígitos por error
+  const dialHref = useMemo(() => (canCall ? buildDialUrl(rawNumber, dialerSettings) : '#'),
+    [rawNumber, dialerSettings, canCall]
+  );
 
   const handleCall = () => {
     try {
       if (!canCall) return;
-
-      // notifica al padre
       onDialStart?.(dialHref, rawNumber);
-
-      // dispara la navegación al handler usando un <a> oculto
-      if (anchorRef.current) {
-        anchorRef.current.href = dialHref;
-        anchorRef.current.click();
-      } else {
-        // fallback
-        window.location.href = dialHref;
-      }
-
+      window.location.href = dialHref;
       setShowCallDialog(true);
     } catch (err) {
       console.error('Dial error:', err);
@@ -174,23 +139,25 @@ export default function DialerModal({
     }
   };
 
-  const renderButton = (digit, letters) => (
+  const renderButton = (digit, letters, disabled = false) => (
     <Box
       key={digit}
       role="button"
       aria-label={`Digit ${digit}`}
-      tabIndex={0}
-      onClick={() => handleDigitPress(digit)}
-      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleDigitPress(digit)}
+      tabIndex={disabled ? -1 : 0}
+      onClick={disabled ? undefined : () => handleDigitPress(digit)}
+      onKeyDown={disabled ? undefined : (e) => (e.key === 'Enter' || e.key === ' ') && handleDigitPress(digit)}
       sx={{
         width: 60, height: 60, borderRadius: '50%',
         border: '2px solid #f1f1f1',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        cursor: 'pointer',
+        cursor: disabled ? 'not-allowed' : 'pointer',
         transition: 'transform 0.15s, background-color 0.2s, border-color 0.2s',
-        '&:hover': { transform: 'scale(1.08)', backgroundColor: '#00a1ff', borderColor: '#00a1ff', color: '#fff' },
-        '&:active': { transform: 'scale(0.96)' },
+        color: disabled ? '#aaa' : 'inherit',
+        '&:hover': disabled ? {} : { transform: 'scale(1.08)', backgroundColor: '#00a1ff', borderColor: '#00a1ff', color: '#fff' },
+        '&:active': disabled ? {} : { transform: 'scale(0.96)' },
         userSelect: 'none',
+        opacity: disabled ? 0.5 : 1,
       }}
     >
       <Typography variant="body1" sx={{ fontWeight: 700, fontSize: '1.15rem', lineHeight: 1 }}>
@@ -213,9 +180,6 @@ export default function DialerModal({
 
   return (
     <>
-      {/* ancla oculta para invocar el protocolo sin romper SPA 
-      <a ref={anchorRef} href={dialHref} style={{ display: 'none' }} aria-hidden="true" />*/}
-
       <Dialog
         open={open}
         onClose={onClose}
@@ -245,13 +209,14 @@ export default function DialerModal({
           <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3, mt: 1 }}>
             <TextField
               inputRef={inputRef}
-              placeholder="Enter a phone number"
+              placeholder="Enter a 10-digit US number"
               variant="standard"
               value={pretty || rawNumber}
               onChange={handleChange}
               onKeyDown={handleKeyDown}
               inputProps={{
                 inputMode: 'tel',
+                maxLength: 14,
                 style: {
                   fontSize: '1.6rem',
                   textAlign: 'center',
@@ -290,9 +255,9 @@ export default function DialerModal({
               if (digit === '0') {
                 return (
                   <React.Fragment key="zero-row">
-                    {renderButton('*', '')}
+                    {renderButton('*', '', true)}
                     {renderButton('0', '+')}
-                    {renderButton('#', '')}
+                    {renderButton('#', '', true)}
 
                     <Box
                       sx={{
@@ -310,7 +275,7 @@ export default function DialerModal({
                         </IconButton>
                       </Tooltip>
 
-                      <Tooltip title={canCall ? 'Make call' : 'Enter a valid number'} arrow>
+                      <Tooltip title={canCall ? 'Make call' : 'Enter a valid 10-digit number'} arrow>
                         <span>
                           <IconButton
                             onClick={handleCall}
@@ -347,7 +312,6 @@ export default function DialerModal({
         </DialogContent>
       </Dialog>
 
-      {/* Diálogo informativo post-llamada */}
       <Dialog open={showCallDialog} onClose={() => {}} fullWidth maxWidth="xs">
         <DialogTitle>Call started</DialogTitle>
         <DialogContent>
