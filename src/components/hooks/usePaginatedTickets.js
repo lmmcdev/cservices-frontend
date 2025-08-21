@@ -85,6 +85,7 @@ export default function usePaginatedTickets(
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line
   }, [fetchFn, params, continuationToken, hasMore, loading, pageSize]);
 
   const reset = useCallback(() => {
