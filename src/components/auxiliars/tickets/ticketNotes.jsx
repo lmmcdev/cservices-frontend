@@ -6,7 +6,10 @@ import {
   Card,
   CardContent,
   Tooltip,
+  Chip,
+  Stack
 } from '@mui/material';
+import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOutlined';
 import { SortAscending, SortDescending } from 'phosphor-react';
 
 const statusColors = {
@@ -36,36 +39,38 @@ function TicketNotesBase({ notes = [], onAddNote, status }) {
   const [showSystemLogs, setShowSystemLogs] = useState(false);
   const [sortAscending, setSortAscending] = useState(true);
 
-  const toggleSystemLogs = useCallback(() => {
-    setShowSystemLogs(prev => !prev);
-  }, []);
+  const toggleSystemLogs = useCallback(() => setShowSystemLogs(p => !p), []);
+  const toggleSort = useCallback(() => setSortAscending(p => !p), []);
 
-  const toggleSort = useCallback(() => {
-    setSortAscending(prev => !prev);
-  }, []);
-
+  // Filtrado + orden + “preparación” memoizada
   const preparedNotes = useMemo(() => {
-    const filtered = showSystemLogs ? notes : notes.filter(n => n?.event_type === 'user_note');
+    // por defecto mostramos user_note; ocultamos system_log y quality_note
+    const filtered = showSystemLogs
+      ? notes
+      : notes.filter(n => n?.event_type === 'user_note');
+
     const sorted = [...filtered].sort((a, b) => {
       const aT = new Date(a?.datetime || 0).getTime();
       const bT = new Date(b?.datetime || 0).getTime();
       return sortAscending ? aT - bT : bT - aT;
     });
+
     return sorted.map(n => ({
       ...n,
       __displayName: formatAgentName(n?.agent_email),
       __displayDate: n?.datetime ? new Date(n.datetime).toLocaleString() : '',
-      __alignRight: n?.event_type === 'user_note',
+      __isQuality: n?.event_type === 'quality_note',
+      __isSystem: n?.event_type === 'system_log',
+      __alignRight: n?.event_type === 'user_note', // user notes a la derecha
       __key: n?.id || `${n?.datetime || ''}-${n?.agent_email || ''}`,
     }));
   }, [notes, showSystemLogs, sortAscending]);
 
   const color = statusColors[status]?.text || '#00a1ff';
   const bubbleBg = statusColors[status]?.bg || '#e0f7fa';
-  const iconFixed = '#00a1ff';
 
   return (
-    <Card variant="outlined" >
+    <Card variant="outlined">
       <CardContent sx={{ p: '20px 25px 25px 30px' }}>
         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -75,20 +80,20 @@ function TicketNotesBase({ notes = [], onAddNote, status }) {
             </Typography>
           </Box>
           <Box>
-            <Tooltip title="Toggle system logs">
-              <IconButton onClick={toggleSystemLogs} sx={{ color: iconFixed }}>
+            <Tooltip title={showSystemLogs ? 'Hide system logs' : 'Show system logs'}>
+              <IconButton onClick={toggleSystemLogs}>
                 <i
                   className={`bi ${showSystemLogs ? 'bi-terminal-dash' : 'bi-terminal-plus'}`}
-                  style={{ fontSize: 20, color: 'inherit' }}
+                  style={{ fontSize: 20, color }}
                 />
               </IconButton>
             </Tooltip>
             <Tooltip title="Sort by date">
-              <IconButton onClick={toggleSort} sx={{ color: iconFixed }}>
+              <IconButton onClick={toggleSort}>
                 {sortAscending ? (
-                  <SortAscending size={22} weight="bold" color={iconFixed} />
+                  <SortAscending size={22} weight="bold" color={color} />
                 ) : (
-                  <SortDescending size={22} weight="bold" color={iconFixed} />
+                  <SortDescending size={22} weight="bold" color={color} />
                 )}
               </IconButton>
             </Tooltip>
@@ -104,7 +109,19 @@ function TicketNotesBase({ notes = [], onAddNote, status }) {
           {preparedNotes.length > 0 ? (
             preparedNotes.map((note, idx) => {
               const alignRight = note.__alignRight;
+              const isQuality = note.__isQuality;
+              //const isSystem = note.__isSystem;
               const key = note.__key || `note-${idx}`;
+
+              // 🎨 estilos por tipo
+              const bgColor = isQuality
+                ? 'rgba(124, 58, 237, 0.08)' // lila suave
+                : alignRight
+                ? bubbleBg
+                : '#f5f5f5';
+
+              const textAccent = isQuality ? '#7c3aed' : alignRight ? color : '#000';
+              const boxShadow = isQuality ? '0 0 0 1px rgba(124,58,237,0.12), 0 6px 14px rgba(0,0,0,0.06)' : 1;
 
               return (
                 <Box
@@ -112,21 +129,41 @@ function TicketNotesBase({ notes = [], onAddNote, status }) {
                   sx={{
                     display: 'flex',
                     justifyContent: alignRight ? 'flex-end' : 'flex-start',
-                    mb: 1,
+                    mb: 1.2,
                   }}
                 >
                   <Box
                     sx={{
                       width: '100%',
-                      pt: '20px',
-                      pb: '15px',
-                      pl: '20px',
-                      pr: '20px',
-                      bgcolor: alignRight ? bubbleBg : '#f0f0f0',
-                      borderRadius: '30px',
-                      boxShadow: 'none', 
+                      pt: '16px',
+                      pb: '14px',
+                      pl: '18px',
+                      pr: '18px',
+                      bgcolor: bgColor,
+                      borderRadius: '16px',
+                      boxShadow,
+                      borderLeft: isQuality ? '4px solid #7c3aed' : 'none',
                     }}
                   >
+                    {/* Cabecera opcional para notas de Quality */}
+                    {isQuality && (
+                      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
+                        <WorkspacePremiumOutlinedIcon sx={{ fontSize: 18, color: '#7c3aed' }} />
+                        <Chip
+                          label="QUALITY"
+                          size="small"
+                          sx={{
+                            height: 22,
+                            fontWeight: 700,
+                            letterSpacing: 0.4,
+                            bgcolor: 'rgba(124,58,237,0.12)',
+                            color: '#7c3aed',
+                          }}
+                        />
+                      </Stack>
+                    )}
+
+                    {/* contenido de la nota */}
                     {note.content && (
                       <Typography sx={{ whiteSpace: 'pre-wrap', fontSize: 14, wordBreak: 'break-word' }}>
                         {note.content}
@@ -137,12 +174,14 @@ function TicketNotesBase({ notes = [], onAddNote, status }) {
                         {note.event}
                       </Typography>
                     )}
+
+                    {/* pie (autor/fecha) */}
                     <Typography
                       sx={{
                         fontSize: 12,
                         fontWeight: 'bold',
                         textAlign: 'right',
-                        color: alignRight ? color : '#000',
+                        color: textAccent,
                       }}
                     >
                       {note.__displayName}
@@ -153,7 +192,7 @@ function TicketNotesBase({ notes = [], onAddNote, status }) {
                         fontSize: 11,
                         fontWeight: 'bold',
                         textAlign: 'right',
-                        color: alignRight ? color : '#000',
+                        color: textAccent,
                       }}
                     >
                       {note.__displayDate}
@@ -163,7 +202,7 @@ function TicketNotesBase({ notes = [], onAddNote, status }) {
               );
             })
           ) : (
-            <Typography variant="body2" color="textSecondary">
+            <Typography variant="body2" color="text.secondary">
               No notes to show
             </Typography>
           )}
@@ -173,6 +212,7 @@ function TicketNotesBase({ notes = [], onAddNote, status }) {
   );
 }
 
+// Memo con comparación pensada para evitar renders inútiles
 function areEqual(prev, next) {
   if (prev.status !== next.status) return false;
   if (prev.onAddNote !== next.onAddNote) return false;
