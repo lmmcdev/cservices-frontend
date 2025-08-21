@@ -1,10 +1,9 @@
 // src/components/statusFilterBoxes.jsx
-
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Grid, Card, CardContent, Typography, Chip } from '@mui/material';
 import { getStatusColor } from '../../utils/js/statusColors';
 
-const statuses = [
+const STATUSES = [
   'New',
   'Emergency',
   'In Progress',
@@ -14,44 +13,66 @@ const statuses = [
   'Total',
 ];
 
-export default function StatusFilterBoxes({ selectedStatus, setSelectedStatus, ticketsCountByStatus }) {
+// Convierte cualquier forma a un número
+function normalizeToCount(value) {
+  if (Array.isArray(value)) return value.length;
+  if (value && typeof value === 'object') {
+    if (Array.isArray(value.ids)) return value.ids.length;
+    if (Array.isArray(value.ticketIds)) return value.ticketIds.length;
+    if (Number.isFinite(value.count)) return value.count;
+  }
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+// Construye un mapa {status: count} y calcula Total si falta o no es numérico/array
+function computeDisplayCounts(counts) {
+  const safe = counts || {};
+
+  // Si viene Total, normalízalo; si no, lo calculamos
+  const explicit = normalizeToCount(safe.Total);
+
+  // Suma de todos menos "Total"
+  let sum = 0;
+  for (const [k, v] of Object.entries(safe)) {
+    if (k === 'Total') continue;
+    sum += normalizeToCount(v);
+  }
+
+  const total = Number.isFinite(explicit) && explicit > 0 ? explicit : sum;
+  return { ...safe, Total: total };
+}
+
+export default function StatusFilterBoxes({
+  selectedStatus,
+  setSelectedStatus,
+  ticketsCountByStatus,
+}) {
+  const finalCounts = useMemo(
+    () => computeDisplayCounts(ticketsCountByStatus),
+    [ticketsCountByStatus]
+  );
+
   return (
-    <Grid
-      container
-      columnSpacing={2}
-      rowSpacing={0}
-      sx={{
-        width: '100%',
-        flexWrap: 'nowrap',
-      }}
-    >
-      {statuses.map((status) => {
+    <Grid container columnSpacing={2} rowSpacing={0} sx={{ width: '100%', flexWrap: 'nowrap' }}>
+      {STATUSES.map((status) => {
         const bgColor = getStatusColor(status, 'bg');
         const textColor = getStatusColor(status, 'text');
-        const count = ticketsCountByStatus[status] ?? 0;
+        const count = normalizeToCount(finalCounts?.[status]);
+
+        const isSelected = selectedStatus === status;
 
         return (
           <Grid
             item
             key={status}
-            sx={{
-              flex: '1 1 0',
-              display: 'flex',
-              minWidth: 0,
-            }}
+            sx={{ flex: '1 1 0', display: 'flex', minWidth: 0 }}
             onClick={() => setSelectedStatus(status)}
           >
             <Card
               sx={{
                 width: '100%',
-                // Alturas reducidas y responsive
-                height: {
-                  xs: 70,   // 70px en móvil
-                  sm: 90,   // 90px en >=600px
-                  md: 110,  // 110px en >=900px
-                  lg: 130,  // 130px en >=1200px
-                  xl: 150,  // 150px en >=1536px
-                },
+                height: { xs: 70, sm: 90, md: 110, lg: 130, xl: 150 },
                 backgroundColor: bgColor,
                 color: textColor,
                 borderLeft: `6px solid ${textColor}`,
@@ -60,27 +81,16 @@ export default function StatusFilterBoxes({ selectedStatus, setSelectedStatus, t
                 flexDirection: 'column',
                 justifyContent: 'center',
                 p: 2,
+                transform: isSelected ? 'scale(1.03)' : 'none',
                 transition: 'transform 0.2s',
-                '&:hover': {
-                  transform: 'scale(1.03)',
-                },
+                '&:hover': { transform: 'scale(1.03)' },
               }}
             >
               <CardContent sx={{ p: 0 }}>
-                {/* count mantiene su tamaño h4 original */}
                 <Typography variant="h4" fontWeight="bold" lineHeight={1}>
                   {count}
                 </Typography>
-                {/* label mantiene su tamaño original */}
-                <Chip
-                  label={status}
-                  size="small"
-                  sx={{
-                    backgroundColor: textColor,
-                    color: '#fff',
-                    mt: 1,
-                  }}
-                />
+                <Chip label={status} size="small" sx={{ backgroundColor: textColor, color: '#fff', mt: 1 }} />
               </CardContent>
             </Card>
           </Grid>
