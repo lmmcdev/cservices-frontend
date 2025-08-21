@@ -12,11 +12,11 @@ import { DailyTicketCategoriesChart } from '../components/auxiliars/charts/ticke
 import { DailyTicketPriorityChart } from '../components/auxiliars/charts/ticketsPriorityChart.jsx';
 import { DailyAverageResolutionTime } from '../components/auxiliars/charts/averageResolutionTime.jsx';
 import { DailyTopPerformerCard } from '../components/auxiliars/charts/topPerformerCard.jsx';
+import { useDailyStatsDispatch } from '../context/dailyStatsContext.js';
 
 import FloatingSettingsButton from '../components/auxiliars/charts/floatingSettingsButton.jsx';
 import StatusFilterBoxes from '../components/auxiliars/statusFilterBoxes.jsx';
 
-import { useDailyStatsDispatch } from '../context/dailyStatsContext.js';
 
 // 🔸 igual que en tableTickets
 import { useTicketsData } from '../components/hooks/useTicketsData.js';
@@ -35,6 +35,10 @@ function countByStatus(rows = []) {
 }
 
 export default function StatsScreen() {
+  //const state = useDailyStatsState();
+  //const fetchStatistics = useFetchStatistics();
+  //const fetchDoneStats = useDoneFetchStatistics();
+
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerStatus, setDrawerStatus] = useState('');
   const [selectedStatus, setSelectedStatus] = useState(null);
@@ -76,10 +80,10 @@ export default function StatsScreen() {
 
   // click en box de status → abre drawer con ese filtro
   const handleBoxClick = (status) => {
-    setSelectedTicketIds([]);
+    /*setSelectedTicketIds([]);
     setSelectedStatus(status);
     setDrawerStatus(status);
-    setDrawerOpen(true);
+    setDrawerOpen(true);*/
   };
 
   // click en categoría (IDs)
@@ -97,7 +101,9 @@ export default function StatsScreen() {
     setSelectedTicketIds([]);
   };
 
-  // fetch dinámico para el drawer
+  //const statistics = state.daily_statistics || {};
+
+  /** ✅ fetchFn dinámico usando useCallback */
   const fetchFn = useCallback(
     ({ continuationToken, limit }) => {
       if (selectedTicketIds.length > 0) {

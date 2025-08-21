@@ -4,6 +4,7 @@ import {
   Grid,
 } from '@mui/material';
 import {
+  useHistoricalStats,
   useFetchAllHistoricalStatistics,
 } from '../context/historicalStatsContext';
 //import { useHistoricalDoneFetchStatistics } from '../context/doneHistoricalTicketsContext';
@@ -20,12 +21,12 @@ import { HistoricalAverageResolutionTime } from '../components/auxiliars/charts/
 import { HistoricalTopPerformerCard } from '../components/auxiliars/charts/topPerformerCard.jsx';
 import { getTicketsByStatus, getTicketsByIds } from '../utils/apiStats';
 import FloatingSettingsButton from '../components/auxiliars/charts/floatingSettingsButton.jsx';
-//import StatusFilterBoxes from '../components/auxiliars/statusFilterBoxes.jsx'; // ✅ importa tu componente reutilizable
+import StatusFilterBoxes from '../components/auxiliars/statusFilterBoxes.jsx'; // ✅ importa tu componente reutilizable
 import FloatingDateSelector from '../components/auxiliars/charts/floatingDateSelector.jsx';
 import { useLocation } from 'react-router-dom';
 
 const HistoricStatistics = () => {
-  //const { stateStats } = useHistoricalStats();
+  const { stateStats } = useHistoricalStats();
   const fetchAllHistoricalStats = useFetchAllHistoricalStatistics();
   //const fetchHistoricalDoneTickets = useHistoricalDoneFetchStatistics();
 
@@ -60,12 +61,12 @@ useEffect(() => {
     }
   };
 
-  /*const handleBoxClick = (status) => {
-  setSelectedStatus(status);
-  setSelectedTicketIds([]); // 👈 limpiar
-  setDrawerStatus(status);
-  setDrawerOpen(true);
-};*/
+  const handleBoxClick = (status) => {
+    /*setSelectedStatus(status);
+    setSelectedTicketIds([]); // 👈 limpiar
+    setDrawerStatus(status);
+    setDrawerOpen(true);*/
+  };
 
   const handleCloseDrawer = () => {
     setDrawerOpen(false);
@@ -81,7 +82,7 @@ useEffect(() => {
   setDrawerOpen(true);
 };
 
-  //const statistics = stateStats.historic_daily_stats || {};
+  const statistics = stateStats.historic_daily_stats || {};
 
   return (
     <>
@@ -110,7 +111,13 @@ useEffect(() => {
       >
 
       {/* ✅ StatusFilterBoxes dentro del mismo Box */}
-      
+      <Box sx={{ width: '100%' }}>
+        <StatusFilterBoxes
+          selectedStatus={selectedStatus}
+          setSelectedStatus={handleBoxClick}
+          ticketsCountByStatus={statistics?.statusCounts || {}}
+        />
+      </Box>
 
       <Grid
         container
