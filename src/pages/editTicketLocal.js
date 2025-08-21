@@ -15,7 +15,7 @@ import TicketAssignee from '../components/auxiliars/tickets/ticketAssignee.jsx';
 import Tooltip from '@mui/material/Tooltip';
 import { useTicketWorkTimer } from '../components/hooks/useWorkTimer.jsx';
 //import { useWorkTimer } from '../components/hooks/useWorkTimer.jsx';
-//import TicketWorkTime from '../components/auxiliars/tickets/ticketWorkTime.js';
+import TicketWorkTime from '../components/auxiliars/tickets/ticketWorkTime.js';
 import { useAgents } from '../context/agentsContext';
 import { useAuth } from '../context/authContext';
 import { useTickets } from '../context/ticketsContext.js';
@@ -33,7 +33,7 @@ const TicketNotesMemo = memo(TicketNotes);
 const TicketCollaboratorsMemo = memo(TicketCollaborators);
 const TicketAudioMemo = memo(TicketAudio);
 const TicketAssigneeMemo = memo(TicketAssignee);
-//const TicketWorkTimeMemo = memo(TicketWorkTime);
+const TicketWorkTimeMemo = memo(TicketWorkTime);
 const TicketIndicatorsMemo = memo(TicketIndicators);
 
 // ✅ versiones lazy
@@ -99,29 +99,13 @@ export default function EditTicketLocal() {
   const [pendingPatient, setPendingPatient] = useState(null);
 
   const [openPatientDialog, setOpenPatientDialog] = useState(false);
-  //useWorkTimer( {ticketData:ticket, agentEmail, status, enabled:true} );
-
-  //const registerWorkTime = useWorkTimer({ ticketData: ticket, status, enabled: true });
-  /*useEffect(() => {
-    return () => registerWorkTime;
-  },[])
-  /*useEffect(() => {
-    if (ticket?.notes) {
-      setNotes(ticket.notes);
-    }
-  }, [ticket]);
-
-  useEffect(() => {
-    if (ticket) {
-      setStatus(ticket.status || '');
-    }
-  }, [ticket]);*/
+  
   //tiempo de trabajo
-  const { flushNow, getElapsedSeconds } = useTicketWorkTimer({
+  const { flushNow } = useTicketWorkTimer({
     ticketId: ticket.id,
     statusProvider: () => status, // se normaliza a snake_case dentro del hook
-    // sendIntervalMs: 60000,     // opcional: envía cada 60s acumulados
-    includeAgentEmail: true,      // ponlo en false si tu endpoint no lo necesita
+    sendIntervalMs: 60000,     // opcional: envía cada 60s acumulados
+    includeAgentEmail: false,      // ponlo en false si tu endpoint no lo necesita
   });
 
   // Ejemplo: flushear manualmente al guardar/cerrar
@@ -177,10 +161,11 @@ export default function EditTicketLocal() {
 
   /** ========= Props/valores MEMO para pasar a hijos ========= */
   const indicatorsData = useMemo(() => ticket?.aiClassification, [ticket?.aiClassification]);
-  //const workTimeData   = useMemo(() => ticket?.work_time,        [ticket?.work_time]);
+  const workTimeData   = useMemo(() => ticket?.work_time,        [ticket?.work_time]);
   const audioUrl       = useMemo(() => ticket?.url_audio,        [ticket?.url_audio]);
   const notesStable         = useMemo(() => notes,         [notes]);
   const collaboratorsStable = useMemo(() => collaborators, [collaborators]);
+
 
   // Formatea a MM/DD/YYYY en UTC
   const formatDateMMDDYYYY = (value) => {
@@ -233,7 +218,6 @@ export default function EditTicketLocal() {
             gap: 1,
           }}
         >
-          <small>Working time (sec): {getElapsedSeconds()}</small>
           
           {/* Ir hacia atrás */}
           <Tooltip title="Previous case">
@@ -596,7 +580,7 @@ export default function EditTicketLocal() {
                   </Typography>
                 </Box>
                 <Box sx={{ width: '100%', minWidth: '280px' }}>
-                  { /*<TicketWorkTimeMemo workTimeData={workTimeData} /> */}
+                  { <TicketWorkTimeMemo workTimeData={workTimeData} /> }
                 </Box>
               </CardContent>
             </Card>
