@@ -7,9 +7,25 @@ import AssignAgentModal from '../components/dialogs/assignAgentDialog';
 import { useNavigate } from 'react-router-dom';
 import { useFilters } from '../context/filterContext.js';
 import StatusFilterBoxes from '../components/auxiliars/statusFilterBoxes.jsx';
-import { selectStatusCounts, filterTickets, sortByCreatedAt, paginate } from '../utils/tickets/selectors.js';
+import {
+  filterTickets,
+  sortByCreatedAt,
+  paginate,
+} from '../utils/tickets/selectors.js';
 import TicketsTable from './tableTickets/ticketsTable.jsx';
 import { useTicketsData } from '../components/hooks/useTicketsData.js';
+
+// <-- helper local (puedes moverlo a selectors.js si quieres reutilizarlo)
+const KNOWN_STATUSES = ['New', 'Emergency', 'In Progress', 'Pending', 'Done', 'Duplicated'];
+function countByStatus(rows = []) {
+  const acc = Object.fromEntries(KNOWN_STATUSES.map(s => [s, 0]));
+  for (const r of rows) {
+    const s = r?.status;
+    if (acc.hasOwnProperty(s)) acc[s] += 1;
+  }
+  acc.Total = rows.length;
+  return acc;
+}
 
 export default function TableTickets() {
   const { filters } = useFilters();
@@ -17,7 +33,6 @@ export default function TableTickets() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Hook centralizado de datos
   const { tickets, ticketsVersion } = useTicketsData({ auto: true });
 
   const [selectedStatus, setSelectedStatus] = useState('Total');
@@ -32,6 +47,19 @@ export default function TableTickets() {
     status: 110, callerId: 120, name: 160, dob: 120, phone: 130, createdAt: 160, assignedTo: 160
   }), []);
 
+  // 1) Base filtrada por TODO excepto status -> sirve para los contadores
+  const baseRows = useMemo(() => (
+    filterTickets(tickets, {
+      status: 'Total', // <-- sin filtro de estado
+      agents: filters.assignedAgents,
+      callers: filters.callerIds,
+      date: filters.date,
+      departments: filters.assignedDepartment
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  ), [ticketsVersion, tickets, filters]);
+
+  // 2) Filtrado final para la tabla (incluye selectedStatus)
   const filteredRows = useMemo(() => (
     filterTickets(tickets, {
       status: selectedStatus,
@@ -48,25 +76,15 @@ export default function TableTickets() {
     [filteredRows, sortDirection]
   );
 
-  // Paginación
   const paginatedRows = useMemo(
     () => paginate(sortedRows, page, rowsPerPage),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [sortedRows, page, rowsPerPage]
   );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const precounted = useMemo(() => selectStatusCounts(state), [state.statusCounts]);
-
-  // Total fijo = total de tickets (sin aplicar filtros)
-  const fixedTotal = useMemo(
-    () => (Array.isArray(tickets) ? tickets.length : 0),
-    [tickets]
-  );
-
+  // 3) Contadores dinámicos basados en baseRows
   const ticketsCountByStatus = useMemo(
-    () => ({ ...precounted, Total: fixedTotal }),
-    [precounted, fixedTotal]
+    () => countByStatus(baseRows),
+    [baseRows]
   );
 
   const handleChangePage = (_e, newPage) => setPage(newPage);
@@ -83,7 +101,7 @@ export default function TableTickets() {
 
   const handleAssignedSuccess = useCallback((updatedTicket) => {
     if (updatedTicket?.id) dispatch({ type: 'UPD_TICKET', payload: updatedTicket });
-  }, [dispatch /*, refresh*/]);
+  }, [dispatch]);
 
   return (
     <>
@@ -92,10 +110,10 @@ export default function TableTickets() {
           borderRadius: 4,
           position: 'fixed',
           top: 150,
-          left: 'calc(var(--drawer-width, 80px) + var(--content-gap))', // se mueve con el sidebar
+          left: 'calc(var(--drawer-width, 80px) + var(--content-gap))',
           right: 39,
           bottom: 39,
-          transition: 'left .3s ease',                    // animación suave
+          transition: 'left .3s ease',
           display: 'flex',
           flexDirection: 'column',
           boxShadow: '0px 8px 24px rgba(239, 241, 246, 1)',
@@ -107,7 +125,7 @@ export default function TableTickets() {
             <StatusFilterBoxes
               selectedStatus={selectedStatus}
               setSelectedStatus={setSelectedStatus}
-              ticketsCountByStatus={ticketsCountByStatus}
+              ticketsCountByStatus={ticketsCountByStatus} // <-- ahora dinámico
             />
           </Box>
 
