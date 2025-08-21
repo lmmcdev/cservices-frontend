@@ -29,7 +29,7 @@ function countByStatus(rows = []) {
 
 export default function TableTickets() {
   const { filters } = useFilters();
-  const { state, dispatch } = useTickets();
+  const { dispatch } = useTickets();
   const { user } = useAuth();
   const navigate = useNavigate();
 
