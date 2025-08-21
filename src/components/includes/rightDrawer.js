@@ -25,13 +25,13 @@ export default function RightDrawer({
   const [dialogOpen, setDialogOpen] = useState(false);
 
   // ✅ Hook para manejar paginación
-  const { tickets, loading, hasMore, fetchTickets, reset } = usePaginatedTickets(fetchFn, fetchParams);
+  const { tickets, loading, hasMore, fetchMore, reset } = usePaginatedTickets(fetchFn, fetchParams);
 
   // ✅ Cargar tickets cuando se abre el Drawer
  useEffect(() => {
   if (open && fetchFn) {
     reset();
-    fetchTickets();
+    fetchMore();
   }
    // eslint-disable-next-line
 }, [open, fetchFn, fetchParams]);
@@ -133,7 +133,7 @@ export default function RightDrawer({
 
       {hasMore && tickets.length > 0 && (
         <Box sx={{ textAlign: 'center', mt: 2 }}>
-          <Button variant="outlined" onClick={fetchTickets} disabled={loading}>
+          <Button variant="outlined" onClick={fetchMore} disabled={loading}>
             {loading ? 'Loading...' : 'Load More'}
           </Button>
         </Box>
