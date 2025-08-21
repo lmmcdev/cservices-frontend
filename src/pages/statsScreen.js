@@ -18,13 +18,13 @@ import { DailyTicketPriorityChart } from '../components/auxiliars/charts/tickets
 import { DailyAverageResolutionTime } from '../components/auxiliars/charts/averageResolutionTime.jsx';
 import { DailyTopPerformerCard } from '../components/auxiliars/charts/topPerformerCard.jsx';
 import { getDailyStats } from '../utils/apiStats';
-import { useDailyStatsDispatch, useDailyStatsState } from '../context/dailyStatsContext.js';
+import { useDailyStatsDispatch } from '../context/dailyStatsContext.js';
 
 import FloatingSettingsButton from '../components/auxiliars/charts/floatingSettingsButton.jsx';
-import StatusFilterBoxes from '../components/auxiliars/statusFilterBoxes.jsx'; // ✅ reutilizado
+//import StatusFilterBoxes from '../components/auxiliars/statusFilterBoxes.jsx'; // ✅ reutilizado
 
 export default function StatsScreen() {
-  const state = useDailyStatsState();
+  //const state = useDailyStatsState();
   //const fetchStatistics = useFetchStatistics();
   //const fetchDoneStats = useDoneFetchStatistics();
 
@@ -55,12 +55,12 @@ export default function StatsScreen() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /** ✅ Manejo de clic en box de status */
-  const handleBoxClick = (status) => {
+  /*const handleBoxClick = (status) => {
     setSelectedStatus(status);
     setSelectedTicketIds([]); // limpiar
     setDrawerStatus(status);
     setDrawerOpen(true);
-  };
+  };*/
 
   /** ✅ Manejo de clic en categoría (IDs) */
   const handleCategoryClick = ({ category, ticketIds }) => {
@@ -78,7 +78,7 @@ export default function StatsScreen() {
     setSelectedTicketIds([]);
   };
 
-  const statistics = state.daily_statistics || {};
+  //const statistics = state.daily_statistics || {};
 
   /** ✅ fetchFn dinámico usando useCallback */
   const fetchFn = useCallback(
@@ -115,11 +115,11 @@ export default function StatsScreen() {
 
       {/* ✅ StatusFilterBoxes dentro del mismo Box */}
       <Box sx={{ width: '100%' }}>
-        <StatusFilterBoxes
+        {/*<StatusFilterBoxes
           selectedStatus={selectedStatus}
           setSelectedStatus={handleBoxClick}
           ticketsCountByStatus={statistics?.statusCounts || {}}
-        />
+        />*/}
       </Box>
 
         
