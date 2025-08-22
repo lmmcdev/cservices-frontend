@@ -69,7 +69,6 @@ export const AuthProvider = ({ children }) => {
     try {
       await msalInstance.initialize();
 
-      // si usas redirect en algún flujo, manejar promesa:
       // await msalInstance.handleRedirectPromise().catch(() => {});
 
       let account = msalInstance.getActiveAccount();
@@ -188,17 +187,13 @@ export const AuthProvider = ({ children }) => {
       setAgentData(null);
       return;
     }
-    const mail = (user.username ||
-      user.idTokenClaims?.preferred_username ||
-      "").toLowerCase();
+    const mail = (user.username || user.idTokenClaims?.preferred_username || "").toLowerCase();
     const match = list.find(a => (a.agent_email || "").toLowerCase() === mail);
     setAgentData(match || null);
   }, [user, agentsState]);
 
-  // ✅ authReady: condición mínima para “dar paso a la UI”
-  // - Recomendado: API token obligatorio, Graph opcional.
+  // ✅ authReady: condición mínima 
   const authReady = !!user && !!accessTokenApi;
-  // Si quieres que Graph sea obligatorio también:
   // const authReady = !!user && !!accessTokenApi && !!accessTokenGraph;
 
   const value = useMemo(() => ({
@@ -208,7 +203,7 @@ export const AuthProvider = ({ children }) => {
     profilePhoto,
     agentData,
     department: agentData?.agent_department || null,
-    authLoaded,  // ciclo de login+adquisición terminó (con retries)
+    authLoaded,  // ciclo de login+adquisición
     authReady,   // listo para renderizar la app (mínimo necesario)
     authError,
     login,
