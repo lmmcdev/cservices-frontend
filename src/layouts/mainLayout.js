@@ -4,11 +4,11 @@ import Topbar from '../components/includes/topBar';
 import Sidebar from '../components/includes/sideBar';
 import { Outlet } from 'react-router-dom';
 
-const MainLayout = ({ agentEmail, filters, setFilters }) => (
+const MainLayout = ({ agentData, filters, setFilters }) => (
   <Box sx={{ display: 'flex', bgcolor: '#f8fafd', minHeight: '100vh' }}>
     <CssBaseline />
-    <Topbar agent={agentEmail} filters={filters} setFilters={setFilters} />
-    <Sidebar />
+    <Topbar agent={agentData} filters={filters} setFilters={setFilters} />
+    <Sidebar agent={agentData} />
     <Outlet /> {/* Aquí se renderizan las páginas */}
   </Box>
 );

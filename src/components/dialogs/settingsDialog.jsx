@@ -1,38 +1,21 @@
 // src/components/dialogs/SettingsDialog.jsx
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  FormGroup,
-  Select,
-  MenuItem,
-  Stack,
-  Typography,
-  Box,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Divider,
-  Switch,
-  Button,
-  Snackbar,
-  Alert,
-  Slide,
+  Dialog, DialogTitle, DialogContent, FormGroup, Select, MenuItem, Stack,
+  Typography, Box, List, ListItemButton, ListItemIcon, ListItemText, Divider,
+  Switch, Button, Snackbar, Alert, Slide, Chip
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { keyframes } from '@mui/system';
 import CheckCircleRoundedIcon from '@mui/icons-material/CheckCircleRounded';
 import { Icon } from '@iconify/react';
 import { useSettings } from '../../context/settingsContext';
+import { usePushRegistration } from '../hooks/usePushRegistration';
 
 const CALL_CONFIRM_SKIP_KEYS = ['callConfirm.providers'];
 
 function clearCallConfirmSkips() {
-  try {
-    CALL_CONFIRM_SKIP_KEYS.forEach((k) => localStorage.removeItem(k));
-  } catch {}
+  try { CALL_CONFIRM_SKIP_KEYS.forEach((k) => localStorage.removeItem(k)); } catch {}
 }
 
 const IOSSwitch = styled((props) => (
@@ -63,7 +46,7 @@ const Row = ({ label, control, noBorder }) => (
     py={2}
     sx={{ borderBottom: noBorder ? 'none' : (t) => `1px solid ${t.palette.divider}` }}
   >
-    <Typography variant="body1">{label}</Typography>
+    <Box mr={2}>{label}</Box>
     <Box>{control}</Box>
   </Box>
 );
@@ -78,10 +61,14 @@ function TransitionUp(props) {
   return <Slide {...props} direction="up" />;
 }
 
-const SettingsDialog = ({ open, onClose }) => {
+const SettingsDialog = ({ open, onClose, agent }) => {
   const { settings, setSettings, resetSettings } = useSettings();
   const [tab, setTab] = useState('general');
   const [showSaved, setShowSaved] = useState(false);
+  console.log(agent)
+
+  // 👇 hook de registro push con manejo de errores/mejoras
+  const { doRegister, doUnregister, loading, toast, setToast } = usePushRegistration();
 
   const instantSave = (updates, clearFlags = false) => {
     if (clearFlags) clearCallConfirmSkips();
@@ -93,6 +80,36 @@ const SettingsDialog = ({ open, onClose }) => {
     instantSave({ [key]: e.target.checked }, clearFlags);
 
   const change = (key) => (e) => instantSave({ [key]: e.target.value });
+
+  // ✅ sin usar el global `location` (evita no-restricted-globals)
+  const { isSecure, notifPermission } = useMemo(() => {
+    const isBrowser = typeof window !== 'undefined';
+    const loc = isBrowser ? window.location : null;
+    const secure =
+      (isBrowser && window.isSecureContext) ||
+      (loc && (loc.protocol === 'https:' || loc.hostname === 'localhost'));
+    const perm = typeof Notification !== 'undefined' ? Notification.permission : 'unsupported';
+    return { isSecure: !!secure, notifPermission: perm };
+  }, []);
+
+  const pushEnabled = !!settings.pushEnabled;
+  const disableEnableBtn =
+    loading ||
+    !isSecure ||
+    notifPermission === 'denied' ||
+    typeof window === 'undefined' ||
+    !('serviceWorker' in window) ||
+    !('PushManager' in window);
+
+  const handleEnablePush = async () => {
+    const ok = await doRegister(settings.agentData || {}); // si guardas agentData en settings
+    if (ok) instantSave({ pushEnabled: true });
+  };
+
+  const handleDisablePush = async () => {
+    const ok = await doUnregister();
+    if (ok) instantSave({ pushEnabled: false });
+  };
 
   return (
     <>
@@ -303,6 +320,53 @@ const SettingsDialog = ({ open, onClose }) => {
                           />
                         }
                       />
+
+                      {/* 🔔 Push notifications */}
+                      <Row
+                        label={
+                          <Stack spacing={0.5}>
+                            <Typography variant="body1">Push notifications</Typography>
+                            <Stack direction="row" spacing={1} alignItems="center">
+                              <Chip
+                                size="small"
+                                label={isSecure ? 'Secure context' : 'HTTPS required'}
+                                color={isSecure ? 'success' : 'warning'}
+                                variant={isSecure ? 'filled' : 'outlined'}
+                              />
+                              <Chip
+                                size="small"
+                                label={`Permission: ${notifPermission}`}
+                                color={notifPermission === 'granted' ? 'success' : (notifPermission === 'denied' ? 'error' : 'default')}
+                                variant="outlined"
+                              />
+                            </Stack>
+                            <Typography variant="caption" color="text.secondary">
+                              Requires HTTPS or localhost, Service Worker and Push API.
+                            </Typography>
+                          </Stack>
+                        }
+                        control={
+                          pushEnabled ? (
+                            <Button
+                              variant="outlined"
+                              color="error"
+                              disabled={loading}
+                              onClick={handleDisablePush}
+                            >
+                              {loading ? 'Disabling…' : 'Disable'}
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="contained"
+                              disabled={disableEnableBtn}
+                              onClick={handleEnablePush}
+                            >
+                              {loading ? 'Enabling…' : 'Enable'}
+                            </Button>
+                          )
+                        }
+                      />
+
                       <Row
                         label="Email alerts"
                         control={
@@ -322,6 +386,7 @@ const SettingsDialog = ({ open, onClose }) => {
         </DialogContent>
       </Dialog>
 
+      {/* ✅ Snackbar "Changes saved" existente */}
       <Snackbar
         open={showSaved}
         TransitionComponent={TransitionUp}
@@ -343,6 +408,36 @@ const SettingsDialog = ({ open, onClose }) => {
           }}
         >
           Changes saved
+        </Alert>
+      </Snackbar>
+
+      {/* 🔔 Snackbar para mensajes del hook usePushRegistration */}
+      <Snackbar
+        open={!!toast?.open}
+        onClose={() => setToast({ ...toast, open: false })}
+        autoHideDuration={toast?.autoHide ?? 4000}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        TransitionComponent={TransitionUp}
+      >
+        <Alert
+          severity={toast?.severity || 'info'}
+          sx={{ width: '100%' }}
+          action={
+            toast?.actionLabel && toast?.onAction ? (
+              <Button
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  toast.onAction();
+                  setToast({ ...toast, open: false });
+                }}
+              >
+                {toast.actionLabel}
+              </Button>
+            ) : null
+          }
+        >
+          {toast?.message || ''}
         </Alert>
       </Snackbar>
     </>

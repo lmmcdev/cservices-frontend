@@ -33,7 +33,7 @@ const hasAnyGroup = (userGroups = [], allowedGroups = []) =>
   Array.isArray(allowedGroups) &&
   allowedGroups.some(g => userGroups.includes(g));
 
-export default function CollapsibleDrawer() {
+export default function CollapsibleDrawer({ agent }) {
   const [open, setOpen] = useState(false);
   const [openSettings, setOpenSettings] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState(null);
@@ -292,8 +292,7 @@ export default function CollapsibleDrawer() {
           </Box>
         </Box>
       </Drawer>
-
-      <SettingsDialog open={openSettings} onClose={() => setOpenSettings(false)} />
+      <SettingsDialog open={openSettings} onClose={() => setOpenSettings(false)} agent={agent} />
 
       <UserAvatarMenu
         anchorEl={menuAnchor}
