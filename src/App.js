@@ -62,12 +62,12 @@ function AppContent() {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: '#f8fafd', minHeight: '100vh' }}>
       <AppRoutes
-        agentEmail={agentEmail}
         filters={filters}
         setFilters={setFilters}
         authError={authError}
         login={login}
         user={user}
+        agentData={agent}
       />
     </Box>
   );

@@ -30,13 +30,13 @@ const SearchTicketDeep = lazy(() => import('../components/components/tickets/tic
 
 
 
-export default function AppRoutes({ agentEmail, filters, setFilters, authError, login, user }) {
+export default function AppRoutes({ agentData, filters, setFilters, authError, login, user }) {
   return (
     <Suspense fallback={<SuspenseFallback />}>
       <Routes>
         {/*<Route element={<PrivateRoute allowedGroups={[GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS, GROUP_IDS.CUSTOMER_SERVICE.REMOTE]} />}></Route>*/}
         <Route path="/" element={<PrivateRoute />}>
-          <Route element={<MainLayout agentEmail={agentEmail} filters={filters} setFilters={setFilters} />}>
+          <Route element={<MainLayout agentData={agentData} filters={filters} setFilters={setFilters} />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="dashboard" element={<TableTickets filters={filters} />} />
             <Route path="agents" element={<TableAgents />} />
