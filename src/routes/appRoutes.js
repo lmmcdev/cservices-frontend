@@ -27,8 +27,7 @@ const StatsScreen = lazy(() => import('../pages/statsScreen'));
 const ProfileSearch = lazy(() => import('../pages/profileSearch'));
 const SearchPatientDeep = lazy(() => import('../components/components/patients/patientsDeepSearch'));
 const SearchTicketDeep = lazy(() => import('../components/components/tickets/ticketsDeepSeacrh'));
-
-
+const ReportsScreen = lazy(() => import('../pages/reportsScreen'));
 
 export default function AppRoutes({ agentData, filters, setFilters, authError, login, user }) {
   return (
@@ -45,6 +44,7 @@ export default function AppRoutes({ agentData, filters, setFilters, authError, l
             <Route path="profile-search" element={<ProfileSearch />} />
             <Route path="patient-search" element={<SearchPatientDeep />} />
             <Route path="ticket-search" element={<SearchTicketDeep />} />
+            <Route path="reports" element={<ReportsScreen />} />
           </Route>
 
           <Route element={<LayoutWithSidebarOnly />}>

@@ -19,6 +19,8 @@ import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import ApartmentIcon from '@mui/icons-material/Apartment';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+
 //import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import HomeIcon from '@mui/icons-material/Home';
 import BusinessIcon from '@mui/icons-material/Business';
@@ -90,6 +92,7 @@ export const icons = {
   searchOffIcon: SearchOffIcon,
   home: HomeIcon,
   business: BusinessIcon,
+  reports: AssessmentIcon,
   //Bootstrap
   addCase: TelephonePlusIcon,
   callLogs: TelephoneIcon,
