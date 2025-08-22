@@ -18,6 +18,7 @@ import { setupFetchAuth } from './setupFetchAuth';
 
 
 import './App.css';
+import SuspenseFallback from './components/auxiliars/suspenseFallback';
 
 function AppContent() {
   React.useEffect(() => {
@@ -25,7 +26,7 @@ function AppContent() {
   }, []); // ← una sola vez
   const { showNotification } = useNotification();
   const { initializeSignalR } = useSignalR();
-  const { user, authError, login, authLoaded } = useAuth();
+  const { user, authError, login, authLoaded, authReady } = useAuth();
   const [agentEmail, setAgentEmail] = useState('');
   const [filters, setFilters] = useState({
     date: '',
@@ -57,7 +58,7 @@ function AppContent() {
     });
   }, [initializeSignalR, showNotification]);
 
-  if (!authLoaded) return <Box p={4}>Cargando...</Box>;
+  if (!authLoaded || !authReady) { return <SuspenseFallback />; }
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', bgcolor: '#f8fafd', minHeight: '100vh' }}>

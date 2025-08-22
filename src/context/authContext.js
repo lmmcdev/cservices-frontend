@@ -1,3 +1,4 @@
+// AuthContext (drop-in)
 import React, {
   createContext,
   useContext,
@@ -12,8 +13,6 @@ import {
 } from "@azure/msal-browser";
 import { useAgents } from "./agentsContext";
 import { ENDPOINT_URLS } from "../utils/js/constants";
-
-// ⬇️ usa SIEMPRE la config centralizada
 import { msalConfig, apiScopes, graphScopes, loginRequest } from "../utils/azureAuth";
 
 export const msalInstance = new PublicClientApplication(msalConfig);
@@ -21,7 +20,7 @@ export const msalInstance = new PublicClientApplication(msalConfig);
 const AuthContext = createContext(undefined);
 
 const graphRequest = { scopes: graphScopes };
-const apiRequest = { scopes: apiScopes };
+const apiRequest   = { scopes: apiScopes };
 
 async function acquire(msal, req, account) {
   try {
@@ -36,13 +35,29 @@ async function acquire(msal, req, account) {
   }
 }
 
+// util: sleep + retry con backoff exponencial suave
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+async function withRetry(fn, { retries = 3, baseDelay = 600 } = {}) {
+  let lastErr;
+  for (let i = 0; i <= retries; i++) {
+    try {
+      return await fn();
+    } catch (e) {
+      lastErr = e;
+      if (i === retries) break;
+      await sleep(baseDelay * Math.pow(1.6, i)); // 600ms, ~960ms, ~1536ms...
+    }
+  }
+  throw lastErr;
+}
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [accessTokenGraph, setAccessTokenGraph] = useState(null);
   const [accessTokenApi, setAccessTokenApi] = useState(null);
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [authError, setAuthError] = useState(null);
-  const [authLoaded, setAuthLoaded] = useState(false);
+  const [authLoaded, setAuthLoaded] = useState(false); // “ciclo” de auth terminado
 
   const { state: agentsState } = useAgents();
   const [agentData, setAgentData] = useState(null);
@@ -50,13 +65,15 @@ export const AuthProvider = ({ children }) => {
   const API_BASE = ENDPOINT_URLS.API;
 
   const login = useCallback(async () => {
+    setAuthLoaded(false);
     try {
       await msalInstance.initialize();
 
+      // si usas redirect en algún flujo, manejar promesa:
+      // await msalInstance.handleRedirectPromise().catch(() => {});
+
       let account = msalInstance.getActiveAccount();
-      console.log('All account', account)
       if (!account) {
-        // Intenta SSO silencioso, y si no, popup
         try {
           const resp = await msalInstance.ssoSilent(loginRequest);
           account = resp.account;
@@ -70,17 +87,16 @@ export const AuthProvider = ({ children }) => {
       if (!account) throw new Error("No active account after login.");
       setUser(account);
 
-      // Tokens en paralelo (Graph + API)
-      const [tokenGraph, tokenApi] = await Promise.all([
-        acquire(msalInstance, graphRequest, account).catch(() => null),
-        acquire(msalInstance, apiRequest, account).catch(() => null),
+      // Tokens con retry/backoff
+      const [tokenApi, tokenGraph] = await Promise.all([
+        withRetry(() => acquire(msalInstance, apiRequest, account), { retries: 2 }).catch(() => null),
+        withRetry(() => acquire(msalInstance, graphRequest, account), { retries: 3 }).catch(() => null),
       ]);
-      setAccessTokenGraph(tokenGraph);
+
       setAccessTokenApi(tokenApi);
+      setAccessTokenGraph(tokenGraph);
 
-      console.log('tokens app', {tokenGraph, tokenApi})
-
-      // Foto de perfil (opcional)
+      // Foto (opcional). No bloquea authLoaded.
       if (tokenGraph) {
         try {
           const resp = await fetch("https://graph.microsoft.com/v1.0/me/photo/$value", {
@@ -90,9 +106,7 @@ export const AuthProvider = ({ children }) => {
             const blob = await resp.blob();
             setProfilePhoto(URL.createObjectURL(blob));
           }
-        } catch (e) {
-          // opcional: log
-        }
+        } catch {}
       }
 
       setAuthError(null);
@@ -100,7 +114,7 @@ export const AuthProvider = ({ children }) => {
       console.error("Login failed:", err);
       setAuthError(err?.message || "Login failed");
     } finally {
-      setAuthLoaded(true);
+      setAuthLoaded(true); // el ciclo de login + acquire (con reintentos) terminó
     }
   }, []);
 
@@ -112,6 +126,7 @@ export const AuthProvider = ({ children }) => {
       setProfilePhoto(null);
       setAgentData(null);
       setAuthError(null);
+      setAuthLoaded(false);
     });
   }, []);
 
@@ -120,7 +135,10 @@ export const AuthProvider = ({ children }) => {
       const account = accountOverride || msalInstance.getActiveAccount() || user;
       if (!account) return null;
       try {
-        const token = await acquire(msalInstance, apiRequest, account);
+        const token = await withRetry(
+          () => acquire(msalInstance, apiRequest, account),
+          { retries: 1 }
+        );
         setAccessTokenApi(token);
         return token;
       } catch (e) {
@@ -159,6 +177,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => { login(); }, [login]);
 
+  // mapear agente
   useEffect(() => {
     if (!user) {
       setAgentData(null);
@@ -176,6 +195,12 @@ export const AuthProvider = ({ children }) => {
     setAgentData(match || null);
   }, [user, agentsState]);
 
+  // ✅ authReady: condición mínima para “dar paso a la UI”
+  // - Recomendado: API token obligatorio, Graph opcional.
+  const authReady = !!user && !!accessTokenApi;
+  // Si quieres que Graph sea obligatorio también:
+  // const authReady = !!user && !!accessTokenApi && !!accessTokenGraph;
+
   const value = useMemo(() => ({
     user,
     accessTokenGraph,
@@ -183,7 +208,8 @@ export const AuthProvider = ({ children }) => {
     profilePhoto,
     agentData,
     department: agentData?.agent_department || null,
-    authLoaded,
+    authLoaded,  // ciclo de login+adquisición terminó (con retries)
+    authReady,   // listo para renderizar la app (mínimo necesario)
     authError,
     login,
     logout,
@@ -196,6 +222,7 @@ export const AuthProvider = ({ children }) => {
     profilePhoto,
     agentData,
     authLoaded,
+    authReady,
     authError,
     login,
     logout,
