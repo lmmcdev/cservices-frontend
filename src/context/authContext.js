@@ -94,7 +94,7 @@ export const AuthProvider = ({ children }) => {
 
       setAccessTokenApi(tokenApi);
       setAccessTokenGraph(tokenGraph);
-
+      console.log("Tokens acquired:", { tokenApi, tokenGraph });
       // Foto (opcional). No bloquea authLoaded.
       if (tokenGraph) {
         try {

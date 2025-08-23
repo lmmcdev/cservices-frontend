@@ -65,7 +65,7 @@ const SettingsDialog = ({ open, onClose, agent }) => {
   const { settings, setSettings, resetSettings } = useSettings();
   const [tab, setTab] = useState('general');
   const [showSaved, setShowSaved] = useState(false);
-  console.log(agent)
+  //console.log(agent)
 
   // 👇 hook de registro push con manejo de errores/mejoras
   const { doRegister, doUnregister, loading, toast, setToast } = usePushRegistration();
