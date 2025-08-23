@@ -20,11 +20,10 @@ import ProviderList from '../components/components/providers/providerList';
 import ProviderEditForm from './editProvider';
 import PatientSearchContainer from '../components/components/patients/patientSearchContainer';
 //import { handleGetTicketsByPatient } from '../utils/js/patientsActions';
-import TicketListUI from '../components/components/tickets/ticketListUI';
 import TicketSearchContainer from '../components/components/tickets/ticketSearchContainer';
 import TicketQuickViewDialog from '../components/dialogs/ticketQuickViewDialog';
+import SearchTicketResults from '../components/components/tickets/searchTicketsResults';
 import { useApiHandlers } from '../utils/js/patientsActions';
-
 
 const mockData = [];
 
@@ -100,10 +99,13 @@ export default function ProfileSearch() {
     
   const setSelectedTicketFunc = async (ticket) => {
     handleQuickViewOpen(ticket);
-    //console.log('Selected ticket:', ticket);
-    
     setSelectedView('tickets-search');
-    //setSelectedTicket(ticket);
+  }
+
+  const setSelectedTicketFuncView = async (ticket) => {
+    console.log(ticket)
+    handleQuickViewOpen(ticket);
+    setSelectedView('patients-search');
   }
 
   const setSelectedPatientFunc = async (patient) => {
@@ -340,8 +342,9 @@ export default function ProfileSearch() {
 
           {selectedView === 'patients-search' && (
             <>
-              <TicketListUI
-                tickets={patientTickets}
+              <SearchTicketResults
+                results={patientTickets}
+                selectedTicket={setSelectedTicketFuncView}
               />
             </>
           )}

@@ -4,7 +4,6 @@ import {
   Box,
   Card,
   Typography,
-  CircularProgress,
   Chip,
   Stack,
 } from '@mui/material';
@@ -15,6 +14,7 @@ import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import EmptyState from '../../auxiliars/emptyState';
 
 dayjs.extend(customParseFormat);
 
@@ -71,10 +71,7 @@ const getTicketDob = (t) =>
   );
 
 const getTicketName = (t) =>
-  t?.patient_name ??
-  t?.linked_patient_snapshot?.Name ??
-  t?.caller_name ?? t?.caller_Name ??
-  'No name';
+  t?.linked_patient_snapshot?.Name ?? t?.patient_name ?? t?.caller_name ?? t?.caller_Name ?? 'No name';
 
 const getTicketPhone = (t) =>
   t?.callback_number ??
@@ -103,12 +100,11 @@ const statusColors = {
 const getStatusStyle = (status) => statusColors[status] || statusColors.New;
 
 // -------------------- Component --------------------
-const SearchTicketResults = ({ results, loading, inputValue, hasMore, loadMore, selectedTicket }) => {
-  const observerRef = useRef(null);
+const SearchTicketResults = ({ results, inputValue, hasMore, loadMore, selectedTicket }) => {
 
+  const observerRef = useRef(null);
   const lastElementRef = useCallback(
     (node) => {
-      if (loading) return;
       if (observerRef.current) observerRef.current.disconnect();
 
       observerRef.current = new IntersectionObserver((entries) => {
@@ -119,9 +115,10 @@ const SearchTicketResults = ({ results, loading, inputValue, hasMore, loadMore, 
 
       if (node) observerRef.current.observe(node);
     },
-    [loading, hasMore, loadMore]
+    [hasMore, loadMore]
   );
 
+  if(!results || results.length === 0) return <EmptyState />;
   return (
     <Box
       sx={{
@@ -278,15 +275,8 @@ const SearchTicketResults = ({ results, loading, inputValue, hasMore, loadMore, 
         );
       })}
 
-      {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
-          <CircularProgress size={24} />
-        </Box>
-      )}
+     
 
-      {!loading && results.length === 0 && (inputValue?.length ?? 0) >= 2 && (
-        <Typography sx={{ textAlign: 'center', mt: 2 }}>No results found.</Typography>
-      )}
     </Box>
   );
 };

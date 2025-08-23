@@ -15,12 +15,12 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { defaultLocationOptions } from '../../../utils/js/constants';
 //import MDVitaLocationSelect from '../../fields/mdvitaCenterSelect';
 
-import { searchTickets } from '../../../utils/apiTickets';
 import { useAgents } from '../../../context/agentsContext';
 import CallerIDAutoComplete from '../../fields/callerIDAutocomplete';
 import CollaboratorAutoComplete from '../../fields/collaboratorAutocomplete';
 import SearchTicketResults from './searchTicketsResults';
 import SearchButton from '../../auxiliars/searchButton';
+import { useTicketHandlers } from '../../../utils/js/ticketActions';
 
 dayjs.extend(customParseFormat);
 
@@ -113,6 +113,8 @@ const SearchTicketDeep = ({
   const { state } = useAgents();
   const agents = state.agents;
 
+  const { searchTicketsHandler } = useTicketHandlers();
+
   const buildFilter = useCallback(() => {
     const parts = [];
     if (startDate) parts.push(`createdAt ge ${dayjs(startDate).startOf('day').toISOString()}`);
@@ -162,8 +164,9 @@ const SearchTicketDeep = ({
           ...(filter ? { filter } : {})
         };
 
-        const res = await searchTickets(body);
-        const raw = res?.message?.value || [];
+        //const res = await searchTickets(body);
+        const res = await searchTicketsHandler(body);
+        const raw = res?.values || [];
 
         if(!res.success) {
           return { success: false, message: res.message || 'Error fetching tickets' };
@@ -185,6 +188,7 @@ const SearchTicketDeep = ({
         setLoading(false);
       }
     },
+    //eslint-disable-next-line
     [inputValue, buildFilter]
   );
 
@@ -349,7 +353,6 @@ const SearchTicketDeep = ({
 
         <SearchTicketResults
           results={results}
-          loading={loading}
           inputValue={inputValue}
           hasMore={hasMore}
           loadMore={() => { const nextPage = page + 1; setPage(nextPage); }}

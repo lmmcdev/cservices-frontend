@@ -10,7 +10,8 @@ import {
   updateCallbackNumber,
   assignAgent,
   //updateCenter,
-  relateTicketsByPhone
+  relateTicketsByPhone,
+  searchTickets
 } from '../apiTickets';
 
 import { useTicketActionRunner } from '../../components/hooks/useTicketActionRunner';
@@ -229,6 +230,16 @@ export function useTicketHandlers() {
     return res;
   }, [run]);
 
+  const searchTicketsHandler = useCallback(async (query, filter, pageNumber, PAGE_SIZE) => {
+        const res = await run({
+          fn: searchTickets,
+          args: [query, filter, pageNumber, PAGE_SIZE],
+          //actionType: 'UPD_PATIENT',
+          getUpdatedTicket: (res) => pickUpdatedTicket(res, 'ticket'),
+        });
+        return res;
+      }, [run]);
+
   return {
     handleStatusChange,
     handleAddNoteHandler,
@@ -241,5 +252,6 @@ export function useTicketHandlers() {
     updateCallbackNumberHandler,
     updateAssigneeHandler,
     relateTicketHandler,
+    searchTicketsHandler,
   };
 }

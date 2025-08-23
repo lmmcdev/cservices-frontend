@@ -383,11 +383,11 @@ export const searchTickets = async ({ query, page, size, filter }, accessToken) 
         const response = await fetch(url, {
         method: 'POST',
         body: JSON.stringify({
-      query,
-      page,
-      size,
-      ...(filter ? { filter } : {})
-    }),
+          query,
+          page,
+          size,
+          ...(filter ? { filter } : {})
+        }),
         });
         const data = await response.json();
 
@@ -395,7 +395,7 @@ export const searchTickets = async ({ query, page, size, filter }, accessToken) 
             return { success: false, message: data.error || 'Error fetching tickets' }; 
         }
         // Devuelve solo los datos
-        return { success: true, message: data || 'Updated successfully' };
+        return { success: true, message: 'Updated successfully', values: data.value || [] };
     } catch (err) {
         const message = err.message || 'Something went wrong';
         return { success: false, message };
