@@ -91,6 +91,12 @@ export default function CollapsibleDrawer({ agent }) {
       path: '/profile-search',
       allowedGroups: [GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS],
     },
+    {
+      icon: <icons.reports style={{ fontSize: 22 }} />,
+      label: 'Reports',
+      path: '/reports',
+      allowedGroups: [GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS],
+    },
   ]), []);
 
   // 🧮 Filtrado final por grupos del usuario
