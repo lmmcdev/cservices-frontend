@@ -1,5 +1,5 @@
 // src/components/sideBar.jsx
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, lazy, Suspense } from 'react';
 import {
   Drawer,
   List,
@@ -13,17 +13,19 @@ import {
 } from '@mui/material';
 import { icons } from '../auxiliars/icons';
 import ProfilePic from '../auxiliars/tickets/profilePic';
-import SettingsDialog from '../dialogs/settingsDialog';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-// ⬇️ Ajusta estas rutas si difieren en tu proyecto
 import { useAuth } from '../../context/authContext';
 import { GROUP_IDS } from '../../utils/js/constants';
 
 import { useMsal } from '@azure/msal-react';
 import UserAvatarMenu from '../userAvatarMenu';
 
-//const [user] = useAuth() || {};
+// ✅ Carga perezosa del SettingsDialog (ruta y case correctos)
+const LazySettingsDialog = lazy(() => import('../dialogs/settingsDialog'));
+// (opcional) precarga para abrir más rápido
+const preloadSettingsDialog = () => import('../dialogs/settingsDialog');
+
 const drawerWidthOpen = 200;
 const drawerWidthClosed = 80;
 
@@ -41,9 +43,8 @@ export default function CollapsibleDrawer({ agent }) {
   useEffect(() => {
     const root = document.documentElement;
     root.style.setProperty('--drawer-width', open ? '200px' : '80px');
-    root.style.setProperty('--content-gap', '39px'); // 👈 gap unificado
+    root.style.setProperty('--content-gap', '39px'); // gap unificado
   }, [open]);
-
 
   const { instance } = useMsal();
 
@@ -53,15 +54,11 @@ export default function CollapsibleDrawer({ agent }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  //del authContext
+  // del authContext
   const { user = {} } = useAuth() || {};
   const groups = useMemo(() => user?.idTokenClaims?.groups || [], [user]);
 
-  // 🎯 Definición del menú + control de acceso por grupos AAD
-  //    - Dashboard (/statistics): solo Supervisores
-  //    - Call Logs (/dashboard): Agents, Supervisors y Remote
-  //    - Team (/agents): solo Supervisores
-  //    - Find (/profile-search): solo Supervisores
+  // 🎯 Menú + control de acceso por grupos AAD
   const navItems = useMemo(() => ([
     {
       icon: <icons.dashboard style={{ fontSize: 22 }} />,
@@ -108,26 +105,15 @@ export default function CollapsibleDrawer({ agent }) {
   const handleListItemClick = (path) => navigate(path);
   const toggleOpen = () => setOpen(prev => !prev);
 
-  /*const handleOpenSettings = (e) => {
-    e?.stopPropagation?.();
-    setOpenSettings(true);
-  };*/
-
+  // abrir settings (monta el diálogo SOLO cuando se abre)
   const handleOpenSettingsFromMenu = () => {
-    setOpenSettings(true);
+    preloadSettingsDialog().finally(() => setOpenSettings(true));
   };
 
   const handleLogout = () => {
     instance.logoutRedirect({ postLogoutRedirectUri: '/' })
       .catch(e => console.error('Logout failed:', e));
   };
-
-  /*const handleKeyActivate = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleOpenSettings(e);
-    }
-  };*/
 
   return (
     <>
@@ -137,20 +123,20 @@ export default function CollapsibleDrawer({ agent }) {
           width: open ? drawerWidthOpen : drawerWidthClosed,
           flexShrink: 0,
           '& .MuiDrawer-paper': {
-          width: open ? drawerWidthOpen : drawerWidthClosed,
-          boxSizing: 'border-box',
-          transition: 'width 0.3s ease',
-          overflowX: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: open ? 'flex-start' : 'center',
-          paddingTop: 2,
-          paddingLeft: open ? 2 : 0,
-          paddingRight: 0,
-          borderRight: 'none',                                   
-          boxShadow: '8px 0 24px rgba(239, 241, 246, 1)',        
-          backgroundColor: '#fff',                               
-        }
+            width: open ? drawerWidthOpen : drawerWidthClosed,
+            boxSizing: 'border-box',
+            transition: 'width 0.3s ease',
+            overflowX: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: open ? 'flex-start' : 'center',
+            paddingTop: 2,
+            paddingLeft: open ? 2 : 0,
+            paddingRight: 0,
+            borderRight: 'none',
+            boxShadow: '8px 0 24px rgba(239, 241, 246, 1)',
+            backgroundColor: '#fff',
+          }
         }}
       >
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -270,7 +256,7 @@ export default function CollapsibleDrawer({ agent }) {
                         e.preventDefault();
                         handleAvatarClick(e);
                       }
-                    }}  
+                    }}
                     tabIndex={0}
                     role="button"
                     aria-label="Open account menu"
@@ -298,7 +284,17 @@ export default function CollapsibleDrawer({ agent }) {
           </Box>
         </Box>
       </Drawer>
-      <SettingsDialog open={openSettings} onClose={() => setOpenSettings(false)} agent={agent} />
+
+      {/* ✅ Montar el diálogo solo cuando openSettings === true */}
+      {openSettings && (
+        <Suspense fallback={null /* puedes poner un loader si quieres */}>
+          <LazySettingsDialog
+            open
+            onClose={() => setOpenSettings(false)}
+            agent={agent}
+          />
+        </Suspense>
+      )}
 
       <UserAvatarMenu
         anchorEl={menuAnchor}

@@ -1,5 +1,5 @@
 // src/components/dialogs/SettingsDialog.jsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, memo } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, FormGroup, Select, MenuItem, Stack,
   Typography, Box, List, ListItemButton, ListItemIcon, ListItemText, Divider,
@@ -65,7 +65,7 @@ const SettingsDialog = ({ open, onClose, agent }) => {
   const { settings, setSettings, resetSettings } = useSettings();
   const [tab, setTab] = useState('general');
   const [showSaved, setShowSaved] = useState(false);
-  //console.log(agent)
+  console.log("Rendering SettingsDialog")
 
   // 👇 hook de registro push con manejo de errores/mejoras
   const { doRegister, doUnregister, loading, toast, setToast } = usePushRegistration();
@@ -444,4 +444,4 @@ const SettingsDialog = ({ open, onClose, agent }) => {
   );
 };
 
-export default SettingsDialog;
+export default memo(SettingsDialog);
