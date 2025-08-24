@@ -20,7 +20,8 @@ export function filterTickets(rows, { status, agents, callers, date, departments
     const byStatus = status === 'Total' || r.status === status;
     const byAgent  = !agents?.length || agents.includes(r.agent_assigned);
     const byCaller = !callers?.length || callers.includes(r.caller_id || r.caller_id?.toString());
-    const dateRoot = normalizeTicketDate(r.creation_date?.split(',')[0]).replaceAll('/', '-');
+    //const dateRoot = normalizeTicketDate(r.creation_date?.split(',')[0]).replaceAll('/', '-');
+    const dateRoot = r.creation_date;
     const byDate   = !date || date === dateRoot;
     const byDept   = !departments?.length || departments.includes(r.assigned_department);
     return byStatus && byAgent && byCaller && byDate && byDept;

@@ -5,30 +5,12 @@ import { useTickets } from '../context/ticketsContext.js';
 import { Box, Card, CardContent, TablePagination } from '@mui/material';
 import AssignAgentModal from '../components/dialogs/assignAgentDialog';
 import { useNavigate } from 'react-router-dom';
-import { useFilters } from '../context/filterContext.js';
 import StatusFilterBoxes from '../components/auxiliars/statusFilterBoxes.jsx';
-import {
-  filterTickets,
-  sortByCreatedAt,
-  paginate,
-} from '../utils/tickets/selectors.js';
 import TicketsTable from './tableTickets/ticketsTable.jsx';
 import { useTicketsData } from '../components/hooks/useTicketsData.js';
-
-// <-- helper local (puedes moverlo a selectors.js si quieres reutilizarlo)
-const KNOWN_STATUSES = ['New', 'Emergency', 'In Progress', 'Pending', 'Done', 'Duplicated'];
-function countByStatus(rows = []) {
-  const acc = Object.fromEntries(KNOWN_STATUSES.map(s => [s, 0]));
-  for (const r of rows) {
-    const s = r?.status;
-    if (acc.hasOwnProperty(s)) acc[s] += 1;
-  }
-  acc.Total = rows.length;
-  return acc;
-}
+import { useFilteredTickets } from '../components/hooks/useFilteredTickets.js';
 
 export default function TableTickets() {
-  const { filters } = useFilters();
   const { dispatch } = useTickets();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -47,45 +29,19 @@ export default function TableTickets() {
     status: 110, callerId: 120, name: 160, dob: 120, phone: 130, createdAt: 160, assignedTo: 160
   }), []);
 
-  // 1) Base filtrada por TODO excepto status -> sirve para los contadores
-  const baseRows = useMemo(() => (
-    filterTickets(tickets, {
-      status: 'Total', // <-- sin filtro de estado
-      agents: filters.assignedAgents,
-      callers: filters.callerIds,
-      date: filters.date,
-      departments: filters.assignedDepartment
-    })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  ), [ticketsVersion, tickets, filters]);
-
-  // 2) Filtrado final para la tabla (incluye selectedStatus)
-  const filteredRows = useMemo(() => (
-    filterTickets(tickets, {
-      status: selectedStatus,
-      agents: filters.assignedAgents,
-      callers: filters.callerIds,
-      date: filters.date,
-      departments: filters.assignedDepartment
-    })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  ), [ticketsVersion, tickets, selectedStatus, filters]);
-
-  const sortedRows = useMemo(
-    () => sortByCreatedAt(filteredRows, sortDirection),
-    [filteredRows, sortDirection]
-  );
-
-  const paginatedRows = useMemo(
-    () => paginate(sortedRows, page, rowsPerPage),
-    [sortedRows, page, rowsPerPage]
-  );
-
-  // 3) Contadores dinámicos basados en baseRows
-  const ticketsCountByStatus = useMemo(
-    () => countByStatus(baseRows),
-    [baseRows]
-  );
+  // llamamos al hook
+  const {
+    filteredRows,
+    paginatedRows,
+    ticketsCountByStatus,
+  } = useFilteredTickets({
+    tickets,
+    ticketsVersion,
+    selectedStatus,
+    sortDirection,
+    page,
+    rowsPerPage,
+  });
 
   const handleChangePage = (_e, newPage) => setPage(newPage);
   const handleChangeRowsPerPage = (e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); };
@@ -125,7 +81,7 @@ export default function TableTickets() {
             <StatusFilterBoxes
               selectedStatus={selectedStatus}
               setSelectedStatus={setSelectedStatus}
-              ticketsCountByStatus={ticketsCountByStatus} // <-- ahora dinámico
+              ticketsCountByStatus={ticketsCountByStatus}
             />
           </Box>
 

@@ -9,13 +9,15 @@ const SignalRContext = createContext();
 
 export function SignalRProvider({ children }) {
   const connectionRef = useRef(null);
-  const subscribedGroupsRef = useRef(new Set()); // grupos suscritos (para re-suscribir en reconexión)
+  const subscribedGroupsRef = useRef(new Set());
+
+  const // 👇 cache para dedupe
+        lastFingerprintRef = useRef(new Map());
 
   const ticketsDispatch = useTicketsDispatch();
   const dailyStatsDispatch = useDailyStatsDispatch();
   const { user, department } = useAuth();
 
-  // ---- helper HTTP POST JSON ----
   const postJSON = useCallback(async (url, body) => {
     const res = await fetch(url, {
       method: 'POST',
@@ -29,7 +31,6 @@ export function SignalRProvider({ children }) {
     return res.json();
   }, []);
 
-  // ---- suscribir a grupos (vía tu función /signalr/group) ----
   const joinGroups = useCallback(
     async (...groups) => {
       const userId = user?.username;
@@ -53,73 +54,84 @@ export function SignalRProvider({ children }) {
     [user?.username, postJSON]
   );
 
-  // ---- inicializar y escuchar SOLO eventos por grupos ----
+  // 🔍 qué consideras “cambió” para la tabla
+  const ticketFingerprint = useCallback((t) => {
+    if (!t) return '';
+    return JSON.stringify({
+      id: t.id,
+      status: t.status,
+      agent_assigned: t.agent_assigned,
+      assigned_department: t.assigned_department,
+      quality_control: t.quality_control,
+      qc_status: t.qc?.status ?? null,
+      // si existe timestamp/etag, úsalo para acelerar el short-circuit:
+      _ts: t._ts ?? null,
+      updatedAt: t.qc?.updatedAt ?? t.updatedAt ?? t.creation_date ?? null,
+    });
+  }, []);
+
+  const shouldDispatch = useCallback((t) => {
+    if (!t?.id) return false;
+    const fp = ticketFingerprint(t);
+    const prev = lastFingerprintRef.current.get(t.id);
+    if (prev === fp) return false;
+    lastFingerprintRef.current.set(t.id, fp);
+    return true;
+  }, [ticketFingerprint]);
+
   const initializeSignalR = useCallback(
     async (handlers = {}) => {
       if (connectionRef.current || !user?.username) return;
 
-      // 1) negotiate (vía POST body { userId })
       const { url, accessToken } = await postJSON(
         `${ENDPOINT_URLS.SIGNALRGROUPS}/negotiate`,
         { userId: user.username }
       );
 
-      // 2) construir conexión
       const connection = new signalR.HubConnectionBuilder()
         .withUrl(url, { accessTokenFactory: () => accessToken })
         .withAutomaticReconnect()
         .build();
 
-      // 3) REGISTRO DE EVENTOS (solo los de grupos)
       connection.on('ticketCreated', (ticket) => {
         if (!ticket) return;
-        console.log('Creted ticket', ticket)
-        // si quieres filtrar por depto en el cliente:
-        //if (!department || ticket.assigned_department === department) {
-          ticketsDispatch({ type: 'ADD_TICKET', payload: ticket });
-        //}
+        // Evita ADD si ya conoces ese exacto snapshot
+        if (!shouldDispatch(ticket)) return;
+        ticketsDispatch({ type: 'ADD_TICKET', payload: ticket });
         handlers.onTicketCreated?.(ticket);
       });
 
       connection.on('ticketUpdated', (ticket) => {
         if (!ticket) return;
+        // Evita UPD si es idéntico a lo último recibido
+        if (!shouldDispatch(ticket)) return;
         ticketsDispatch({ type: 'UPD_TICKET', payload: ticket });
         handlers.onTicketUpdated?.(ticket);
       });
 
       connection.on('dailyStats', (data) => {
         if (!data) return;
-        console.log('Daily stats received', data);
         dailyStatsDispatch({ type: 'SET_DAILY_STATS', payload: data });
         handlers.onDailyStats?.(data);
       });
 
-      // 4) conectar
       await connection.start();
       connectionRef.current = connection;
-      console.log('✅ SignalR conectado');
 
-      // 5) suscripciones base (usuario + departamento)
       const baseGroups = [
         user.username,
-        //department ? `department:${department}` : null,
         department ? `department:Referrals` : null,
       ];
       await joinGroups(...baseGroups);
 
-      // 6) re-suscribir al reconectar
       connection.onreconnected(async () => {
         const again = Array.from(subscribedGroupsRef.current);
-        if (again.length) {
-          await joinGroups(...again);
-          console.log('🔁 Re-suscrito a grupos tras reconexión:', again);
-        }
+        if (again.length) await joinGroups(...again);
       });
     },
-    [user?.username, department, postJSON, joinGroups, ticketsDispatch, dailyStatsDispatch]
+    [user?.username, department, postJSON, joinGroups, ticketsDispatch, dailyStatsDispatch, shouldDispatch]
   );
 
-  // ---- enviar a un grupo (opcional, útil para pruebas/admin) ----
   const sendToGroup = useCallback(
     async (groupName, target, payload) => {
       return postJSON(`${ENDPOINT_URLS.SIGNALRGROUPS}/signalr/send-group`, {
@@ -131,11 +143,11 @@ export function SignalRProvider({ children }) {
     [postJSON]
   );
 
-  // ---- desconectar ----
   const disconnect = useCallback(async () => {
     const conn = connectionRef.current;
     connectionRef.current = null;
     subscribedGroupsRef.current.clear();
+    lastFingerprintRef.current.clear(); // limpia dedupe cache
     if (conn) {
       try { await conn.stop(); } catch {}
     }

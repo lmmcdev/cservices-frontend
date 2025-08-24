@@ -9,14 +9,14 @@ import { icons } from '../auxiliars/icons';
 import { useTicketHandlers } from "../../utils/js/ticketActions";
 
 const AssignAgentModal = ({ open, onClose, ticket, agentEmail }) => {
-  const {updateAssigneeHandler} = useTicketHandlers();
+  const {updateAssigneeHandler, handleStatusChange} = useTicketHandlers();
 
   const handleAssign = async () => {
     try {
       const ticketId = ticket.id;
       const result = await updateAssigneeHandler({ ticketId, selectedAgent: agentEmail });
       if (result.success) {
-        await changeStatus(ticket.id, 'In Progress') //cambiar status a in progress
+        await handleStatusChange({ ticketId, newStatus: 'In Progress' }); //cambiar status a in progress
         onClose();
       }
       
