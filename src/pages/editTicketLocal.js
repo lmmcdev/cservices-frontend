@@ -1,7 +1,7 @@
 import React, { lazy, Suspense, useState, useCallback, useMemo, memo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  Box, Typography, Grid, Card, CardContent, TextField, IconButton, Backdrop, CircularProgress
+  Box, Typography, Grid, Card, CardContent, TextField, IconButton, Backdrop, CircularProgress, Button
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -13,8 +13,8 @@ import TicketCollaborators from '../components/auxiliars/tickets/ticketCollabora
 import TicketAudio from '../components/auxiliars/tickets/ticketAudio.jsx';
 import TicketAssignee from '../components/auxiliars/tickets/ticketAssignee.jsx';
 import Tooltip from '@mui/material/Tooltip';
-import { useTicketWorkTimer } from '../components/hooks/useWorkTimer.jsx';
-import TicketWorkTime from '../components/auxiliars/tickets/ticketWorkTime.js';
+//import { useTicketWorkTimer } from '../components/hooks/useWorkTimer.jsx';
+//import TicketWorkTime from '../components/auxiliars/tickets/ticketWorkTime.js';
 import { useAgents } from '../context/agentsContext';
 import { useAuth } from '../context/authContext';
 import { useTickets } from '../context/ticketsContext.js';
@@ -32,7 +32,7 @@ const TicketNotesMemo = memo(TicketNotes);
 const TicketCollaboratorsMemo = memo(TicketCollaborators);
 const TicketAudioMemo = memo(TicketAudio);
 const TicketAssigneeMemo = memo(TicketAssignee);
-const TicketWorkTimeMemo = memo(TicketWorkTime);
+//const TicketWorkTimeMemo = memo(TicketWorkTime);
 const TicketIndicatorsMemo = memo(TicketIndicators);
 
 const AddNoteDialog          = lazy(() => import('../components/dialogs/addNotesDialog'));
@@ -64,6 +64,7 @@ export default function EditTicketLocal() {
   const [collaborators, setCollaborators] = useState(ticket?.collaborators || []);
   const [patientName, setPatientName] = useState(ticket?.patient_name || '');
   const [linked_patient_snapshot, setLinkedPatientSnapshot] = useState(ticket?.linked_patient_snapshot ?? null);
+  const [aiClassification, setAiClassification] = useState(ticket?.aiClassification ?? '');
 
   const [patientDob, setPatientDob] = useState(toInputDate(ticket?.patient_dob));
   const [callbakNumber, setCallbackNumber] = useState(ticket?.callback_number || '');
@@ -87,17 +88,18 @@ export default function EditTicketLocal() {
   const [pendingPatient, setPendingPatient] = useState(null);
   const [openPatientDialog, setOpenPatientDialog] = useState(false);
 
-  const { flushNow } = useTicketWorkTimer({
+  /*const { flushNow } = useTicketWorkTimer({
     ticketId: ticket.id,
     statusProvider: () => status,
     sendIntervalMs: 60000,
     includeAgentEmail: false,
-  });
+  });*/
 
   const handleClose = async () => {
-    await flushNow('manual');
+    //await flushNow('manual');
     navigate(-1);
   };
+
 
   const openNoteDialogCb = useCallback(() => setOpenNoteDialog(true), []);
   const closeNoteDialogCb = useCallback(() => setOpenNoteDialog(false), []);
@@ -115,11 +117,11 @@ export default function EditTicketLocal() {
   const onAddNoteCb = openNoteDialogCb;
 
   const {
-    handleStatusChangeUI, handleAddNote, onAddCollaboratorCb, handleRemoveCollaborator, handleChangeDepartment, updatePatientNameUI, updatePatientDobUI, updateCallbackNumberUI, ticketAssigneeUI,
+    handleStatusChangeUI, handleAiClassificationChangeUI, handleAddNote, onAddCollaboratorCb, handleRemoveCollaborator, handleChangeDepartment, updatePatientNameUI, updatePatientDobUI, updateCallbackNumberUI, ticketAssigneeUI,
     handleRelateCurrentTicket, handleRelateAllPastTickets, handleRelateFutureTickets, handleUnlinkTicket,
   } = useEditTicketLocalActions({
-    dispatch, setLoading, ticketId, agentEmail, navigate, setStatus, setNotes, setNoteContent, setOpenNoteDialog, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
-    collaborators, setCollaborators, setEditField, setAgentAssigned, setLinkedPatientSnapshot, noteContent,
+    dispatch, setLoading, ticketId, agentEmail, navigate, setStatus,setNotes, setNoteContent, setOpenNoteDialog, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
+    collaborators, setCollaborators, setEditField, setAgentAssigned, setLinkedPatientSnapshot, noteContent, setAiClassification
   });
 
   const {
@@ -135,7 +137,7 @@ export default function EditTicketLocal() {
   const onRelateFuture  = useCallback(() => handleModalTicket('relateFuture'),   [handleModalTicket]);
 
   const indicatorsData = useMemo(() => ticket?.aiClassification, [ticket?.aiClassification]);
-  const workTimeData   = useMemo(() => ticket?.work_time,        [ticket?.work_time]);
+  //const workTimeData   = useMemo(() => ticket?.work_time,        [ticket?.work_time]);
   const audioUrl       = useMemo(() => ticket?.url_audio,        [ticket?.url_audio]);
   const notesStable         = useMemo(() => notes,         [notes]);
   const collaboratorsStable = useMemo(() => collaborators, [collaborators]);
@@ -462,6 +464,12 @@ export default function EditTicketLocal() {
                           Call Information
                         </Typography>
                       </Box>
+                      <Button onClick={async () => {
+                                await handleAiClassificationChangeUI({aiClassification});
+                                setEditField(null);
+                              }} variant="outlined" size="small" sx={{ textTransform: 'none' }}>
+                        <EditIcon fontSize="small" />
+                      </Button>
                       <TicketIndicatorsMemo ai_data={indicatorsData} showTooltip iconsOnly />
                     </Box>
 
@@ -527,7 +535,7 @@ export default function EditTicketLocal() {
                     </Typography>
                   </Box>
                   <Box sx={{ width: '100%', minWidth: '280px' }}>
-                    { <TicketWorkTimeMemo workTimeData={workTimeData} /> }
+                    {/* <TicketWorkTimeMemo workTimeData={workTimeData} /> */}
                   </Box>
                 </CardContent>
               </Card>

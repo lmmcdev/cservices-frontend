@@ -11,7 +11,8 @@ import {
   assignAgent,
   //updateCenter,
   relateTicketsByPhone,
-  searchTickets
+  searchTickets,
+  updateAiClassification
 } from '../apiTickets';
 
 import { useTicketActionRunner } from '../../components/hooks/useTicketActionRunner';
@@ -163,6 +164,18 @@ export function useTicketHandlers() {
     });
   }, [run]);
 
+  // -------- AI Classification --------
+  const updateAIClassificationHandler = useCallback(async ({
+    ticketId,
+    aiClassification,
+  }) => {
+    return run({
+      fn: updateAiClassification,
+      args: [ticketId, { aiClassification }],
+      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, aiClassification }),
+    });
+  }, [run]);
+
 
   // -------- Patient DOB --------
   const updatePatientDobHandler = useCallback(async ({
@@ -253,5 +266,6 @@ export function useTicketHandlers() {
     updateAssigneeHandler,
     relateTicketHandler,
     searchTicketsHandler,
+    updateAIClassificationHandler,
   };
 }
