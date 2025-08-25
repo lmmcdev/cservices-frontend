@@ -447,31 +447,38 @@ export default function EditTicketLocal() {
               <Box display="flex" flexDirection="column" gap={2} sx={{ width: { xs: '100%', md: '540px' }, minWidth: 0 }}>
                 <Card variant="outlined">
                   <CardContent sx={{ p: '20px 25px 25px 30px' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box
-                          sx={{
-                            width: 8,
-                            height: 24,
-                            borderRadius: 10,
-                            backgroundColor: getStatusColor(status, 'text') || '#00a1ff',
-                          }}
-                        />
-                        <Typography
-                          variant="h6"
-                          sx={{ fontWeight: 'bold', color: getStatusColor(status, 'text') || '#00a1ff' }}
-                        >
-                          Call Information
-                        </Typography>
-                      </Box>
-                      <TicketIndicatorsMemo
-                        ai_data={indicatorsData}
-                        ticketId={ticket.id}
-                        editable
-                        showTooltip
-                        onSaveAiClassification={handleAiClassificationChangeUI}
+                    <Box sx={{ mb: 2 }}>                    
+                    {/* Encabezado "Call Information" — alineado a la izquierda */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box
+                        sx={{
+                          width: 8,
+                          height: 24,
+                          borderRadius: 10,
+                          backgroundColor: getStatusColor(status, 'text') || '#00a1ff',
+                        }}
                       />
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: 'bold', color: getStatusColor(status, 'text') || '#00a1ff' }}
+                      >
+                        Call Information
+                      </Typography>
                     </Box>
+                    {/* Indicadores — alineados a la derecha */}
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+                      <Box sx={{ width: { xs: '100%', md: 'auto' }, maxWidth: 520 }}>
+                        <TicketIndicatorsMemo
+                          ai_data={indicatorsData}
+                          ticketId={ticket.id}
+                          editable
+                          showTooltip
+                          onSaveAiClassification={handleAiClassificationChangeUI}
+                          iconsOnly={false}
+                        />
+                      </Box>
+                    </Box>
+                  </Box>
 
                     <Typography sx={{ mb: 2.5 }}>
                       <strong>Caller ID:</strong><br /> {ticket.caller_id}

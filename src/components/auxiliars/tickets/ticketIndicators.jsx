@@ -1,7 +1,8 @@
 // src/components/auxiliars/tickets/ticketIndicators.jsx
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import {
-  Typography, Box, Tooltip, IconButton, Stack, Select, MenuItem, Button
+  Typography, Box, Tooltip, IconButton, Stack, Select, MenuItem, Button,
+  Divider
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -181,11 +182,9 @@ export function TicketIndicators({
         {showTooltip ? (
           <Tooltip title={`Priority: ${isEditing ? form.priority : (ai_data?.priority || '')}`}>{priorityIcon}</Tooltip>
         ) : priorityIcon}
-        {!iconsOnly && !isEditing && (
-          <Typography variant="body2"><strong>Priority:</strong> {ai_data?.priority || '—'}</Typography>
-        )}
+        
         {!iconsOnly && isEditing && (
-          <Select size="small" value={form.priority} onChange={handleChange('priority')} sx={{ minWidth: 140, borderRadius: 2 }}>
+          <Select size="small" value={form.priority} onChange={handleChange('priority')} sx={{ minWidth: 100, borderRadius: 2, fontSize: 10  }}>
             {PRIORITY_OPTS.map(v => <MenuItem key={v} value={v}>{v}</MenuItem>)}
           </Select>
         )}
@@ -197,11 +196,9 @@ export function TicketIndicators({
           {showTooltip ? (
             <Tooltip title={`Risk: ${isEditing ? form.risk : (ai_data?.risk || '')}`}>{riskIcon}</Tooltip>
           ) : riskIcon}
-          {!iconsOnly && !isEditing && (
-            <Typography variant="body2"><strong>Risk:</strong> {ai_data?.risk || '—'}</Typography>
-          )}
+          
           {!iconsOnly && isEditing && (
-            <Select size="small" value={form.risk} onChange={handleChange('risk')} sx={{ minWidth: 160, borderRadius: 2 }}>
+            <Select size="small" value={form.risk} onChange={handleChange('risk')} sx={{ minWidth: 100, borderRadius: 2, fontSize: 10 }}>
               {RISK_OPTS.map(v => <MenuItem key={v} value={v}>{v}</MenuItem>)}
             </Select>
           )}
@@ -213,17 +210,15 @@ export function TicketIndicators({
         {showTooltip ? (
           <Tooltip title={`Category: ${isEditing ? form.category : (ai_data?.category || '')}`}>{categoryIcon}</Tooltip>
         ) : categoryIcon}
-        {!iconsOnly && !isEditing && (
-          <Typography variant="body2"><strong>Category:</strong> {ai_data?.category || '—'}</Typography>
-        )}
+
         {!iconsOnly && isEditing && (
-          <Select size="small" value={form.category} onChange={handleChange('category')} sx={{ minWidth: 200, borderRadius: 2 }}>
+          <Select size="small" value={form.category} onChange={handleChange('category')} sx={{ minWidth: 100, borderRadius: 2, fontSize: 10  }}>
             {CATEGORY_OPTS.map(v => <MenuItem key={v} value={v}>{v}</MenuItem>)}
           </Select>
         )}
       </Box>
 
-      {canEdit && isEditing && (
+      {/*canEdit && isEditing && (
         <Stack direction="row" spacing={1} sx={{ ml: columnLayout ? 0 : 1 }}>
           <Button size="small" variant="contained" onClick={handleSave} startIcon={<SaveIcon />} disabled={saving || !hasChanges}>
             Save
@@ -232,7 +227,7 @@ export function TicketIndicators({
             Cancel
           </Button>
         </Stack>
-      )}
+      )*/}
     </Box>
   );
 }
