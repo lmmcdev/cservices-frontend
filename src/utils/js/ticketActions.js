@@ -50,6 +50,21 @@ export function useTicketHandlers() {
   }, [run]);
 
 
+  // -------- AI Classification --------
+  const updateAIClassificationHandler = useCallback(async ({
+    ticketId,
+    aiClassification,
+    setAiClassification, // opcional: si quieres también setear estado local en el componente
+  }) => {
+    return run({
+      fn: updateAiClassification,
+      args: [ticketId, { aiClassification }],
+      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, aiClassification }),
+      onSuccess: () => setAiClassification?.({aiClassification}),
+    });
+  }, [run]);
+
+
   // -------- Notas --------
   const handleAddNoteHandler = useCallback(async ({
     ticketId,
@@ -164,17 +179,7 @@ export function useTicketHandlers() {
     });
   }, [run]);
 
-  // -------- AI Classification --------
-  const updateAIClassificationHandler = useCallback(async ({
-    ticketId,
-    aiClassification,
-  }) => {
-    return run({
-      fn: updateAiClassification,
-      args: [ticketId, { aiClassification }],
-      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, aiClassification }),
-    });
-  }, [run]);
+  
 
 
   // -------- Patient DOB --------

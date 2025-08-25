@@ -1,7 +1,7 @@
 import React, { lazy, Suspense, useState, useCallback, useMemo, memo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-  Box, Typography, Grid, Card, CardContent, TextField, IconButton, Backdrop, CircularProgress, Button
+  Box, Typography, Grid, Card, CardContent, TextField, IconButton, Backdrop, CircularProgress
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -64,7 +64,7 @@ export default function EditTicketLocal() {
   const [collaborators, setCollaborators] = useState(ticket?.collaborators || []);
   const [patientName, setPatientName] = useState(ticket?.patient_name || '');
   const [linked_patient_snapshot, setLinkedPatientSnapshot] = useState(ticket?.linked_patient_snapshot ?? null);
-  const [aiClassification, setAiClassification] = useState(ticket?.aiClassification ?? '');
+  const [indicatorsData, setAiClassification] = useState(ticket?.aiClassification || {});
 
   const [patientDob, setPatientDob] = useState(toInputDate(ticket?.patient_dob));
   const [callbakNumber, setCallbackNumber] = useState(ticket?.callback_number || '');
@@ -136,7 +136,7 @@ export default function EditTicketLocal() {
   const onRelatePast    = useCallback(() => handleModalTicket('relateAllPast'), [handleModalTicket]);
   const onRelateFuture  = useCallback(() => handleModalTicket('relateFuture'),   [handleModalTicket]);
 
-  const indicatorsData = useMemo(() => ticket?.aiClassification, [ticket?.aiClassification]);
+  //const indicatorsData = useMemo(() => ticket?.aiClassification, [ticket?.aiClassification]);
   //const workTimeData   = useMemo(() => ticket?.work_time,        [ticket?.work_time]);
   const audioUrl       = useMemo(() => ticket?.url_audio,        [ticket?.url_audio]);
   const notesStable         = useMemo(() => notes,         [notes]);
@@ -464,13 +464,13 @@ export default function EditTicketLocal() {
                           Call Information
                         </Typography>
                       </Box>
-                      <Button onClick={async () => {
-                                await handleAiClassificationChangeUI({aiClassification});
-                                setEditField(null);
-                              }} variant="outlined" size="small" sx={{ textTransform: 'none' }}>
-                        <EditIcon fontSize="small" />
-                      </Button>
-                      <TicketIndicatorsMemo ai_data={indicatorsData} showTooltip iconsOnly />
+                      <TicketIndicatorsMemo
+                        ai_data={indicatorsData}
+                        ticketId={ticket.id}
+                        editable
+                        showTooltip
+                        onSaveAiClassification={handleAiClassificationChangeUI}
+                      />
                     </Box>
 
                     <Typography sx={{ mb: 2.5 }}>

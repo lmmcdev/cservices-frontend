@@ -21,6 +21,7 @@ export function useEditTicketLocalActions({
   setEditField,
   setAgentAssigned,
   setLinkedPatientSnapshot,
+  setAiClassification,
 
   // valores locales
   collaborators,
@@ -52,14 +53,19 @@ export function useEditTicketLocalActions({
   }, [handleStatusChange, ticketId, setStatus]);
 
   // ---- STATUS ----
-  const handleAiClassificationChangeUI = useCallback(async ({aiClassification}) => {
+  const handleAiClassificationChangeUI = useCallback(async (ticketId, aiClassification) => {
     console.log(aiClassification, 'AI Classification');
-    await updateAIClassificationHandler({
+    const res =await updateAIClassificationHandler({
       ticketId,
       aiClassification: aiClassification,
+      setAiClassification
     });
-    //if (res?.success) setIfChanged(setStatus, newStatus);
-  }, [updateAIClassificationHandler, ticketId]);
+    if (res?.success) {
+      setIfChanged(setAiClassification, aiClassification, (a, b) => JSON.stringify(a) === JSON.stringify(b));
+      console.log('Success, actualizando estado');
+    }
+    setEditField?.(null);
+  }, [updateAIClassificationHandler, ticketId, setAiClassification]);
 
   // ---- NOTAS ----
   const handleAddNote = useCallback(async () => {
