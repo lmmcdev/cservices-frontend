@@ -65,6 +65,7 @@ export function useEditTicketLocalActions({
       console.log('Success, actualizando estado');
     }
     setEditField?.(null);
+    //eslint-disable-next-line
   }, [updateAIClassificationHandler, ticketId, setAiClassification]);
 
   // ---- NOTAS ----
