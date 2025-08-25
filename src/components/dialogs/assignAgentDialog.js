@@ -3,7 +3,6 @@ import {
   Dialog, DialogContent, DialogActions, Box, Grid,
   Button, Typography, Card, DialogTitle
 } from "@mui/material";
-import { changeStatus } from "../../utils/apiTickets";
 import ProfilePic from "../auxiliars/tickets/profilePic";
 import { icons } from '../auxiliars/icons';
 import { useTicketHandlers } from "../../utils/js/ticketActions";
