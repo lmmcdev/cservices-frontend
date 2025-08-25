@@ -1,8 +1,7 @@
 // src/components/auxiliars/tickets/ticketIndicators.jsx
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import {
-  Typography, Box, Tooltip, IconButton, Stack, Select, MenuItem, Button,
-  Divider
+  Box, Tooltip, IconButton, Stack, Select, MenuItem
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
@@ -10,61 +9,13 @@ import CloseIcon from '@mui/icons-material/Close';
 
 import FlagIcon from '@mui/icons-material/Flag';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
-import DepartureBoardIcon from '@mui/icons-material/DepartureBoard';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import ElderlyIcon from '@mui/icons-material/Elderly';
-import NoAccountsIcon from '@mui/icons-material/NoAccounts';
-import SupportAgentIcon from '@mui/icons-material/SupportAgent';
-import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
-import HelpIcon from '@mui/icons-material/Help';
-import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
+import { CATEGORY_OPTS, RISK_OPTS, PRIORITY_OPTS } from '../../../utils/js/constants';
+import { getCategoryIcon } from '../../../utils/js/ticketIndicatorGetCatIcon';
+import { getRiskColor } from '../../../utils/js/ticketIndicatorGetRiskColor';
+import { getPriorityColor } from '../../../utils/js/ticketIndicatorGetPriorColor';
 
-import { useNotification } from '../../../context/notificationsContext';
 
-// --- helpers de estilo
-export const getPriorityColor = (priority) => {
-  switch ((priority || '').toLowerCase()) {
-    case 'high': return '#d32f2f';
-    case 'medium': return '#fbc02d';
-    case 'low': return '#388e3c';
-    default: return '#bdbdbd';
-  }
-};
-export const getRiskColor = (risk) => {
-  switch ((risk || '').toLowerCase()) {
-    case 'none': return '#4caf50';
-    case 'legal': return '#ff9800';
-    case 'disenrollment': return '#f44336';
-    default: return '#bdbdbd';
-  }
-};
-export const getCategoryIcon = (category) => {
-  const cat = (category || '').toLowerCase();
-  switch (cat) {
-    case 'transport': return <DepartureBoardIcon fontSize="small" />;
-    case 'appointment': return <CalendarMonthIcon fontSize="small" />;
-    case 'new patient': return <ElderlyIcon fontSize="small" />;
-    case 'disenrollment': return <NoAccountsIcon fontSize="small" />;
-    case 'customer service': return <SupportAgentIcon fontSize="small" />;
-    case 'new address': return <AddLocationAltIcon fontSize="small" />;
-    case 'hospitalization': return <LocalHospitalIcon fontSize="small" />;
-    case 'others': return <HelpIcon fontSize="small" />;
-    default: return <HelpIcon fontSize="small" />;
-  }
-};
 
-const PRIORITY_OPTS = ['high', 'medium', 'low'];
-const RISK_OPTS = ['none', 'legal', 'disenrollment'];
-const CATEGORY_OPTS = [
-  'transport',
-  'appointment',
-  'new patient',
-  'disenrollment',
-  'customer service',
-  'new address',
-  'hospitalization',
-  'others',
-];
 
 /**
  * Props:
@@ -85,9 +36,7 @@ export function TicketIndicators({
   iconsOnly = false,
   columnLayout = false,
   onSaveAiClassification,   // <- usamos esta función
-  onUpdated,
 }) {
-  const { showNotification } = useNotification?.() || { showNotification: () => {} };
 
   const base = useMemo(() => ({
     priority: ai_data?.priority || 'medium',
@@ -96,7 +45,7 @@ export function TicketIndicators({
   }), [ai_data?.priority, ai_data?.risk, ai_data?.category]);
 
   const [isEditing, setIsEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [saving] = useState(false);
   const [form, setForm] = useState(base);
 
   useEffect(() => { if (!isEditing) setForm(base); }, [base, isEditing]);

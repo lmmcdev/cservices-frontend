@@ -48,3 +48,17 @@ export const defaultLocationOptions = [
         'WESTCHESTER',
         'Referrals', 'OTC', 'Pharmacy',
 ];
+
+export const CATEGORY_OPTS = [
+  'transport',
+  'appointment',
+  'new patient',
+  'disenrollment',
+  'customer service',
+  'new address',
+  'hospitalization',
+  'others',
+];
+
+export const RISK_OPTS = ['none', 'legal', 'disenrollment'];
+export const PRIORITY_OPTS = ['high', 'medium', 'low'];
