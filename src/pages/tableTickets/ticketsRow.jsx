@@ -8,6 +8,7 @@ import QCFlag from './qcflag.jsx';
 import { emailToFullName } from '../../utils/js/emailToFullName.js';
 import { formatPhone } from '../../utils/js/formatPhone.js';
 import DOBCell from './dobCell.jsx';
+import LocationCell from './locationCell.jsx';
 
 /** Re-render mínimo: ahora también vigilamos cambios de Name/DOB (snapshot o locales) */
 function areEqual(prev, next) {
@@ -56,9 +57,14 @@ const TicketsRow = React.memo(function TicketsRow({
         </Box>
       </TableCell>
 
-      <TableCell>{row.caller_id}</TableCell>
 
-      
+      <TableCell>
+        <LocationCell
+          snapshot={row.linked_patient_snapshot}
+          fallbackName={row.caller_id}
+          onOpenProfile={() => onOpenPatientProfile?.(row)}
+        />
+      </TableCell>
 
       <TableCell>
         <PatientCell

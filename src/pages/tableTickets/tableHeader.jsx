@@ -12,7 +12,7 @@ const TicketsTableHeader = React.memo(function TicketsTableHeader({
       </TableCell>
       <TableCell sx={{ width: 100, fontWeight: 'bold' }}>Flags</TableCell>
       <TableCell sx={{ width: columnWidths.callerId, minWidth: columnWidths.callerId, fontWeight: 'bold' }}>
-        Caller ID
+        Location
       </TableCell>
       <TableCell sx={{ width: columnWidths.name, minWidth: columnWidths.name, fontWeight: 'bold' }}>
         Name
