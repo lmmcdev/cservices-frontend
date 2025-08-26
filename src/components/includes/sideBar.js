@@ -21,12 +21,7 @@ import { GROUP_IDS } from '../../utils/js/constants';
 import { useMsal } from '@azure/msal-react';
 import UserAvatarMenu from '../userAvatarMenu';
 import DescriptionIcon from '@mui/icons-material/Description';
-import ManageSearchIcon from '@mui/icons-material/ManageSearch';
-import SearchOffIcon from '@mui/icons-material/SearchOff';
-import PageviewIcon from '@mui/icons-material/Pageview';
 import TravelExploreIcon from '@mui/icons-material/TravelExplore';
-import PersonSearchIcon from '@mui/icons-material/PersonSearch';
-
 
 // ✅ Carga perezosa del SettingsDialog (ruta y case correctos)
 const LazySettingsDialog = lazy(() => import('../dialogs/settingsDialog'));
