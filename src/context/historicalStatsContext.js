@@ -1,24 +1,26 @@
 import React, { createContext, useReducer, useContext } from 'react';
 import { dailyStatsReducer, initialDailyStatsState } from '../store/statsReducer';
-import { getDailyStats } from '../utils/apiStats';
-import { useLoading } from '../providers/loadingProvider';
+//import { getDailyStats } from '../utils/apiStats';
+import { useApiHandlers } from '../utils/js/apiActions';
 
 const HistoricalStatsContext = createContext();
 
 export const HistoricalStatsProvider = ({ children }) => {
   const [stateStats, dispatchStats ] = useReducer(dailyStatsReducer, initialDailyStatsState);
-  const { setLoading } = useLoading();
+  const { getDailyStatsHandler } = useApiHandlers();
 
   // 📅 Obtiene los datos diarios
   const fetchDailyStatistics = async (date) => {
 
     try {
-      const res = await getDailyStats(date);
+      const res = await getDailyStatsHandler(date);
+      //Esto debo hacerlo en el runner
       if (res.success) {
         dispatchStats({ type: 'SET_HISTORIC_DAILY_STATS', payload: res });
       } else {
         console.error('Error fetching historical daily stats:', res.message);
       }
+
     } catch (error) {
       console.error('Error fetching historical daily stats', error);
     }
@@ -26,11 +28,9 @@ export const HistoricalStatsProvider = ({ children }) => {
 
   // 🚀 NUEVA: Ejecuta ambas juntas
   const fetchAllHistoricalStats = async (date) => {
-    setLoading(true);
     await Promise.all([
       fetchDailyStatistics(date)
     ]);
-    setLoading(false);
   };
 
   return (
