@@ -20,6 +20,13 @@ import { GROUP_IDS } from '../../utils/js/constants';
 
 import { useMsal } from '@azure/msal-react';
 import UserAvatarMenu from '../userAvatarMenu';
+import DescriptionIcon from '@mui/icons-material/Description';
+import ManageSearchIcon from '@mui/icons-material/ManageSearch';
+import SearchOffIcon from '@mui/icons-material/SearchOff';
+import PageviewIcon from '@mui/icons-material/Pageview';
+import TravelExploreIcon from '@mui/icons-material/TravelExplore';
+import PersonSearchIcon from '@mui/icons-material/PersonSearch';
+
 
 // ✅ Carga perezosa del SettingsDialog (ruta y case correctos)
 const LazySettingsDialog = lazy(() => import('../dialogs/settingsDialog'));
@@ -61,13 +68,13 @@ export default function CollapsibleDrawer({ agent }) {
   // 🎯 Menú + control de acceso por grupos AAD
   const navItems = useMemo(() => ([
     {
-      icon: <icons.dashboard style={{ fontSize: 22 }} />,
+      icon: <icons.dashboard style={{ fontSize: 20 }} />,
       label: 'Dashboard',
       path: '/statistics',
       allowedGroups: [GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS],
     },
     {
-      icon: <icons.callLogs style={{ fontSize: 22 }} />,
+      icon: <icons.callLogs style={{ fontSize: 20 }} />,
       label: 'Call Logs',
       path: '/dashboard',
       allowedGroups: [
@@ -77,19 +84,19 @@ export default function CollapsibleDrawer({ agent }) {
       ],
     },
     {
-      icon: <icons.team style={{ fontSize: 22 }} />,
+      icon: <icons.team style={{ fontSize: 21 }} />,
       label: 'Team',
       path: '/agents',
       allowedGroups: [GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS],
     },
     {
-      icon: <icons.searchIcon style={{ fontSize: 22 }} />,
+      icon: <TravelExploreIcon style={{ fontSize: 24 }} />,
       label: 'Find',
       path: '/profile-search',
       allowedGroups: [GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS],
     },
     {
-      icon: <icons.reports style={{ fontSize: 22 }} />,
+      icon: <DescriptionIcon style={{ fontSize: 24 }} />,
       label: 'Reports',
       path: '/reports',
       allowedGroups: [GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS],

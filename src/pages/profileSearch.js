@@ -16,6 +16,8 @@ import {
 } from '@mui/material';
 import { Icon } from '@iconify/react';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
+import PersonSearchIcon from '@mui/icons-material/PersonSearch';
+import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumberOutlined';
 import ProviderList from '../components/components/providers/providerList';
 import ProviderEditForm from './editProvider';
 import PatientSearchContainer from '../components/components/patients/patientSearchContainer';
@@ -174,7 +176,7 @@ export default function ProfileSearch() {
               sx={{ borderRadius: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 1.2 }}
             >
               <ListItemIcon sx={{ minWidth: 'auto', mr: 0 }}>
-                <LocalHospitalIcon fontSize="small" />
+                <PersonSearchIcon fontSize="small" />
               </ListItemIcon>
               <ListItemText primary="Patients Search" />
             </ListItemButton>
@@ -184,28 +186,13 @@ export default function ProfileSearch() {
               sx={{ borderRadius: 2, mb: 1, display: 'flex', alignItems: 'center', gap: 1.2 }}
             >
               <ListItemIcon sx={{ minWidth: 'auto', mr: 0 }}>
-                <LocalHospitalIcon fontSize="small" />
+                <ConfirmationNumberOutlinedIcon fontSize="small" />
               </ListItemIcon>
               <ListItemText primary="Tickets Search" />
             </ListItemButton>
           </List>
 
-
-
-          
-
           <Divider sx={{ my: 2 }} />
-
-          
-          
-
-
-
-
-
-
-
-
 
         </Box>
 
@@ -352,16 +339,12 @@ export default function ProfileSearch() {
       </CardContent>
     </Card>
 
- 
-
-          <TicketQuickViewDialog
-            open={openQuickView}
-            onClose={handleQuickViewClose}
-            ticket={quickViewTicket}
-          />
-          </>
-
-
+    <TicketQuickViewDialog
+      open={openQuickView}
+      onClose={handleQuickViewClose}
+      ticket={quickViewTicket}
+    />
+    </>
   );
 
 }

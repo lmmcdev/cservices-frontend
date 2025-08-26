@@ -138,24 +138,24 @@ export default function ReportsScreen() {
   const [templateQuery, setTemplateQuery] = useState('');
   const [activeTemplateId, setActiveTemplateId] = useState(null);
 
+  // Templates (actualizados a un SOLO date)
   const [templates, setTemplates] = useState({
     my: [
       {
         id: 't1',
         name: 'Emergencies – Last 7d',
-        description: 'High priority + last 7 days',
+        description: 'High priority in the last 7 days',
         visibility: 'user',
-        filters: { dateFrom: '', dateTo: '', priority: ['high'], risk: [], category: [], qc: false }
+        filters: { date: '', priority: ['high'], risk: [], category: [], qc: '' }
       }
     ],
     dept: [],
     global: []
   });
 
-  // Filters state
+  // Filters state — ahora con `date` único
   const [filters, setFilters] = useState({
-    dateFrom: '',
-    dateTo: '',
+    date: '',
     agent: '',
     center: '',
     department: '',
@@ -205,7 +205,33 @@ export default function ReportsScreen() {
   const updateFilter = (key, value) => setFilters(prev => ({ ...prev, [key]: value }));
   const currentPoolKey = tab === 0 ? 'my' : tab === 1 ? 'dept' : 'global';
 
-  const applyTemplate = (tpl) => setFilters(prev => ({ ...prev, ...tpl.filters }));
+  // Normaliza cualquier template viejo con dateFrom/dateTo -> date
+  const applyTemplate = (tpl) => {
+    const f = tpl?.filters || {};
+    let next = { ...filters };
+
+    if ('date' in f) {
+      next.date = f.date || '';
+    } else if ('dateFrom' in f || 'dateTo' in f) {
+      // si existieran legacy, toma dateFrom (o vacío)
+      next.date = f.dateFrom || '';
+    }
+
+    next = {
+      ...next,
+      agent: f.agent ?? next.agent,
+      center: f.center ?? next.center,
+      department: f.department ?? next.department,
+      caller: f.caller ?? next.caller,
+      outcome: f.outcome ?? next.outcome,
+      priority: Array.isArray(f.priority) ? f.priority : next.priority,
+      risk: Array.isArray(f.risk) ? f.risk : next.risk,
+      category: Array.isArray(f.category) ? f.category : next.category,
+      qc: f.qc ?? next.qc
+    };
+
+    setFilters(next);
+  };
 
   const handleSelectTemplate = (tpl) => {
     setActiveTemplateId(tpl.id);
@@ -213,7 +239,16 @@ export default function ReportsScreen() {
   };
 
   const duplicateTemplate = (tpl) => {
-    const copy = { ...tpl, id: `dup-${Date.now()}`, name: `${tpl.name} (copy)` };
+    const copy = {
+      ...tpl,
+      id: `dup-${Date.now()}`,
+      name: `${tpl.name} (copy)`,
+      // asegura shape nuevo
+      filters: {
+        ...tpl.filters,
+        date: tpl.filters.date ?? '',
+      }
+    };
     setTemplates(prev => ({ ...prev, [currentPoolKey]: [copy, ...prev[currentPoolKey]] }));
   };
 
@@ -223,7 +258,19 @@ export default function ReportsScreen() {
       name: 'New Template',
       description: '',
       visibility: currentPoolKey === 'my' ? 'user' : currentPoolKey === 'dept' ? 'department' : 'global',
-      filters
+      // guarda shape nuevo
+      filters: {
+        date: filters.date || '',
+        agent: filters.agent,
+        center: filters.center,
+        department: filters.department,
+        caller: filters.caller,
+        outcome: filters.outcome,
+        priority: filters.priority,
+        risk: filters.risk,
+        category: filters.category,
+        qc: filters.qc
+      }
     };
     setTemplates(prev => ({ ...prev, [currentPoolKey]: [draft, ...prev[currentPoolKey]] }));
     setActiveTemplateId(draft.id);
@@ -335,7 +382,7 @@ export default function ReportsScreen() {
   };
 
   const resetFilters = () => setFilters({
-    dateFrom: '', dateTo: '', agent: '', center: '', department: '',
+    date: '', agent: '', center: '', department: '',
     caller: '', outcome: '', priority: [], risk: [], category: [], qc: ''
   });
 
@@ -363,6 +410,7 @@ export default function ReportsScreen() {
   }), []);
   const MIN_TABLE_WIDTH_PX = 1720;
 
+  // Botón rectangular reutilizable (mismo que Export)
   const HeaderAction = ({ icon, children, onClick, variant = 'primary', title }) => {
     const common = {
       textTransform: 'none',
@@ -630,60 +678,39 @@ export default function ReportsScreen() {
               <CardContent sx={{ p: 2 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Filters</Typography>
-                  <Button
-                    size="small"
-                    startIcon={<Iconify icon="mdi:delete-sweep-outline" width={18} height={18} />}
+
+                  {/* MISMO BOTÓN RECTANGULAR QUE EXPORT */}
+                  <HeaderAction
+                    icon="mdi:delete-sweep-outline"
                     onClick={resetFilters}
-                    sx={{
-                      textTransform: 'none',
-                      px: 1.25,
-                      py: 0.5,
-                      borderRadius: 999,
-                      border: `1px solid ${UI.brandBorder}`,
-                      color: UI.brand,
-                      bgcolor: UI.brandSurface,
-                      '&:hover': { bgcolor: UI.brandSurfaceHover },
-                      fontWeight: 700,
-                      gap: 0.75,
-                      height: 34,
-                    }}
+                    variant="outline"
+                    title="Clear all"
                   >
                     Clear all
-                  </Button>
+                  </HeaderAction>
                 </Box>
 
                 <Stack spacing={1.6}>
-                  {/* Date range */}
+                  {/* Date (single) */}
                   <Box sx={{ mt: 2, mb: 1 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                       <Iconify icon="mdi:calendar-month-outline" width={20} height={20} color={UI.brand} />
                       <Typography variant="subtitle2" sx={{ fontWeight: 700, color: UI.brand }}>
-                        Date range
+                        Date
                       </Typography>
                     </Box>
                     <Divider sx={{ borderColor: UI.brand, opacity: 0.5, mt: 0.5 }} />
                   </Box>
 
-                  <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
-                    <TextField
-                      label="Date From"
-                      type="datetime-local"
-                      size="small"
-                      value={filters.dateFrom}
-                      onChange={(e) => updateFilter('dateFrom', e.target.value)}
-                      InputLabelProps={{ shrink: true }}
-                      fullWidth
-                    />
-                    <TextField
-                      label="Date To"
-                      type="datetime-local"
-                      size="small"
-                      value={filters.dateTo}
-                      onChange={(e) => updateFilter('dateTo', e.target.value)}
-                      InputLabelProps={{ shrink: true }}
-                      fullWidth
-                    />
-                  </Box>
+                  <TextField
+                    label="Date"
+                    type="date"
+                    size="small"
+                    value={filters.date}
+                    onChange={(e) => updateFilter('date', e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth
+                  />
 
                   {/* Core filters */}
                   <Box sx={{ mt: 2, mb: 1 }}>
