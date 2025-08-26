@@ -1,7 +1,10 @@
 // utils/ticketActions.js
-import { getStats, getDailyStats } from "../apiStats";
+import { useCallback } from "react";
+import { pickUpdatedEntity } from "../apiActionHelper";
+import { useApiActionRunner } from "../../components/hooks/useApiActionRunner";
+import { getDailyStats } from "../apiStats";
 
-export async function handleGetStats({ dispatch, setLoading, ticketId, agentEmail, newStatus, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen }) {
+/*export async function handleGetStats({ dispatch, setLoading, ticketId, agentEmail, newStatus, setStatus, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen }) {
   setLoading(true);
   const result = await getStats(dispatch, setLoading, ticketId, agentEmail, newStatus);
   if (result.success) {
@@ -12,7 +15,7 @@ export async function handleGetStats({ dispatch, setLoading, ticketId, agentEmai
     setErrorMessage(result.message);
     setErrorOpen(true);
   }
-}
+}*/
 
 export async function handleGetDailyStats({ dispatch, setLoading, ticketId, agentEmail, noteContent, setNotes, setNoteContent, setOpenNoteDialog, setSuccessMessage, setSuccessOpen, setErrorMessage, setErrorOpen }) {
     setLoading(true);
