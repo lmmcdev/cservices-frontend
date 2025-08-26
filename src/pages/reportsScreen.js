@@ -1,21 +1,22 @@
 // src/pages/reportsScreen.js
 import React, { useMemo, useState } from 'react';
 import {
-  Box, Grid, Card, CardContent, Typography, Divider,
+  Box, Card, CardContent, Typography, Divider,
   TextField, IconButton, Button, Menu, MenuItem, List,
   InputAdornment, Chip, Stack, Tooltip, Select, FormControl,
   InputLabel, OutlinedInput, Checkbox, ListItemIcon, Table,
   TableBody, TableCell, TableContainer, TableHead, TableRow,
-  TablePagination, ListItemText
+  TablePagination
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import AddIcon from '@mui/icons-material/Add';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import EditIcon from '@mui/icons-material/Edit';
 import { Iconify } from '../components/auxiliars/icons';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { icons } from '../components/auxiliars/icons';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 const PRIORITY = ['low', 'medium', 'high'];
 const RISK = ['none', 'medical', 'legal', 'disenrollment'];
@@ -25,13 +26,13 @@ const CATEGORY = [
   'referral or specialist','medical records','others'
 ];
 
-/** ---------- TEMPLATE ROW (click = usar; estado seleccionado) ---------- */
+/** ---------- TEMPLATE ROW ---------- */
 function TemplateRow({ tpl, isActive, onSelect, onEditName, onDuplicate, onDetails }) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
 
   const handleOpen = (e) => {
-    e.stopPropagation(); // que el click del menú no dispare onSelect
+    e.stopPropagation();
     setAnchorEl(e.currentTarget);
   };
   const handleClose = () => setAnchorEl(null);
@@ -63,7 +64,6 @@ function TemplateRow({ tpl, isActive, onSelect, onEditName, onDuplicate, onDetai
         }
       }}
     >
-      {/* Texto (truncado) */}
       <Box sx={{ flex: '1 1 auto', minWidth: 0 }}>
         <Typography
           variant="body1"
@@ -86,7 +86,6 @@ function TemplateRow({ tpl, isActive, onSelect, onEditName, onDuplicate, onDetai
         </Typography>
       </Box>
 
-      {/* Menú acciones (sin "Use") */}
       <IconButton edge="end" onClick={handleOpen} size="small">
         <MoreVertIcon />
       </IconButton>
@@ -114,10 +113,30 @@ function TemplateRow({ tpl, isActive, onSelect, onEditName, onDuplicate, onDetai
 /** --------------------------------------------------------------------- */
 
 export default function ReportsScreen() {
-  // Templates
-  const [tab, setTab] = useState(0); // 0=My,1=Dept,2=Global
+  // UI tokens
+  const UI = {
+    brand: '#00A1FF',
+    brandHover: '#008de0',
+    brandBorder: 'rgba(0,161,255,0.45)',
+    brandSurface: 'rgba(0,161,255,0.08)',
+    brandSurfaceHover: 'rgba(0,161,255,0.12)',
+    radius: 6,
+    shadow: '0px 8px 24px rgba(239,241,246,1)',
+    border: '#eef2f7',
+    laneGapPx: 16,
+    LANE_MIN_W: 1760,
+    LANE_MAX_W: 2080,
+  };
+
+  const SELECT_ICON_RIGHT_PX = 36;
+  const selectIconOffsetSx = {
+    '& .MuiSelect-icon': { right: SELECT_ICON_RIGHT_PX, transition: 'transform .2s ease' },
+    '& .MuiSelect-iconOpen': { transform: 'rotate(180deg)' },
+  };
+
+  const [tab, setTab] = useState(0);
   const [templateQuery, setTemplateQuery] = useState('');
-  const [activeTemplateId, setActiveTemplateId] = useState(null); // <- seleccionado
+  const [activeTemplateId, setActiveTemplateId] = useState(null);
 
   const [templates, setTemplates] = useState({
     my: [
@@ -133,7 +152,7 @@ export default function ReportsScreen() {
     global: []
   });
 
-  // Filters state (solo UI por ahora)
+  // Filters state
   const [filters, setFilters] = useState({
     dateFrom: '',
     dateTo: '',
@@ -148,10 +167,6 @@ export default function ReportsScreen() {
     qc: ''
   });
 
-  // Export menu
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  // Preview table (placeholder / mock)
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRpp] = useState(10);
 
@@ -187,16 +202,13 @@ export default function ReportsScreen() {
     return previewRows.slice(start, start + rowsPerPage);
   }, [page, rowsPerPage, previewRows]);
 
-  // Handlers UI
   const updateFilter = (key, value) => setFilters(prev => ({ ...prev, [key]: value }));
   const currentPoolKey = tab === 0 ? 'my' : tab === 1 ? 'dept' : 'global';
 
-  // Seleccionar/aplicar template
-  const applyTemplate = (tpl) =>
-    setFilters(prev => ({ ...prev, ...tpl.filters }));
+  const applyTemplate = (tpl) => setFilters(prev => ({ ...prev, ...tpl.filters }));
 
   const handleSelectTemplate = (tpl) => {
-    setActiveTemplateId(tpl.id);  // queda “fijo” visualmente
+    setActiveTemplateId(tpl.id);
     applyTemplate(tpl);
   };
 
@@ -214,7 +226,7 @@ export default function ReportsScreen() {
       filters
     };
     setTemplates(prev => ({ ...prev, [currentPoolKey]: [draft, ...prev[currentPoolKey]] }));
-    setActiveTemplateId(draft.id); // opcional: seleccionar recién creado
+    setActiveTemplateId(draft.id);
   };
 
   const editTemplateName = (tplId, newName) => {
@@ -225,19 +237,163 @@ export default function ReportsScreen() {
     }));
   };
 
-  const UI = {
-    brand: '#00a1ff',
-    radius: 4,
-    shadow: '0px 8px 24px rgba(239,241,246,1)',
-    border: '#eef2f7',
-  };
-
   const TEMPLATE_SEGMENTS = [
     { key: 0, label: 'Favorites',   icon: 'mdi:heart' },
     { key: 1, label: 'My Templates',icon: 'mdi:account' },
     { key: 2, label: 'Department',  icon: 'mdi:account-group' },
     { key: 3, label: 'Global',      icon: 'mdi:earth' },
   ];
+
+  const handlePreview = () => {
+    /* hook BE call here if needed */
+  };
+
+  // ---- Export único a CSV (sin menú) ----
+  const handleExportCSV = () => {
+    const headers = ['ID','Date','Agent','Center','Department','Caller','Outcome','Priority','Risk','Category','QC'];
+    const rows = previewRows.map(r => [
+      r.id, r.date, r.agent, r.center, r.department, r.caller,
+      r.outcome, r.priority, r.risk, r.category, r.qc ? 'Yes' : 'No'
+    ]);
+    const csv = [headers, ...rows]
+      .map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'reports_export.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  /** ====== Styles for chips ====== */
+  const PRIORITY_STYLES = {
+    high:   { fg: '#FF6692', bg: '#FFE2EA', border: '#FF6692' },
+    medium: { fg: '#F0A500', bg: '#FFF5DA', border: '#FFB900' },
+    low:    { fg: '#00B8A3', bg: '#DAF8F4', border: '#00B8A3' },
+  };
+
+  const RISK_STYLES = {
+    none: { fg: '#2E7D32', bg: '#E6F4EA', border: '#4CAF50' },
+    medical: { fg: '#00A1FF', bg: '#DFF3FF', border: '#00A1FF' },
+    legal: { fg: '#E68900', bg: '#FFF3E0', border: '#FF9800' },
+    disenrollment: { fg: '#E53935', bg: '#FDECEA', border: '#F44336' },
+    default: { fg: '#757575', bg: '#F5F5F5', border: '#BDBDBD' },
+  };
+
+  const CATEGORY_STYLE = { fg: '#00A1FF', bg: '#DFF3FF', border: '#00A1FF' };
+
+  const QC_STYLES = {
+    true:  { fg: '#00B8A3', bg: '#DAF8F4', border: '#00B8A3' },
+    false: { fg: '#FF6692', bg: '#FFE2EA', border: '#FF6692' },
+  };
+
+  const priorityChipSx = (level) => {
+    const c = PRIORITY_STYLES[level];
+    if (!c) return {};
+    return {
+      bgcolor: c.bg, color: c.fg, border: `1px solid ${c.border}`,
+      borderRadius: 999, height: 22, fontWeight: 600, textTransform: 'capitalize', px: 0.75,
+    };
+  };
+
+  const riskChipSx = (level) => {
+    const key = (level || '').toLowerCase();
+    const c = RISK_STYLES[key] || RISK_STYLES.default;
+    return {
+      bgcolor: c.bg, color: c.fg, border: `1px solid ${c.border}`,
+      borderRadius: 999, height: 22, fontWeight: 600, textTransform: 'capitalize', px: 0.75,
+    };
+  };
+
+  const categoryChipSx = {
+    bgcolor: CATEGORY_STYLE.bg,
+    color: CATEGORY_STYLE.fg,
+    border: `1px solid ${CATEGORY_STYLE.border}`,
+    borderRadius: 999,
+    height: 22,
+    fontWeight: 600,
+    textTransform: 'capitalize',
+    px: 0.75,
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 4,
+  };
+
+  const qcChipSx = (val) => {
+    const key = String(val).toLowerCase();
+    const c = QC_STYLES[key];
+    if (!c) return {};
+    return {
+      bgcolor: c.bg, color: c.fg, border: `1px solid ${c.border}`,
+      borderRadius: 999, height: 22, fontWeight: 600, textTransform: 'capitalize', px: 0.75,
+    };
+  };
+
+  const resetFilters = () => setFilters({
+    dateFrom: '', dateTo: '', agent: '', center: '', department: '',
+    caller: '', outcome: '', priority: [], risk: [], category: [], qc: ''
+  });
+
+  const renderClearAdornment = (onClear, disabled = false) => (
+    <InputAdornment position="end" sx={{ mr: 0 }}>
+      <Tooltip title="Clear" arrow>
+        <span>
+          <IconButton
+            size="small"
+            edge="end"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={(e) => { e.stopPropagation(); onClear(); }}
+            disabled={disabled}
+          >
+            <CloseRoundedIcon fontSize="small" />
+          </IconButton>
+        </span>
+      </Tooltip>
+    </InputAdornment>
+  );
+
+  const columnWidths = useMemo(() => ({
+    id: 110, date: 160, agent: 120, center: 120, department: 140,
+    caller: 150, outcome: 120, priority: 110, risk: 130, category: 180, qc: 90
+  }), []);
+  const MIN_TABLE_WIDTH_PX = 1720;
+
+  const HeaderAction = ({ icon, children, onClick, variant = 'primary', title }) => {
+    const common = {
+      textTransform: 'none',
+      borderRadius: '6px',
+      fontWeight: 700,
+      letterSpacing: 0.2,
+      px: 1.25,
+      py: 0.75,
+      height: 36,
+      lineHeight: 1,
+      gap: 0.75,
+      '& .MuiButton-startIcon > *': { color: 'currentColor' },
+      '&:focus-visible': { outline: `2px solid ${UI.brand}`, outlineOffset: 2 },
+    };
+    const variants = {
+      primary: { ...common, color: '#fff', bgcolor: UI.brand, boxShadow: '0 2px 6px rgba(0,161,255,.25)', '&:hover': { bgcolor: UI.brandHover } },
+      soft:    { ...common, color: UI.brand, bgcolor: UI.brandSurface, border: `1px solid ${UI.brandBorder}`, '&:hover': { bgcolor: UI.brandSurfaceHover } },
+      outline: { ...common, color: UI.brand, border: `1px solid ${UI.brandBorder}`, bgcolor: '#fff', '&:hover': { bgcolor: 'rgba(0,161,255,0.06)' } },
+    };
+    return (
+      <Button
+        size="small"
+        startIcon={<Iconify icon={icon} width={18} height={18} />}
+        onClick={onClick}
+        sx={variants[variant] || variants.primary}
+        title={title}
+      >
+        {children}
+      </Button>
+    );
+  };
 
   return (
     <Box
@@ -279,52 +435,69 @@ export default function ReportsScreen() {
           </Typography>
         </Box>
 
-        {/* Actions: New Template + Export */}
         <Stack direction="row" spacing={1}>
-          <Tooltip title="Create a new template" arrow>
+          <Tooltip title="Preview with current filters" arrow>
             <span>
-              <Button
-                size="small"
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={createTemplate}
-                sx={{ textTransform: 'none', boxShadow: '0 2px 6px rgba(0,161,255,.25)' }}
+              <HeaderAction
+                icon="mdi:eye-check-outline"
+                onClick={handlePreview}
+                variant="primary"
+                title="Preview with current filters"
               >
-                New template
-              </Button>
+                Preview
+              </HeaderAction>
             </span>
           </Tooltip>
 
-          <Tooltip title="Export" arrow>
+          <Tooltip title="Create a new template" arrow>
             <span>
-              <Button
-                size="small"
-                variant="outlined"
-                startIcon={<FileDownloadIcon />}
-                onClick={(e) => setAnchorEl(e.currentTarget)}
-                sx={{ textTransform: 'none' }}
+              <HeaderAction
+                icon="mdi:file-document-plus-outline"
+                onClick={createTemplate}
+                variant="soft"
+                title="Create a new template"
+              >
+                New template
+              </HeaderAction>
+            </span>
+          </Tooltip>
+
+          {/* Export directo a CSV (sin dropdown) */}
+          <Tooltip title="Export to CSV" arrow>
+            <span>
+              <HeaderAction
+                icon="mdi:file-delimited-outline"
+                onClick={handleExportCSV}
+                variant="outline"
+                title="Export to CSV"
               >
                 Export
-              </Button>
+              </HeaderAction>
             </span>
           </Tooltip>
         </Stack>
-
-        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
-          <MenuItem onClick={() => setAnchorEl(null)}>CSV</MenuItem>
-          <MenuItem onClick={() => setAnchorEl(null)}>PDF</MenuItem>
-          <MenuItem onClick={() => setAnchorEl(null)}>Print</MenuItem>
-        </Menu>
       </Box>
 
       {/* Content */}
-      <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
-        <Grid container spacing={2}>
-          {/* Templates Sidebar */}
-          <Grid item xs={12} md={4} lg={3}>
+      <Box sx={{ flex: 1, overflowY: 'auto', overflowX: 'auto' }}>
+        <Box
+          sx={{
+            width: `clamp(${UI.LANE_MIN_W}px, 100%, ${UI.LANE_MAX_W}px)`,
+            mx: 'auto',
+            px: 2,
+            py: 2,
+            display: 'grid',
+            gridTemplateColumns: 'minmax(300px, 1fr) minmax(360px, 1.2fr) minmax(1100px, 3fr)',
+            columnGap: `${UI.laneGapPx}px`,
+            rowGap: `${UI.laneGapPx}px`,
+            alignItems: 'start',
+            minHeight: 0,
+          }}
+        >
+          {/* Templates */}
+          <Box>
             <Card variant="outlined">
               <CardContent sx={{ p: 2 }}>
-                {/* Header + Segmented control */}
                 <Box
                   sx={{
                     display: 'flex',
@@ -344,12 +517,17 @@ export default function ReportsScreen() {
                       alignItems: 'stretch',
                       borderRadius: '999px',
                       overflow: 'hidden',
-                      backgroundColor: 'rgba(0,161,255,0.08)',
-                      border: '1px solid rgba(0,161,255,0.35)',
+                      backgroundColor: UI.brandSurface,
+                      border: `1px solid ${UI.brandBorder}`,
                       boxShadow: '0 1px 3px rgba(17,24,39,0.06)',
                     }}
                   >
-                    {TEMPLATE_SEGMENTS.map(({ key, label, icon }, idx) => {
+                    {[
+                      { key: 0, label: 'Favorites',   icon: 'mdi:heart' },
+                      { key: 1, label: 'My Templates',icon: 'mdi:account' },
+                      { key: 2, label: 'Department',  icon: 'mdi:account-group' },
+                      { key: 3, label: 'Global',      icon: 'mdi:earth' },
+                    ].map(({ key, label, icon }, idx) => {
                       const isActiveSeg = tab === key;
                       const iconName = icon === 'mdi:heart' && isActiveSeg ? 'mdi:heart' : icon;
                       return (
@@ -370,23 +548,20 @@ export default function ReportsScreen() {
                                 py: 0.45,
                                 minWidth: 32,
                                 transition: 'all .18s ease',
-                                color: isActiveSeg ? '#fff' : '#00A1FF',
-                                backgroundColor: isActiveSeg ? '#00A1FF' : 'transparent',
+                                color: isActiveSeg ? '#fff' : UI.brand,
+                                backgroundColor: isActiveSeg ? UI.brand : 'transparent',
                                 '&:hover': {
                                   boxShadow: isActiveSeg
                                     ? 'inset 0 0 0 999px rgba(255,255,255,0.02)'
                                     : 'inset 0 0 0 999px rgba(0,161,255,0.06)',
                                 },
-                                '&:focus-visible': {
-                                  outline: '2px solid rgba(0,161,255,0.55)',
-                                  outlineOffset: 2,
-                                },
+                                '&:focus-visible': { outline: `2px solid ${UI.brand}`, outlineOffset: 2 },
                               }}
                             >
                               <Iconify icon={iconName} width={14} height={14} />
                             </Box>
                           </Tooltip>
-                          {idx !== TEMPLATE_SEGMENTS.length - 1 && (
+                          {idx !== 3 && (
                             <Box sx={{ width: 1, backgroundColor: 'rgba(0,161,255,0.25)', alignSelf: 'stretch' }} />
                           )}
                         </React.Fragment>
@@ -410,11 +585,10 @@ export default function ReportsScreen() {
                         </InputAdornment>
                       ),
                     }}
-                    sx={{ width: 350 }}
                   />
                 </Stack>
 
-                {/* Results list (cards) */}
+                {/* Results list */}
                 <List
                   dense
                   sx={{
@@ -448,215 +622,387 @@ export default function ReportsScreen() {
                 </List>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
 
-          {/* Builder + Preview */}
-          <Grid item xs={12} md={8} lg={9}>
-            <Grid container spacing={2}>
-              {/* Filters */}
-              <Grid item xs={12} lg={4}>
-                <Card variant="outlined">
-                  <CardContent sx={{ p: 2 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>
-                      Filters
-                    </Typography>
+          {/* Filters */}
+          <Box>
+            <Card variant="outlined">
+              <CardContent sx={{ p: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>Filters</Typography>
+                  <Button
+                    size="small"
+                    startIcon={<Iconify icon="mdi:delete-sweep-outline" width={18} height={18} />}
+                    onClick={resetFilters}
+                    sx={{
+                      textTransform: 'none',
+                      px: 1.25,
+                      py: 0.5,
+                      borderRadius: 999,
+                      border: `1px solid ${UI.brandBorder}`,
+                      color: UI.brand,
+                      bgcolor: UI.brandSurface,
+                      '&:hover': { bgcolor: UI.brandSurfaceHover },
+                      fontWeight: 700,
+                      gap: 0.75,
+                      height: 34,
+                    }}
+                  >
+                    Clear all
+                  </Button>
+                </Box>
 
-                    <Stack spacing={1.2}>
-                      <TextField
-                        label="Date From"
-                        type="datetime-local"
-                        size="small"
-                        value={filters.dateFrom}
-                        onChange={(e) => updateFilter('dateFrom', e.target.value)}
-                        InputLabelProps={{ shrink: true }}
-                      />
-                      <TextField
-                        label="Date To"
-                        type="datetime-local"
-                        size="small"
-                        value={filters.dateTo}
-                        onChange={(e) => updateFilter('dateTo', e.target.value)}
-                        InputLabelProps={{ shrink: true }}
-                      />
-
-                      <TextField label="Agent" size="small" value={filters.agent} onChange={(e) => updateFilter('agent', e.target.value)} />
-                      <TextField label="Center" size="small" value={filters.center} onChange={(e) => updateFilter('center', e.target.value)} />
-                      <TextField label="Department" size="small" value={filters.department} onChange={(e) => updateFilter('department', e.target.value)} />
-                      <TextField label="Caller" size="small" value={filters.caller} onChange={(e) => updateFilter('caller', e.target.value)} />
-                      <TextField label="Outcome" size="small" value={filters.outcome} onChange={(e) => updateFilter('outcome', e.target.value)} />
-
-                      <Divider sx={{ my: 1 }} />
-                      <Typography variant="body2" sx={{ fontWeight: 700 }}>Flags</Typography>
-
-                      {/* Priority */}
-                      <FormControl size="small">
-                        <InputLabel id="priority-label">Priority</InputLabel>
-                        <Select
-                          labelId="priority-label"
-                          multiple
-                          value={filters.priority}
-                          onChange={(e) => updateFilter('priority', e.target.value)}
-                          input={<OutlinedInput label="Priority" />}
-                          renderValue={(selected) => (
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                              {selected.map((v) => (<Chip key={v} label={v} size="small" />))}
-                            </Box>
-                          )}
-                        >
-                          {PRIORITY.map((v) => (
-                            <MenuItem key={v} value={v}>
-                              <ListItemIcon><Checkbox checked={filters.priority.indexOf(v) > -1} /></ListItemIcon>
-                              <ListItemText primary={v} />
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-
-                      {/* Risk */}
-                      <FormControl size="small">
-                        <InputLabel id="risk-label">Risk</InputLabel>
-                        <Select
-                          labelId="risk-label"
-                          multiple
-                          value={filters.risk}
-                          onChange={(e) => updateFilter('risk', e.target.value)}
-                          input={<OutlinedInput label="Risk" />}
-                          renderValue={(selected) => (
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                              {selected.map((v) => (<Chip key={v} label={v} size="small" />))}
-                            </Box>
-                          )}
-                        >
-                          {RISK.map((v) => (
-                            <MenuItem key={v} value={v}>
-                              <ListItemIcon><Checkbox checked={filters.risk.indexOf(v) > -1} /></ListItemIcon>
-                              <ListItemText primary={v} />
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-
-                      {/* Category */}
-                      <FormControl size="small">
-                        <InputLabel id="category-label">Category</InputLabel>
-                        <Select
-                          labelId="category-label"
-                          multiple
-                          value={filters.category}
-                          onChange={(e) => updateFilter('category', e.target.value)}
-                          input={<OutlinedInput label="Category" />}
-                          renderValue={(selected) => (
-                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                              {selected.map((v) => (<Chip key={v} label={v} size="small" />))}
-                            </Box>
-                          )}
-                        >
-                          {CATEGORY.map((v) => (
-                            <MenuItem key={v} value={v}>
-                              <ListItemIcon><Checkbox checked={filters.category.indexOf(v) > -1} /></ListItemIcon>
-                              <ListItemText primary={v} />
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-
-                      {/* QC */}
-                      <FormControl size="small">
-                        <InputLabel id="qc-label">QC</InputLabel>
-                        <Select
-                          labelId="qc-label"
-                          value={filters.qc}
-                          onChange={(e) => updateFilter('qc', e.target.value)}
-                          input={<OutlinedInput label="QC" />}
-                        >
-                          <MenuItem value=""><em>Any</em></MenuItem>
-                          <MenuItem value="true">True</MenuItem>
-                          <MenuItem value="false">False</MenuItem>
-                        </Select>
-                      </FormControl>
-
-                      <Stack direction="row" spacing={1}>
-                        <Button
-                          variant="contained"
-                          fullWidth
-                          sx={{ textTransform: 'none' }}
-                          onClick={() => {/* TODO: fetch preview con BE */}}
-                        >
-                          Preview
-                        </Button>
-                      </Stack>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              </Grid>
-
-              {/* Preview */}
-              <Grid item xs={12} lg={8}>
-                <Card variant="outlined" sx={{ display: 'flex', flexDirection: 'column', minHeight: 520 }}>
-                  <CardContent sx={{ p: 2, pb: 0 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                      Preview
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Showing sample data. Hook real data next.
-                    </Typography>
-                  </CardContent>
-
-                  <Box sx={{ flex: 1, overflow: 'auto', p: 2, pt: 1 }}>
-                    <TableContainer>
-                      <Table size="small" stickyHeader>
-                        <TableHead>
-                          <TableRow>
-                            <TableCell>ID</TableCell>
-                            <TableCell>Date</TableCell>
-                            <TableCell>Agent</TableCell>
-                            <TableCell>Center</TableCell>
-                            <TableCell>Department</TableCell>
-                            <TableCell>Caller</TableCell>
-                            <TableCell>Outcome</TableCell>
-                            <TableCell>Priority</TableCell>
-                            <TableCell>Risk</TableCell>
-                            <TableCell>Category</TableCell>
-                            <TableCell>QC</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {pagedRows.map((r) => (
-                            <TableRow key={r.id} hover>
-                              <TableCell>{r.id}</TableCell>
-                              <TableCell>{r.date}</TableCell>
-                              <TableCell>{r.agent}</TableCell>
-                              <TableCell>{r.center}</TableCell>
-                              <TableCell>{r.department}</TableCell>
-                              <TableCell>{r.caller}</TableCell>
-                              <TableCell>{r.outcome}</TableCell>
-                              <TableCell>{r.priority}</TableCell>
-                              <TableCell>{r.risk}</TableCell>
-                              <TableCell>{r.category}</TableCell>
-                              <TableCell>{r.qc ? 'Yes' : 'No'}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
+                <Stack spacing={1.6}>
+                  {/* Date range */}
+                  <Box sx={{ mt: 2, mb: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Iconify icon="mdi:calendar-month-outline" width={20} height={20} color={UI.brand} />
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: UI.brand }}>
+                        Date range
+                      </Typography>
+                    </Box>
+                    <Divider sx={{ borderColor: UI.brand, opacity: 0.5, mt: 0.5 }} />
                   </Box>
 
-                  <Box sx={{ px: 2, pb: 2 }}>
-                    <TablePagination
-                      component="div"
-                      count={previewRows.length}
-                      page={page}
-                      onPageChange={(_, p) => setPage(p)}
-                      rowsPerPage={rowsPerPage}
-                      onRowsPerPageChange={(e) => { setRpp(parseInt(e.target.value, 10)); setPage(0); }}
-                      rowsPerPageOptions={[10, 25, 50]}
+                  <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
+                    <TextField
+                      label="Date From"
+                      type="datetime-local"
+                      size="small"
+                      value={filters.dateFrom}
+                      onChange={(e) => updateFilter('dateFrom', e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                      fullWidth
+                    />
+                    <TextField
+                      label="Date To"
+                      type="datetime-local"
+                      size="small"
+                      value={filters.dateTo}
+                      onChange={(e) => updateFilter('dateTo', e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                      fullWidth
                     />
                   </Box>
-                </Card>
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
+
+                  {/* Core filters */}
+                  <Box sx={{ mt: 2, mb: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Iconify icon="mdi:tune" width={20} height={20} color={UI.brand} />
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: UI.brand }}>
+                        Core filters
+                      </Typography>
+                    </Box>
+                    <Divider sx={{ borderColor: UI.brand, opacity: 0.5, mt: 0.5 }} />
+                  </Box>
+
+                  <TextField label="Agent" size="small" value={filters.agent} onChange={(e) => updateFilter('agent', e.target.value)} />
+                  <TextField label="Center" size="small" value={filters.center} onChange={(e) => updateFilter('center', e.target.value)} />
+                  <TextField label="Department" size="small" value={filters.department} onChange={(e) => updateFilter('department', e.target.value)} />
+                  <TextField label="Caller" size="small" value={filters.caller} onChange={(e) => updateFilter('caller', e.target.value)} />
+                  <TextField label="Outcome" size="small" value={filters.outcome} onChange={(e) => updateFilter('outcome', e.target.value)} />
+
+                  {/* Flags */}
+                  <Box sx={{ mt: 2, mb: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Iconify icon="mdi:flag" width={20} height={20} color={UI.brand} />
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: UI.brand }}>
+                        Flags
+                      </Typography>
+                    </Box>
+                    <Divider sx={{ borderColor: UI.brand, opacity: 0.5, mt: 0.5 }} />
+                  </Box>
+
+                  {/* Priority */}
+                  <FormControl size="small">
+                    <InputLabel id="priority-label">Priority</InputLabel>
+                    <Select
+                      labelId="priority-label"
+                      multiple
+                      value={filters.priority}
+                      onChange={(e) => updateFilter('priority', e.target.value)}
+                      IconComponent={KeyboardArrowUpIcon}
+                      sx={selectIconOffsetSx}
+                      input={
+                        <OutlinedInput
+                          label="Priority"
+                          sx={{ pr: `${SELECT_ICON_RIGHT_PX / 8 + 3}rem` }}
+                          endAdornment={renderClearAdornment(() => updateFilter('priority', []), filters.priority.length === 0)}
+                        />
+                      }
+                      renderValue={(selected) => (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                          {selected.map((v) => (
+                            <Chip key={v} label={v} size="small" sx={priorityChipSx(v)} />
+                          ))}
+                        </Box>
+                      )}
+                      MenuProps={{ PaperProps: { sx: { maxHeight: 320 } } }}
+                    >
+                      {PRIORITY.map((v) => {
+                        const checked = filters.priority.indexOf(v) > -1;
+                        return (
+                          <MenuItem key={v} value={v} dense>
+                            <ListItemIcon>
+                              <Checkbox edge="start" checked={checked} tabIndex={-1} disableRipple />
+                            </ListItemIcon>
+                            <Chip label={v} size="small" sx={priorityChipSx(v)} />
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+
+                  {/* Risk */}
+                  <FormControl size="small">
+                    <InputLabel id="risk-label">Risk</InputLabel>
+                    <Select
+                      labelId="risk-label"
+                      multiple
+                      value={filters.risk}
+                      onChange={(e) => updateFilter('risk', e.target.value)}
+                      IconComponent={KeyboardArrowUpIcon}
+                      sx={selectIconOffsetSx}
+                      input={
+                        <OutlinedInput
+                          label="Risk"
+                          sx={{ pr: `${SELECT_ICON_RIGHT_PX / 8 + 3}rem` }}
+                          endAdornment={renderClearAdornment(() => updateFilter('risk', []), filters.risk.length === 0)}
+                        />
+                      }
+                      renderValue={(selected) => (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                          {selected.map((v) => (
+                            <Chip key={v} label={v} size="small" sx={riskChipSx(v)} />
+                          ))}
+                        </Box>
+                      )}
+                      MenuProps={{ PaperProps: { sx: { maxHeight: 320 } } }}
+                    >
+                      {RISK.map((v) => {
+                        const checked = filters.risk.indexOf(v) > -1;
+                        return (
+                          <MenuItem key={v} value={v} dense>
+                            <ListItemIcon>
+                              <Checkbox edge="start" checked={checked} tabIndex={-1} disableRipple />
+                            </ListItemIcon>
+                            <Chip label={v} size="small" sx={riskChipSx(v)} />
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+
+                  {/* Category */}
+                  <FormControl size="small">
+                    <InputLabel id="category-label">Category</InputLabel>
+                    <Select
+                      labelId="category-label"
+                      multiple
+                      value={filters.category}
+                      onChange={(e) => updateFilter('category', e.target.value)}
+                      IconComponent={KeyboardArrowUpIcon}
+                      sx={selectIconOffsetSx}
+                      input={
+                        <OutlinedInput
+                          label="Category"
+                          sx={{ pr: `${SELECT_ICON_RIGHT_PX / 8 + 3}rem` }}
+                          endAdornment={renderClearAdornment(() => updateFilter('category', []), filters.category.length === 0)}
+                        />
+                      }
+                      renderValue={(selected) => (
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                          {selected.map((v) => {
+                            const Icon = icons[v.replace(/\s+/g, '_')] || icons.others;
+                            return (
+                              <Chip
+                                key={v}
+                                label={
+                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                    {Icon && <Icon style={{ fontSize: 14 }} />}
+                                    {v}
+                                  </Box>
+                                }
+                                size="small"
+                                sx={categoryChipSx}
+                              />
+                            );
+                          })}
+                        </Box>
+                      )}
+                      MenuProps={{ PaperProps: { sx: { maxHeight: 320 } } }}
+                    >
+                      {CATEGORY.map((v) => {
+                        const checked = filters.category.indexOf(v) > -1;
+                        const Icon = icons[v.replace(/\s+/g, '_')] || icons.others;
+                        return (
+                          <MenuItem key={v} value={v} dense>
+                            <ListItemIcon>
+                              <Checkbox edge="start" checked={checked} tabIndex={-1} disableRipple />
+                            </ListItemIcon>
+                            <Chip
+                              label={
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                  {Icon && <Icon style={{ fontSize: 14 }} />}
+                                  {v}
+                                </Box>
+                              }
+                              size="small"
+                              sx={categoryChipSx}
+                            />
+                          </MenuItem>
+                        );
+                      })}
+                    </Select>
+                  </FormControl>
+
+                  {/* Quality Control */}
+                  <FormControl size="small">
+                    <InputLabel id="qc-label">Quality Control</InputLabel>
+                    <Select
+                      labelId="qc-label"
+                      value={filters.qc}
+                      onChange={(e) => updateFilter('qc', e.target.value)}
+                      IconComponent={KeyboardArrowUpIcon}
+                      sx={selectIconOffsetSx}
+                      input={
+                        <OutlinedInput
+                          label="Quality Control"
+                          sx={{ pr: `${SELECT_ICON_RIGHT_PX / 8 + 3}rem` }}
+                          endAdornment={renderClearAdornment(() => updateFilter('qc', ''), !filters.qc)}
+                        />
+                      }
+                      renderValue={(selected) => {
+                        if (!selected) return <Typography variant="body2" color="text.secondary">All</Typography>;
+                        return <Chip label={selected === 'true' ? 'True' : 'False'} size="small" sx={qcChipSx(selected)} />;
+                      }}
+                    >
+                      <MenuItem value="true"><Chip label="True" size="small" sx={qcChipSx('true')} /></MenuItem>
+                      <MenuItem value="false"><Chip label="False" size="small" sx={qcChipSx('false')} /></MenuItem>
+                    </Select>
+                  </FormControl>
+                </Stack>
+              </CardContent>
+            </Card>
+          </Box>
+
+          {/* Preview */}
+          <Box>
+            <Card variant="outlined" sx={{ display: 'flex', flexDirection: 'column', minHeight: 520 }}>
+              <CardContent sx={{ p: 2, pb: 0 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                  Preview
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Showing sample data. Hook real data next.
+                </Typography>
+              </CardContent>
+
+              <Box sx={{ flex: 1, px: 2, pt: 1 }}>
+                <TableContainer
+                  sx={{
+                    border: '1px solid #eef2f7',
+                    borderRadius: 2,
+                    boxShadow: '0 1px 2px rgba(16,24,40,0.04)',
+                    bgcolor: '#fff',
+                    maxHeight: 420,
+                    overflowX: 'auto',
+                    WebkitOverflowScrolling: 'touch',
+                  }}
+                >
+                  <Table size="small" stickyHeader sx={{ minWidth: MIN_TABLE_WIDTH_PX }}>
+                    <TableHead>
+                      <TableRow
+                        sx={{
+                          '& th': {
+                            bgcolor: '#F5FAFF',
+                            color: '#334155',
+                            fontWeight: 700,
+                            fontSize: 12.5,
+                            borderBottom: '1px solid #E6F0FA',
+                            whiteSpace: 'nowrap',
+                          },
+                        }}
+                      >
+                        <TableCell sx={{ width: columnWidths.id }}>ID</TableCell>
+                        <TableCell sx={{ width: columnWidths.date }}>Date</TableCell>
+                        <TableCell sx={{ width: columnWidths.agent }}>Agent</TableCell>
+                        <TableCell sx={{ width: columnWidths.center }}>Center</TableCell>
+                        <TableCell sx={{ width: columnWidths.department }}>Department</TableCell>
+                        <TableCell sx={{ width: columnWidths.caller }}>Caller</TableCell>
+                        <TableCell sx={{ width: columnWidths.outcome }}>Outcome</TableCell>
+                        <TableCell sx={{ width: columnWidths.priority }}>Priority</TableCell>
+                        <TableCell sx={{ width: columnWidths.risk }}>Risk</TableCell>
+                        <TableCell sx={{ width: columnWidths.category }}>Category</TableCell>
+                        <TableCell sx={{ width: columnWidths.qc }}>QC</TableCell>
+                      </TableRow>
+                    </TableHead>
+
+                    <TableBody>
+                      {pagedRows.map((r) => (
+                        <TableRow
+                          key={r.id}
+                          hover
+                          sx={{
+                            '&:nth-of-type(odd)': { bgcolor: '#FAFCFF' },
+                            '& td': { borderBottom: '1px solid #F1F5F9', fontSize: 13.5, whiteSpace: 'nowrap' },
+                          }}
+                        >
+                          <TableCell>{r.id}</TableCell>
+                          <TableCell>{r.date}</TableCell>
+                          <TableCell>{r.agent}</TableCell>
+                          <TableCell>{r.center}</TableCell>
+                          <TableCell>{r.department}</TableCell>
+                          <TableCell>{r.caller}</TableCell>
+                          <TableCell sx={{ textTransform: 'capitalize' }}>{r.outcome}</TableCell>
+                          <TableCell>
+                            <Chip label={r.priority} size="small" sx={priorityChipSx(r.priority)} />
+                          </TableCell>
+                          <TableCell>
+                            <Chip label={r.risk} size="small" sx={riskChipSx(r.risk)} />
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                  {(icons[r.category.replace(/\s+/g, '_')] || icons.others) &&
+                                    React.createElement(icons[r.category.replace(/\s+/g, '_')] || icons.others, { style: { fontSize: 14 } })
+                                  }
+                                  {r.category}
+                                </Box>
+                              }
+                              size="small"
+                              sx={categoryChipSx}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={r.qc ? 'True' : 'False'}
+                              size="small"
+                              sx={qcChipSx(r.qc ? 'true' : 'false')}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Box>
+
+              <Box sx={{ flexShrink: 0, px: 2, py: 1, bgcolor: '#fff' }}>
+                <TablePagination
+                  component="div"
+                  count={previewRows.length}
+                  page={page}
+                  onPageChange={(_, p) => setPage(p)}
+                  rowsPerPage={rowsPerPage}
+                  onRowsPerPageChange={(e) => { setRpp(parseInt(e.target.value, 10)); setPage(0); }}
+                  rowsPerPageOptions={[10, 25, 50]}
+                />
+              </Box>
+            </Card>
+          </Box>
+        </Box>
       </Box>
     </Box>
   );
