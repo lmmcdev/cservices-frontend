@@ -19,7 +19,7 @@ import ActiveAgents from '../components/auxiliars/charts/activeAgents.jsx';
 import CustomerSatisfaction from '../components/auxiliars/charts/customerSatisfaction.jsx';
 import { HistoricalAverageResolutionTime } from '../components/auxiliars/charts/averageResolutionTime.jsx';
 import { HistoricalTopPerformerCard } from '../components/auxiliars/charts/topPerformerCard.jsx';
-import { getTicketsByStatus, getTicketsByIds } from '../utils/apiStats';
+import { getTicketsByIds } from '../utils/apiStats';
 import FloatingSettingsButton from '../components/auxiliars/charts/floatingSettingsButton.jsx';
 import StatusFilterBoxes from '../components/auxiliars/statusFilterBoxes.jsx'; // ✅ importa tu componente reutilizable
 import FloatingDateSelector from '../components/auxiliars/charts/floatingDateSelector.jsx';
@@ -286,9 +286,6 @@ useEffect(() => {
               params: { continuationToken, limit }
             });
           }
-          return getTicketsByStatus(selectedStatus, date, {
-            params: { continuationToken, limit }
-          });
         }}
         fetchParams={{
           status: selectedStatus,

@@ -13,6 +13,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import TicketQuickViewDialog from '../dialogs/ticketQuickViewDialog';
 import { getStatusColor } from '../../utils/js/statusColors';
 import usePaginatedTickets from '../hooks/usePaginatedTickets';
+import SearchTicketResults from '../components/tickets/searchTicketsResults';
 
 export default function RightDrawer({
   open,
@@ -89,41 +90,15 @@ export default function RightDrawer({
       </Box>
 
       {/* Ticket Cards */}
-      <Stack spacing={2}>
-        {tickets.map((ticket) => {
-          const color = getStatusColor(ticket.status);
-          return (
-            <Card
-              key={ticket.id}
-              onClick={() => handleTicketClick(ticket)}
-              sx={{
-                cursor: 'pointer',
-                display: 'flex',
-                borderRadius: 3,
-                overflow: 'hidden',
-                transition: 'all 0.25s ease-in-out',
-                '&:hover': {
-                  backgroundColor: `${color}15`,
-                  transform: 'scale(1.015)',
-                },
-              }}
-            >
-              <Box sx={{ width: 6, backgroundColor: color }} />
-              <CardContent sx={{ flex: 1 }}>
-                <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
-                  {ticket.caller_id || 'No title'}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  <strong>Patient:</strong> {ticket.patient_name || 'N/A'}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  <strong>Agent:</strong> {ticket.agent_assigned || 'N/A'}
-                </Typography>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </Stack>
+      <SearchTicketResults
+                results={tickets}
+                inputValue=''
+                hasMore={hasMore}
+                loadMore={fetchMore}
+                selectedTicket={handleTicketClick}
+                
+              />
+      
 
       {loading && tickets.length === 0 && (
         <Box sx={{ textAlign: 'center', py: 2 }}>

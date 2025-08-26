@@ -5,7 +5,7 @@ import RightDrawer from '../components/includes/rightDrawer.js';
 import { DailyCallsByHour } from '../components/auxiliars/charts/callsByHourChart.jsx';
 import ActiveAgents from '../components/auxiliars/charts/activeAgents.jsx';
 import CustomerSatisfaction from '../components/auxiliars/charts/customerSatisfaction.jsx';
-import { getTicketsByStatus, getTicketsByIds, getDailyStats } from '../utils/apiStats';
+import { getTicketsByIds, getDailyStats } from '../utils/apiStats';
 import { DailyTicketRiskChart } from '../components/auxiliars/charts/ticketsRiskChart.jsx';
 import { DailyTopAgents } from '../components/auxiliars/charts/topAgentsSection.jsx';
 import { DailyTicketCategoriesChart } from '../components/auxiliars/charts/ticketsCategoriesChart.jsx';
@@ -104,14 +104,11 @@ export default function StatsScreen() {
   //const statistics = state.daily_statistics || {};
 
   /** ✅ fetchFn dinámico usando useCallback */
+  //eslint-disable-next-line react-hooks/exhaustive-deps
   const fetchFn = useCallback(
     ({ continuationToken, limit }) => {
-      if (selectedTicketIds.length > 0) {
-        return getTicketsByIds(selectedTicketIds, { params: { continuationToken, limit } });
-      }
-      return getTicketsByStatus(selectedStatus, selectedDate, { params: { continuationToken, limit } });
-    },
-    [selectedTicketIds, selectedStatus, selectedDate]
+      return getTicketsByIds(selectedTicketIds, { params: { continuationToken, limit } });
+    }
   );
 
   return (

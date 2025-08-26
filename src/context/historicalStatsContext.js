@@ -1,6 +1,5 @@
 import React, { createContext, useReducer, useContext } from 'react';
 import { dailyStatsReducer, initialDailyStatsState } from '../store/statsReducer';
-//import { getDailyStats } from '../utils/apiStats';
 import { useApiHandlers } from '../utils/js/apiActions';
 
 const HistoricalStatsContext = createContext();
