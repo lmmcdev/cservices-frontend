@@ -3,15 +3,11 @@ import {
   Box,
   Typography,
   IconButton,
-  Card,
-  CardContent,
-  Stack,
   CircularProgress,
   Button,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import TicketQuickViewDialog from '../dialogs/ticketQuickViewDialog';
-import { getStatusColor } from '../../utils/js/statusColors';
 import usePaginatedTickets from '../hooks/usePaginatedTickets';
 import SearchTicketResults from '../components/tickets/searchTicketsResults';
 
