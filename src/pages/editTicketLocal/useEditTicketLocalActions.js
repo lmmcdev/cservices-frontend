@@ -21,6 +21,7 @@ export function useEditTicketLocalActions({
   setEditField,
   setAgentAssigned,
   setLinkedPatientSnapshot,
+  setAiClassification,
 
   // valores locales
   collaborators,
@@ -36,6 +37,7 @@ export function useEditTicketLocalActions({
     updatePatientDobHandler,
     updateCallbackNumberHandler,
     updateAssigneeHandler,
+    updateAIClassificationHandler,
     //handleCenterHandler,
     relateTicketHandler,
   } = useTicketHandlers();
@@ -49,6 +51,22 @@ export function useEditTicketLocalActions({
     });
     if (res?.success) setIfChanged(setStatus, newStatus);
   }, [handleStatusChange, ticketId, setStatus]);
+
+  // ---- STATUS ----
+  const handleAiClassificationChangeUI = useCallback(async (ticketId, aiClassification) => {
+    console.log(aiClassification, 'AI Classification');
+    const res =await updateAIClassificationHandler({
+      ticketId,
+      aiClassification: aiClassification,
+      setAiClassification
+    });
+    if (res?.success) {
+      setIfChanged(setAiClassification, aiClassification, (a, b) => JSON.stringify(a) === JSON.stringify(b));
+      console.log('Success, actualizando estado');
+    }
+    setEditField?.(null);
+    //eslint-disable-next-line
+  }, [updateAIClassificationHandler, ticketId, setAiClassification]);
 
   // ---- NOTAS ----
   const handleAddNote = useCallback(async () => {
@@ -218,5 +236,6 @@ export function useEditTicketLocalActions({
     handleRelateAllPastTickets,
     handleRelateFutureTickets,
     handleUnlinkTicket,
+    handleAiClassificationChangeUI,
   };
 }

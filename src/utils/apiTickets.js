@@ -13,6 +13,7 @@ export const fetchTableData = async () => {
 
 //phone calls history
 export const phoneHistory = async (dispatch, setLoading, phoneNumber) => {
+
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoGetPhoneHistory?phone=${encodeURIComponent(phoneNumber)}`);
     const data = await response.json();
@@ -24,9 +25,34 @@ export const phoneHistory = async (dispatch, setLoading, phoneNumber) => {
   } catch (err) {
     const message = err.message || 'Something went wrong';
     return { success: false, message };
-  } finally {
-    setLoading(false);
-  }
+  } 
+};
+
+// assign agent to a ticket
+//a partir de aqui los dispatch se manejan en el evento signalr
+export const updateAiClassification = async (ticketId, {aiClassification}) => {
+  try {
+    const response = await fetch(`${ENDPOINT_URLS.API}/cosmoUpdateAiClassification`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        ticketId: ticketId,
+        aiClassification: aiClassification,
+      }),
+    });
+ 
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Error al actualizar el agente');
+    }
+ 
+    return { success: true, message: data.message || 'Updated successfully' };
+    
+  } catch (err) {
+    const message = err.message || 'Something went wrong';
+
+    return { success: false, message };
+  } 
 };
 
 

@@ -2,9 +2,19 @@
 
 const getStatus = (t) => (t?.status ? t.status : 'Unknown');
 
+// firma compacta de la clasificación AI para detectar cambios relevantes
+const aiSig = (t) => {
+  const ai = t?.aiClassification || t?.ai_classification || null;
+  if (!ai) return null;
+  const p = (ai.priority || '').toLowerCase();
+  const r = (ai.risk || '').toLowerCase();
+  const c = (ai.category || '').toLowerCase();
+  return `${p}|${r}|${c}`;
+};
+
 /**
  * Qué cambios son relevantes para la UI (tabla/contadores).
- * Ajusta si tu tabla usa más/menos campos.
+ * ⚠️ Incluimos aiClassification (firma) para que la tabla se refresque.
  */
 const pickRelevant = (t = {}) => ({
   id: t.id,
@@ -19,15 +29,18 @@ const pickRelevant = (t = {}) => ({
   phone: t.phone ?? null,
   creation_date: t.creation_date ?? null,
 
-  // si tu UI muestra snapshot enlazado para nombre/DOB, ténganlo en cuenta
+  // snapshot enlazado
   lps_Name: t.linked_patient_snapshot?.Name ?? null,
   lps_DOB: t.linked_patient_snapshot?.DOB ?? null,
 
-  // indicadores QC visibles
+  // QC visibles
   quality_control: t.quality_control ?? null,
   qc_status: t.qc?.status ?? null,
 
-  // si tienes timestamps/etags, ayudan a detectar cambios reales rápido
+  // 👇 firma AI para detectar cambios (priority/risk/category)
+  ai_signature: aiSig(t),
+
+  // timestamps opcionales
   _ts: t._ts ?? null,
 });
 
@@ -62,7 +75,6 @@ function buildDerived(tickets) {
 }
 
 export const initialState = {
-  // existentes
   tickets: [],
   agents: [],
   updated_agent: [],
@@ -73,24 +85,17 @@ export const initialState = {
   closedHistoricalTickets_statistics: [],
   error: null,
 
-  // nuevos índices derivados
   ids: [],
-  byId: {},               // { [id]: ticket }
-  statusCounts: {},       // { 'New': 10, 'Done': 3, ... }
-  _ticketsVersion: 0,     // bump en cambios reales
+  byId: {},
+  statusCounts: {},
+  _ticketsVersion: 0,
 };
 
 export const ticketReducer = (state, action) => {
   switch (action.type) {
-    // ------------------------------------------------------
-    // Tickets: set masivo
-    // ------------------------------------------------------
     case 'SET_TICKETS': {
       const tickets = Array.isArray(action.payload) ? action.payload : [];
       const { ids, byId, statusCounts } = buildDerived(tickets);
-
-      // (opcional) micro-optimización: si ids y counts no cambian, puedes no bumpear versión
-      // La dejamos simple: siempre reemplaza el lote (suele venir distinto).
       return {
         ...state,
         tickets,
@@ -102,20 +107,15 @@ export const ticketReducer = (state, action) => {
       };
     }
 
-    // ------------------------------------------------------
-    // Tickets: alta (evita duplicados por id) / o actúa como update si cambió
-    // ------------------------------------------------------
     case 'ADD_TICKET': {
       const t = action.payload;
       if (!t?.id) return state;
 
       const prev = state.byId[t.id];
       if (prev) {
-        // si ya existe y no cambia nada relevante → no-op
         const merged = { ...prev, ...t };
         if (isNoopUpdate(prev, merged)) return state;
 
-        // si cambia algo relevante → actúa como update manteniendo posición
         const tickets = state.tickets.map(x => (x.id === t.id ? merged : x));
         const byId = { ...state.byId, [t.id]: merged };
 
@@ -139,7 +139,6 @@ export const ticketReducer = (state, action) => {
         };
       }
 
-      // no existía → agregar
       const tickets = [t, ...state.tickets];
       const ids = [t.id, ...state.ids];
       const byId = { ...state.byId, [t.id]: t };
@@ -159,16 +158,12 @@ export const ticketReducer = (state, action) => {
       };
     }
 
-    // ------------------------------------------------------
-    // Tickets: actualización por id (merge)
-    // ------------------------------------------------------
     case 'UPD_TICKET': {
       const t = action.payload;
       if (!t?.id) return state;
 
       const prev = state.byId[t.id];
       if (!prev) {
-        // no existía → agregar al final para no romper orden actual
         const tickets = [...state.tickets, t];
         const ids = [...state.ids, t.id];
         const byId = { ...state.byId, [t.id]: t };
@@ -188,16 +183,11 @@ export const ticketReducer = (state, action) => {
       }
 
       const merged = { ...prev, ...t };
-
-      // ✅ si el merge NO cambia nada relevante → NOOP (sin bump de versión)
       if (isNoopUpdate(prev, merged)) return state;
 
-      // merge en array tickets (mantiene posición)
       const tickets = state.tickets.map(x => (x.id === t.id ? merged : x));
-      // merge en byId
       const byId = { ...state.byId, [t.id]: merged };
 
-      // actualizar contadores por cambio de status (si lo hay)
       const prevS = getStatus(prev);
       const newS = getStatus(merged);
       let statusCounts = state.statusCounts;
@@ -218,14 +208,8 @@ export const ticketReducer = (state, action) => {
       };
     }
 
-    // ------------------------------------------------------
-    // Error
-    // ------------------------------------------------------
     case 'SET_ERROR':
-      return {
-        ...state,
-        error: action.payload,
-      };
+      return { ...state, error: action.payload };
 
     default:
       return state;

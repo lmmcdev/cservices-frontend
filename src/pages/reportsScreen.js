@@ -284,12 +284,12 @@ export default function ReportsScreen() {
     }));
   };
 
-  const TEMPLATE_SEGMENTS = [
+  /*const TEMPLATE_SEGMENTS = [
     { key: 0, label: 'Favorites',   icon: 'mdi:heart' },
     { key: 1, label: 'My Templates',icon: 'mdi:account' },
     { key: 2, label: 'Department',  icon: 'mdi:account-group' },
     { key: 3, label: 'Global',      icon: 'mdi:earth' },
-  ];
+  ];*/
 
   const handlePreview = () => {
     /* hook BE call here if needed */
