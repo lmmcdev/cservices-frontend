@@ -48,6 +48,7 @@ export default function StatusFilterBoxes({
   setSelectedStatus,
   ticketsCountByStatus,
 }) {
+  console.log('rendered status filterboxes')
   const finalCounts = useMemo(
     () => computeDisplayCounts(ticketsCountByStatus),
     [ticketsCountByStatus]

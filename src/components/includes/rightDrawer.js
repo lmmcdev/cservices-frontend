@@ -20,7 +20,7 @@ export default function RightDrawer({
 }) {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-
+  console.log('RightDrawer render with status:', status);
   // ✅ Hook para manejar paginación
   const { tickets, loading, hasMore, fetchMore, reset } = usePaginatedTickets(fetchFn, fetchParams);
 

@@ -20,6 +20,7 @@ const segments = [
 ];
 
 export default function CustomerSatisfaction() {
+  console.log(' rendered customer satisfaction')
   const score = 89;
   const idx = Math.min(
     segments.length - 1,

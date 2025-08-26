@@ -54,6 +54,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 function TicketCategoriesChartBase({ stats, onCategoryClick }) {
+  console.log('redenred ticket categories chart')
   const categories = stats?.aiClassificationStats?.category || {};
   const total = Object.values(categories).reduce((sum, c) => sum + c.count, 0);
   const data = Object.entries(categories)
