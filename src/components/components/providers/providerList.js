@@ -3,39 +3,33 @@ import {
   Box,
   Typography,
   TextField,
-  CircularProgress,
 } from '@mui/material';
-// ❌ ya no hace falta SearchIcon ni Button
-// import SearchIcon from '@mui/icons-material/Search';
-// import { Button } from '@mui/material';
 import SearchButton from '../../auxiliars/searchButton';
-
-import { getProviders } from '../../../utils/apiProviders';
+import { useApiHandlers } from '../../../utils/js/apiActions.js';
 import ProviderListUI from './providerListUI';
+import EmptyState from '../../auxiliars/emptyState';
 
 const ProviderListContainer = ({ onSelect }) => {
   const [providers, setProviders] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   const [hasMore] = useState(false); // no usamos paginación ahora
   const lastProviderRef = () => {}; // no usamos scroll infinito por ahora
-  const [hasSearched, setHasSearched] = useState(false);
+  //const [hasSearched, setHasSearched] = useState(false);
+  const { getProvidersHandler } = useApiHandlers();
 
   const handleManualSearch = async () => {
-    setHasSearched(true);
+    //setHasSearched(true);
     if (!searchTerm || searchTerm.length < 2) {
       setProviders([]);
       return;
     }
 
-    setLoading(true);
     try {
       const query = searchTerm;
       const filter = ''; // puedes ajustar esto según tus necesidades
-      const response = await getProviders(query, filter);
+      const response = await getProvidersHandler(query, filter);
       const items = response?.message?.results || [];
-      console.log(response)
 
       const term = searchTerm.toLowerCase();
       const filtered = items.filter((provider) => {
@@ -53,8 +47,6 @@ const ProviderListContainer = ({ onSelect }) => {
     } catch (error) {
       console.error('Error fetching providers:', error);
       setProviders([]);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -99,26 +91,25 @@ const ProviderListContainer = ({ onSelect }) => {
           />
 
           {/* 👇 Botón unificado (mismo ancho/alto estilo que en tickets/patients) */}
-          <SearchButton onClick={handleManualSearch} disabled={loading} />
+          <SearchButton onClick={handleManualSearch} />
         </Box>
       </Box>
 
-      {/* Results */}
-      {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-          <CircularProgress size={24} color="primary" />
-        </Box>
-      )}
+      
 
-      {hasSearched && providers.length > 0 && !loading && (
+      {providers.length > 0 ? (
         <ProviderListUI
           providers={providers}
           lastProviderRef={lastProviderRef}
           onSelect={onSelect}
           onToggleFavorite={toggleFavorite}
           hasMore={hasMore}
-          loading={loading}
           searchTerm={searchTerm}
+        />
+      ) : (
+        <EmptyState
+          title="No Providers Found"
+          description="Try adjusting your search criteria."
         />
       )}
     </>

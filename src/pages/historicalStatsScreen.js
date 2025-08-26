@@ -31,7 +31,6 @@ const HistoricStatistics = () => {
   //const fetchHistoricalDoneTickets = useHistoricalDoneFetchStatistics();
 
   const [date, setDate] = useState('');
-  const [, setLoading] = useState(false);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerStatus, setDrawerStatus] = useState('');
@@ -50,22 +49,11 @@ useEffect(() => {
 
   const handleFetch = async () => {
     if (!date) return;
-    try {
-      setLoading(true);
-        await fetchAllHistoricalStats(date);
-
-      } catch (err) {
-      console.error('Error fetching stats', err);
-    } finally {
-      setLoading(false);
-    }
+    const dispatchAction = 'SET_HISTORIC_DAILY_STATS';
+    await fetchAllHistoricalStats(date, dispatchAction);
   };
 
   const handleBoxClick = (status) => {
-    /*setSelectedStatus(status);
-    setSelectedTicketIds([]); // 👈 limpiar
-    setDrawerStatus(status);
-    setDrawerOpen(true);*/
   };
 
   const handleCloseDrawer = () => {

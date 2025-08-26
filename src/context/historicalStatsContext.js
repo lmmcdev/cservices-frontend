@@ -9,13 +9,13 @@ export const HistoricalStatsProvider = ({ children }) => {
   const { getDailyStatsHandler } = useApiHandlers();
 
   // 📅 Obtiene los datos diarios
-  const fetchDailyStatistics = async (date) => {
+  const fetchDailyStatistics = async (date, dispatchAction) => {
 
     try {
-      const res = await getDailyStatsHandler(date);
+      const res = await getDailyStatsHandler(date, dispatchAction);
       //Esto debo hacerlo en el runner
       if (res.success) {
-        dispatchStats({ type: 'SET_HISTORIC_DAILY_STATS', payload: res });
+        dispatchStats({ type: `${dispatchAction}`, payload: res });
       } else {
         console.error('Error fetching historical daily stats:', res.message);
       }
@@ -26,9 +26,9 @@ export const HistoricalStatsProvider = ({ children }) => {
   };
 
   // 🚀 NUEVA: Ejecuta ambas juntas
-  const fetchAllHistoricalStats = async (date) => {
+  const fetchAllHistoricalStats = async (date, dispatchAction) => {
     await Promise.all([
-      fetchDailyStatistics(date)
+      fetchDailyStatistics(date, dispatchAction)
     ]);
   };
 

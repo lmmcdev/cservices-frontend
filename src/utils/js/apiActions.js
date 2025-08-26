@@ -2,6 +2,7 @@
 import { useCallback } from "react";
 import { getTicketsByPatientId, searchPatients } from "../apiPatients";
 import { getDailyStats, getTicketsByIds } from "../apiStats";
+import { getProviders } from "../apiProviders";
 import { pickUpdatedEntity } from "../apiActionHelper";
 import { useApiActionRunner } from "../../components/hooks/useApiActionRunner";
 //import { pickUpdatedTicket } from "../../utils/tickets/ticketActionHelper";
@@ -40,10 +41,21 @@ export function useApiHandlers() {
       return res;
     }, [run]);
 
+
     const getTicketsByIdHandler = useCallback(async (id) => {
       const res = await run({
         fn: getTicketsByIds,
         args: [id],
+        getUpdatedEntity: (res) => pickUpdatedEntity(res, 'stats'),
+      });
+      return res;
+    }, [run]);
+
+
+    const getProvidersHandler = useCallback(async (query, filter, pageNumber, PAGE_SIZE) => {
+      const res = await run({
+        fn: getProviders,
+        args: [query, filter, pageNumber, PAGE_SIZE],
         getUpdatedEntity: (res) => pickUpdatedEntity(res, 'stats'),
       });
       return res;
@@ -55,6 +67,7 @@ export function useApiHandlers() {
       handleGetTicketsByPatient,
       searchPatientsHandler,
       getDailyStatsHandler,
-      getTicketsByIdHandler
+      getTicketsByIdHandler,
+      getProvidersHandler
     };
   }
