@@ -6,7 +6,14 @@ export const fetchTableData = async () => {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoGet`);
     if(response.status === 204) return { success: true, message: [] }; // No content
     const data = await response.json();
-    if (!response.ok) throw new Error(data.message || 'Error fetching tickets');
+    if (!response.ok) {
+      return { success: false, message: data.message || 'API Error' };
+    }
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
+    }
+
     return data;
   
 };
@@ -17,9 +24,15 @@ export const phoneHistory = async (dispatch, setLoading, phoneNumber) => {
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoGetPhoneHistory?phone=${encodeURIComponent(phoneNumber)}`);
     const data = await response.json();
+    
     if (!response.ok) {
-      throw new Error(data.message || 'Error fetching calls history');
+      return { success: false, message: data.message || 'API Error' };
     }
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
+    }
+
     
     return { success: true, message: data.items || 'Updated successfully' };
   } catch (err) {
@@ -43,8 +56,13 @@ export const updateAiClassification = async (ticketId, {aiClassification}) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || 'Error al actualizar el agente');
+      return { success: false, message: data.message || 'API Error' };
     }
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
+    }
+
  
     return { success: true, message: data.message || 'Updated successfully' };
     
@@ -71,14 +89,18 @@ export const assignAgent = async (ticketId, currentAgentEmail) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || 'Error al actualizar el agente');
+      return { success: false, message: data.message || 'API Error' };
+    }
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
     }
  
     return { success: true, message: data.message || 'Updated successfully' };
     
   } catch (err) {
     const message = err.message || 'Something went wrong';
-
+    console.log(message);
     return { success: false, message };
   } 
 };
@@ -97,9 +119,12 @@ export const changeStatus = async (ticketId, newStatus) => {
     });
 
     const data = await response.json();
-
     if (!response.ok) {
-      throw new Error(data.message || 'Error al actualizar el estado');
+      return { success: false, message: data.message || 'API Error' };
+    }
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
     }
 
     return { success: true, message: data.message || 'Updated successfully' };
@@ -125,7 +150,11 @@ export const addNotes = async (ticketId, note) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || 'Error updating notes');
+      return { success: false, message: data.message || 'API Error' };
+    }
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
     }
 
     return { success: true, message: 'Updated successfully', ticket: data || null };
@@ -150,9 +179,13 @@ export const updateCollaborators = async (ticketId, collaborators) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || 'Error updating collaborators');
+      return { success: false, message: data.message || 'API Error' };
     }
-    return { success: true, message: data.message || 'Updated successfully'     };
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
+    }
+    return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';
     return { success: false, message };
@@ -173,7 +206,11 @@ export const updateTicketDepartment = async (ticketId,newDepartment) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || 'Error updating department');
+      return { success: false, message: data.message || 'API Error' };
+    }
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
     }
 
     return { success: true, message: data.message || 'Updated successfully' };
@@ -206,7 +243,11 @@ export const updateCenter = async (dispatch, setLoading, formData, center) => {
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || 'Error updating department');
+      return { success: false, message: data.message || 'API Error' };
+    }
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
     }
     return { success: true, message: data.message || 'Updated successfully' };
   } catch (err) {
@@ -234,8 +275,12 @@ export const updatePatientName = async (ticketId, newPatientName) => {
 
     const data = await response.json();
 
-    if (!response.ok || data.success === false) {
-      throw new Error(data.message || 'Error updating patient name');
+    if (!response.ok) {
+      return { success: false, message: data.message || 'API Error' };
+    }
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
     }
 
     return { success: true, message: data.message || 'Updated successfully' };
@@ -259,8 +304,12 @@ export const updatePatientDOB = async (ticketId, newPatientBOD) => {
 
     const data = await response.json();
 
-    if (!response.ok || data.success === false) {
-      throw new Error(data.message || 'Error updating patient bod');
+    if (!response.ok) {
+      return { success: false, message: data.message || 'API Error' };
+    }
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
     }
 
     return { success: true, message: data.message || 'Updated successfully' };
@@ -284,8 +333,12 @@ export const updateCallbackNumber = async (ticketId, newPatientPhone) => {
 
     const data = await response.json();
 
-    if (!response.ok || data.success === false) {
-      throw new Error(data.message || 'Error updating callback number');
+    if (!response.ok) {
+      return { success: false, message: data.message || 'API Error' };
+    }
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
     }
 
     //dispatch({ type: 'UPDATE_PATIENT_PHONE', payload: newPatientPhone });
@@ -312,8 +365,12 @@ export const updateWorkTime = async (ticketId, time, currentStatus) => {
 
     const data = await response.json();
 
-    if (!response.ok || data.success === false) {
-      throw new Error(data.message || 'Error registering work time');
+    if (!response.ok) {
+      return { success: false, message: data.message || 'API Error' };
+    }
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
     }
 
     //dispatch({ type: 'UPDATE_WORK_TIME', payload: time });
@@ -352,8 +409,12 @@ export const createNewTicket = async (dispatch, setLoading, formData) => {
 
     const data = await response.json();
 
-    if (!response.ok || data.success === false) {
-      throw new Error(data.message || 'Error creating ticket');
+    if (!response.ok) {
+      return { success: false, message: data.message || 'API Error' };
+    }
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
     }
 
     //dispatch({ type: 'TICKET_CREATED', payload: data });
@@ -385,7 +446,11 @@ export const relateTicketsByPhone = async (ticket_id, action = 'relatePast', pho
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.message || 'Error linking tickets');
+      return { success: false, message: data.message || 'API Error' };
+    }
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
     }
 
    return {

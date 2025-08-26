@@ -17,7 +17,11 @@ export const getProviders = async (query, filter, page = 1, size = 50) => {
         const data = await response.json();
 
         if (!response.ok) {
-        throw new Error(data.message || 'Error fetching tickets');
+            return { success: false, message: data.message || 'API Error' };
+        }
+
+        if (data.success === false) {
+            return { success: false, message: data.message || 'Validation failed' };
         }
         // Devuelve solo los datos
         return { success: true, message: data || 'Updated successfully' };

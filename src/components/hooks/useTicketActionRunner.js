@@ -42,6 +42,14 @@ export function useTicketActionRunner() {
     try {
       const res = await fn(...args);
 
+      //capturar si hay success=false
+      if (res?.success === false) {
+        if (errorMessage) showNotification(res.message || errorMessage, 'error');
+        onError?.(res);
+        return res; // importante: no seguir al success
+      }
+
+
       // 🔁 Merge global si el caller nos dice qué actualizar
       if (typeof getUpdatedTicket === 'function') {
         let updated = null;

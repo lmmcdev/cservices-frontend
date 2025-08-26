@@ -22,7 +22,11 @@ export const getTicketsByStatus = async (status, date, {params}) => {
 
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.message || 'Error fetching tickets');
+      return { success: false, message: data.message || 'API Error' };
+    }
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
     }
 
     // Devuelve solo los datos
@@ -55,7 +59,11 @@ export const getTicketsByIds = async (ticketIds, {params}) => {
 
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.message || 'Error fetching tickets');
+      return { success: false, message: data.message || 'API Error' };
+    }
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
     }
 
     // Devuelve solo los datos
@@ -81,7 +89,11 @@ export const getDailyStats = async (date, scope='date') => {
 
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.message || 'Error fetching tickets');
+      return { success: false, message: data.message || 'API Error' };
+    }
+
+    if (data.success === false) {
+      return { success: false, message: data.message || 'Validation failed' };
     }
 
     // Devuelve solo los datos
