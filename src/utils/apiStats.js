@@ -67,7 +67,7 @@ export const getTicketsByIds = async (ticketIds, {params}) => {
     }
 
     // Devuelve solo los datos
-    return { success: true, message: data.message || 'Updated successfully' };
+    return { success: true, message: {items: data, continuationToken: data.continuationToken} || 'Updated successfully' };
   } catch (err) {
     const message = err.message || 'Something went wrong';
     return { success: false, message };

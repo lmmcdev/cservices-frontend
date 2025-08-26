@@ -23,7 +23,7 @@ import PatientSearchContainer from '../components/components/patients/patientSea
 import TicketSearchContainer from '../components/components/tickets/ticketSearchContainer';
 import TicketQuickViewDialog from '../components/dialogs/ticketQuickViewDialog';
 import SearchTicketResults from '../components/components/tickets/searchTicketsResults';
-import { useApiHandlers } from '../utils/js/patientsActions';
+import { useApiHandlers } from '../utils/js/apiActions';
 
 const mockData = [];
 

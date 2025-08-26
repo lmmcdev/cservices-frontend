@@ -7,7 +7,7 @@ import FmdGoodIcon from '@mui/icons-material/FmdGood';
 import MDVitaLocationSelect from '../../fields/mdvitaCenterSelect';
 import SearchPatientResults from './searchPatientsResults';
 import SearchButton from '../../auxiliars/searchButton';
-import { useApiHandlers } from '../../../utils/js/patientsActions';
+import { useApiHandlers } from '../../../utils/js/apiActions';
 
 const PAGE_SIZE = 50;
 

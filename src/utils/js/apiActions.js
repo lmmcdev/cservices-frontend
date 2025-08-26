@@ -1,6 +1,7 @@
 // utils/providersActions.js
 import { useCallback } from "react";
 import { getTicketsByPatientId, searchPatients } from "../apiPatients";
+import { getDailyStats } from "../apiStats";
 import { pickUpdatedEntity } from "../apiActionHelper";
 import { useApiActionRunner } from "../../components/hooks/useApiActionRunner";
 //import { pickUpdatedTicket } from "../../utils/tickets/ticketActionHelper";
@@ -30,8 +31,19 @@ export function useApiHandlers() {
     }, [run]);
 
 
+    const getDailyStatsHandler = useCallback(async (date) => {
+      const res = await run({
+        fn: getDailyStats,
+        args: [date],
+        getUpdatedEntity: (res) => pickUpdatedEntity(res, 'stats'),
+      });
+      return res;
+    }, [run]);
+
+
     return {
       handleGetTicketsByPatient,
-      searchPatientsHandler
+      searchPatientsHandler,
+      getDailyStatsHandler
     };
   }
