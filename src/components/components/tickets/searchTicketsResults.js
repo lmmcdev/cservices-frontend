@@ -119,17 +119,16 @@ const SearchTicketResults = ({ results, inputValue, hasMore, loadMore, selectedT
   );
 
   if(!results || results.length === 0) return <EmptyState />;
+
   return (
     <Box
       sx={{
-        mt: 2,
-        maxHeight: '55vh',
+        mt: { xs: 1, sm: 2 },
+        maxHeight: { xs: '50vh', sm: '55vh', md: '62vh' },
         overflowY: 'auto',
-        // >>> Alineación con Keyword + Search:
-        px: 3,                 // mismo padding horizontal que el header
-        // >>> Evita que el primer card se “corte” al hacer hover
-        pt: 1.5,
-        pb: 1,
+        px: { xs: 1.5, sm: 2, md: 3 },
+        pt: { xs: 1, sm: 1.5 },
+        pb: { xs: 0.5, sm: 1 },
         scrollPaddingTop: '12px',
         '& > .MuiCard-root:first-of-type': { mt: 0.5 },
       }}
@@ -148,12 +147,13 @@ const SearchTicketResults = ({ results, inputValue, hasMore, loadMore, selectedT
             tabIndex={0}
             sx={{
               display: 'flex',
-              px: 2,
-              py: 2,
-              mb: 2,
-              alignItems: 'center',
+              flexDirection: { xs: 'column', sm: 'row' },
+              alignItems: { xs: 'flex-start', sm: 'center' },
+              px: { xs: 1.5, sm: 2 },
+              py: { xs: 1.25, sm: 2 },
+              mb: { xs: 1.25, sm: 2 },
               cursor: 'pointer',
-              borderRadius: '20px',
+              borderRadius: { xs: 2, sm: 3 },
               border: '1px solid #e0e0e0',
               backgroundColor: '#f9fbfd',
               boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.05)',
@@ -172,11 +172,16 @@ const SearchTicketResults = ({ results, inputValue, hasMore, loadMore, selectedT
             onClick={() => selectedTicket(ticket)}
           >
             {/* marcador redondo con status */}
-            <Box sx={{ mr: 2, display: 'flex', alignItems: 'center' }}>
+            <Box sx={{
+              mr: { xs: 0, sm: 2 },
+              mb: { xs: 1, sm: 0 },
+              display: 'flex',
+              alignItems: 'center'
+            }}>
               <Box
                 sx={{
-                  width: 36,
-                  height: 36,
+                  width: { xs: 28, sm: 36 },
+                  height: { xs: 28, sm: 36 },
                   borderRadius: '50%',
                   border: `2px solid ${sc.border}`,
                   backgroundColor: sc.bg,
@@ -190,8 +195,8 @@ const SearchTicketResults = ({ results, inputValue, hasMore, loadMore, selectedT
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
-                    width: 8,
-                    height: 8,
+                    width: { xs: 6, sm: 8 },
+                    height: { xs: 6, sm: 8 },
                     borderRadius: '50%',
                     backgroundColor: sc.fg,
                   }}
@@ -200,9 +205,27 @@ const SearchTicketResults = ({ results, inputValue, hasMore, loadMore, selectedT
             </Box>
 
             {/* contenido */}
-            <Box sx={{ flex: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Typography variant="subtitle1" fontWeight="bold" color="#333" sx={{ ...lineClamp, pr: 1 }}>
+            <Box sx={{ flex: 1, width: '100%' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: { xs: 0.5, sm: 1 },
+                }}
+              >
+                <Typography
+                  variant="subtitle1"
+                  fontWeight="bold"
+                  color="#333"
+                  sx={{
+                    ...lineClamp,
+                    pr: 1,
+                    fontSize: { xs: 15, sm: 16 },
+                    lineHeight: { xs: 1.25, sm: 1.3 },
+                    maxWidth: { xs: '100%', sm: 'auto' },
+                  }}
+                >
                   {getTicketName(ticket)}
                 </Typography>
 
@@ -210,10 +233,10 @@ const SearchTicketResults = ({ results, inputValue, hasMore, loadMore, selectedT
                   label={status}
                   size="small"
                   sx={{
-                    height: 18,
-                    fontSize: '0.65rem',
+                    height: { xs: 20, sm: 18 },
+                    fontSize: { xs: '0.7rem', sm: '0.65rem' },
                     fontWeight: 500,
-                    px: '4px',
+                    px: '6px',
                     bgcolor: sc.bg,
                     color: sc.fg,
                     borderRadius: '999px',
@@ -222,49 +245,108 @@ const SearchTicketResults = ({ results, inputValue, hasMore, loadMore, selectedT
                 />
               </Box>
 
+              {/* Resumen SIN ellipsis: wrap a múltiples líneas */}
               <Typography
                 variant="body2"
-                sx={{ color: '#6c757d', fontWeight: 500, fontSize: '0.75rem', letterSpacing: 0.3, ...lineClamp }}
+                sx={{
+                  color: '#6c757d',
+                  fontWeight: 500,
+                  fontSize: { xs: '0.85rem', sm: '0.78rem', md: '0.75rem' },
+                  letterSpacing: 0.3,
+                  lineHeight: { xs: 1.35, sm: 1.3 },
+                  whiteSpace: 'normal',        // <- permite múltiples líneas
+                  wordBreak: 'break-word',     // <- rompe palabras largas
+                  overflowWrap: 'anywhere',    // <- y URLs/identificadores
+                  mt: { xs: 0.25, sm: 0.25 },
+                }}
+                title={ticket.call_reason || ticket.summary || '—'}
               >
                 {ticket.call_reason || ticket.summary || '—'}
               </Typography>
 
               <Typography
                 variant="body2"
-                sx={{ color: '#5B5F7B', fontWeight: 400, fontSize: '0.7rem', fontStyle: 'italic', ...lineClamp }}
+                sx={{
+                  color: '#5B5F7B',
+                  fontWeight: 400,
+                  fontSize: { xs: '0.78rem', sm: '0.7rem' },
+                  fontStyle: 'italic',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.75,
+                  ...lineClamp
+                }}
               >
-                <FmdGoodIcon style={{ fontSize: 14, marginRight: 6, verticalAlign: '-2px' }} />
+                <FmdGoodIcon sx={{ fontSize: { xs: 16, sm: 14 }, verticalAlign: 'middle' }} />
                 {getTicketLocation(ticket)}
               </Typography>
 
-              <Box sx={{ mt: 1 }}>
-                <Stack direction="row" spacing={2} useFlexGap flexWrap="wrap" sx={{ rowGap: 0.5 }}>
+              <Box sx={{ mt: { xs: 0.75, sm: 1 } }}>
+                <Stack
+                  direction="row"
+                  spacing={{ xs: 1.25, sm: 2 }}
+                  useFlexGap
+                  flexWrap="wrap"
+                  sx={{ rowGap: { xs: 0.75, sm: 0.5 } }}
+                >
                   {dob && (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 160 }}>
-                      <CakeIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                      <Typography variant="body2" color="text.secondary" sx={lineClamp}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.75,
+                        flexBasis: { xs: '48%', sm: 'auto' },
+                        minWidth: { xs: '48%', sm: 160 },
+                      }}
+                    >
+                      <CakeIcon sx={{ fontSize: { xs: 18, sm: 18 }, color: 'text.secondary' }} />
+                      <Typography variant="body2" color="text.secondary" sx={{ ...lineClamp, fontSize: { xs: '0.82rem', sm: '0.8rem' } }}>
                         {dob}
                       </Typography>
                     </Box>
                   )}
 
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 160 }}>
-                    <PhoneIphoneIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                    <Typography variant="body2" color="text.secondary" sx={lineClamp}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.75,
+                      flexBasis: { xs: '48%', sm: 'auto' },
+                      minWidth: { xs: '48%', sm: 160 },
+                    }}
+                  >
+                    <PhoneIphoneIcon sx={{ fontSize: { xs: 18, sm: 18 }, color: 'text.secondary' }} />
+                    <Typography variant="body2" color="text.secondary" sx={{ ...lineClamp, fontSize: { xs: '0.82rem', sm: '0.8rem' } }}>
                       {getTicketPhone(ticket)}
                     </Typography>
                   </Box>
 
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 180 }}>
-                    <PersonOutlineIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                    <Typography variant="body2" color="text.secondary" sx={lineClamp}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.75,
+                      flexBasis: { xs: '48%', sm: 'auto' },
+                      minWidth: { xs: '48%', sm: 180 },
+                    }}
+                  >
+                    <PersonOutlineIcon sx={{ fontSize: { xs: 18, sm: 18 }, color: 'text.secondary' }} />
+                    <Typography variant="body2" color="text.secondary" sx={{ ...lineClamp, fontSize: { xs: '0.82rem', sm: '0.8rem' } }}>
                       {getAgent(ticket)}
                     </Typography>
                   </Box>
 
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 210 }}>
-                    <ScheduleIcon sx={{ fontSize: 18, color: 'text.secondary' }} />
-                    <Typography variant="body2" color="text.secondary" sx={lineClamp}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 0.75,
+                      flexBasis: { xs: '48%', sm: 'auto' },
+                      minWidth: { xs: '48%', sm: 210 },
+                    }}
+                  >
+                    <ScheduleIcon sx={{ fontSize: { xs: 18, sm: 18 }, color: 'text.secondary' }} />
+                    <Typography variant="body2" color="text.secondary" sx={{ ...lineClamp, fontSize: { xs: '0.82rem', sm: '0.8rem' } }}>
                       {getCreatedAt(ticket)}
                     </Typography>
                   </Box>
@@ -274,9 +356,6 @@ const SearchTicketResults = ({ results, inputValue, hasMore, loadMore, selectedT
           </Card>
         );
       })}
-
-     
-
     </Box>
   );
 };
