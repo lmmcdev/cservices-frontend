@@ -13,7 +13,7 @@ import { useAgents } from './context/agentsContext';
 import { useNotification } from './context/notificationsContext';
 import MsalProviderWrapper from './providers/msalProvider';
 import { useInitAppData } from './components/hooks/useInitAppData';
-import { registerForPushNotifications } from './utils/js/registerPush';
+//import { registerForPushNotifications } from './utils/js/registerPush';
 import { setupFetchAuth } from './setupFetchAuth';
 
 
@@ -37,11 +37,11 @@ function AppContent() {
   const agent = state.agents.find(a => a.agent_email === agentEmail );
   
   //notifications push
-  useEffect(() => {
+  /*useEffect(() => {
   if ('serviceWorker' in navigator && 'PushManager' in window) {
     registerForPushNotifications(agent);
   }
-}, [agent]);
+}, [agent]);*/
 
 
   useEffect(() => {
