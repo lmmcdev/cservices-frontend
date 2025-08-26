@@ -1,12 +1,5 @@
-// SearchTicketResults.jsx
-import React, { useRef, useCallback } from 'react';
-import {
-  Box,
-  Card,
-  Typography,
-  Chip,
-  Stack,
-} from '@mui/material';
+import React, { useRef, useCallback, useEffect } from 'react';
+import { Box, Card, Typography, Chip, Stack } from '@mui/material';
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone';
 import CakeIcon from '@mui/icons-material/Cake';
 import FmdGoodIcon from '@mui/icons-material/FmdGood';
@@ -71,7 +64,11 @@ const getTicketDob = (t) =>
   );
 
 const getTicketName = (t) =>
-  t?.linked_patient_snapshot?.Name ?? t?.patient_name ?? t?.caller_name ?? t?.caller_Name ?? 'No name';
+  t?.linked_patient_snapshot?.Name ??
+  t?.patient_name ??
+  t?.caller_name ??
+  t?.caller_Name ??
+  'No name';
 
 const getTicketPhone = (t) =>
   t?.callback_number ??
@@ -100,32 +97,51 @@ const statusColors = {
 const getStatusStyle = (status) => statusColors[status] || statusColors.New;
 
 // -------------------- Component --------------------
-const SearchTicketResults = ({ results, inputValue, hasMore, loadMore, selectedTicket }) => {
+const SearchTicketResults = ({
+  results,
+  inputValue,
+  hasMore,
+  loadMore,
+  selectedTicket,
+  loading = false,
+}) => {
+  const ioRef = useRef(null);
+  const scrollRootRef = useRef(null);
 
-  const observerRef = useRef(null);
   const lastElementRef = useCallback(
     (node) => {
-      if (observerRef.current) observerRef.current.disconnect();
+      if (ioRef.current) ioRef.current.disconnect();
 
-      observerRef.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          loadMore();
+      ioRef.current = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasMore && !loading) {
+            loadMore();
+          }
+        },
+        {
+          root: scrollRootRef.current,     // 👈 observa el scroll interno
+          rootMargin: '0px 0px 200px 0px', // prefetch antes del final
+          threshold: 0,
         }
-      });
+      );
 
-      if (node) observerRef.current.observe(node);
+      if (node) ioRef.current.observe(node);
     },
-    [hasMore, loadMore]
+    [hasMore, loading, loadMore]
   );
 
-  if(!results || results.length === 0) return <EmptyState />;
+  useEffect(() => () => ioRef.current?.disconnect(), []);
+
+  if (!results || results.length === 0) return <EmptyState />;
 
   return (
     <Box
+      ref={scrollRootRef}
       sx={{
-        mt: { xs: 1, sm: 2 },
-        maxHeight: { xs: '50vh', sm: '55vh', md: '62vh' },
+        // ocupa todo el alto disponible del body del drawer
+        height: '100%',
         overflowY: 'auto',
+        mt: { xs: 1, sm: 2 },
         px: { xs: 1.5, sm: 2, md: 3 },
         pt: { xs: 1, sm: 1.5 },
         pb: { xs: 0.5, sm: 1 },
@@ -172,12 +188,14 @@ const SearchTicketResults = ({ results, inputValue, hasMore, loadMore, selectedT
             onClick={() => selectedTicket(ticket)}
           >
             {/* marcador redondo con status */}
-            <Box sx={{
-              mr: { xs: 0, sm: 2 },
-              mb: { xs: 1, sm: 0 },
-              display: 'flex',
-              alignItems: 'center'
-            }}>
+            <Box
+              sx={{
+                mr: { xs: 0, sm: 2 },
+                mb: { xs: 1, sm: 0 },
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
               <Box
                 sx={{
                   width: { xs: 28, sm: 36 },
@@ -254,9 +272,9 @@ const SearchTicketResults = ({ results, inputValue, hasMore, loadMore, selectedT
                   fontSize: { xs: '0.85rem', sm: '0.78rem', md: '0.75rem' },
                   letterSpacing: 0.3,
                   lineHeight: { xs: 1.35, sm: 1.3 },
-                  whiteSpace: 'normal',        // <- permite múltiples líneas
-                  wordBreak: 'break-word',     // <- rompe palabras largas
-                  overflowWrap: 'anywhere',    // <- y URLs/identificadores
+                  whiteSpace: 'normal',
+                  wordBreak: 'break-word',
+                  overflowWrap: 'anywhere',
                   mt: { xs: 0.25, sm: 0.25 },
                 }}
                 title={ticket.call_reason || ticket.summary || '—'}
@@ -274,7 +292,7 @@ const SearchTicketResults = ({ results, inputValue, hasMore, loadMore, selectedT
                   display: 'flex',
                   alignItems: 'center',
                   gap: 0.75,
-                  ...lineClamp
+                  ...lineClamp,
                 }}
               >
                 <FmdGoodIcon sx={{ fontSize: { xs: 16, sm: 14 }, verticalAlign: 'middle' }} />
@@ -300,7 +318,11 @@ const SearchTicketResults = ({ results, inputValue, hasMore, loadMore, selectedT
                       }}
                     >
                       <CakeIcon sx={{ fontSize: { xs: 18, sm: 18 }, color: 'text.secondary' }} />
-                      <Typography variant="body2" color="text.secondary" sx={{ ...lineClamp, fontSize: { xs: '0.82rem', sm: '0.8rem' } }}>
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ ...lineClamp, fontSize: { xs: '0.82rem', sm: '0.8rem' } }}
+                      >
                         {dob}
                       </Typography>
                     </Box>
@@ -316,7 +338,11 @@ const SearchTicketResults = ({ results, inputValue, hasMore, loadMore, selectedT
                     }}
                   >
                     <PhoneIphoneIcon sx={{ fontSize: { xs: 18, sm: 18 }, color: 'text.secondary' }} />
-                    <Typography variant="body2" color="text.secondary" sx={{ ...lineClamp, fontSize: { xs: '0.82rem', sm: '0.8rem' } }}>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ ...lineClamp, fontSize: { xs: '0.82rem', sm: '0.8rem' } }}
+                    >
                       {getTicketPhone(ticket)}
                     </Typography>
                   </Box>
@@ -331,7 +357,11 @@ const SearchTicketResults = ({ results, inputValue, hasMore, loadMore, selectedT
                     }}
                   >
                     <PersonOutlineIcon sx={{ fontSize: { xs: 18, sm: 18 }, color: 'text.secondary' }} />
-                    <Typography variant="body2" color="text.secondary" sx={{ ...lineClamp, fontSize: { xs: '0.82rem', sm: '0.8rem' } }}>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ ...lineClamp, fontSize: { xs: '0.82rem', sm: '0.8rem' } }}
+                    >
                       {getAgent(ticket)}
                     </Typography>
                   </Box>
@@ -346,7 +376,11 @@ const SearchTicketResults = ({ results, inputValue, hasMore, loadMore, selectedT
                     }}
                   >
                     <ScheduleIcon sx={{ fontSize: { xs: 18, sm: 18 }, color: 'text.secondary' }} />
-                    <Typography variant="body2" color="text.secondary" sx={{ ...lineClamp, fontSize: { xs: '0.82rem', sm: '0.8rem' } }}>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ ...lineClamp, fontSize: { xs: '0.82rem', sm: '0.8rem' } }}
+                    >
                       {getCreatedAt(ticket)}
                     </Typography>
                   </Box>
