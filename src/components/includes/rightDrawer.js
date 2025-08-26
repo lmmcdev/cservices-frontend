@@ -25,13 +25,13 @@ export default function RightDrawer({
   const { tickets, loading, hasMore, fetchMore, reset } = usePaginatedTickets(fetchFn, fetchParams);
 
   // ✅ Cargar tickets cuando se abre el Drawer
- useEffect(() => {
-  if (open && fetchFn) {
-    reset();
-    fetchMore();
-  }
-   // eslint-disable-next-line
-}, [open, fetchFn, fetchParams]);
+  useEffect(() => {
+    if (open && fetchFn) {
+      reset();
+      fetchMore();
+    }
+    // eslint-disable-next-line
+  }, [open, fetchFn, fetchParams]);
 
   const handleTicketClick = (ticket) => {
     setSelectedTicket(ticket);
@@ -46,18 +46,25 @@ export default function RightDrawer({
   return (
     <Box
       sx={{
-        width: 420,
+        position: 'fixed',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 1300,
         bgcolor: '#fff',
-        p: 3,
+        borderLeft: '1px solid #f0f0f0',
         boxShadow: 4,
         overflowY: 'auto',
-        position: 'fixed',
-        right: open ? 0 : -420,
-        top: 0,
-        bottom: 0,
-        transition: 'right 0.3s ease',
-        zIndex: 1300,
-        borderLeft: '1px solid #f0f0f0',
+
+        // 👇 Anchos responsive
+        width: { xs: '100vw', sm: 400, md: 460, lg: 520 },
+
+        // 👇 Padding responsive
+        p: { xs: 2, sm: 3 },
+
+        // 👇 Animación de entrada/salida
+        transform: open ? 'translateX(0%)' : 'translateX(100%)',
+        transition: 'transform 0.3s ease',
       }}
     >
       {/* Header */}
@@ -67,7 +74,7 @@ export default function RightDrawer({
           justifyContent: 'space-between',
           alignItems: 'center',
           pb: 2,
-          px: 2,
+          px: { xs: 1, sm: 2 },
           borderBottom: '1px solid #e0e0e0',
           mb: 2,
         }}
@@ -87,14 +94,12 @@ export default function RightDrawer({
 
       {/* Ticket Cards */}
       <SearchTicketResults
-                results={tickets}
-                inputValue=''
-                hasMore={hasMore}
-                loadMore={fetchMore}
-                selectedTicket={handleTicketClick}
-                
-              />
-      
+        results={tickets}
+        inputValue=""
+        hasMore={hasMore}
+        loadMore={fetchMore}
+        selectedTicket={handleTicketClick}
+      />
 
       {loading && tickets.length === 0 && (
         <Box sx={{ textAlign: 'center', py: 2 }}>
