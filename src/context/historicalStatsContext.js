@@ -53,34 +53,3 @@ export const useHistoricalStatsDispatch = () => useContext(HistoricalStatsContex
 export const useFetchHistoricalStatistics = () => useContext(HistoricalStatsContext).fetchHistoricalStatistics;
 export const useFetchHistoricalDailyStatistics = () => useContext(HistoricalStatsContext).fetchDailyStatistics;
 export const useFetchAllHistoricalStatistics = () => useContext(HistoricalStatsContext).fetchAllHistoricalStats;
-// context/historicalStatsContext.js
-export const useHistoricDailyStats = () => {
-  const { stateStats } = useHistoricalStats();
-  return stateStats.historic_daily_stats || {};
-};
-
-// Selectores concretos para gráficos:
-export const useHistoricHourlyBreakdown = () => {
-  const stats = useHistoricDailyStats();
-  return stats.hourlyBreakdown || [];
-};
-
-export const useHistoricRiskStats = () => {
-  const stats = useHistoricDailyStats();
-  return stats.aiClassificationStats?.risk || {};
-};
-
-export const useHistoricPriorityStats = () => {
-  const stats = useHistoricDailyStats();
-  return stats.aiClassificationStats?.priority || {};
-};
-
-export const useHistoricCategoryStats = () => {
-  const stats = useHistoricDailyStats();
-  return stats.aiClassificationStats?.category || {};
-};
-
-export const useHistoricStatusCounts = () => {
-  const stats = useHistoricDailyStats();
-  return stats.statusCounts || {};
-};

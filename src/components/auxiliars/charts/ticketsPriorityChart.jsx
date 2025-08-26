@@ -1,4 +1,4 @@
-/*import React, { useState, memo } from 'react';
+import React, { useState } from 'react';
 import { useSpring, animated } from '@react-spring/web';
 import {
   Box,
@@ -54,7 +54,6 @@ function AnimatedActiveShape(props) {
 }
 
 export default function TicketPriorityChartBase({ stats, onCategoryClick }) {
-  console.log('rendered ticket priority chart')
   const [activeIndex, setActiveIndex] = useState(null);
   const tickets = stats?.aiClassificationStats?.priority || {};
   const filtered = Object.entries(tickets).filter(
@@ -152,7 +151,7 @@ export default function TicketPriorityChartBase({ stats, onCategoryClick }) {
                     <Cell key={`cell-${idx}`} fill={entry.fill} />
                   ))}
                 </Pie>
-                {/* Elimina cualquier tooltip oscuro por defecto *
+                {/* Elimina cualquier tooltip oscuro por defecto */}
                 <RechartsTooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
@@ -196,34 +195,14 @@ export default function TicketPriorityChartBase({ stats, onCategoryClick }) {
 }
 
 // Daily wrapper
-export const DailyTicketPriorityChart = memo(function DailyTicketPriorityChart({ onCategoryClick }) {
+export function DailyTicketPriorityChart({ onCategoryClick }) {
   const { daily_statistics } = useDailyStatsState();
   return <TicketPriorityChartBase stats={daily_statistics || {}} onCategoryClick={onCategoryClick} />;
-});
+}
 
 // Historical wrapper
-export const HistoricalTicketPriorityChart = memo(function HistoricalTicketPriorityChart({ onCategoryClick }) {
+export function HistoricalTicketPriorityChart({ onCategoryClick }) {
   const { stateStats } = useHistoricalStats();
   const stats = stateStats.historic_daily_stats || {};
   return <TicketPriorityChartBase stats={stats} onCategoryClick={onCategoryClick} />;
-});*/
-
-
-// src/components/auxiliars/charts/TicketPriorityChart.jsx
-import React, { memo } from 'react';
-import TicketPriorityChartBase from './chartbases/ticketPriorityChartBase';
-import { useDailyStatsState } from '../../../context/dailyStatsContext';
-import { useHistoricalStats } from '../../../context/historicalStatsContext';
-
-console.log("ticket priority")
-// Wrapper para Daily
-export const DailyTicketPriorityChart = memo(function DailyTicketPriorityChart({ onCategoryClick }) {
-  const { daily_statistics } = useDailyStatsState();
-  return <TicketPriorityChartBase stats={daily_statistics || {}} onCategoryClick={onCategoryClick} />;
-});
-
-// Wrapper para Historical
-export const HistoricalTicketPriorityChart = memo(function HistoricalTicketPriorityChart({ onCategoryClick }) {
-  const { stateStats } = useHistoricalStats();
-  return <TicketPriorityChartBase stats={stateStats.historic_daily_stats || {}} onCategoryClick={onCategoryClick} />;
-});
+}

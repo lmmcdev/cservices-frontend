@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Grid,
@@ -46,19 +46,6 @@ useEffect(() => {
   }
 }, [location.state]);
 
-  const fetchFn = useCallback(({ continuationToken, limit }) => {
-    if (selectedTicketIds.length > 0) {
-      return getTicketsByIds(selectedTicketIds, {
-        params: { continuationToken, limit },
-      });
-    }
-  }, [selectedTicketIds]);
-
-  const fetchParams = useMemo(() => ({
-    status: selectedStatus,
-    date,
-    ids: selectedTicketIds,
-  }), [selectedStatus, date, selectedTicketIds]);
 
   const handleFetch = async () => {
     if (!date) return;
@@ -281,8 +268,18 @@ useEffect(() => {
         open={drawerOpen}
         onClose={handleCloseDrawer}
         status={drawerStatus}
-        fetchFn={fetchFn}
-        fetchParams={fetchParams}
+        fetchFn={({ continuationToken, limit }) => {
+          if (selectedTicketIds.length > 0) {
+            return getTicketsByIds(selectedTicketIds, {
+              params: { continuationToken, limit }
+            });
+          }
+        }}
+        fetchParams={{
+          status: selectedStatus,
+          date,
+          ids: selectedTicketIds
+        }}
       />
 
     </>

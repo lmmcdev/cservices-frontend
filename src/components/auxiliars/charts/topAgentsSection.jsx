@@ -1,6 +1,6 @@
 // src/components/topAgentsSection.jsx
 
-import React, { useState, useMemo, memo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -30,7 +30,6 @@ const bounceHover = keyframes`
 `;
 
 export default function TopAgentsSection({ stats }) {
-  console.log('Rendered top agents section')
   const [page, setPage] = useState(1);
   const pageSize = 4;
 
@@ -167,13 +166,13 @@ export default function TopAgentsSection({ stats }) {
 }
 
 // ✅ Daily wrapper
-export const DailyTopAgents = memo(function DailyTopAgents() {
+export function DailyTopAgents() {
   const { daily_statistics } = useDailyStatsState();
   return <TopAgentsSection stats={daily_statistics || {}} />;
-});
+}
 
 // ✅ Historical wrapper
-export const HistoricalTopAgents = memo(function HistoricalTopAgents() {
+export function HistoricalTopAgents() {
   const { stateStats } = useHistoricalStats();
   return <TopAgentsSection stats={stateStats.historic_daily_stats || {}} />;
-});
+}

@@ -5,7 +5,6 @@ import { Card, CardContent, Box, Typography } from '@mui/material';
 import GroupIcon from '@mui/icons-material/Group'; // 👥
 
 export default function ActiveAgents() {
-  console.log('Rendered active agents')
   const activeCount = 6; // Reemplázalo con tu dato real
 
   return (

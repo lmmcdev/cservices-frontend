@@ -9,7 +9,6 @@ import { formatMinutesToHoursPretty } from '../../../utils/js/minutosToHourMinut
 
 // componente base
 function AverageResolutionTimeCard({ avgMinutes }) {
-  console.log('rendered average resolution time')
   const averageTime = formatMinutesToHoursPretty(avgMinutes || 0);
 
   return (
