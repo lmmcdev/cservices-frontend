@@ -28,16 +28,20 @@ export default function usePaginatedTickets(
   const extractItemsAndToken = (res) => {
     const payload = res?.message ?? res;
 
+    
     // items puede venir en varias formas
-    const items = Array.isArray(payload)
-      ? payload
-      : (payload?.items ?? []);
-
+   /*const items = Array.isArray(payload)
+      ? (payload?.items?.items ?? [])
+      : payload;*/
+    const items = payload?.items?.items ?? [];  
+    
     const nextToken =
       payload?.continuationToken ??
       payload?.nextToken ??
       res?.continuationToken ??
       null;
+
+
 
     return { items: Array.isArray(items) ? items : [], nextToken };
   };
@@ -49,7 +53,6 @@ export default function usePaginatedTickets(
 
   const fetchMore = useCallback(async () => {
     if (loading || !hasMore) return;
-    setLoading(true);
 
     try {
       const res = await fetchFn({
