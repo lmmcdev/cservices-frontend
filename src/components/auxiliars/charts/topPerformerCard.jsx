@@ -1,6 +1,6 @@
 // src/components/topPerformerCard.jsx
 
-import React, { useMemo } from 'react';
+import React, { useMemo, memo } from 'react';
 import { Box, Typography, Card } from '@mui/material';
 import confetti from 'canvas-confetti';
 import { useDailyStatsState } from '../../../context/dailyStatsContext';
@@ -8,6 +8,7 @@ import { useHistoricalStats } from '../../../context/historicalStatsContext';
 import { capitalizeWords } from '../../../utils/js/capitalizeWords';
 
 function TopPerformerCardBase({ agentStats = [], title }) {
+  console.log("Permormed card")
   const topAgent = useMemo(() => {
     const statsArray = agentStats?.length
       ? agentStats
@@ -135,16 +136,17 @@ function TopPerformerCardBase({ agentStats = [], title }) {
   );
 }
 
-export function DailyTopPerformerCard() {
+//export memoized dailytoperformedCard
+export const DailyTopPerformerCard = memo(function DailyTopPerformerCard() {
   const dailyStats = useDailyStatsState();
   const stats = dailyStats.daily_statistics || {};
   const agentStats = stats.agentStats || [];
   return <TopPerformerCardBase agentStats={agentStats} title="Top Performer – Today" />;
-}
+})
 
-export function HistoricalTopPerformerCard() {
+export const HistoricalTopPerformerCard = memo(function HistoricalTopPerformerCard() {
   const { stateStats } = useHistoricalStats();
   const stats = stateStats.historic_daily_stats || {};
   const agentStats = stats.agentStats || [];
   return <TopPerformerCardBase agentStats={agentStats} title="Top Performer – Historical" />;
-}
+});
