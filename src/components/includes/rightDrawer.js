@@ -22,7 +22,8 @@ export default function RightDrawer({
   const [dialogOpen, setDialogOpen] = useState(false);
 
   // ✅ Hook para manejar paginación
-  const { tickets, loading, hasMore, fetchMore, reset } = usePaginatedTickets(fetchFn, fetchParams);
+  const { tickets, loading, hasMore, fetchMore, reset } =
+    usePaginatedTickets(fetchFn, fetchParams);
 
   // ✅ Cargar tickets cuando se abre el Drawer
   useEffect(() => {
@@ -54,7 +55,11 @@ export default function RightDrawer({
         bgcolor: '#fff',
         borderLeft: '1px solid #f0f0f0',
         boxShadow: 4,
-        overflowY: 'auto',
+
+        // 👉 layout a columnas para controlar alturas
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
 
         // 👇 Anchos responsive
         width: { xs: '100vw', sm: 400, md: 460, lg: 520 },
@@ -77,14 +82,20 @@ export default function RightDrawer({
           px: { xs: 1, sm: 2 },
           borderBottom: '1px solid #e0e0e0',
           mb: 2,
+          flexShrink: 0,
         }}
       >
         <Box>
-          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', textTransform: 'uppercase' }}>
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ fontSize: '0.7rem', textTransform: 'uppercase' }}
+          >
             Viewing
           </Typography>
           <Typography variant="h6" fontWeight="bold">
-            {status || 'Tickets'} — {tickets.length} Ticket{tickets.length !== 1 ? 's' : ''}
+            {status || 'Tickets'} — {tickets.length} Ticket
+            {tickets.length !== 1 ? 's' : ''}
           </Typography>
         </Box>
         <IconButton onClick={onClose}>
@@ -92,30 +103,49 @@ export default function RightDrawer({
         </IconButton>
       </Box>
 
-      {/* Ticket Cards */}
-      <SearchTicketResults
-        results={tickets}
-        inputValue=""
-        hasMore={hasMore}
-        loadMore={fetchMore}
-        selectedTicket={handleTicketClick}
+      {/* Body: lista scrolleable que ocupa TODO el alto restante */}
+      <Box
+        sx={{
+          flex: 1,
+          minHeight: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Lista con scroll interno a altura completa */}
+        <Box sx={{ flex: 1, minHeight: 0 }}>
+          <SearchTicketResults
+            results={tickets}
+            inputValue=""
+            hasMore={hasMore}
+            loadMore={fetchMore}
+            selectedTicket={handleTicketClick}
+            loading={loading}
+          />
+        </Box>
+
+        {/* Fallbacks / acciones debajo de la lista */}
+        {loading && tickets.length === 0 && (
+          <Box sx={{ textAlign: 'center', py: 2 }}>
+            <CircularProgress size={24} />
+          </Box>
+        )}
+
+        {hasMore && tickets.length > 0 && (
+          <Box sx={{ textAlign: 'center', mt: 2, pb: 1 }}>
+            <Button variant="outlined" onClick={fetchMore} disabled={loading}>
+              {loading ? 'Loading...' : 'Load More'}
+            </Button>
+          </Box>
+        )}
+      </Box>
+
+      <TicketQuickViewDialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        ticket={selectedTicket}
       />
-
-      {loading && tickets.length === 0 && (
-        <Box sx={{ textAlign: 'center', py: 2 }}>
-          <CircularProgress size={24} />
-        </Box>
-      )}
-
-      {hasMore && tickets.length > 0 && (
-        <Box sx={{ textAlign: 'center', mt: 2 }}>
-          <Button variant="outlined" onClick={fetchMore} disabled={loading}>
-            {loading ? 'Loading...' : 'Load More'}
-          </Button>
-        </Box>
-      )}
-
-      <TicketQuickViewDialog open={dialogOpen} onClose={handleDialogClose} ticket={selectedTicket} />
     </Box>
   );
 }
