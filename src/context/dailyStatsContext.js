@@ -22,3 +22,8 @@ export const useDailyStatsState = () => useContext(DailyStatsContext).state;
 
 // Hook solo para el dispatch
 export const useDailyStatsDispatch = () => useContext(DailyStatsContext).dispatch;
+
+export const useStatusCountTodayStat = () => {
+  const { state } = useContext(DailyStatsContext);
+  return state?.daily_statistics?.statusCounts || {};
+};
