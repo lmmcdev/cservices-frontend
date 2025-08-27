@@ -1,4 +1,3 @@
-// src/context/signalRContext.js
 import React, {
   createContext,
   useContext,
@@ -15,28 +14,6 @@ import { ENDPOINT_URLS } from '../utils/js/constants';
 
 const SignalRContext = createContext();
 
-function toLower(s) { return (s || '').trim().toLowerCase(); }
-
-// Normaliza a formato "department:<nombre>" en minúsculas
-function normalizeDepartmentGroup(raw) {
-  if (!raw) return null;
-  let v = String(raw).trim();
-  if (!v) return null;
-  v = v.toLowerCase();
-  if (!v.startsWith('department:')) v = `department:${v}`;
-  return v;
-}
-
-// Extrae group desde agent.group_sys_name
-function resolveGroupFromAgent(agent) {
-  if (!agent) return null;
-  const g = agent.group_sys_name;
-  if (!g) return null;
-  if (typeof g === 'string') return normalizeDepartmentGroup(g);
-  if (typeof g === 'object') return normalizeDepartmentGroup(g.group || g.name);
-  return null;
-}
-
 export function SignalRProvider({ children }) {
   const connectionRef = useRef(null);
   const subscribedGroupsRef = useRef(new Set());
@@ -44,23 +21,13 @@ export function SignalRProvider({ children }) {
 
   const ticketsDispatch = useTicketsDispatch();
   const dailyStatsDispatch = useDailyStatsDispatch();
-
   const { user } = useAuth();
+
+  // agents del contexto
   const { state: agentsState } = useAgents();
   const agents = Array.isArray(agentsState?.agents) ? agentsState.agents : [];
 
-  // Usuario/email para userId
-  const userId = toLower(user?.username || user?.idTokenClaims?.preferred_username);
-
-  // Buscar el agente actual por email o id
-  const currentAgent = agents.find(a => {
-    const mail = toLower(a?.agent_email || a?.email);
-    return mail && mail === userId || (user?.localAccountId && a?.id === user?.localAccountId);
-  });
-
-  // Grupo objetivo: SOLO el del department que viene desde agent.group_sys_name.group
-  const targetGroup = resolveGroupFromAgent(currentAgent); // ej: "department:switchboard"
-
+  // ---------------- helpers ----------------
   const postJSON = useCallback(async (url, body) => {
     const res = await fetch(url, {
       method: 'POST',
@@ -74,7 +41,6 @@ export function SignalRProvider({ children }) {
     return res.json();
   }, []);
 
-  // Dedupe para tickets
   const ticketFingerprint = useCallback((t) => {
     if (!t) return '';
     return JSON.stringify({
@@ -98,140 +64,189 @@ export function SignalRProvider({ children }) {
     return true;
   }, [ticketFingerprint]);
 
-  // Unirse a UN grupo (department:<x>)
-  const joinGroup = useCallback(async (groupName) => {
-    if (!connectionRef.current) return;
-    if (!userId || !groupName) return;
+  // ---------------- grupo desde agentsContext ----------------
+  const currentEmail =
+    (user?.username || user?.idTokenClaims?.preferred_username || '').toLowerCase();
 
-    const norm = normalizeDepartmentGroup(groupName);
-    if (!norm) return;
-    if (subscribedGroupsRef.current.has(norm)) return;
+  const currentAgent = agents.find(a => {
+    const mail = (a?.agent_email || a?.email || '').toLowerCase();
+    return mail === currentEmail || (user?.localAccountId && a?.id === user.localAccountId);
+  });
 
-    await postJSON(`${ENDPOINT_URLS.SIGNALRGROUPS}/signalr/group`, {
-      userId,
-      groupName: norm,
-      action: 'add',
-    });
+  // puede venir string u objeto { group: "..." } / { name: "..." }
+  function resolveRawLocationGroup(agent) {
+    if (!agent) return null;
+    const g = agent.group_sys_name;
+    if (!g) return null;
+    if (typeof g === 'string') return g.trim();
+    if (typeof g === 'object') return (g.group || g.name || '').trim() || null;
+    return null;
+  }
 
-    subscribedGroupsRef.current.add(norm);
-  }, [userId, postJSON]);
+  function normalizeDeptGroup(raw) {
+    if (!raw) return null;
+    const v = String(raw).trim().toLowerCase();
+    return v.includes(':') ? v : `department:${v}`;
+  }
 
-  // Salir de grupo (por si cambia el agente)
-  const leaveGroup = useCallback(async (groupName) => {
-    if (!connectionRef.current) return;
-    if (!userId || !groupName) return;
+  // SOLO el grupo de ubicación (no uses department del auth)
+  function resolveDesiredGroups() {
+    const privateUser = currentEmail || null; // opcional: grupo privado por email
+    const rawLoc = resolveRawLocationGroup(currentAgent);
+    const locationGroup = normalizeDeptGroup(rawLoc);
 
-    const norm = normalizeDepartmentGroup(groupName);
-    if (!norm) return;
-    if (!subscribedGroupsRef.current.has(norm)) return;
+    // Si no quieres grupo privado, quítalo del array:
+    const groups = [/* privateUser, */ locationGroup].filter(Boolean);
+    return [...new Set(groups)];
+  }
 
-    await postJSON(`${ENDPOINT_URLS.SIGNALRGROUPS}/signalr/group`, {
-      userId,
-      groupName: norm,
-      action: 'remove',
-    });
+  // ---------------- join/leave differencial ----------------
+  const syncGroups = useCallback(
+    async (targetGroups, { force = false } = {}) => {
+      const userId =
+        (user?.username || user?.idTokenClaims?.preferred_username || '').trim();
+      if (!userId) return;
 
-    subscribedGroupsRef.current.delete(norm);
-  }, [userId, postJSON]);
+      const target = Array.isArray(targetGroups)
+        ? [...new Set(targetGroups.filter(Boolean))]
+        : [];
 
-  // Garantiza que solo estés suscrito al grupo del agente actual
-  const refreshMembership = useCallback(async () => {
-    if (!connectionRef.current || !userId) return;
+      // cuáles sacar y cuáles agregar
+      const current = subscribedGroupsRef.current;
+      const toRemove = force
+        ? Array.from(current).filter(g => !target.includes(g))
+        : Array.from(current).filter(g => !target.includes(g));
 
-    const desired = targetGroup; // puede ser null si aún no cargó el agente
-    const current = Array.from(subscribedGroupsRef.current);
+      const toAdd = force
+        ? target
+        : target.filter(g => !current.has(g));
 
-    // salir de todos los que no sean el deseado
-    await Promise.all(
-      current
-        .filter(g => g !== desired)
-        .map(g => leaveGroup(g).catch(() => {}))
-    );
+      // REMOVER
+      if (toRemove.length) {
+        await Promise.all(
+          toRemove.map(groupName =>
+            postJSON(`${ENDPOINT_URLS.SIGNALRGROUPS}/signalr/group`, {
+              userId,
+              groupName,
+              action: 'remove',
+            }).catch(() => {}) // tolerante
+          )
+        );
+        toRemove.forEach(g => current.delete(g));
+        console.debug('[SignalR] left groups:', toRemove);
+      }
 
-    // unirse al deseado si no lo tienes aún
-    if (desired && !subscribedGroupsRef.current.has(desired)) {
-      await joinGroup(desired);
-    }
-  }, [userId, targetGroup, joinGroup, leaveGroup]);
+      // AGREGAR
+      if (toAdd.length) {
+        await Promise.all(
+          toAdd.map(groupName =>
+            postJSON(`${ENDPOINT_URLS.SIGNALRGROUPS}/signalr/group`, {
+              userId,
+              groupName,
+              action: 'add',
+            })
+          )
+        );
+        toAdd.forEach(g => current.add(g));
+        console.debug('[SignalR] joined groups:', toAdd);
+      }
+    },
+    [user?.username, user?.idTokenClaims, postJSON]
+  );
 
-  // Inicializa SignalR
-  const initializeSignalR = useCallback(async (handlers = {}) => {
-    if (connectionRef.current || !userId) return;
+  const refreshGroupMembership = useCallback(
+    async ({ force = false } = {}) => {
+      if (!connectionRef.current || !user?.username) return;
+      const desired = resolveDesiredGroups();
+      await syncGroups(desired, { force });
+    },
+    [user?.username, syncGroups, currentAgent]
+  );
 
-    const { url, accessToken } = await postJSON(
-      `${ENDPOINT_URLS.SIGNALRGROUPS}/negotiate`,
-      { userId }
-    );
+  // ---------------- iniciar conexión ----------------
+  const initializeSignalR = useCallback(
+    async (handlers = {}) => {
+      if (connectionRef.current || !user?.username) return;
 
-    const connection = new signalR.HubConnectionBuilder()
-      .withUrl(url, { accessTokenFactory: () => accessToken })
-      .withAutomaticReconnect()
-      .build();
+      const { url, accessToken } = await postJSON(
+        `${ENDPOINT_URLS.SIGNALRGROUPS}/negotiate`,
+        { userId: user.username }
+      );
 
-    connection.on('ticketCreated', (ticket) => {
-      if (!ticket) return;
-      if (!shouldDispatch(ticket)) return;
-      ticketsDispatch({ type: 'ADD_TICKET', payload: ticket });
-      handlers.onTicketCreated?.(ticket);
-    });
+      const connection = new signalR.HubConnectionBuilder()
+        .withUrl(url, { accessTokenFactory: () => accessToken })
+        .withAutomaticReconnect()
+        .build();
 
-    connection.on('ticketUpdated', (ticket) => {
-      if (!ticket) return;
-      if (!shouldDispatch(ticket)) return;
-      ticketsDispatch({ type: 'UPD_TICKET', payload: ticket });
-      handlers.onTicketUpdated?.(ticket);
-    });
+      connection.on('ticketCreated', (ticket) => {
+        if (!ticket) return;
+        if (!shouldDispatch(ticket)) return;
+        ticketsDispatch({ type: 'ADD_TICKET', payload: ticket });
+        handlers.onTicketCreated?.(ticket);
+      });
 
-    connection.on('dailyStats', (data) => {
-      if (!data) return;
-      const doc = Array.isArray(data) ? data[0] : data;
-      dailyStatsDispatch({ type: 'SET_DAILY_STATS', payload: doc });
-      handlers.onDailyStats?.(doc);
-    });
+      connection.on('ticketUpdated', (ticket) => {
+        if (!ticket) return;
+        if (!shouldDispatch(ticket)) return;
+        ticketsDispatch({ type: 'UPD_TICKET', payload: ticket });
+        handlers.onTicketUpdated?.(ticket);
+      });
 
-    await connection.start();
-    connectionRef.current = connection;
+      connection.on('dailyStats', (data) => {
+        if (!data) return;
+        const doc = Array.isArray(data) ? data[0] : data;
+        dailyStatsDispatch({ type: 'SET_DAILY_STATS', payload: doc });
+        handlers.onDailyStats?.(doc);
+      });
 
-    // Primera suscripción (si el agente ya está listo)
-    await refreshMembership();
+      await connection.start();
+      connectionRef.current = connection;
 
-    connection.onreconnected(async () => {
-      // limpiar cache local y re-suscribir SOLO al grupo deseado
-      subscribedGroupsRef.current.clear();
-      await refreshMembership();
-    });
-  }, [userId, postJSON, shouldDispatch, ticketsDispatch, dailyStatsDispatch, refreshMembership]);
+      // Suscribe sólo a los grupos deseados (leave/then add)
+      await refreshGroupMembership({ force: true });
 
-  // Si cambia el agente o su group_sys_name, refrescar membresía
+      connection.onreconnected(async () => {
+        // fuerza re-sync completo
+        subscribedGroupsRef.current.clear();
+        await refreshGroupMembership({ force: true });
+      });
+    },
+    [user?.username, postJSON, shouldDispatch, ticketsDispatch, dailyStatsDispatch, refreshGroupMembership]
+  );
+
+  // Re-sync cuando cambie el agente o su group_sys_name
   useEffect(() => {
-    if (connectionRef.current && userId) {
-      refreshMembership().catch(() => {});
+    if (connectionRef.current && user?.username) {
+      refreshGroupMembership({ force: false }).catch(() => {});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, targetGroup]);
+  }, [currentAgent, currentEmail]);
 
-  // Utilidades
-  const sendToGroup = useCallback(async (groupName, target, payload) => {
-    const norm = normalizeDepartmentGroup(groupName);
-    if (!norm) throw new Error('Invalid group name');
-    return postJSON(`${ENDPOINT_URLS.SIGNALRGROUPS}/signalr/send-group`, {
-      groupName: norm,
-      target,
-      payload,
-    });
-  }, [postJSON]);
+  // ---------------- send & disconnect ----------------
+  const sendToGroup = useCallback(
+    async (groupName, target, payload) => {
+      return postJSON(`${ENDPOINT_URLS.SIGNALRGROUPS}/signalr/send-group`, {
+        groupName,
+        target,
+        payload,
+      });
+    },
+    [postJSON]
+  );
 
   const disconnect = useCallback(async () => {
     const conn = connectionRef.current;
     connectionRef.current = null;
     subscribedGroupsRef.current.clear();
     lastFingerprintRef.current.clear();
-    if (conn) { try { await conn.stop(); } catch {} }
+    if (conn) {
+      try { await conn.stop(); } catch {}
+    }
   }, []);
 
   return (
     <SignalRContext.Provider
-      value={{ initializeSignalR, sendToGroup, disconnect }}
+      value={{ initializeSignalR, refreshGroupMembership, sendToGroup, disconnect }}
     >
       {children}
     </SignalRContext.Provider>
