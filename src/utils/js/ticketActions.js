@@ -126,7 +126,7 @@ export function useTicketHandlers() {
       fn: addNotes,
       // API legacy: (dispatch, setLoading, ticketId, agentEmail, notes[])
       args: [ticketId, newNote],
-      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, notes: newNote, _ts: Date.now() }),
+      getUpdatedTicket: ({ id: ticketId, _ts: Date.now() }),
       //getUpdatedTicket: pickUpdatedTicket,
       onSuccess: () => onDone?.(),
     });
