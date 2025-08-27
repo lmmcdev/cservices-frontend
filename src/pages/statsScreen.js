@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Grid } from '@mui/material';
 import RightDrawer from '../components/includes/rightDrawer.js';
 
@@ -13,32 +13,15 @@ import { DailyTicketPriorityChart } from '../components/auxiliars/charts/tickets
 import { DailyAverageResolutionTime } from '../components/auxiliars/charts/averageResolutionTime.jsx';
 import { DailyTopPerformerCard } from '../components/auxiliars/charts/topPerformerCard.jsx';
 import { useDailyStatsDispatch } from '../context/dailyStatsContext.js';
+import { useStatusCountTodayStat } from '../context/dailyStatsContext.js';
 
 import FloatingSettingsButton from '../components/auxiliars/charts/floatingSettingsButton.jsx';
 import StatusFilterBoxes from '../components/auxiliars/statusFilterBoxes.jsx';
 
-
-// 🔸 igual que en tableTickets
-import { useTicketsData } from '../components/hooks/useTicketsData.js';
-import { filterTickets } from '../utils/tickets/selectors.js';
-
 // helpers para contar por status (mismo flow que tableTickets)
-const KNOWN_STATUSES = ['New', 'Emergency', 'In Progress', 'Pending', 'Done', 'Duplicated'];
-function countByStatus(rows = []) {
-  const acc = Object.fromEntries(KNOWN_STATUSES.map(s => [s, 0]));
-  for (const r of rows) {
-    const s = r?.status;
-    if (acc.hasOwnProperty(s)) acc[s] += 1;
-  }
-  acc.Total = rows.length;
-  return acc;
-}
 
 export default function StatsScreen() {
-  //const state = useDailyStatsState();
-  //const fetchStatistics = useFetchStatistics();
-  //const fetchDoneStats = useDoneFetchStatistics();
-
+  const statusCountToday = useStatusCountTodayStat();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerStatus, setDrawerStatus] = useState('');
   const [selectedStatus, setSelectedStatus] = useState(null);
@@ -48,9 +31,6 @@ export default function StatsScreen() {
   const selectedDate = today.toLocaleDateString('en-CA'); // YYYY-MM-DD
 
   const dailyStatsDispatch = useDailyStatsDispatch();
-
-  // ✅ fuente de verdad para los counts (como tableTickets)
-  const { tickets, ticketsVersion } = useTicketsData({ auto: true });
 
   // ✅ refetch de dailyStats (para charts) — opcional llamar cuando mutas algo
   const refetchDailyStats = useCallback(async () => {
@@ -66,24 +46,10 @@ export default function StatsScreen() {
 
   useEffect(() => { refetchDailyStats(); }, [refetchDailyStats]);
 
-  // ✅ base para contadores (sin filtrar por status)
-  const baseRows = useMemo(() => {
-    return filterTickets(tickets, {
-      status: 'Total',
-      date: selectedDate, // quítalo si tu selector no filtra por fecha aquí
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ticketsVersion, tickets, selectedDate]);
-
-  // ✅ contadores dinámicos
-  const ticketsCountByStatus = useMemo(() => countByStatus(baseRows), [baseRows]);
+  const ticketsCountByStatus = statusCountToday
 
   // click en box de status → abre drawer con ese filtro
   const handleBoxClick = (status) => {
-    /*setSelectedTicketIds([]);
-    setSelectedStatus(status);
-    setDrawerStatus(status);
-    setDrawerOpen(true);*/
   };
 
   // click en categoría (IDs)
