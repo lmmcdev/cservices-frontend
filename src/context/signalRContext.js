@@ -111,7 +111,7 @@ export function SignalRProvider({ children }) {
 
       connection.on('dailyStats', (data) => {
         if (!data) return;
-        dailyStatsDispatch({ type: 'SET_DAILY_STATS', payload: data });
+        dailyStatsDispatch({ type: 'SET_DAILY_STATS', payload: data[0] });
         handlers.onDailyStats?.(data);
       });
 
