@@ -9,13 +9,9 @@ import PrivateRoute from '../components/privateRoute';
 import NotFound404 from '../pages/404';
 import HistoricStatistics from '../pages/historicalStatsScreen';
 import { HistoricalStatsProvider } from '../context/historicalStatsContext';
-//import { GROUP_IDS } from '../utils/js/constants';
-//import { DoneTicketsProvider } from '../context/doneTicketsContext';
-//import { DoneHistoricalTicketsProvider } from '../context/doneHistoricalTicketsContext';
 import { LoadingProvider } from '../providers/loadingProvider';
 
-// ...otros imports lazy
-// Lazy-loaded pages
+// ✅ Lazy-loaded pages
 const TableTickets = lazy(() => import('../pages/tableTickets'));
 const EditTicket = lazy(() => import('../pages/editTicketLocal'));
 const TableAgents = lazy(() => import('../pages/tableAgents'));
@@ -23,17 +19,18 @@ const EditAgent = lazy(() => import('../pages/editAgent'));
 const AuthErrorScreen = lazy(() => import('../pages/authErrorScreen'));
 const UnknownAgentNotice = lazy(() => import('../pages/unknownAgentNotice'));
 const StatsScreen = lazy(() => import('../pages/statsScreen'));
-//const HistoricalStats = lazy(() => import ('./pages/historicalStatsScreen'));
 const ProfileSearch = lazy(() => import('../pages/profileSearch'));
 const SearchPatientDeep = lazy(() => import('../components/components/patients/patientsDeepSearch'));
 const SearchTicketDeep = lazy(() => import('../components/components/tickets/ticketsDeepSeacrh'));
 const ReportsScreen = lazy(() => import('../pages/reportsScreen'));
 
+// ✅ Monthly en lazy y con el nombre/archivo correcto (minúsculas, con "h")
+const MonthlyStatsScreen = lazy(() => import('../pages/monthlyStatsScreen.js'));
+
 export default function AppRoutes({ agentData, filters, setFilters, authError, login, user }) {
   return (
     <Suspense fallback={<SuspenseFallback />}>
       <Routes>
-        {/*<Route element={<PrivateRoute allowedGroups={[GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS, GROUP_IDS.CUSTOMER_SERVICE.REMOTE]} />}></Route>*/}
         <Route path="/" element={<PrivateRoute />}>
           <Route element={<MainLayout agentData={agentData} filters={filters} setFilters={setFilters} />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
@@ -49,23 +46,38 @@ export default function AppRoutes({ agentData, filters, setFilters, authError, l
 
           <Route element={<LayoutWithSidebarOnly />}>
             <Route path="/statistics" element={<StatsScreen />} />
-            <Route path="/historical_statistics" element={
-              <LoadingProvider>
-                <HistoricalStatsProvider>
-                      <HistoricStatistics />
-                </HistoricalStatsProvider>
-              </LoadingProvider>
-            } />
-          </Route>
 
-          
-        </Route>
-        <Route element={<MinimalCenteredLayout />}>
-            <Route path="/auth-error" element={<AuthErrorScreen errorMessage={authError} onRetry={login} />} />
-            <Route path="/unknown-agent" element={<UnknownAgentNotice userEmail={user?.username} onRetry={() => window.location.reload()} />} />
+            <Route
+              path="/historical_statistics"
+              element={
+                <LoadingProvider>
+                  <HistoricalStatsProvider>
+                    <HistoricStatistics />
+                  </HistoricalStatsProvider>
+                </LoadingProvider>
+              }
+            />
+
+            {/* 🆕 Monthly */}
+            <Route
+              path="/monthly_statistics"
+              element={
+                <LoadingProvider>
+                  <HistoricalStatsProvider>
+                    <MonthlyStatsScreen />
+                  </HistoricalStatsProvider>
+                </LoadingProvider>
+              }
+            />
           </Route>
+        </Route>
+
+        <Route element={<MinimalCenteredLayout />}>
+          <Route path="/auth-error" element={<AuthErrorScreen errorMessage={authError} onRetry={login} />} />
+          <Route path="/unknown-agent" element={<UnknownAgentNotice userEmail={user?.username} onRetry={() => window.location.reload()} />} />
+        </Route>
+
         <Route path="*" element={<NotFound404 />} />
-        
       </Routes>
     </Suspense>
   );
