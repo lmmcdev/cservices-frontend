@@ -9,6 +9,7 @@ import { emailToFullName } from '../../utils/js/emailToFullName.js';
 import { formatPhone } from '../../utils/js/formatPhone.js';
 import DOBCell from './dobCell.jsx';
 import LocationCell from './locationCell.jsx';
+import { toMMDDYYYY } from '../../utils/js/formatDateToMMDDYYY.js';
 
 /** Re-render mínimo: ahora también vigilamos cambios de Name/DOB (snapshot o locales) */
 function areEqual(prev, next) {
@@ -83,7 +84,7 @@ const TicketsRow = React.memo(function TicketsRow({
       </TableCell>
 
       <TableCell>{formatPhone(row.phone)}</TableCell>
-      <TableCell>{row.creation_date}</TableCell>
+      <TableCell>{toMMDDYYYY((row.creation_date).split('T')[0])}</TableCell>
       <TableCell>{emailToFullName(row.agent_assigned)}</TableCell>
 
       <TableCell>
