@@ -64,36 +64,12 @@ export function useTicketHandlers() {
     });
   }, [run]);
 
-
-  // -------- Notas --------
-  const handleAddNoteHandler = useCallback(async ({
-    ticketId,
-    noteContent,
-    onDone, // opcional: callback post-éxito en el componente
-  }) => {
-    if (!noteContent?.trim()) return;
-
-    const newNote = [{
-      event_type: 'user_note',
-      event: noteContent.trim(),
-      datetime: new Date().toISOString(),
-    }];
-
-    return run({
-      fn: addNotes,
-      // API legacy: (dispatch, setLoading, ticketId, agentEmail, notes[])
-      args: [ticketId, newNote],
-      getUpdatedTicket: pickUpdatedTicket,
-      onSuccess: () => onDone?.(),
-    });
-  }, [run]);
-
-
   // -------- Colaboradores: ADD --------
   const updateCollaboratorsHandler = useCallback(async ({
     ticketId,
     collaborators = [],
     selectedAgents = [],
+    setCollaborators, // opcional: si quieres también setear estado local en el componente
   }) => {
     const base = Array.isArray(collaborators) ? collaborators : [];
     const updated = [...new Set([...base, ...selectedAgents.filter(a => !base.includes(a))])];
@@ -102,7 +78,9 @@ export function useTicketHandlers() {
       fn: updateCollaborators,
       // API legacy: (dispatch, setLoading, ticketId, agentEmail, collaborators[])
       args: [ticketId, updated],
-      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, collaborators: updated }),
+      getUpdatedTicket: (r) =>
+      // usamos _ts para forzar la actualización en el reducer
+      pickUpdatedTicket(r) || ({ id: ticketId, collaborators: updated, _ts: Date.now() }),
     });
 
     const t = pickUpdatedTicket(res);
@@ -122,11 +100,36 @@ export function useTicketHandlers() {
     const res = await run({
       fn: updateCollaborators,
       args: [ticketId, updated],
-      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, collaborators: updated }),
+      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, collaborators: updated, _ts: Date.now() }),
     });
 
     const t = pickUpdatedTicket(res);
     return Array.isArray(t?.collaborators) ? t.collaborators : updated;
+  }, [run]);
+
+
+  // -------- Notas --------
+  const handleAddNoteHandler = useCallback(async ({
+    ticketId,
+    noteContent,
+    onDone, // opcional: callback post-éxito en el componente
+  }) => {
+    if (!noteContent?.trim()) return;
+
+    const newNote = [{
+      event_type: 'user_note',
+      event: noteContent.trim(),
+      datetime: new Date().toISOString(),
+    }];
+
+    return run({
+      fn: addNotes,
+      // API legacy: (dispatch, setLoading, ticketId, agentEmail, notes[])
+      args: [ticketId, newNote],
+      getUpdatedTicket: (r) => pickUpdatedTicket(r) || ({ id: ticketId, notes: newNote, _ts: Date.now() }),
+      //getUpdatedTicket: pickUpdatedTicket,
+      onSuccess: () => onDone?.(),
+    });
   }, [run]);
 
 
