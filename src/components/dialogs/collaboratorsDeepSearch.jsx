@@ -1,5 +1,5 @@
 // src/components/dialogs/collaboratorsDeepSearch.jsx
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Box,
   Stack,
@@ -22,7 +22,6 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
-import { getUserPhotoByEmail } from '../../utils/graphHelper'; // 👈 trae fotos por email
 
 const BRAND = '#00a1ff';
 const BORDER_IDLE = '#e0e7ef';
@@ -43,13 +42,14 @@ export default function CollaboratorsDeepSearch({
   onChangeSelected = () => {},
   placeholder = 'Search by name, email…',
 }) {
+  console.log("rendering agents search", agents)
   const [q, setQ] = useState('');
   const [dept, setDept] = useState('');
   const [pos, setPos] = useState('');
   const [center, setCenter] = useState(''); // 👈 antes "clinic"
 
   // cache local de fotos: { [email]: url }
-  const [photoUrls, setPhotoUrls] = useState({});
+  const [photoUrls,] = useState({});
 
   const { deptOptions, posOptions, centerOptions } = useMemo(() => {
     const depts = uniqueSorted(agents.map(a => a?.department));
@@ -83,66 +83,6 @@ export default function CollaboratorsDeepSearch({
     });
   }, [agents, q, dept, pos, center]);
 
-  // 🔎 fetch de fotos para los visibles (con límite) usando Graph
-  useEffect(() => {
-    let cancelled = false;
-
-    const fetchPhotos = async () => {
-      // emails visibles + aún sin cache
-      const visibleEmails = filtered
-        .map(a => String(a?.email || '').trim().toLowerCase())
-        .filter(Boolean);
-
-      // si algún agente ya trae photoUrl, lo preferimos y lo cacheamos
-      const withInline = filtered
-        .filter(a => a?.photoUrl && a?.email)
-        .map(a => [String(a.email).toLowerCase(), a.photoUrl]);
-
-      if (withInline.length) {
-        setPhotoUrls(prev => {
-          const next = { ...prev };
-          for (const [email, url] of withInline) {
-            if (!next[email]) next[email] = url;
-          }
-          return next;
-        });
-      }
-
-      const toFetch = visibleEmails.filter(e => !photoUrls[e]);
-      if (toFetch.length === 0) return;
-
-      // limita el batch para evitar flood (ajusta si quieres)
-      const batch = toFetch.slice(0, 50);
-
-      const results = await Promise.all(
-        batch.map(async (email) => {
-          try {
-            const url = await getUserPhotoByEmail(email);
-            return [email, url || ''];
-          } catch {
-            return [email, ''];
-          }
-        })
-      );
-
-      if (cancelled) return;
-
-      const hasAny = results.some(([, url]) => !!url);
-      if (!hasAny) return;
-
-      setPhotoUrls(prev => {
-        const next = { ...prev };
-        for (const [email, url] of results) {
-          if (url) next[email] = url;
-        }
-        return next;
-      });
-    };
-
-    fetchPhotos();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtered]); // depender de filtered; el cache vive en photoUrls
 
   const handleToggle = (email) => {
     const set = new Set(selectedEmails);
@@ -321,7 +261,8 @@ export default function CollaboratorsDeepSearch({
               const initial = (displayName?.[0] || a?.email?.[0] || '?').toUpperCase();
               const normalizedEmail = email.toLowerCase();
               const photoSrc = photoUrls[normalizedEmail] || a?.photoUrl || undefined;
-              const displayCenter = a?.center ?? a?.clinic; // 👈 compat
+              const displayCenter = a?.group_sys_name.group ?? a?.clinic; // 👈 compat
+              const displayRole = a.group_sys_name.role ?? a?.clinic;
 
               return (
                 <React.Fragment key={email || idx}>
@@ -372,6 +313,9 @@ export default function CollaboratorsDeepSearch({
                           ) : null}
                           {displayCenter ? (
                             <Chip size="small" variant="outlined" label={displayCenter} />
+                          ) : null}
+                          {displayRole ? (
+                            <Chip size="small" variant="outlined" label={displayRole} />
                           ) : null}
                         </Stack>
                       }

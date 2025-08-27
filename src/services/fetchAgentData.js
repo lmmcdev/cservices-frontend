@@ -1,4 +1,5 @@
 // src/services/fetchAgentsFromAAD.js
+import { findGroupKeyById } from "../utils/js/getSysGroupName";
 
 /**
  * Descarga miembros (solo usuarios) desde uno o varios grupos de AAD usando Microsoft Graph.
@@ -61,6 +62,7 @@ async function fetchGroupUsers(graphToken, groupId, groupLabel, groupDisplayName
       .map(u => {
         const name  = u.displayName || "";
         const email = u.mail || u.userPrincipalName || "";
+        const group_sys_name = findGroupKeyById(groupId) || "";
         return {
           id: u.id,
           name,
@@ -68,6 +70,7 @@ async function fetchGroupUsers(graphToken, groupId, groupLabel, groupDisplayName
           agent_name: name,
           agent_email: email,
           source: "aad",
+          group_sys_name,
           group_id: groupId,
           group_display_name: groupDisplayName || "",
           group_name: groupLabel || "",

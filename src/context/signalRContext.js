@@ -1,22 +1,65 @@
-import React, { createContext, useContext, useRef, useCallback } from 'react';
+// src/context/signalRContext.js
+import React, {
+  createContext,
+  useContext,
+  useRef,
+  useCallback,
+  useEffect,
+} from 'react';
 import * as signalR from '@microsoft/signalr';
 import { useTicketsDispatch } from './ticketsContext';
 import { useDailyStatsDispatch } from './dailyStatsContext';
 import { useAuth } from './authContext';
+import { useAgents } from './agentsContext';
 import { ENDPOINT_URLS } from '../utils/js/constants';
 
 const SignalRContext = createContext();
 
+function toLower(s) { return (s || '').trim().toLowerCase(); }
+
+// Normaliza a formato "department:<nombre>" en minúsculas
+function normalizeDepartmentGroup(raw) {
+  if (!raw) return null;
+  let v = String(raw).trim();
+  if (!v) return null;
+  v = v.toLowerCase();
+  if (!v.startsWith('department:')) v = `department:${v}`;
+  return v;
+}
+
+// Extrae group desde agent.group_sys_name
+function resolveGroupFromAgent(agent) {
+  if (!agent) return null;
+  const g = agent.group_sys_name;
+  if (!g) return null;
+  if (typeof g === 'string') return normalizeDepartmentGroup(g);
+  if (typeof g === 'object') return normalizeDepartmentGroup(g.group || g.name);
+  return null;
+}
+
 export function SignalRProvider({ children }) {
   const connectionRef = useRef(null);
   const subscribedGroupsRef = useRef(new Set());
-
-  const // 👇 cache para dedupe
-        lastFingerprintRef = useRef(new Map());
+  const lastFingerprintRef = useRef(new Map());
 
   const ticketsDispatch = useTicketsDispatch();
   const dailyStatsDispatch = useDailyStatsDispatch();
-  const { user, department } = useAuth();
+
+  const { user } = useAuth();
+  const { state: agentsState } = useAgents();
+  const agents = Array.isArray(agentsState?.agents) ? agentsState.agents : [];
+
+  // Usuario/email para userId
+  const userId = toLower(user?.username || user?.idTokenClaims?.preferred_username);
+
+  // Buscar el agente actual por email o id
+  const currentAgent = agents.find(a => {
+    const mail = toLower(a?.agent_email || a?.email);
+    return mail && mail === userId || (user?.localAccountId && a?.id === user?.localAccountId);
+  });
+
+  // Grupo objetivo: SOLO el del department que viene desde agent.group_sys_name.group
+  const targetGroup = resolveGroupFromAgent(currentAgent); // ej: "department:switchboard"
 
   const postJSON = useCallback(async (url, body) => {
     const res = await fetch(url, {
@@ -31,30 +74,7 @@ export function SignalRProvider({ children }) {
     return res.json();
   }, []);
 
-  const joinGroups = useCallback(
-    async (...groups) => {
-      const userId = user?.username;
-      if (!userId) return;
-
-      const uniq = [...new Set(groups.filter(Boolean))];
-      if (!uniq.length) return;
-
-      await Promise.all(
-        uniq.map(groupName =>
-          postJSON(`${ENDPOINT_URLS.SIGNALRGROUPS}/signalr/group`, {
-            userId,
-            groupName,
-            action: 'add',
-          })
-        )
-      );
-
-      uniq.forEach(g => subscribedGroupsRef.current.add(g));
-    },
-    [user?.username, postJSON]
-  );
-
-  // 🔍 qué consideras “cambió” para la tabla
+  // Dedupe para tickets
   const ticketFingerprint = useCallback((t) => {
     if (!t) return '';
     return JSON.stringify({
@@ -64,7 +84,6 @@ export function SignalRProvider({ children }) {
       assigned_department: t.assigned_department,
       quality_control: t.quality_control,
       qc_status: t.qc?.status ?? null,
-      // si existe timestamp/etag, úsalo para acelerar el short-circuit:
       _ts: t._ts ?? null,
       updatedAt: t.qc?.updatedAt ?? t.updatedAt ?? t.creation_date ?? null,
     });
@@ -79,82 +98,141 @@ export function SignalRProvider({ children }) {
     return true;
   }, [ticketFingerprint]);
 
-  const initializeSignalR = useCallback(
-    async (handlers = {}) => {
-      if (connectionRef.current || !user?.username) return;
+  // Unirse a UN grupo (department:<x>)
+  const joinGroup = useCallback(async (groupName) => {
+    if (!connectionRef.current) return;
+    if (!userId || !groupName) return;
 
-      const { url, accessToken } = await postJSON(
-        `${ENDPOINT_URLS.SIGNALRGROUPS}/negotiate`,
-        { userId: user.username }
-      );
+    const norm = normalizeDepartmentGroup(groupName);
+    if (!norm) return;
+    if (subscribedGroupsRef.current.has(norm)) return;
 
-      const connection = new signalR.HubConnectionBuilder()
-        .withUrl(url, { accessTokenFactory: () => accessToken })
-        .withAutomaticReconnect()
-        .build();
+    await postJSON(`${ENDPOINT_URLS.SIGNALRGROUPS}/signalr/group`, {
+      userId,
+      groupName: norm,
+      action: 'add',
+    });
 
-      connection.on('ticketCreated', (ticket) => {
-        if (!ticket) return;
-        // Evita ADD si ya conoces ese exacto snapshot
-        if (!shouldDispatch(ticket)) return;
-        ticketsDispatch({ type: 'ADD_TICKET', payload: ticket });
-        handlers.onTicketCreated?.(ticket);
-      });
+    subscribedGroupsRef.current.add(norm);
+  }, [userId, postJSON]);
 
-      connection.on('ticketUpdated', (ticket) => {
-        if (!ticket) return;
-        // Evita UPD si es idéntico a lo último recibido
-        if (!shouldDispatch(ticket)) return;
-        ticketsDispatch({ type: 'UPD_TICKET', payload: ticket });
-        handlers.onTicketUpdated?.(ticket);
-      });
+  // Salir de grupo (por si cambia el agente)
+  const leaveGroup = useCallback(async (groupName) => {
+    if (!connectionRef.current) return;
+    if (!userId || !groupName) return;
 
-      connection.on('dailyStats', (data) => {
-        if (!data) return;
-        dailyStatsDispatch({ type: 'SET_DAILY_STATS', payload: data[0] });
-        handlers.onDailyStats?.(data);
-      });
+    const norm = normalizeDepartmentGroup(groupName);
+    if (!norm) return;
+    if (!subscribedGroupsRef.current.has(norm)) return;
 
-      await connection.start();
-      connectionRef.current = connection;
+    await postJSON(`${ENDPOINT_URLS.SIGNALRGROUPS}/signalr/group`, {
+      userId,
+      groupName: norm,
+      action: 'remove',
+    });
 
-      const baseGroups = [
-        user.username,
-        department ? `department:Referrals` : null,
-      ];
-      await joinGroups(...baseGroups);
+    subscribedGroupsRef.current.delete(norm);
+  }, [userId, postJSON]);
 
-      connection.onreconnected(async () => {
-        const again = Array.from(subscribedGroupsRef.current);
-        if (again.length) await joinGroups(...again);
-      });
-    },
-    [user?.username, department, postJSON, joinGroups, ticketsDispatch, dailyStatsDispatch, shouldDispatch]
-  );
+  // Garantiza que solo estés suscrito al grupo del agente actual
+  const refreshMembership = useCallback(async () => {
+    if (!connectionRef.current || !userId) return;
 
-  const sendToGroup = useCallback(
-    async (groupName, target, payload) => {
-      return postJSON(`${ENDPOINT_URLS.SIGNALRGROUPS}/signalr/send-group`, {
-        groupName,
-        target,
-        payload,
-      });
-    },
-    [postJSON]
-  );
+    const desired = targetGroup; // puede ser null si aún no cargó el agente
+    const current = Array.from(subscribedGroupsRef.current);
+
+    // salir de todos los que no sean el deseado
+    await Promise.all(
+      current
+        .filter(g => g !== desired)
+        .map(g => leaveGroup(g).catch(() => {}))
+    );
+
+    // unirse al deseado si no lo tienes aún
+    if (desired && !subscribedGroupsRef.current.has(desired)) {
+      await joinGroup(desired);
+    }
+  }, [userId, targetGroup, joinGroup, leaveGroup]);
+
+  // Inicializa SignalR
+  const initializeSignalR = useCallback(async (handlers = {}) => {
+    if (connectionRef.current || !userId) return;
+
+    const { url, accessToken } = await postJSON(
+      `${ENDPOINT_URLS.SIGNALRGROUPS}/negotiate`,
+      { userId }
+    );
+
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(url, { accessTokenFactory: () => accessToken })
+      .withAutomaticReconnect()
+      .build();
+
+    connection.on('ticketCreated', (ticket) => {
+      if (!ticket) return;
+      if (!shouldDispatch(ticket)) return;
+      ticketsDispatch({ type: 'ADD_TICKET', payload: ticket });
+      handlers.onTicketCreated?.(ticket);
+    });
+
+    connection.on('ticketUpdated', (ticket) => {
+      if (!ticket) return;
+      if (!shouldDispatch(ticket)) return;
+      ticketsDispatch({ type: 'UPD_TICKET', payload: ticket });
+      handlers.onTicketUpdated?.(ticket);
+    });
+
+    connection.on('dailyStats', (data) => {
+      if (!data) return;
+      const doc = Array.isArray(data) ? data[0] : data;
+      dailyStatsDispatch({ type: 'SET_DAILY_STATS', payload: doc });
+      handlers.onDailyStats?.(doc);
+    });
+
+    await connection.start();
+    connectionRef.current = connection;
+
+    // Primera suscripción (si el agente ya está listo)
+    await refreshMembership();
+
+    connection.onreconnected(async () => {
+      // limpiar cache local y re-suscribir SOLO al grupo deseado
+      subscribedGroupsRef.current.clear();
+      await refreshMembership();
+    });
+  }, [userId, postJSON, shouldDispatch, ticketsDispatch, dailyStatsDispatch, refreshMembership]);
+
+  // Si cambia el agente o su group_sys_name, refrescar membresía
+  useEffect(() => {
+    if (connectionRef.current && userId) {
+      refreshMembership().catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId, targetGroup]);
+
+  // Utilidades
+  const sendToGroup = useCallback(async (groupName, target, payload) => {
+    const norm = normalizeDepartmentGroup(groupName);
+    if (!norm) throw new Error('Invalid group name');
+    return postJSON(`${ENDPOINT_URLS.SIGNALRGROUPS}/signalr/send-group`, {
+      groupName: norm,
+      target,
+      payload,
+    });
+  }, [postJSON]);
 
   const disconnect = useCallback(async () => {
     const conn = connectionRef.current;
     connectionRef.current = null;
     subscribedGroupsRef.current.clear();
-    lastFingerprintRef.current.clear(); // limpia dedupe cache
-    if (conn) {
-      try { await conn.stop(); } catch {}
-    }
+    lastFingerprintRef.current.clear();
+    if (conn) { try { await conn.stop(); } catch {} }
   }, []);
 
   return (
-    <SignalRContext.Provider value={{ initializeSignalR, joinGroups, sendToGroup, disconnect }}>
+    <SignalRContext.Provider
+      value={{ initializeSignalR, sendToGroup, disconnect }}
+    >
       {children}
     </SignalRContext.Provider>
   );

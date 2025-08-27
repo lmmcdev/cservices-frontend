@@ -66,35 +66,35 @@ export default function CollapsibleDrawer({ agent }) {
       icon: <icons.dashboard style={{ fontSize: 20 }} />,
       label: 'Dashboard',
       path: '/statistics',
-      allowedGroups: [GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS],
+      allowedGroups: [GROUP_IDS.SWITCHBOARD.SUPERVISORS],
     },
     {
       icon: <icons.callLogs style={{ fontSize: 20 }} />,
       label: 'Call Logs',
       path: '/dashboard',
       allowedGroups: [
-        GROUP_IDS.CUSTOMER_SERVICE.AGENTS,
-        GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS,
-        GROUP_IDS.CUSTOMER_SERVICE.REMOTE,
+        GROUP_IDS.SWITCHBOARD.AGENTS,
+        GROUP_IDS.SWITCHBOARD.SUPERVISORS,
+        GROUP_IDS.SWITCHBOARD.REMOTE,
       ],
     },
     {
       icon: <icons.team style={{ fontSize: 21 }} />,
       label: 'Team',
       path: '/agents',
-      allowedGroups: [GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS],
+      allowedGroups: [GROUP_IDS.SWITCHBOARD.SUPERVISORS],
     },
     {
       icon: <TravelExploreIcon style={{ fontSize: 24 }} />,
       label: 'Find',
       path: '/profile-search',
-      allowedGroups: [GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS],
+      allowedGroups: [GROUP_IDS.SWITCHBOARD.SUPERVISORS],
     },
     {
       icon: <DescriptionIcon style={{ fontSize: 24 }} />,
       label: 'Reports',
       path: '/reports',
-      allowedGroups: [GROUP_IDS.CUSTOMER_SERVICE.SUPERVISORS],
+      allowedGroups: [GROUP_IDS.SWITCHBOARD.SUPERVISORS],
     },
   ]), []);
 

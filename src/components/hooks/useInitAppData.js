@@ -32,6 +32,7 @@ export const useInitAppData = () => {
           // Publica en tu contexto de agentes.
           // Nota: cada agente trae { id, name, email, agent_name, agent_email, source }
           agentDispatch({ type: 'SET_AGENTS', payload: agents });
+          //console.log('Loaded agents from AAD:', agents);
         }
       } catch (err) {
         console.error('Agents error:', err);
