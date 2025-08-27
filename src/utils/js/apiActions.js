@@ -42,6 +42,17 @@ export function useApiHandlers() {
     }, [run]);
 
 
+    const getMonthlyStatsHandler = useCallback(async (date) => {
+      const scope = 'month';
+      const res = await run({
+        fn: getDailyStats,
+        args: [date, scope],
+        getUpdatedEntity: (res) => pickUpdatedEntity(res, 'stats'),
+      });
+      return res;
+    }, [run]);
+
+
     const getTicketsByIdHandler = useCallback(async (id) => {
       const res = await run({
         fn: getTicketsByIds,
@@ -68,6 +79,7 @@ export function useApiHandlers() {
       searchPatientsHandler,
       getDailyStatsHandler,
       getTicketsByIdHandler,
-      getProvidersHandler
+      getProvidersHandler,
+      getMonthlyStatsHandler
     };
   }
