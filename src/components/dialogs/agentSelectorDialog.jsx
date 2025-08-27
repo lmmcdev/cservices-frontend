@@ -1,32 +1,27 @@
 // src/components/dialogs/agentSelectorDialog.jsx
 import React, { useEffect, useMemo, useState } from 'react';
-import { Box, Dialog, DialogTitle, DialogContent, Typography } from '@mui/material';
-import CollaboratorAutoComplete from '../fields/collaboratorAutocomplete';
+import { Box, Dialog, Typography, Chip } from '@mui/material';
 import ActionButtons from '../fields/actionButtons';
 import { icons } from '../auxiliars/icons';
+
+import CollaboratorsDeepSearch from './collaboratorsDeepSearch';
 
 export default function AgentSelectorDialog({
   open,
   onClose,
   onAdd,
   agents = [],
-  // legacy: antes lo usabas para chips preseleccionados; ahora solo lo usamos para excluir
   initialSelected = [],
-  // nuevo: email del Assigned To (se excluye del listado)
   assigneeEmail,
-  // nuevo: lista de colaboradores actuales (emails o objetos con {email})
   existingCollaborators = [],
 }) {
-  // selección local SIEMPRE vacía al abrir (sin chips puestos)
   const [selected, setSelected] = useState([]);
-
   const isConfirmDisabled = selected.length === 0;
 
   useEffect(() => {
-    if (open) setSelected([]); // reset al abrir
+    if (open) setSelected([]);
   }, [open]);
 
-  // Normaliza emails ya colaboradores (usa existingCollaborators y también initialSelected por compatibilidad)
   const existingEmails = useMemo(() => {
     const base = [];
     if (Array.isArray(existingCollaborators)) base.push(...existingCollaborators);
@@ -37,7 +32,6 @@ export default function AgentSelectorDialog({
       .map((e) => String(e).toLowerCase());
   }, [existingCollaborators, initialSelected]);
 
-  // Opciones disponibles: excluye Assigned y ya colaboradores
   const filteredAgents = useMemo(() => {
     const assignee = (assigneeEmail || '').toLowerCase();
     const exclude = new Set([assignee, ...existingEmails].filter(Boolean));
@@ -67,55 +61,87 @@ export default function AgentSelectorDialog({
       open={open}
       onClose={handleClose}
       fullWidth
-      maxWidth="xs"
+      maxWidth="md"
       PaperProps={{
-        sx: { width: '100%', maxWidth: 320, borderRadius: '15px' },
+        sx: {
+          width: '100%',
+          maxWidth: 960,
+          borderRadius: 3,
+          overflow: 'hidden',
+          bgcolor: '#fafcff',
+          border: '1px solid #eaf1f7',
+        },
       }}
     >
-      <DialogTitle sx={{ color: '#00A1FF', p: 2, textAlign: 'center' }}>
-        <Box display="flex" alignItems="center" justifyContent="center">
-          <icons.addCollaborator style={{ color: '#00a1ff', fontSize: 24, marginRight: 8 }} />
-          <Typography variant="h6" sx={{ color: '#00A1FF', fontWeight: 'bold' }}>
+      {/* Header sticky con color unificado */}
+      <Box
+        sx={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 2,
+          px: 3,
+          py: 2,
+          bgcolor: '#fff',
+          borderBottom: '1px solid #e6eef5',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        {/* 👇 color centralizado; ícono y texto usan currentColor */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, color: '#00a1ff' }}>
+          <icons.addCollaborator style={{ fontSize: 24, color: 'currentColor' }} />
+          <Typography variant="h6" sx={{ fontWeight: 700, color: 'currentColor' }}>
             Add Collaborators
           </Typography>
         </Box>
-      </DialogTitle>
 
-      <DialogContent
+        <Chip
+          label={`${selected.length} selected`}
+          size="small"
+          sx={{ bgcolor: '#eef7ff', color: '#007bc7', fontWeight: 600 }}
+        />
+      </Box>
+
+      {/* Content scrollable */}
+      <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          px: 4,
-          overflowY: 'visible',
-          overflowX: 'visible',
+          px: 3,
+          py: 2,
+          maxHeight: '70vh',
+          overflowY: 'auto',
         }}
       >
-        <Box sx={{ width: '100%', maxWidth: 400 }}>
-          <Box display="flex" justifyContent="center" width="100%">
-            <Box width="94%">
-              <CollaboratorAutoComplete
-                // 👉 ya viene filtrada sin Assigned ni colaboradores actuales
-                agents={filteredAgents}
-                // emails seleccionados en este diálogo
-                selectedEmails={selected}
-                // deduplicamos siempre
-                onChange={(emails) =>
-                  setSelected(
-                    Array.from(new Set((emails || []).map((e) => String(e).trim()).filter(Boolean)))
-                  )
-                }
-                label="Select users"
-              />
-            </Box>
-          </Box>
-        </Box>
-      </DialogContent>
+        <CollaboratorsDeepSearch
+          agents={filteredAgents}
+          selectedEmails={selected}
+          onChangeSelected={setSelected}
+          placeholder="Search by name, email..."
+        />
+      </Box>
 
-      <ActionButtons
-        onCancel={handleClose}
-        onConfirm={handleAdd}
-        confirmDisabled={isConfirmDisabled}
-      />
+      {/* Footer sticky */}
+      <Box
+        sx={{
+          position: 'sticky',
+          bottom: 0,
+          zIndex: 2,
+          px: 3,
+          pt: 1.5,
+          pb: 2.5,
+          bgcolor: '#fff',
+          borderTop: '1px solid #e6eef5',
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: 1.5,
+        }}
+      >
+        <ActionButtons
+          onCancel={handleClose}
+          onConfirm={handleAdd}
+          confirmDisabled={isConfirmDisabled}
+        />
+      </Box>
     </Dialog>
   );
 }
