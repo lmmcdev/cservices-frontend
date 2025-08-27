@@ -16,6 +16,7 @@ import {
 } from 'recharts';
 import { useDailyStatsState } from '../../../context/dailyStatsContext';
 import { usePriorityStat } from '../../../context/historicalStatsContext';
+import { useMonthlyPriorityStat } from '../../../context/monthlyStatsContext';
 
 const PRIORITY_COLORS = {
   high: '#f46a6a',
@@ -199,8 +200,14 @@ export function DailyTicketPriorityChart({ onCategoryClick }) {
   return <TicketPriorityChartBase tickets={tickets} onCategoryClick={onCategoryClick} />;
 }
 
-// 📊 Historical wrapper
+// 📊 Daily Historical wrapper
 export function HistoricalTicketPriorityChart({ onCategoryClick }) {
   const tickets = usePriorityStat(); // directamente del contexto histórico
+  return <TicketPriorityChartBase tickets={tickets} onCategoryClick={onCategoryClick} />;
+}
+
+// 📊 Monthly Historical wrapper
+export function MonthlyTicketPriorityChart({ onCategoryClick }) {
+  const tickets = useMonthlyPriorityStat(); // directamente del contexto histórico
   return <TicketPriorityChartBase tickets={tickets} onCategoryClick={onCategoryClick} />;
 }

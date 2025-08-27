@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import { useDailyStatsState } from '../../../context/dailyStatsContext';
 import { useCategoryStat } from '../../../context/historicalStatsContext';
+import { useMonthlyCategoryStat } from '../../../context/monthlyStatsContext';
 
 const COLORS = [
   '#00b8a3',
@@ -145,10 +146,17 @@ export function DailyTicketCategoriesChart({ onCategoryClick }) {
   return <TicketCategoriesChartBase categories={categories} onCategoryClick={onCategoryClick} />;
 }
 
-// 📊 Historical wrapper
+// 📊 Daily Historical wrapper
 export function HistoricalTicketCategoriesChart({ onCategoryClick }) {
   const categories = useCategoryStat(); // hook directo al contexto histórico
   return <TicketCategoriesChartBase categories={categories} onCategoryClick={onCategoryClick} />;
 }
+
+// 📊 Monthly Historical wrapper
+export function MonthlyTicketCategoriesChart({ onCategoryClick }) {
+  const categories = useMonthlyCategoryStat(); // hook directo al contexto histórico
+  return <TicketCategoriesChartBase categories={categories} onCategoryClick={onCategoryClick} />;
+}
+
 
 export default TicketCategoriesChartBase;

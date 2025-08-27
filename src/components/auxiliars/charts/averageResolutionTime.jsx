@@ -5,6 +5,7 @@ import { Card, CardContent, Box, Typography } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import { useDailyStatsState } from '../../../context/dailyStatsContext';
 import { useHistoricalStats } from '../../../context/historicalStatsContext';
+import { useMonthlyAvgResolutionTime } from '../../../context/monthlyStatsContext';
 import { formatMinutesToHoursPretty } from '../../../utils/js/minutosToHourMinutes';
 
 // componente base
@@ -86,5 +87,11 @@ export function HistoricalAverageResolutionTime() {
   const avg = stateStats?.historic_daily_stats?.globalStats?.avgResolutionTimeMins || 0;
   return <AverageResolutionTimeCard avgMinutes={avg} />;
 }
+
+export function MonthlyAverageResolutionTime() {
+  const avg = useMonthlyAvgResolutionTime();
+  return <AverageResolutionTimeCard avgMinutes={avg} />;
+}
+
 
 export default AverageResolutionTimeCard;

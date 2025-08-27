@@ -10,6 +10,8 @@ import {
 import { Card, CardContent, Box, Typography } from '@mui/material';
 import { useDailyStatsState } from '../../../context/dailyStatsContext';
 import { useCallsByHourStat } from '../../../context/historicalStatsContext';
+import { useMonthlyDailyBreakdown } from '../../../context/monthlyStatsContext';
+import { useMonthlyHourBreakdown } from '../../../context/monthlyStatsContext';
 
 // Animaciones CSS para tooltip
 const animations = `
@@ -176,10 +178,26 @@ export function DailyCallsByHour() {
   return <CallsByHourChart hourlyBreakdown={hourlyBreakdown} />;
 }
 
-// 📊 Historical wrapper
+// 📊 Daily Historical wrapper
 export function HistoricalCallsByHour() {
   const hourlyBreakdown = useCallsByHourStat();
   return <CallsByHourChart hourlyBreakdown={hourlyBreakdown} />;
 }
+
+// 📊 Monthly Historical wrapper
+export function MonthlyCallsByDay() {
+  const dayBreakdown = useMonthlyDailyBreakdown();
+  return <CallsByHourChart dayBreakdown={dayBreakdown} />;
+}
+
+// 📊 Monthly Historical wrapper
+export function MonthlyCallsByHour() {
+  const hourlyBreakdown = useMonthlyHourBreakdown();
+  return <CallsByHourChart hourlyBreakdown={hourlyBreakdown} />;
+}
+
+
+
+
 
 export default CallsByHourChart;

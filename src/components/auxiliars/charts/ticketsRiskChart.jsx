@@ -13,6 +13,7 @@ import {
 
 import { useDailyStatsState } from '../../../context/dailyStatsContext';
 import { useRiskStat } from '../../../context/historicalStatsContext';
+import { useMonthlyRiskStat } from '../../../context/monthlyStatsContext';
 
 const COLORS = [
   '#00b8a3',
@@ -132,10 +133,17 @@ export function DailyTicketRiskChart({ onCategoryClick }) {
   return <TicketRiskChartBase risks={risks} onCategoryClick={onCategoryClick} />;
 }
 
-// 📊 Historical wrapper
+// 📊 Daily Historical wrapper
 export function HistoricalTicketRiskChart({ onCategoryClick }) {
   const risks = useRiskStat(); // hook directo al contexto histórico
   return <TicketRiskChartBase risks={risks} onCategoryClick={onCategoryClick} />;
 }
+
+// 📊 Daily Historical wrapper
+export function MonthlyTicketRiskChart({ onCategoryClick }) {
+  const risks = useMonthlyRiskStat(); // hook directo al contexto histórico
+  return <TicketRiskChartBase risks={risks} onCategoryClick={onCategoryClick} />;
+}
+
 
 export default TicketRiskChartBase;

@@ -20,6 +20,7 @@ import { keyframes } from '@emotion/react';
 import { formatMinutesToHoursPretty } from '../../../utils/js/minutosToHourMinutes';
 import { useDailyStatsState } from '../../../context/dailyStatsContext';
 import { useTopAgentsStat } from '../../../context/historicalStatsContext';
+import { useMonthlyAgentStats } from '../../../context/monthlyStatsContext';
 
 // Animación para medallas
 const bounceHover = keyframes`
@@ -177,3 +178,10 @@ export function HistoricalTopAgents() {
   const agentStats = useTopAgentsStat();
   return <TopAgentsSection agentStats={agentStats} />;
 }
+
+// ✅ Historical wrapper
+export function MonthlyTopAgents() {
+  const agentStats = useMonthlyAgentStats();
+  return <TopAgentsSection agentStats={agentStats} />;
+}
+
