@@ -14,6 +14,7 @@ import {
 import { useAgents } from "./agentsContext";
 import { ENDPOINT_URLS } from "../utils/js/constants";
 import { msalConfig, apiScopes, graphScopes, loginRequest } from "../utils/azureAuth";
+import { useNotification } from "./notificationsContext";
 
 export const msalInstance = new PublicClientApplication(msalConfig);
 
@@ -45,7 +46,7 @@ async function withRetry(fn, { retries = 3, baseDelay = 600 } = {}) {
     } catch (e) {
       lastErr = e;
       if (i === retries) break;
-      await sleep(baseDelay * Math.pow(1.6, i)); // 600ms, ~960ms, ~1536ms...
+      await sleep(baseDelay * Math.pow(1.6, i));
     }
   }
   throw lastErr;
@@ -57,10 +58,12 @@ export const AuthProvider = ({ children }) => {
   const [accessTokenApi, setAccessTokenApi] = useState(null);
   const [profilePhoto, setProfilePhoto] = useState(null);
   const [authError, setAuthError] = useState(null);
-  const [authLoaded, setAuthLoaded] = useState(false); // “ciclo” de auth terminado
+  const [authLoaded, setAuthLoaded] = useState(false);
 
   const { state: agentsState } = useAgents();
   const [agentData, setAgentData] = useState(null);
+
+  //const { showNotification } = useNotification();
 
   const API_BASE = ENDPOINT_URLS.API;
 
@@ -68,10 +71,8 @@ export const AuthProvider = ({ children }) => {
     setAuthLoaded(false);
     try {
       await msalInstance.initialize();
-
-      // await msalInstance.handleRedirectPromise().catch(() => {});
-
       let account = msalInstance.getActiveAccount();
+
       if (!account) {
         try {
           const resp = await msalInstance.ssoSilent(loginRequest);
@@ -86,7 +87,6 @@ export const AuthProvider = ({ children }) => {
       if (!account) throw new Error("No active account after login.");
       setUser(account);
 
-      // Tokens con retry/backoff
       const [tokenApi, tokenGraph] = await Promise.all([
         withRetry(() => acquire(msalInstance, apiRequest, account), { retries: 2 }).catch(() => null),
         withRetry(() => acquire(msalInstance, graphRequest, account), { retries: 3 }).catch(() => null),
@@ -94,8 +94,7 @@ export const AuthProvider = ({ children }) => {
 
       setAccessTokenApi(tokenApi);
       setAccessTokenGraph(tokenGraph);
-      console.log("Tokens acquired:", { tokenApi, tokenGraph });
-      // Foto (opcional). No bloquea authLoaded.
+
       if (tokenGraph) {
         try {
           const resp = await fetch("https://graph.microsoft.com/v1.0/me/photo/$value", {
@@ -112,8 +111,9 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error("Login failed:", err);
       setAuthError(err?.message || "Login failed");
+      //showNotification("❌ Error de autenticación. Vuelve a iniciar sesión.", "error");
     } finally {
-      setAuthLoaded(true); // el ciclo de login + acquire (con reintentos) terminó
+      setAuthLoaded(true);
     }
   }, []);
 
@@ -129,6 +129,7 @@ export const AuthProvider = ({ children }) => {
     });
   }, []);
 
+  // Expone token API
   const getAccessTokenForApi = useCallback(
     async (accountOverride) => {
       const account = accountOverride || msalInstance.getActiveAccount() || user;
@@ -142,12 +143,14 @@ export const AuthProvider = ({ children }) => {
         return token;
       } catch (e) {
         setAuthError(e?.message || "Failed to acquire API token");
+        //showNotification("⚠️ Sesión expirada, vuelve a iniciar sesión.", "warning");
         return null;
       }
     },
     [user]
   );
 
+  // Fetch helper
   const callApi = useCallback(
     async (path, init = {}) => {
       const account = msalInstance.getActiveAccount() || user;
@@ -174,15 +177,16 @@ export const AuthProvider = ({ children }) => {
     [accessTokenApi, user, getAccessTokenForApi, API_BASE]
   );
 
+  // Auto-login inicial
   useEffect(() => { login(); }, [login]);
 
-  // mapear agente
+  // Mapear agente al user
   useEffect(() => {
     if (!user) {
       setAgentData(null);
       return;
     }
-    const list = (agentsState && agentsState.agents) ? agentsState.agents : [];
+    const list = agentsState?.agents || [];
     if (!Array.isArray(list) || list.length === 0) {
       setAgentData(null);
       return;
@@ -192,9 +196,17 @@ export const AuthProvider = ({ children }) => {
     setAgentData(match || null);
   }, [user, agentsState]);
 
-  // ✅ authReady: condición mínima 
+  // 🚨 Hook global de logout forzado por setupFetchAuth
+  useEffect(() => {
+    window.__FORCE_LOGOUT__ = (reason) => {
+      console.warn("⛔ Force logout triggered:", reason);
+      //showNotification("⚠️ Sesión finalizada. Por favor vuelve a iniciar sesión.", "warning");
+      logout();
+    };
+    return () => { delete window.__FORCE_LOGOUT__; };
+  }, [logout]);
+
   const authReady = !!user && !!accessTokenApi;
-  // const authReady = !!user && !!accessTokenApi && !!accessTokenGraph;
 
   const value = useMemo(() => ({
     user,
@@ -203,8 +215,8 @@ export const AuthProvider = ({ children }) => {
     profilePhoto,
     agentData,
     department: agentData?.agent_department || null,
-    authLoaded,  // ciclo de login+adquisición
-    authReady,   // listo para renderizar la app (mínimo necesario)
+    authLoaded,
+    authReady,
     authError,
     login,
     logout,
