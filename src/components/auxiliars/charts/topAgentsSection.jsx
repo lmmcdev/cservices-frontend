@@ -19,7 +19,7 @@ import ProfilePic from '../tickets/profilePic';
 import { keyframes } from '@emotion/react';
 import { formatMinutesToHoursPretty } from '../../../utils/js/minutosToHourMinutes';
 import { useDailyStatsState } from '../../../context/dailyStatsContext';
-import { useHistoricalStats } from '../../../context/historicalStatsContext';
+import { useTopAgentsStat } from '../../../context/historicalStatsContext';
 
 // Animación para medallas
 const bounceHover = keyframes`
@@ -29,14 +29,15 @@ const bounceHover = keyframes`
   100% { transform: scale(1); }
 `;
 
-export default function TopAgentsSection({ stats }) {
+export default function TopAgentsSection({ agentStats = {} }) {
   const [page, setPage] = useState(1);
   const pageSize = 4;
 
+
   const sortedAgents = useMemo(() => {
-    const agentsStats = stats?.agentStats || [];
+    const agentsStats = Array.isArray(agentStats) ? agentStats : Object.values(agentStats || {});
     return [...agentsStats].sort((a, b) => b.resolvedCount - a.resolvedCount);
-  }, [stats]);
+  }, [agentStats]);
 
   const currentAgents = useMemo(() => {
     const start = (page - 1) * pageSize;
@@ -168,11 +169,11 @@ export default function TopAgentsSection({ stats }) {
 // ✅ Daily wrapper
 export function DailyTopAgents() {
   const { daily_statistics } = useDailyStatsState();
-  return <TopAgentsSection stats={daily_statistics || {}} />;
+  return <TopAgentsSection agentStats={daily_statistics?.agentStats || {}} />;
 }
 
 // ✅ Historical wrapper
 export function HistoricalTopAgents() {
-  const { stateStats } = useHistoricalStats();
-  return <TopAgentsSection stats={stateStats.historic_daily_stats || {}} />;
+  const agentStats = useTopAgentsStat();
+  return <TopAgentsSection agentStats={agentStats} />;
 }

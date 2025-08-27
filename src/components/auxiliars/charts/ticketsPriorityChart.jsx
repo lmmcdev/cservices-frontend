@@ -15,7 +15,7 @@ import {
   Tooltip as RechartsTooltip,
 } from 'recharts';
 import { useDailyStatsState } from '../../../context/dailyStatsContext';
-import { useHistoricalStats } from '../../../context/historicalStatsContext';
+import { usePriorityStat } from '../../../context/historicalStatsContext';
 
 const PRIORITY_COLORS = {
   high: '#f46a6a',
@@ -53,14 +53,14 @@ function AnimatedActiveShape(props) {
   );
 }
 
-export default function TicketPriorityChartBase({ stats, onCategoryClick }) {
+function TicketPriorityChartBase({ tickets, onCategoryClick }) {
   const [activeIndex, setActiveIndex] = useState(null);
-  const tickets = stats?.aiClassificationStats?.priority || {};
-  const filtered = Object.entries(tickets).filter(
+
+  const filtered = Object.entries(tickets || {}).filter(
     ([k]) => k.toLowerCase() !== 'normal'
   );
   const total = filtered.reduce((sum, [, obj]) => sum + obj.count, 0);
-  const data = filtered.map(([name, obj], idx) => ({
+  const data = filtered.map(([name, obj]) => ({
     name,
     value: obj.count,
     percent: total ? (obj.count / total) * 100 : 0,
@@ -102,7 +102,6 @@ export default function TicketPriorityChartBase({ stats, onCategoryClick }) {
       sx={{
         width: '100%',
         height: '100%',
-        // quita el outline/focus negro tras click
         '& path:focus, & g:focus, & g > path:focus': {
           outline: 'none !important',
         },
@@ -151,7 +150,6 @@ export default function TicketPriorityChartBase({ stats, onCategoryClick }) {
                     <Cell key={`cell-${idx}`} fill={entry.fill} />
                   ))}
                 </Pie>
-                {/* Elimina cualquier tooltip oscuro por defecto */}
                 <RechartsTooltip content={<CustomTooltip />} />
               </PieChart>
             </ResponsiveContainer>
@@ -194,15 +192,15 @@ export default function TicketPriorityChartBase({ stats, onCategoryClick }) {
   );
 }
 
-// Daily wrapper
+// 📊 Daily wrapper
 export function DailyTicketPriorityChart({ onCategoryClick }) {
   const { daily_statistics } = useDailyStatsState();
-  return <TicketPriorityChartBase stats={daily_statistics || {}} onCategoryClick={onCategoryClick} />;
+  const tickets = daily_statistics?.aiClassificationStats?.priority || {};
+  return <TicketPriorityChartBase tickets={tickets} onCategoryClick={onCategoryClick} />;
 }
 
-// Historical wrapper
+// 📊 Historical wrapper
 export function HistoricalTicketPriorityChart({ onCategoryClick }) {
-  const { stateStats } = useHistoricalStats();
-  const stats = stateStats.historic_daily_stats || {};
-  return <TicketPriorityChartBase stats={stats} onCategoryClick={onCategoryClick} />;
+  const tickets = usePriorityStat(); // directamente del contexto histórico
+  return <TicketPriorityChartBase tickets={tickets} onCategoryClick={onCategoryClick} />;
 }

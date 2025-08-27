@@ -12,7 +12,7 @@ import {
 } from 'recharts';
 
 import { useDailyStatsState } from '../../../context/dailyStatsContext';
-import { useHistoricalStats } from '../../../context/historicalStatsContext';
+import { useRiskStat } from '../../../context/historicalStatsContext';
 
 const COLORS = [
   '#00b8a3',
@@ -27,7 +27,7 @@ const COLORS = [
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
-  const { value } = payload[0].payload;
+  const { value, percent } = payload[0].payload;
   return (
     <Box
       sx={{
@@ -44,13 +44,15 @@ const CustomTooltip = ({ active, payload, label }) => {
       <Typography variant="body2" color="text.secondary">
         Calls: {value}
       </Typography>
+      <Typography variant="body2" color="text.secondary">
+        {percent.toFixed(1)}%
+      </Typography>
     </Box>
   );
 };
 
-export default function TicketRiskChart({ stats, onCategoryClick }) {
-  const risks = stats?.aiClassificationStats?.risk || {};
-  const entries = Object.entries(risks).filter(([r]) => r.toLowerCase() !== 'none');
+function TicketRiskChartBase({ risks, onCategoryClick }) {
+  const entries = Object.entries(risks || {}).filter(([r]) => r.toLowerCase() !== 'none');
   const total = entries.reduce((sum, [, obj]) => sum + obj.count, 0);
   const dataRisks = entries.map(([name, obj], idx) => ({
     name,
@@ -71,13 +73,8 @@ export default function TicketRiskChart({ stats, onCategoryClick }) {
       sx={{
         width: '100%',
         height: '100%',
-        // Eliminar barra gris de hover y aclarar el color original en hover
-        '& .recharts-tooltip-cursor': {
-          fill: 'transparent !important',
-        },
-        '& .recharts-bar-rectangle:hover': {
-          filter: 'brightness(1.2)',
-        },
+        '& .recharts-tooltip-cursor': { fill: 'transparent !important' },
+        '& .recharts-bar-rectangle:hover': { filter: 'brightness(1.2)' },
       }}
     >
       <Card
@@ -128,25 +125,17 @@ export default function TicketRiskChart({ stats, onCategoryClick }) {
   );
 }
 
-// Wrapper para Daily
+// 📊 Daily wrapper
 export function DailyTicketRiskChart({ onCategoryClick }) {
   const { daily_statistics } = useDailyStatsState();
-  return (
-    <TicketRiskChart
-      stats={daily_statistics || {}}
-      onCategoryClick={onCategoryClick}
-    />
-  );
+  const risks = daily_statistics?.aiClassificationStats?.risk || {};
+  return <TicketRiskChartBase risks={risks} onCategoryClick={onCategoryClick} />;
 }
 
-// Wrapper para Histórico
+// 📊 Historical wrapper
 export function HistoricalTicketRiskChart({ onCategoryClick }) {
-  const { stateStats } = useHistoricalStats();
-  const stats = stateStats.historic_daily_stats || {};
-  return (
-    <TicketRiskChart
-      stats={stats}
-      onCategoryClick={onCategoryClick}
-    />
-  );
+  const risks = useRiskStat(); // hook directo al contexto histórico
+  return <TicketRiskChartBase risks={risks} onCategoryClick={onCategoryClick} />;
 }
+
+export default TicketRiskChartBase;

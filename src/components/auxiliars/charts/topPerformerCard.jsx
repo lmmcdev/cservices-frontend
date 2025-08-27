@@ -4,7 +4,7 @@ import React, { useMemo, memo } from 'react';
 import { Box, Typography, Card } from '@mui/material';
 import confetti from 'canvas-confetti';
 import { useDailyStatsState } from '../../../context/dailyStatsContext';
-import { useHistoricalStats } from '../../../context/historicalStatsContext';
+import { useHistoricalStats, useTopAgentsStat } from '../../../context/historicalStatsContext';
 import { capitalizeWords } from '../../../utils/js/capitalizeWords';
 
 function TopPerformerCardBase({ agentStats = [], title }) {
@@ -145,8 +145,7 @@ export const DailyTopPerformerCard = memo(function DailyTopPerformerCard() {
 })
 
 export const HistoricalTopPerformerCard = memo(function HistoricalTopPerformerCard() {
-  const { stateStats } = useHistoricalStats();
-  const stats = stateStats.historic_daily_stats || {};
-  const agentStats = stats.agentStats || [];
+
+  const agentStats = useTopAgentsStat();
   return <TopPerformerCardBase agentStats={agentStats} title="Top Performer – Historical" />;
 });

@@ -1,5 +1,3 @@
-// src/components/ticketsCategoriesChart.jsx
-
 import React from 'react';
 import { Box, Card, CardContent, Typography } from '@mui/material';
 import {
@@ -13,7 +11,7 @@ import {
   Cell,
 } from 'recharts';
 import { useDailyStatsState } from '../../../context/dailyStatsContext';
-import { useHistoricalStats } from '../../../context/historicalStatsContext';
+import { useCategoryStat } from '../../../context/historicalStatsContext';
 
 const COLORS = [
   '#00b8a3',
@@ -53,10 +51,9 @@ const CustomTooltip = ({ active, payload, label }) => {
   );
 };
 
-function TicketCategoriesChartBase({ stats, onCategoryClick }) {
-  const categories = stats?.aiClassificationStats?.category || {};
-  const total = Object.values(categories).reduce((sum, c) => sum + c.count, 0);
-  const data = Object.entries(categories)
+function TicketCategoriesChartBase({ categories, onCategoryClick }) {
+  const total = Object.values(categories || {}).reduce((sum, c) => sum + c.count, 0);
+  const data = Object.entries(categories || {})
     .map(([name, obj], idx) => ({
       name,
       value: obj.count,
@@ -66,9 +63,9 @@ function TicketCategoriesChartBase({ stats, onCategoryClick }) {
     }))
     .sort((a, b) => b.value - a.value);
 
-  const handleClick = (data) => {
-    if (data?.ticketIds && onCategoryClick) {
-      onCategoryClick({ category: data.name, ticketIds: data.ticketIds });
+  const handleClick = (entry) => {
+    if (entry?.ticketIds && onCategoryClick) {
+      onCategoryClick({ category: entry.name, ticketIds: entry.ticketIds });
     }
   };
 
@@ -77,13 +74,8 @@ function TicketCategoriesChartBase({ stats, onCategoryClick }) {
       sx={{
         width: '100%',
         height: '100%',
-        // quita fondo gris en hover y aclara el color original
-        '& .recharts-tooltip-cursor': {
-          fill: 'transparent !important',
-        },
-        '& .recharts-bar-rectangle:hover': {
-          filter: 'brightness(1.2)',
-        },
+        '& .recharts-tooltip-cursor': { fill: 'transparent !important' },
+        '& .recharts-bar-rectangle:hover': { filter: 'brightness(1.2)' },
       }}
     >
       <Card
@@ -129,11 +121,7 @@ function TicketCategoriesChartBase({ stats, onCategoryClick }) {
                   cursor="pointer"
                 >
                   {data.map((entry, i) => (
-                    <Cell
-                      key={`cell-${i}`}
-                      fill={entry.fill}
-                      fillOpacity={1}
-                    />
+                    <Cell key={`cell-${i}`} fill={entry.fill} />
                   ))}
                   <LabelList
                     dataKey="value"
@@ -150,25 +138,17 @@ function TicketCategoriesChartBase({ stats, onCategoryClick }) {
   );
 }
 
+// 📊 Daily wrapper
 export function DailyTicketCategoriesChart({ onCategoryClick }) {
   const { daily_statistics } = useDailyStatsState();
-  return (
-    <TicketCategoriesChartBase
-      stats={daily_statistics || {}}
-      onCategoryClick={onCategoryClick}
-    />
-  );
+  const categories = daily_statistics?.aiClassificationStats?.category || {};
+  return <TicketCategoriesChartBase categories={categories} onCategoryClick={onCategoryClick} />;
 }
 
+// 📊 Historical wrapper
 export function HistoricalTicketCategoriesChart({ onCategoryClick }) {
-  const { stateStats } = useHistoricalStats();
-  const stats = stateStats.historic_daily_stats || {};
-  return (
-    <TicketCategoriesChartBase
-      stats={stats}
-      onCategoryClick={onCategoryClick}
-    />
-  );
+  const categories = useCategoryStat(); // hook directo al contexto histórico
+  return <TicketCategoriesChartBase categories={categories} onCategoryClick={onCategoryClick} />;
 }
 
 export default TicketCategoriesChartBase;

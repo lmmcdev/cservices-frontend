@@ -1,5 +1,3 @@
-// src/components/callsByHourChart.jsx
-
 import React from 'react';
 import {
   ResponsiveContainer,
@@ -11,7 +9,7 @@ import {
 } from 'recharts';
 import { Card, CardContent, Box, Typography } from '@mui/material';
 import { useDailyStatsState } from '../../../context/dailyStatsContext';
-import { useHistoricalStats } from '../../../context/historicalStatsContext';
+import { useCallsByHourStat } from '../../../context/historicalStatsContext';
 
 // Animaciones CSS para tooltip
 const animations = `
@@ -34,7 +32,7 @@ const animations = `
 `;
 
 const CustomTooltip = ({ active, payload, label, maxCalls, minCalls }) => {
-  if (active && payload && payload.length) {
+  if (active && payload?.length) {
     const value = payload[0].value;
     const idx = payload[0].payload.index;
     const isFirstMax = value === maxCalls && idx === payload[0].payload.firstMaxIndex;
@@ -99,10 +97,9 @@ const CustomTooltip = ({ active, payload, label, maxCalls, minCalls }) => {
   return null;
 };
 
-export default function CallsByHourChart({ stats }) {
+function CallsByHourChart({ hourlyBreakdown = [] }) {
   const workHours = Array.from({ length: 12 }, (_, i) => i + 6);
-  const raw = stats?.hourlyBreakdown || [];
-  const map = new Map(raw.map(item => [item.hour, item.count]));
+  const map = new Map(hourlyBreakdown.map(item => [item.hour, item.count]));
   const data = workHours.map(hour => {
     const count = map.get(hour) ?? 0;
     const next = (hour + 1) % 24;
@@ -126,14 +123,7 @@ export default function CallsByHourChart({ stats }) {
       <style>{animations}</style>
       <Box sx={{ width: '100%', height: '100%' }}>
         <Card sx={{ height: '100%', borderRadius: 3, boxShadow: '0px 8px 24px rgba(239,241,246,1)' }}>
-          <CardContent
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              height: '100%',
-              p: 2,
-            }}
-          >
+          <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%', p: 2 }}>
             <Typography variant="h5" fontWeight="bold" sx={{ mb: 2 }}>
               Total Calls by Hour Interval
             </Typography>
@@ -163,7 +153,11 @@ export default function CallsByHourChart({ stats }) {
                     strokeWidth={2}
                     dot={{ r: 3 }}
                   >
-                    <LabelList dataKey="calls" position="top" style={{ fontSize: 12, fontWeight: 'bold', fill: '#333' }} />
+                    <LabelList
+                      dataKey="calls"
+                      position="top"
+                      style={{ fontSize: 12, fontWeight: 'bold', fill: '#333' }}
+                    />
                   </Area>
                 </AreaChart>
               </ResponsiveContainer>
@@ -175,14 +169,17 @@ export default function CallsByHourChart({ stats }) {
   );
 }
 
-// Daily wrapper
+// 📊 Daily wrapper
 export function DailyCallsByHour() {
   const { daily_statistics } = useDailyStatsState();
-  return <CallsByHourChart stats={daily_statistics || {}} />;
+  const hourlyBreakdown = daily_statistics?.hourlyBreakdown || [];
+  return <CallsByHourChart hourlyBreakdown={hourlyBreakdown} />;
 }
 
-// Historical wrapper
+// 📊 Historical wrapper
 export function HistoricalCallsByHour() {
-  const { stateStats } = useHistoricalStats();
-  return <CallsByHourChart stats={stateStats.historic_daily_stats || {}} />;
+  const hourlyBreakdown = useCallsByHourStat();
+  return <CallsByHourChart hourlyBreakdown={hourlyBreakdown} />;
 }
+
+export default CallsByHourChart;
