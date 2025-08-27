@@ -8,8 +8,9 @@ import MinimalCenteredLayout from '../layouts/minimalCenterLayout';
 import PrivateRoute from '../components/privateRoute';
 import NotFound404 from '../pages/404';
 import HistoricStatistics from '../pages/historicalStatsScreen';
+import MonthlyStatistics from '../pages/monthlyStatsScreen.js';
 import { HistoricalStatsProvider } from '../context/historicalStatsContext';
-import { LoadingProvider } from '../providers/loadingProvider';
+import { MonthlyStatsProvider } from '../context/monthlyStatsContext.js';
 
 // ✅ Lazy-loaded pages
 const TableTickets = lazy(() => import('../pages/tableTickets'));
@@ -25,7 +26,6 @@ const SearchTicketDeep = lazy(() => import('../components/components/tickets/tic
 const ReportsScreen = lazy(() => import('../pages/reportsScreen'));
 
 // ✅ Monthly en lazy y con el nombre/archivo correcto (minúsculas, con "h")
-const MonthlyStatsScreen = lazy(() => import('../pages/monthlyStatsScreen.js'));
 
 export default function AppRoutes({ agentData, filters, setFilters, authError, login, user }) {
   return (
@@ -50,11 +50,9 @@ export default function AppRoutes({ agentData, filters, setFilters, authError, l
             <Route
               path="/historical_statistics"
               element={
-                <LoadingProvider>
                   <HistoricalStatsProvider>
                     <HistoricStatistics />
                   </HistoricalStatsProvider>
-                </LoadingProvider>
               }
             />
 
@@ -62,11 +60,9 @@ export default function AppRoutes({ agentData, filters, setFilters, authError, l
             <Route
               path="/monthly_statistics"
               element={
-                <LoadingProvider>
-                  <HistoricalStatsProvider>
-                    <MonthlyStatsScreen />
-                  </HistoricalStatsProvider>
-                </LoadingProvider>
+                  <MonthlyStatsProvider>
+                    <MonthlyStatistics />
+                  </MonthlyStatsProvider>
               }
             />
           </Route>
