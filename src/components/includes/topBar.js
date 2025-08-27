@@ -1,8 +1,13 @@
-import React, { useReducer, useState } from 'react';
+// src/components/auxiliars/topbar.jsx
+import React, { useReducer, useState, useRef, useLayoutEffect } from 'react';
 import {
   Card, CardContent, Typography, TextField, IconButton,
-  Tooltip, Stack, Fade
+  Tooltip, Stack, Fade, Box, InputAdornment
 } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
+import DialpadIcon from '@mui/icons-material/Dialpad';
+
 import CollaboratorAutoComplete from '../fields/collaboratorAutocomplete';
 import CallerIDAutoComplete from '../fields/callerIDAutocomplete';
 import { icons } from '../auxiliars/icons';
@@ -13,10 +18,11 @@ import { ticketReducer, initialState } from '../../store/ticketsReducer';
 import AlertSnackbar from '../auxiliars/alertSnackbar';
 import { useFilters } from '../../context/filterContext';
 import { useAgents } from '../../context/agentsContext';
-import SearchBar from '../fields/searchBar';
 import DialerModal from '../dialogs/dialerModal';
-import DialpadIcon from '@mui/icons-material/Dialpad';
 import { defaultLocationOptions } from '../../utils/js/constants';
+
+const BRAND = '#00a1ff';
+const BORDER_IDLE = '#e0e7ef';
 
 export default function Topbar({ agent }) {
   const { state } = useAgents();
@@ -35,22 +41,40 @@ export default function Topbar({ agent }) {
 
   const { filters, setFilters } = useFilters();
 
+  // refs para medir “Assigned to” y “Caller ID”
+  const assignedRef = useRef(null);
+  const callerRef = useRef(null);
+
+  // tamaño a igualar (date + search)
+  const [eqWidth, setEqWidth] = useState(260);
+  const [eqHeight, setEqHeight] = useState(40);
+
+  useLayoutEffect(() => {
+    const w1 = assignedRef.current?.offsetWidth || 0;
+    const w2 = callerRef.current?.offsetWidth || 0;
+    const h1 = assignedRef.current?.offsetHeight || 0;
+    const h2 = callerRef.current?.offsetHeight || 0;
+
+    const w = Math.max(w1, w2) || eqWidth;
+    const h = Math.max(h1, h2) || eqHeight;
+
+    if (w && w !== eqWidth) setEqWidth(w);
+    if (h && h !== eqHeight) setEqHeight(h);
+  }, [activeUI, filters.assignedAgents, filters.callerIds, agents.length]); // eslint-disable-line
+
   const handleDateChange = (e) => {
     setFilters((prev) => ({ ...prev, date: e.target.value }));
   };
-
   const handleAssignedAgentsChange = (value) => {
     setFilters((prev) => ({ ...prev, assignedAgents: value }));
   };
-
-  const handleCallerIdChange = (value) => { 
+  const handleCallerIdChange = (value) => {
     setFilters((prev) => ({ ...prev, callerIds: value }));
-  }
+  };
 
   const toggleSearchBar = () => {
     setActiveUI((prev) => (prev === 'search' ? null : 'search'));
   };
-
   const toggleFilters = () => {
     setActiveUI((prev) => (prev === 'filters' ? null : 'filters'));
   };
@@ -74,13 +98,13 @@ export default function Topbar({ agent }) {
         sx={{
           position: 'fixed',
           top: 40,
-          left: 'calc(var(--drawer-width, 80px) + var(--content-gap))', // se mueve con el sidebar
+          left: 'calc(var(--drawer-width, 80px) + var(--content-gap))',
           right: 39,
           zIndex: (theme) => theme.zIndex.drawer + 1,
           borderRadius: 2,
           backgroundColor: '#fff',
           boxShadow: '0px 4px 12px rgba(239, 241, 246, 1)',
-          transition: 'left .3s ease',                      // animación suave
+          transition: 'left .3s ease',
         }}
       >
         <CardContent
@@ -88,8 +112,8 @@ export default function Topbar({ agent }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            paddingY: 2,
-            paddingX: 3,
+            py: 2,
+            px: 3,
             gap: 2,
             flexWrap: 'wrap',
           }}
@@ -101,46 +125,88 @@ export default function Topbar({ agent }) {
           <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
             <Fade in={activeUI === 'filters'} timeout={300} unmountOnExit>
               <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
+                {/* Date con igual ancho/alto */}
                 <TextField
                   size="small"
                   type="date"
                   value={filters.date}
                   onChange={handleDateChange}
                   sx={{
-                    width: 240,
-                    '& input': {
-                      paddingY: 0,
-                      fontSize: 12,
-                      color: 'text.secondary',
-                      height: 36,
+                    width: eqWidth,
+                    '& .MuiOutlinedInput-root': { height: eqHeight },
+                    '& .MuiInputBase-input': {
+                      height: '100%',
                       boxSizing: 'border-box',
+                      padding: '8px 14px',
+                      fontSize: 14,
+                      color: 'text.secondary',
                     },
                   }}
-                  InputLabelProps={{
-                    shrink: true,
-                    sx: { color: 'text.secondary', fontSize: 12 },
-                  }}
+                  InputLabelProps={{ shrink: true }}
                 />
-                <CollaboratorAutoComplete
-                  agents={agents}
-                  selectedEmails={filters.assignedAgents}
-                  onChange={handleAssignedAgentsChange}
-                  label="Assigned to"
-                />
-                <CallerIDAutoComplete
-                  onChange={handleCallerIdChange}
-                  options={defaultLocationOptions}
-                  label="Caller ID"
-                />
+
+                {/* medimos estos sin tocar su estilo */}
+                <Box ref={assignedRef} sx={{ display: 'inline-flex' }}>
+                  <CollaboratorAutoComplete
+                    agents={agents}
+                    selectedEmails={filters.assignedAgents}
+                    onChange={handleAssignedAgentsChange}
+                    label="Assigned to"
+                  />
+                </Box>
+
+                <Box ref={callerRef} sx={{ display: 'inline-flex' }}>
+                  <CallerIDAutoComplete
+                    onChange={handleCallerIdChange}
+                    options={defaultLocationOptions}
+                    label="Caller ID"
+                  />
+                </Box>
               </Stack>
             </Fade>
 
+            {/* 🔎 Search: reemplazado por TextField MUI para centrar texto y unificar look */}
             <Fade in={activeUI === 'search'} timeout={300} unmountOnExit>
               <Stack direction="row" alignItems="center" spacing={1}>
-                <SearchBar
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+                <Box sx={{ width: eqWidth }}>
+                  <TextField
+                    size="small"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search"
+                    variant="outlined"
+                    fullWidth
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon sx={{ color: BRAND }} />
+                        </InputAdornment>
+                      ),
+                      endAdornment: searchTerm ? (
+                        <InputAdornment position="end">
+                          <IconButton size="small" onClick={() => setSearchTerm('')}>
+                            <ClearIcon fontSize="small" />
+                          </IconButton>
+                        </InputAdornment>
+                      ) : null,
+                    }}
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        height: eqHeight,
+                        borderRadius: 2,
+                        '& .MuiOutlinedInput-notchedOutline': { borderColor: BORDER_IDLE },
+                        '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: BRAND },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: BRAND, borderWidth: 2 },
+                      },
+                      '& .MuiInputBase-input': {
+                        height: '100%',
+                        boxSizing: 'border-box',
+                        padding: '8px 14px',
+                        fontSize: 14, // 👈 font más grande y centrado
+                      },
+                    }}
+                  />
+                </Box>
               </Stack>
             </Fade>
 
@@ -166,7 +232,7 @@ export default function Topbar({ agent }) {
             <Tooltip title="Add Case">
               <IconButton
                 onClick={() => setOpen(true)}
-                sx={{ padding: 0, height: 26, width: 36, '&:hover': { backgroundColor: 'transparent' } }}
+                sx={{ p: 0, height: 26, width: 36, '&:hover': { backgroundColor: 'transparent' } }}
               >
                 <icons.addCase style={{ fontSize: '17px' }} />
               </IconButton>
@@ -175,7 +241,7 @@ export default function Topbar({ agent }) {
             <Tooltip title="Open dialer">
               <IconButton
                 onClick={() => setDialerOpen(true)}
-                sx={{ padding: 0, height: 26, width: 36, color: '#00a1ff', '&:hover': { backgroundColor: 'transparent' } }}
+                sx={{ p: 0, height: 26, width: 36, color: BRAND, '&:hover': { backgroundColor: 'transparent' } }}
               >
                 <DialpadIcon style={{ fontSize: '20px' }} />
               </IconButton>
