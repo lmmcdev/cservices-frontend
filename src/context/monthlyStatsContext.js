@@ -99,7 +99,6 @@ export const useMonthlyDailyBreakdown = () => {
 export const useMonthlyHourBreakdown = () => {
   const doc = useMonthlyDoc();
   const list = doc.hourlyBreakdown;
-  console.log("Monthly hourly breakdown:", list);
   return Array.isArray(list) ? list : [];
 };
 
