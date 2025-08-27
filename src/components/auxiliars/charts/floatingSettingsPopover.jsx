@@ -1,3 +1,4 @@
+// src/components/auxiliars/FloatingSettingsPopover.jsx
 import React from 'react';
 import {
   Popover,
@@ -12,6 +13,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import TodayIcon from '@mui/icons-material/Today';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import { DateRangeIcon } from '@mui/x-date-pickers';
 
 export default function FloatingSettingsPopover({ anchorEl, onClose }) {
   const open = Boolean(anchorEl);
@@ -19,16 +21,38 @@ export default function FloatingSettingsPopover({ anchorEl, onClose }) {
 
   const navigate = useNavigate();
   
-
-  // 👉 Mismos items del sidebar
+  // 👉 Items del menú
   const navItems = [
-    { icon: <TodayIcon sx={{ fontSize: 22 }} />, label: 'Today Statistics', path: '/statistics', roles: ['Supervisor'] },
-    { icon: <CalendarMonthIcon sx={{ fontSize: 22 }} />, label: 'Daily Statistics', path: '/historical_statistics', roles: ['Supervisor'] },
+    { 
+      icon: <TodayIcon sx={{ fontSize: 22 }} />, 
+      label: 'Today Statistics', 
+      path: '/statistics', 
+      roles: ['Supervisor'] 
+    },
+    { 
+      icon: <DateRangeIcon sx={{ fontSize: 22 }} />, 
+      label: 'Daily Statistics', 
+      path: '/historical_statistics', 
+      roles: ['Supervisor'] 
+    },
+    { 
+      icon: <CalendarMonthIcon sx={{ fontSize: 22 }} />, 
+      label: 'Monthly Statistics', 
+      path: '/monthly_statistics', 
+      roles: ['Supervisor'] 
+    },
   ];
 
-  
   const handleNavigate = (path, label) => {
-    navigate(path, { state: { openDateSelector: label === 'Daily Statistics' } });
+    let state = {};
+    
+    if (label === 'Daily Statistics') {
+      state = { openDateSelector: true, mode: 'day' };
+    } else if (label === 'Monthly Statistics') {
+      state = { openDateSelector: true, mode: 'month' }; // 👈 aquí se manda la lógica para mes + año
+    }
+
+    navigate(path, { state });
     onClose();
   };
 
@@ -88,14 +112,14 @@ export default function FloatingSettingsPopover({ anchorEl, onClose }) {
                 >
                   {icon}
                 </ListItemIcon>
-              <ListItemText
-                primary={label}
-                primaryTypographyProps={{
-                  fontSize: 15,
-                  fontWeight: 'bold',
-                  color: '#5B5F7B', // 👈 color gris por defecto
-                }}
-              />
+                <ListItemText
+                  primary={label}
+                  primaryTypographyProps={{
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                    color: '#5B5F7B',
+                  }}
+                />
               </ListItemButton>
             </ListItem>
           ))}
