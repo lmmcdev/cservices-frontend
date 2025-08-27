@@ -3,8 +3,6 @@ import {
   Box,
   Typography,
   IconButton,
-  CircularProgress,
-  Button,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import TicketQuickViewDialog from '../dialogs/ticketQuickViewDialog';
@@ -22,7 +20,7 @@ export default function RightDrawer({
   const [dialogOpen, setDialogOpen] = useState(false);
 
   // ✅ Hook para manejar paginación
-  const { tickets, loading, hasMore, fetchMore, reset } =
+  const { tickets, hasMore, fetchMore, reset } =
     usePaginatedTickets(fetchFn, fetchParams);
 
   // ✅ Cargar tickets cuando se abre el Drawer
@@ -121,24 +119,11 @@ export default function RightDrawer({
             hasMore={hasMore}
             loadMore={fetchMore}
             selectedTicket={handleTicketClick}
-            loading={loading}
           />
         </Box>
 
-        {/* Fallbacks / acciones debajo de la lista */}
-        {loading && tickets.length === 0 && (
-          <Box sx={{ textAlign: 'center', py: 2 }}>
-            <CircularProgress size={24} />
-          </Box>
-        )}
-
-        {hasMore && tickets.length > 0 && (
-          <Box sx={{ textAlign: 'center', mt: 2, pb: 1 }}>
-            <Button variant="outlined" onClick={fetchMore} disabled={loading}>
-              {loading ? 'Loading...' : 'Load More'}
-            </Button>
-          </Box>
-        )}
+      
+        
       </Box>
 
       <TicketQuickViewDialog
