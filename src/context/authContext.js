@@ -14,7 +14,7 @@ import {
 import { useAgents } from "./agentsContext";
 import { ENDPOINT_URLS } from "../utils/js/constants";
 import { msalConfig, apiScopes, graphScopes, loginRequest } from "../utils/azureAuth";
-import { useNotification } from "./notificationsContext";
+//import { useNotification } from "./notificationsContext";
 
 export const msalInstance = new PublicClientApplication(msalConfig);
 
