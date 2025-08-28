@@ -100,7 +100,6 @@ export default function EditTicketLocal() {
     navigate(-1);
   };
 
-
   const openNoteDialogCb = useCallback(() => setOpenNoteDialog(true), []);
   const closeNoteDialogCb = useCallback(() => setOpenNoteDialog(false), []);
   const closeAgentDialogCb = useCallback(() => setAgentDialogOpen(false), []);
@@ -141,6 +140,10 @@ export default function EditTicketLocal() {
   const audioUrl       = useMemo(() => ticket?.url_audio,        [ticket?.url_audio]);
   const notesStable         = useMemo(() => notes,         [notes]);
   const collaboratorsStable = useMemo(() => collaborators, [collaborators]);
+  // 2) Crea las variables memorizadas (debajo de tus otros useMemo)
+  const summaryText    = useMemo(() => normalizeMultiline(ticket?.summary),     [ticket?.summary]);
+  const callReasonText = useMemo(() => normalizeMultiline(ticket?.call_reason), [ticket?.call_reason]);
+
 
   const formatDateMMDDYYYY = (value) => {
     if (!value) return '';
@@ -159,6 +162,26 @@ export default function EditTicketLocal() {
     const digits = (String(value).match(/\d/g) || []).join('');
     return digits.length >= 10;
   };
+
+    // 1) Añade esto junto a tus utils del componente
+  const forceWrap = {
+    display: 'block',
+    minWidth: 0,
+    maxWidth: '100%',
+    whiteSpace: 'pre-wrap',     // mantiene párrafos
+    overflowWrap: 'anywhere',   // rompe palabras larguísimas
+    wordBreak: 'break-word',
+  };
+
+  // Normaliza el texto multi-línea: conserva párrafos, elimina saltos “duros”
+  function normalizeMultiline(input) {
+    if (input == null) return '';
+    let s = String(input).replace(/\r\n/g, '\n');
+    s = s.replace(/\n{3,}/g, '\n\n');            // colapsa 3+ saltos en doble salto
+    s = s.replace(/([^\n])\n(?!\n)/g, '$1 ');    // salto simple -> espacio
+    return s;
+  }
+
 
   if (!ticket) return <Typography>Ticket not found</Typography>;
 
@@ -224,7 +247,7 @@ export default function EditTicketLocal() {
         </Box>
 
         {/* Contenido scrollable */}
-        <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
+        <Box sx={{ flex: 1, overflow: 'auto', p: 2, minWidth: 0 }}>
           <Box sx={{ mt: 1, mb: 2 }}>
             <TicketStatusBar currentStatus={status} onStatusChange={handleStatusChangeUI} />
           </Box>
@@ -233,7 +256,8 @@ export default function EditTicketLocal() {
             <Grid item xs={12} md="auto">
               <Box display="flex" flexDirection="column" gap={2} sx={{ width: { xs: '100%', md: '540px' }, minWidth: 0 }}>
                 <Card variant="outlined">
-                  <CardContent sx={{ p: '20px 25px 25px 30px' }}>
+                  {/* ⬇️ permitir shrink dentro del card */}
+                  <CardContent sx={{ p: '20px 25px 25px 30px', minWidth: 0 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Box
@@ -446,39 +470,40 @@ export default function EditTicketLocal() {
             <Grid item xs={12} md="auto">
               <Box display="flex" flexDirection="column" gap={2} sx={{ width: { xs: '100%', md: '540px' }, minWidth: 0 }}>
                 <Card variant="outlined">
-                  <CardContent sx={{ p: '20px 25px 25px 30px' }}>
+                  {/* ⬇️ permitir shrink dentro del card */}
+                  <CardContent sx={{ p: '20px 25px 25px 30px', minWidth: 0 }}>
                     <Box sx={{ mb: 2 }}>                    
-                    {/* Encabezado "Call Information" — alineado a la izquierda */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Box
-                        sx={{
-                          width: 8,
-                          height: 24,
-                          borderRadius: 10,
-                          backgroundColor: getStatusColor(status, 'text') || '#00a1ff',
-                        }}
-                      />
-                      <Typography
-                        variant="h6"
-                        sx={{ fontWeight: 'bold', color: getStatusColor(status, 'text') || '#00a1ff' }}
-                      >
-                        Call Information
-                      </Typography>
-                    </Box>
-                    {/* Indicadores — alineados a la derecha */}
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
-                      <Box sx={{ width: { xs: '100%', md: 'auto' }, maxWidth: 520 }}>
-                        <TicketIndicatorsMemo
-                          ai_data={indicatorsData}
-                          ticketId={ticket.id}
-                          editable
-                          showTooltip
-                          onSaveAiClassification={handleAiClassificationChangeUI}
-                          iconsOnly={false}
+                      {/* Encabezado "Call Information" — alineado a la izquierda */}
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box
+                          sx={{
+                            width: 8,
+                            height: 24,
+                            borderRadius: 10,
+                            backgroundColor: getStatusColor(status, 'text') || '#00a1ff',
+                          }}
                         />
+                        <Typography
+                          variant="h6"
+                          sx={{ fontWeight: 'bold', color: getStatusColor(status, 'text') || '#00a1ff' }}
+                        >
+                          Call Information
+                        </Typography>
+                      </Box>
+                      {/* Indicadores — alineados a la derecha */}
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+                        <Box sx={{ width: { xs: '100%', md: 'auto' }, maxWidth: 520 }}>
+                          <TicketIndicatorsMemo
+                            ai_data={indicatorsData}
+                            ticketId={ticket.id}
+                            editable
+                            showTooltip
+                            onSaveAiClassification={handleAiClassificationChangeUI}
+                            iconsOnly={false}
+                          />
+                        </Box>
                       </Box>
                     </Box>
-                  </Box>
 
                     <Typography sx={{ mb: 2.5 }}>
                       <strong>Caller ID:</strong><br /> {ticket.caller_id}
@@ -486,12 +511,19 @@ export default function EditTicketLocal() {
                     <Typography sx={{ mb: 2.5 }}>
                       <strong>Caller Name:</strong><br /> {ticket.caller_Name}
                     </Typography>
+
+                    {/* ✅ Call Reason con wrap forzado */}
                     <Typography sx={{ mb: 2.5 }}>
-                      <strong>Call Reason:</strong><br /> {ticket.call_reason}
+                      <strong>Call Reason:</strong><br />
+                      <Box component="span" sx={forceWrap}>{callReasonText}</Box>
                     </Typography>
+
+                    {/* ✅ Summary con wrap forzado */}
                     <Typography sx={{ mb: 2.5 }}>
-                      <strong>Summary:</strong><br /> {ticket.summary}
+                      <strong>Summary:</strong><br />
+                      <Box component="span" sx={forceWrap}>{summaryText}</Box>
                     </Typography>
+
                     <Typography>
                       <strong>Creation Date:</strong><br /> {new Date(ticket.creation_date).toLocaleString()}
                     </Typography>
