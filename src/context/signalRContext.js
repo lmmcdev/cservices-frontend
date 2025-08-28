@@ -75,6 +75,7 @@ export function SignalRProvider({ children }) {
   function resolveRawLocationGroup(agent) {
     if (!agent) return null;
     const g = agent.group_sys_name;
+    console.log('Agent group_sys_name:', g);
     if (!g) return null;
     if (typeof g === 'string') return g.trim();
     if (typeof g === 'object') return (g.group || g.name || '').trim() || null;
@@ -171,6 +172,54 @@ export function SignalRProvider({ children }) {
         dailyStatsDispatch({ type: 'SET_DAILY_STATS', payload: doc });
         handlers.onDailyStats?.(doc);
       });
+
+      connection.on('agentAssignment', (data) => {
+        console.log('agentAssignment raw data:', data); 
+        if (!data) return;
+
+        const doc = Array.isArray(data) ? data[0] : data;
+
+        // helper para normalizar emails
+        const norm = (v) => (v && typeof v === 'string' ? v.trim().toLowerCase() : '');
+
+        // email actual del usuario logueado
+        const currentEmail =
+          norm(user?.username) ||
+          norm(user?.idTokenClaims?.preferred_username) ||
+          norm(user?.idTokenClaims?.email) ||
+          '';
+
+        // normaliza el assigned y collaborators
+        const assigned = norm(doc?.agent_assigned);
+        const collaborators = Array.isArray(doc?.collaborators)
+          ? doc.collaborators.map(norm).filter(Boolean)
+          : [];
+
+        // condición: soy el assigned o estoy en los colaboradores
+        const isRelevant =
+          currentEmail &&
+          (currentEmail === assigned || collaborators.includes(currentEmail));
+
+        console.log('[SignalR] agentAssignment check:', {
+          currentEmail,
+          assigned,
+          collaborators,
+          matchAssigned: currentEmail === assigned,
+          matchCollaborator: collaborators.includes(currentEmail),
+          isRelevant,
+        });
+
+        if (!isRelevant) {
+          console.log('[SignalR] Ignored agentAssignment (not for this user)');
+          return;
+        }
+
+        // si aplica al usuario logueado, lo paso al handler
+        ticketsDispatch({ type: 'UPD_TICKET', payload: doc });
+        handlers.onAgentAssignment?.(doc);
+    });
+
+
 
       await connection.start();
       connectionRef.current = connection;

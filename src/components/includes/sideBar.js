@@ -76,6 +76,7 @@ export default function CollapsibleDrawer({ agent }) {
         GROUP_IDS.SWITCHBOARD.AGENTS,
         GROUP_IDS.SWITCHBOARD.SUPERVISORS,
         GROUP_IDS.SWITCHBOARD.REMOTE,
+        GROUP_IDS.HIALEAHCENTER.AGENTS
       ],
     },
     {
