@@ -1,3 +1,9 @@
+//utility function to find a group and role name by its ID from a constants object.
+/**
+ * Finds the group and role names by their ID.
+ * @param {string} id - The ID to search for.
+ * @returns {{ group: string, role: string } | null} - The group and role names or null if not found.
+ */
 import { GROUP_IDS } from '../../utils/js/constants.js';
 
 export function findGroupKeyById(id) {
