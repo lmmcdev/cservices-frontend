@@ -134,6 +134,7 @@ export function SignalRProvider({ children }) {
         console.debug('[SignalR] joined groups:', desired);
       }
     },
+    //eslint-disable-next-line
     [user?.username, postJSON, currentAgent, currentEmail]
   );
 
@@ -233,6 +234,7 @@ export function SignalRProvider({ children }) {
         await refreshGroupMembership();
       });
     },
+    //eslint-disable-next-line
     [user?.username, postJSON, shouldDispatch, ticketsDispatch, dailyStatsDispatch, refreshGroupMembership]
   );
 
@@ -279,6 +281,7 @@ export function SignalRProvider({ children }) {
     if (conn) {
       try { await conn.stop(); } catch {}
     }
+    //eslint-disable-next-line
   }, [user?.username, postJSON]);
 
   return (

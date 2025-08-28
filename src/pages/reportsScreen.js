@@ -181,7 +181,7 @@ export default function ReportsScreen() {
     }));
   };
 
-  const handleSelectTemplate = (tpl) => { setActiveTemplateId(tpl.id); applyTemplate(tpl); };
+  //const handleSelectTemplate = (tpl) => { setActiveTemplateId(tpl.id); applyTemplate(tpl); };
 
   const duplicateTemplate = (tpl) => {
     const copy = { ...tpl, id: `dup-${Date.now()}`, name: `${tpl.name} (copy)`, filters: { ...tpl.filters, date: tpl.filters.date ?? '' } };
@@ -194,13 +194,13 @@ export default function ReportsScreen() {
     setActiveTemplateId(draft.id);
   };
 
-  const editTemplateName = (id, newName) => {
+  /*const editTemplateName = (id, newName) => {
     if (!newName) return;
     setTemplates(prev => ({
       ...prev,
       [currentPoolKey]: prev[currentPoolKey].map(t => t.id === id ? { ...t, name: newName } : t)
     }));
-  };
+  };*/
 
   // Chip styles responsive
   const chipSize = 'small';
