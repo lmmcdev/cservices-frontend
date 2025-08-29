@@ -176,50 +176,71 @@ export function SignalRProvider({ children }) {
       });
 
       connection.on('agentAssignment', (data) => {
-        console.log('agentAssignment raw data:', data); 
-        if (!data) return;
+  console.log('agentAssignment raw data:', data); 
+  if (!data) return;
 
-        const doc = Array.isArray(data) ? data[0] : data;
+  const doc = Array.isArray(data) ? data[0] : data;
 
-        // helper para normalizar emails
-        const norm = (v) => (v && typeof v === 'string' ? v.trim().toLowerCase() : '');
+  // helper para normalizar emails
+  const norm = (v) => (v && typeof v === 'string' ? v.trim().toLowerCase() : '');
 
-        // email actual del usuario logueado
-        const currentEmail =
-          norm(user?.username) ||
-          norm(user?.idTokenClaims?.preferred_username) ||
-          norm(user?.idTokenClaims?.email) ||
-          '';
+  // email actual del usuario logueado
+  const currentEmail =
+    norm(user?.username) ||
+    norm(user?.idTokenClaims?.preferred_username) ||
+    norm(user?.idTokenClaims?.email) ||
+    '';
 
-        // normaliza el assigned y collaborators
-        const assigned = norm(doc?.agent_assigned);
-        const collaborators = Array.isArray(doc?.collaborators)
-          ? doc.collaborators.map(norm).filter(Boolean)
-          : [];
+  // normaliza el assigned y collaborators
+  const assigned = norm(doc?.agent_assigned);
+  const collaborators = Array.isArray(doc?.collaborators)
+    ? doc.collaborators.map(norm).filter(Boolean)
+    : [];
 
-        // condición: soy el assigned o estoy en los colaboradores
-        const isRelevant =
-          currentEmail &&
-          (currentEmail === assigned || collaborators.includes(currentEmail));
+  // condición: soy el assigned o estoy en los colaboradores
+  const isRelevant =
+    currentEmail &&
+    (currentEmail === assigned || collaborators.includes(currentEmail));
 
-        console.log('[SignalR] agentAssignment check:', {
-          currentEmail,
-          assigned,
-          collaborators,
-          matchAssigned: currentEmail === assigned,
-          matchCollaborator: collaborators.includes(currentEmail),
-          isRelevant,
-        });
+  console.log('[SignalR] agentAssignment check:', {
+    currentEmail,
+    assigned,
+    collaborators,
+    matchAssigned: currentEmail === assigned,
+    matchCollaborator: collaborators.includes(currentEmail),
+    isRelevant,
+  });
 
-        if (!isRelevant) {
-          console.log('[SignalR] Ignored agentAssignment (not for this user)');
-          return;
-        }
 
-        // si aplica al usuario logueado, lo paso al handler
-        ticketsDispatch({ type: 'UPD_TICKET', payload: doc });
-        handlers.onAgentAssignment?.(doc);
-    });
+  // 🔔 Mostrar notificación toast
+  if (doc.__removed) {
+    // si es removido, lo notificamos distinto
+    if (window?.toast) {
+      window.toast.info?.('You have been removed from a ticket.');
+    } else if (window?.showToast) {
+      window.showToast('You have been removed from a ticket.', 'info');
+    }
+  } else {
+    if (window?.toast) {
+      window.toast.success?.('You have been assigned to a new ticket.');
+    } else if (window?.showToast) {
+      window.showToast('You have been assigned to a new ticket.', 'success');
+    }
+  }
+
+  // 🔄 Reducer update
+  if (doc.__removed) {
+    console.log('removed')
+    ticketsDispatch({ type: 'DEL_TICKET', payload: doc });
+  } else {
+    console.log('updating')
+    ticketsDispatch({ type: 'UPD_TICKET', payload: doc });
+  }
+
+  // handler adicional opcional
+  handlers.onAgentAssignment?.(doc);
+});
+
 
 
 

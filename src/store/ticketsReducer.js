@@ -208,6 +208,32 @@ export const ticketReducer = (state, action) => {
       };
     }
 
+    case 'DEL_TICKET': {
+      const t = action.payload;
+      if (!t?.id) return state;
+
+      if (!state.byId[t.id]) return state; // ya no estaba
+
+      const tickets = state.tickets.filter(x => x.id !== t.id);
+      const ids = state.ids.filter(id => id !== t.id);
+      const { [t.id]: _, ...byId } = state.byId;
+
+      const s = getStatus(state.byId[t.id]);
+      const statusCounts = {
+        ...state.statusCounts,
+        [s]: Math.max(0, (state.statusCounts[s] || 1) - 1),
+      };
+
+      return {
+        ...state,
+        tickets,
+        ids,
+        byId,
+        statusCounts,
+        _ticketsVersion: state._ticketsVersion + 1,
+      };
+    }
+
     case 'SET_ERROR':
       return { ...state, error: action.payload };
 
