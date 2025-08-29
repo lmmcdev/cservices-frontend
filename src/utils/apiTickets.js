@@ -7,7 +7,7 @@ export const fetchTableData = async () => {
     if(response.status === 204) return { success: true, message: [] }; // No content
     const data = await response.json();
     if (!response.ok) {
-      return { success: false, message: data.message || 'API Error' };
+      return { success: false, message: data.message || data.error || 'API Error' };
     }
 
     if (data.success === false) {
@@ -19,14 +19,14 @@ export const fetchTableData = async () => {
 };
 
 //phone calls history
-export const phoneHistory = async (dispatch, setLoading, phoneNumber) => {
+export const phoneHistory = async (phoneNumber) => {
 
   try {
     const response = await fetch(`${ENDPOINT_URLS.API}/cosmoGetPhoneHistory?phone=${encodeURIComponent(phoneNumber)}`);
     const data = await response.json();
     
     if (!response.ok) {
-      return { success: false, message: data.message || 'API Error' };
+      return { success: false, message: data.message || data.error || 'API Error' };
     }
 
     if (data.success === false) {
@@ -56,7 +56,7 @@ export const updateAiClassification = async (ticketId, {aiClassification}) => {
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, message: data.message || 'API Error' };
+      return { success: false, message: data.message || data.error || 'API Error' };
     }
 
     if (data.success === false) {
@@ -89,7 +89,7 @@ export const assignAgent = async (ticketId, currentAgentEmail) => {
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, message: data.message || 'API Error' };
+      return { success: false, message: data.message || data.error || 'API Error' };
     }
 
     if (data.success === false) {
@@ -120,7 +120,7 @@ export const changeStatus = async (ticketId, newStatus) => {
 
     const data = await response.json();
     if (!response.ok) {
-      return { success: false, message: data.message || 'API Error' };
+      return { success: false, message: data.message || data.error || 'API Error' };
     }
 
     if (data.success === false) {
@@ -150,7 +150,7 @@ export const addNotes = async (ticketId, note) => {
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, message: data.message || 'API Error' };
+      return { success: false, message: data.message || data.error || 'API Error' };
     }
 
     if (data.success === false) {
@@ -179,7 +179,7 @@ export const updateCollaborators = async (ticketId, collaborators) => {
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, message: data.message || 'API Error' };
+      return { success: false, message: data.message || data.error || 'API Error' };
     }
 
     if (data.success === false) {
@@ -206,7 +206,7 @@ export const updateTicketDepartment = async (ticketId,newDepartment) => {
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, message: data.message || 'API Error' };
+      return { success: false, message: data.message || data.error || 'API Error' };
     }
 
     if (data.success === false) {
@@ -276,7 +276,7 @@ export const updatePatientName = async (ticketId, newPatientName) => {
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, message: data.message || 'API Error' };
+      return { success: false, message: data.message || data.error || 'API Error' };
     }
 
     if (data.success === false) {
@@ -305,7 +305,7 @@ export const updatePatientDOB = async (ticketId, newPatientBOD) => {
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, message: data.message || 'API Error' };
+      return { success: false, message: data.message || data.error || 'API Error' };
     }
 
     if (data.success === false) {
@@ -334,7 +334,7 @@ export const updateCallbackNumber = async (ticketId, newPatientPhone) => {
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, message: data.message || 'API Error' };
+      return { success: false, message: data.message || data.error || 'API Error' };
     }
 
     if (data.success === false) {
@@ -366,7 +366,7 @@ export const updateWorkTime = async (ticketId, time, currentStatus) => {
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, message: data.message || 'API Error' };
+      return { success: false, message: data.message || data.error || 'API Error' };
     }
 
     if (data.success === false) {
@@ -410,7 +410,7 @@ export const createNewTicket = async (dispatch, setLoading, formData) => {
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, message: data.message || 'API Error' };
+      return { success: false, message: data.message || data.error || 'API Error' };
     }
 
     if (data.success === false) {
@@ -446,7 +446,7 @@ export const relateTicketsByPhone = async (ticket_id, action = 'relatePast', pho
     const data = await response.json();
 
     if (!response.ok) {
-      return { success: false, message: data.message || 'API Error' };
+      return { success: false, message: data.message || data.error || 'API Error' };
     }
 
     if (data.success === false) {
