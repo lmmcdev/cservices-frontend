@@ -85,7 +85,7 @@ export function SignalRProvider({ children }) {
   function normalizeDeptGroup(raw) {
     if (!raw) return null;
     const v = String(raw).trim().toLowerCase();
-    return v.includes(':') ? v : `department:${v}`;
+    return v.includes(':') ? v : `location:${v}`;
   }
 
   function resolveDesiredGroups() {
@@ -156,6 +156,7 @@ export function SignalRProvider({ children }) {
       connection.on('ticketCreated', (ticket) => {
         if (!ticket) return;
         if (!shouldDispatch(ticket)) return;
+        console.log('[SignalR] ticketCreated:', ticket);  
         ticketsDispatch({ type: 'ADD_TICKET', payload: ticket });
         handlers.onTicketCreated?.(ticket);
       });
