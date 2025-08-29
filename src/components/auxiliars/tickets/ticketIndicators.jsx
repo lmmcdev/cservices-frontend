@@ -1,21 +1,17 @@
-// src/components/auxiliars/tickets/ticketIndicators.jsx
+// --- file: src/components/auxiliars/tickets/ticketIndicators.jsx
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import {
-  Box, Tooltip, IconButton, Stack, Select, MenuItem
-} from '@mui/material';
+import { Box, Tooltip, IconButton, Stack } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
-
 import FlagIcon from '@mui/icons-material/Flag';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
-import { CATEGORY_OPTS, RISK_OPTS, PRIORITY_OPTS } from '../../../utils/js/constants';
 import { getCategoryIcon } from '../../../utils/js/ticketIndicatorGetCatIcon';
 import { getRiskColor } from '../../../utils/js/ticketIndicatorGetRiskColor';
 import { getPriorityColor } from '../../../utils/js/ticketIndicatorGetPriorColor';
-
-
-
+import { RiskSelect } from '../../fields/riskSelect';
+import { CategorySelect } from '../../fields/categorySelect';
+import { PrioritySelect } from '../../fields/prioritySelect';
 
 /**
  * Props:
@@ -25,8 +21,7 @@ import { getPriorityColor } from '../../../utils/js/ticketIndicatorGetPriorColor
  * - iconsOnly?: boolean
  * - columnLayout?: boolean
  * - showTooltip?: boolean
- * - onSaveAiClassification?: (ticketId, {priority, risk, category}) => Promise<any>   <-- callback desde el padre
- * - onUpdated?: (result) => void
+ * - onSaveAiClassification?: (ticketId, {priority, risk, category}) => Promise<any>
  */
 export function TicketIndicators({
   ai_data,
@@ -35,9 +30,8 @@ export function TicketIndicators({
   showTooltip = false,
   iconsOnly = false,
   columnLayout = false,
-  onSaveAiClassification,   // <- usamos esta función
+  onSaveAiClassification,
 }) {
-
   const base = useMemo(() => ({
     priority: ai_data?.priority || 'medium',
     risk: ai_data?.risk || 'none',
@@ -45,7 +39,7 @@ export function TicketIndicators({
   }), [ai_data?.priority, ai_data?.risk, ai_data?.category]);
 
   const [isEditing, setIsEditing] = useState(false);
-  const [saving] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(base);
 
   useEffect(() => { if (!isEditing) setForm(base); }, [base, isEditing]);
@@ -65,7 +59,7 @@ export function TicketIndicators({
 
   const handleEdit = useCallback(() => { setForm(base); setIsEditing(true); }, [base]);
   const handleCancel = useCallback(() => { setForm(base); setIsEditing(false); }, [base]);
-  const handleChange = useCallback((k) => (e) => setForm(p => ({ ...p, [k]: e.target.value })), []);
+  const handleChange = useCallback((k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value })), []);
 
   const hasChanges = useMemo(() => (
     form.priority !== base.priority ||
@@ -76,15 +70,18 @@ export function TicketIndicators({
   const handleSave = useCallback(async () => {
     if (!ticketId) return;
     if (!hasChanges) { setIsEditing(false); return; }
-
-    const aiClassification = {
-      priority: form.priority,
-      risk: form.risk,
-      category: form.category,
-    };
-
-    await onSaveAiClassification?.(ticketId, aiClassification); // 👈 usa la prop
-    setIsEditing(false);
+    try {
+      setSaving(true);
+      const aiClassification = {
+        priority: form.priority,
+        risk: form.risk,
+        category: form.category,
+      };
+      await onSaveAiClassification?.(ticketId, aiClassification);
+      setIsEditing(false);
+    } finally {
+      setSaving(false);
+    }
   }, [ticketId, hasChanges, form, onSaveAiClassification]);
 
   if (!ai_data && !isEditing) return null;
@@ -131,11 +128,9 @@ export function TicketIndicators({
         {showTooltip ? (
           <Tooltip title={`Priority: ${isEditing ? form.priority : (ai_data?.priority || '')}`}>{priorityIcon}</Tooltip>
         ) : priorityIcon}
-        
+
         {!iconsOnly && isEditing && (
-          <Select size="small" value={form.priority} onChange={handleChange('priority')} sx={{ minWidth: 100, borderRadius: 2, fontSize: 10  }}>
-            {PRIORITY_OPTS.map(v => <MenuItem key={v} value={v}>{v}</MenuItem>)}
-          </Select>
+          <PrioritySelect value={form.priority} onChange={handleChange('priority')} sx={{ minWidth: 110 }} />
         )}
       </Box>
 
@@ -145,11 +140,9 @@ export function TicketIndicators({
           {showTooltip ? (
             <Tooltip title={`Risk: ${isEditing ? form.risk : (ai_data?.risk || '')}`}>{riskIcon}</Tooltip>
           ) : riskIcon}
-          
+
           {!iconsOnly && isEditing && (
-            <Select size="small" value={form.risk} onChange={handleChange('risk')} sx={{ minWidth: 100, borderRadius: 2, fontSize: 10 }}>
-              {RISK_OPTS.map(v => <MenuItem key={v} value={v}>{v}</MenuItem>)}
-            </Select>
+            <RiskSelect value={form.risk} onChange={handleChange('risk')} sx={{ minWidth: 120 }} />
           )}
         </Box>
       )}
@@ -161,22 +154,9 @@ export function TicketIndicators({
         ) : categoryIcon}
 
         {!iconsOnly && isEditing && (
-          <Select size="small" value={form.category} onChange={handleChange('category')} sx={{ minWidth: 100, borderRadius: 2, fontSize: 10  }}>
-            {CATEGORY_OPTS.map(v => <MenuItem key={v} value={v}>{v}</MenuItem>)}
-          </Select>
+          <CategorySelect value={form.category} onChange={handleChange('category')} sx={{ minWidth: 160 }} />
         )}
       </Box>
-
-      {/*canEdit && isEditing && (
-        <Stack direction="row" spacing={1} sx={{ ml: columnLayout ? 0 : 1 }}>
-          <Button size="small" variant="contained" onClick={handleSave} startIcon={<SaveIcon />} disabled={saving || !hasChanges}>
-            Save
-          </Button>
-          <Button size="small" variant="text" onClick={handleCancel} startIcon={<CloseIcon />} disabled={saving}>
-            Cancel
-          </Button>
-        </Stack>
-      )*/}
     </Box>
   );
 }
