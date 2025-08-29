@@ -55,6 +55,12 @@ function AppContent() {
       onTicketCreated: (ticket) => {
         showNotification(`🎫 New case from ${ticket.patient_name || 'Unknown patient'}`, 'success');
       },
+      onAgentAssignment: (ticket) => {
+        showNotification(`👤 You have been assigned as a collaborator on ticket for patient ${ticket.linked_patient_snapshot?.Name || ticket.patient_name || 'Unknown patient'} from location ${ticket.linked_patient_snapshot?.Location || ticket.caller_id || 'Unknown location'}`, 'info');
+      },
+      onAgentDeAssignment: (ticket) => {
+        showNotification(`👤 You have been removed as a collaborator on ticket for patient ${ticket.linked_patient_snapshot?.Name  || ticket.patient_name || 'Unknown ticket'} from location ${ticket.linked_patient_snapshot?.Location || ticket.caller_id || 'Unknown'}`, 'info');
+      },
     });
   }, [initializeSignalR, showNotification]);
 
