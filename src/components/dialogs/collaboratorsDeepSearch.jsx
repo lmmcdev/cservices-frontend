@@ -114,7 +114,7 @@ export default function CollaboratorsDeepSearch({
     onChangeSelected(Array.from(set));
   }, [selectedEmails, onChangeSelected]);
 
-  const selectedSet = useMemo(() => new Set(selectedEmails), [selectedEmails]);
+  //const selectedSet = useMemo(() => new Set(selectedEmails), [selectedEmails]);
 
   return (
     <Box sx={{ width: '100%' }}>
