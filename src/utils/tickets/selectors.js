@@ -1,7 +1,4 @@
 // utils/tickets/selectors.js
-
-import { normalizeTicketDate } from "../js/normalizeDate";
-
 // Estado base
 export const selectTickets = (state) => state.tickets || [];
 export const selectTicketsIds = (state) => state.ids || [];
@@ -20,7 +17,7 @@ export function filterTickets(rows, { status, agents, callers, date, departments
     const byStatus = status === 'Total' || r.status === status;
     const byAgent  = !agents?.length || agents.includes(r.agent_assigned);
     const byCaller = !callers?.length || callers.includes(r.caller_id || r.caller_id?.toString());
-    const byDate = normalizeTicketDate(r.creation_date?.split('T')[0]);
+    const byDate = r.creation_date;
     //const dateRoot = r.creation_date;
     //const byDate   = !date || date === dateRoot;
     const byDept   = !departments?.length || departments.includes(r.assigned_department);

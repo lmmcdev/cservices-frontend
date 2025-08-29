@@ -84,7 +84,7 @@ const TicketsRow = React.memo(function TicketsRow({
       </TableCell>
 
       <TableCell>{formatPhone(row.phone)}</TableCell>
-      <TableCell>{toMMDDYYYY((row.creation_date).split('T')[0])}</TableCell>
+      <TableCell>{toMMDDYYYY(row.creation_date)}</TableCell>
       <TableCell>{emailToFullName(row.agent_assigned)}</TableCell>
 
       <TableCell>
