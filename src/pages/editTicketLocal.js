@@ -6,7 +6,6 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import TicketStatusBar from '../components/auxiliars/tickets/ticketStatusBar.jsx';
-import AlertSnackbar from '../components/auxiliars/alertSnackbar';
 import { useLoading } from '../providers/loadingProvider';
 import TicketNotes from '../components/auxiliars/tickets/ticketNotes.jsx';
 import TicketCollaborators from '../components/auxiliars/tickets/ticketCollaborators.jsx';
@@ -70,11 +69,7 @@ export default function EditTicketLocal() {
   const [callbakNumber, setCallbackNumber] = useState(ticket?.callback_number || '');
   const [ patientPhone, ] = useState(ticket?.phone || '');
 
-  const [errorOpen, setErrorOpen] = useState(false);
-  const [successOpen, setSuccessOpen] = useState(false);
   const [editField, setEditField] = useState(null);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
 
   const [openNoteDialog, setOpenNoteDialog] = useState(false);
   const [noteContent, setNoteContent] = useState('');
@@ -119,7 +114,7 @@ export default function EditTicketLocal() {
     handleStatusChangeUI, handleAiClassificationChangeUI, handleAddNote, onAddCollaboratorCb, handleRemoveCollaborator, handleChangeDepartment, updatePatientNameUI, updatePatientDobUI, updateCallbackNumberUI, ticketAssigneeUI,
     handleRelateCurrentTicket, handleRelateAllPastTickets, handleRelateFutureTickets, handleUnlinkTicket,
   } = useEditTicketLocalActions({
-    dispatch, setLoading, ticketId, agentEmail, navigate, setStatus,setNotes, setNoteContent, setOpenNoteDialog, setSuccessMessage, setErrorMessage, setSuccessOpen, setErrorOpen,
+    dispatch, setLoading, ticketId, agentEmail, navigate, setStatus,setNotes, setNoteContent, setOpenNoteDialog, 
     collaborators, setCollaborators, setEditField, setAgentAssigned, setLinkedPatientSnapshot, noteContent, setAiClassification
   });
 
@@ -659,19 +654,6 @@ export default function EditTicketLocal() {
           currentTicket={ticket}
         />
       </LazyModal>
-
-      <AlertSnackbar
-        open={errorOpen}
-        onClose={() => setErrorOpen(false)}
-        severity="error"
-        message={errorMessage}
-      />
-      <AlertSnackbar
-        open={successOpen}
-        onClose={() => setSuccessOpen(false)}
-        severity="success"
-        message={successMessage}
-      />
     </>
   );
 }
