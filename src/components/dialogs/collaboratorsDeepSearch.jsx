@@ -11,9 +11,8 @@ import {
   Paper,
   Typography,
   IconButton,
-  Tooltip,
+  Tooltip, List
 } from '@mui/material';
-import { FixedSizeList } from 'react-window';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import CallerIDAutoComplete from '../fields/callerIDAutocomplete';
@@ -259,26 +258,19 @@ export default function CollaboratorsDeepSearch({
             <Typography variant="body2">No matches. Try another filter.</Typography>
           </Box>
         ) : (
-          <FixedSizeList
-            height={420}
-            itemCount={filtered.length}
-            itemSize={72}
-            width="100%"
-          >
-            {({ index, style }) => {
-              const agent = filtered[index];
-              return (
-                <div style={style}>
+              <List disablePadding>
+                {filtered.map(a => (
                   <AgentRow
-                    agent={agent}
-                    isSelected={selectedSet.has(agent.email)}
+                    key={a.email}
+                    agent={a}
+                    isSelected={selectedEmails.includes(a.email)}
                     onToggle={handleToggle}
                     photoUrls={photoUrls}
                   />
-                </div>
-              );
-            }}
-          </FixedSizeList>
+                ))}
+              </List>
+
+          
         )}
       </Paper>
     </Box>
