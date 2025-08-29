@@ -1,5 +1,5 @@
 // src/components/dialogs/collaboratorsDeepSearch.jsx
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import {
   Box,
   Stack,
@@ -8,26 +8,26 @@ import {
   Select,
   MenuItem,
   Chip,
-  List,
-  ListItem,
-  ListItemAvatar,
-  Avatar,
-  ListItemText,
-  Checkbox,
   Paper,
   Typography,
   IconButton,
   Tooltip,
-  Divider,
 } from '@mui/material';
+import { FixedSizeList } from 'react-window';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
+import CallerIDAutoComplete from '../fields/callerIDAutocomplete';
+import { defaultLocationOptions } from '../../utils/js/constants';
+import { AgentRow } from '../auxiliars/agents/agentsRows';
 
 const BRAND = '#00a1ff';
 const BORDER_IDLE = '#e0e7ef';
 
 function normalize(str = '') {
-  return String(str).toLowerCase().trim();
+  return String(str)
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ''); // elimina todos los espacios
 }
 
 function uniqueSorted(list) {
@@ -42,7 +42,7 @@ export default function CollaboratorsDeepSearch({
   onChangeSelected = () => {},
   placeholder = 'Search by name, email…',
 }) {
-  console.log("rendering agents search", agents)
+
   const [q, setQ] = useState('');
   const [dept, setDept] = useState('');
   const [pos, setPos] = useState('');
@@ -51,49 +51,71 @@ export default function CollaboratorsDeepSearch({
   // cache local de fotos: { [email]: url }
   const [photoUrls,] = useState({});
 
-  const { deptOptions, posOptions, centerOptions } = useMemo(() => {
-    const depts = uniqueSorted(agents.map(a => a?.department));
-    const poss  = uniqueSorted(agents.map(a => a?.position));
-    const centers = uniqueSorted(agents.map(a => a?.center ?? a?.clinic)); // 👈 compat
-    return { deptOptions: depts, posOptions: poss, centerOptions: centers };
+  const [callerId, setCallerId] = useState('');
+
+  const { deptOptions, posOptions } = useMemo(() => {
+    const depts   = uniqueSorted(agents.map(a => a?.department));
+    const poss    = uniqueSorted(agents.map(a => a?.position));
+    return { deptOptions: depts, posOptions: poss,  };
   }, [agents]);
 
   const filtered = useMemo(() => {
     const nq = normalize(q);
-    return (agents || []).filter(a => {
-      const name = normalize(a?.name);
-      const email = normalize(a?.email);
-      const department = normalize(a?.department);
-      const position = normalize(a?.position);
-      const centerName = normalize(a?.center ?? a?.clinic); // 👈 compat
+    const nd = normalize(dept);
+    const np = normalize(pos);
+    const nc = normalize(center);
+    const nCaller = normalize(callerId);
 
+    return (agents || []).filter(a => {
+      const name        = normalize(a?.name);
+      const email       = normalize(a?.email);
+      const department  = normalize(a?.department);
+      const position    = normalize(a?.position);
+      const centerName  = normalize(a?.center ?? a?.clinic);
+      const callerField = normalize(a?.group_sys_name?.group ?? a?.caller_id ?? '');
+
+      // texto libre en cualquier campo
       const matchesText =
-        !nq ||
+        //!nq ||
         name.includes(nq) ||
         email.includes(nq) ||
         department.includes(nq) ||
         position.includes(nq) ||
-        centerName.includes(nq);
+        centerName.includes(nq) ||
+        callerField.includes(nq);
 
-      const matchesDept   = !dept   || department === normalize(dept);
-      const matchesPos    = !pos    || position === normalize(pos);
-      const matchesCenter = !center || centerName === normalize(center);
+      const matchesDept   = !nd      || department === nd;
+      const matchesPos    = !np      || position === np;
+      const matchesCenter = !nc      || centerName === nc;
+      const matchesCaller = !nCaller || callerField.includes(nCaller);
 
-      return matchesText && matchesDept && matchesPos && matchesCenter;
+      return matchesText && matchesDept && matchesPos && matchesCenter && matchesCaller;
     });
-  }, [agents, q, dept, pos, center]);
+  }, [agents, q, dept, pos, center, callerId]);
+
+  const clearFilters = () => {
+    setQ('');
+    setDept('');
+    setPos('');
+    setCenter('');
+    setCallerId('');
+  };
+
+  const handleCallerIdChange = (value) => {
+    const caller = String(value).trim()
+    .replace(/\s+/g, '')
+    setCallerId(caller || '');
+  };
 
 
-  const handleToggle = (email) => {
+  const handleToggle = useCallback((email) => {
     const set = new Set(selectedEmails);
     if (set.has(email)) set.delete(email);
     else set.add(email);
     onChangeSelected(Array.from(set));
-  };
+  }, [selectedEmails, onChangeSelected]);
 
-  const clearFilters = () => {
-    setQ(''); setDept(''); setPos(''); setCenter('');
-  };
+  const selectedSet = useMemo(() => new Set(selectedEmails), [selectedEmails]);
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -164,30 +186,14 @@ export default function CollaboratorsDeepSearch({
               ))}
             </Select>
 
-            <Select
-              size="small"
-              displayEmpty
-              value={center}
-              onChange={(e) => setCenter(e.target.value)}
-              renderValue={(v) =>
-                v ? v : <span style={{ color: '#999' }}>Center</span>
-              }
-              sx={{
-                minWidth: 200,
-                borderRadius: 2,
-                flexGrow: 1,
-                '& .MuiOutlinedInput-notchedOutline': { borderColor: BORDER_IDLE },
-                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: BRAND },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  borderColor: BRAND, borderWidth: 2,
-                },
-              }}
-            >
-              <MenuItem value="">All</MenuItem>
-              {centerOptions.map((c) => (
-                <MenuItem key={c} value={c}>{c}</MenuItem>
-              ))}
-            </Select>
+            <Box sx={{ display: 'inline-flex' }}>
+                <CallerIDAutoComplete
+                    onChange={handleCallerIdChange}
+                                options={defaultLocationOptions}
+                                label="Caller ID"
+                              />
+                            </Box>
+            
 
             <Tooltip title="Clear filters">
               <IconButton onClick={clearFilters} sx={{ ml: { md: 'auto' } }}>
@@ -253,79 +259,26 @@ export default function CollaboratorsDeepSearch({
             <Typography variant="body2">No matches. Try another filter.</Typography>
           </Box>
         ) : (
-          <List disablePadding>
-            {filtered.map((a, idx) => {
-              const email = String(a?.email || '').trim();
-              const isSelected = selectedEmails.includes(email);
-              const displayName = a?.name || 'Unknown';
-              const initial = (displayName?.[0] || a?.email?.[0] || '?').toUpperCase();
-              const normalizedEmail = email.toLowerCase();
-              const photoSrc = photoUrls[normalizedEmail] || a?.photoUrl || undefined;
-              const displayCenter = a?.group_sys_name.group ?? a?.clinic; // 👈 compat
-              const displayRole = a.group_sys_name.role ?? a?.clinic;
-
+          <FixedSizeList
+            height={420}
+            itemCount={filtered.length}
+            itemSize={72}
+            width="100%"
+          >
+            {({ index, style }) => {
+              const agent = filtered[index];
               return (
-                <React.Fragment key={email || idx}>
-                  <ListItem
-                    secondaryAction={
-                      <Checkbox
-                        edge="end"
-                        checked={isSelected}
-                        onChange={() => handleToggle(email)}
-                        sx={{
-                          color: '#b8c0cc', // borde/ícono cuando NO está marcado
-                          '&.Mui-checked': { color: BRAND }, // fill del checkbox cuando SÍ está marcado
-                          '& .MuiSvgIcon-root': { fontSize: 22 },
-                        }}
-                      />
-                    }
-                    sx={{
-                      px: 2,
-                      py: 1,
-                      '&:hover': { bgcolor: 'rgba(0,161,255,0.06)' },
-                    }}
-                  >
-                    <ListItemAvatar>
-                      <Avatar
-                        src={photoSrc}
-                        alt={displayName}
-                        sx={{ bgcolor: BRAND, color: '#fff' }}
-                      >
-                        {initial}
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
-                        <Stack direction="row" spacing={1} alignItems="center">
-                          <Typography sx={{ fontWeight: 600 }}>
-                            {displayName}
-                          </Typography>
-                          {a?.position ? <Chip size="small" label={a.position} /> : null}
-                        </Stack>
-                      }
-                      secondary={
-                        <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 0.25, flexWrap: 'wrap', gap: 0.5 }}>
-                          <Typography variant="body2" sx={{ color: '#6c757d' }}>
-                            {email}
-                          </Typography>
-                          {a?.department ? (
-                            <Chip size="small" variant="outlined" label={a.department} />
-                          ) : null}
-                          {displayCenter ? (
-                            <Chip size="small" variant="outlined" label={displayCenter} />
-                          ) : null}
-                          {displayRole ? (
-                            <Chip size="small" variant="outlined" label={displayRole} />
-                          ) : null}
-                        </Stack>
-                      }
-                    />
-                  </ListItem>
-                  <Divider component="li" />
-                </React.Fragment>
+                <div style={style}>
+                  <AgentRow
+                    agent={agent}
+                    isSelected={selectedSet.has(agent.email)}
+                    onToggle={handleToggle}
+                    photoUrls={photoUrls}
+                  />
+                </div>
               );
-            })}
-          </List>
+            }}
+          </FixedSizeList>
         )}
       </Paper>
     </Box>

@@ -20,6 +20,8 @@ export const GROUP_IDS = {
     REMOTE: 'b5adb985-0d20-4078-916d-126b07fafeda'
   },
   HIALEAHCENTER: { AGENTS: 'efef4665-2646-407f-82aa-1d82505f3db5'},
+  CUTLERRIDGE: { AGENTS: '83359654-b4d5-4e20-ae16-ecc3bb3572b4'},
+  BIRDROAD: { SUPERVISORS: 'ba0eaf36-b9b1-4f70-8fa2-027b5d0ac346' }
 };
 
 export const DEFAULT_AGENT_GROUPS = [
@@ -30,7 +32,7 @@ export const DEFAULT_AGENT_GROUPS = [
 ];
 
 export const defaultLocationOptions = [
-  'BIRD ROAD',
+        'BIRD ROAD',
         'EAST HIALEAH',
         'HOLLYWOOD',
         'HOMESTEAD',
@@ -39,15 +41,17 @@ export const defaultLocationOptions = [
         'PLANTATION',
         'TAMARAC',
         'WEST HIALEAH',
+        'HIALEAH CENTER',
         'WEST KENDALL','CUTLER RIDGE',
         'HIALEAH',
-        'Hiatus',
+        'HIATUS',
         'MARLINS PARK',
         'MIAMI GARDENS',
-        'North Miami Beach MC',
+        'NORTH MIAMI BEACH',
         'WEST PALM BEACH',
         'WESTCHESTER',
-        'Referrals', 'OTC', 'Pharmacy',
+        'REFERRALS', 'OTC', 'PHARMACY',
+        'SWITCHBOARD'
 ];
 
 export const CATEGORY_OPTS = [
