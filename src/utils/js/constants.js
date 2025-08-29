@@ -30,7 +30,7 @@ export const DEFAULT_AGENT_GROUPS = [
 ];
 
 export const defaultLocationOptions = [
-  'BIRD ROAD',
+        'BIRD ROAD',
         'EAST HIALEAH',
         'HOLLYWOOD',
         'HOMESTEAD',
@@ -39,6 +39,7 @@ export const defaultLocationOptions = [
         'PLANTATION',
         'TAMARAC',
         'WEST HIALEAH',
+        'HIALEAH CENTER',
         'WEST KENDALL','CUTLER RIDGE',
         'HIALEAH',
         'Hiatus',
@@ -48,6 +49,7 @@ export const defaultLocationOptions = [
         'WEST PALM BEACH',
         'WESTCHESTER',
         'Referrals', 'OTC', 'Pharmacy',
+        'SWITCHBOARD'
 ];
 
 export const CATEGORY_OPTS = [
